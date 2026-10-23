@@ -47,3 +47,11 @@ desktop.ini
 *.tmp
 *.log
 _probe/
+# ---- LaTeX 构建中间产物（main.pdf 需保留）----
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/body.md
+paper/body.tex
+paper/_preview/
