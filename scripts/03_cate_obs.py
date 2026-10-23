@@ -1,4 +1,4 @@
-﻿"""第二轮：CATE 估计与观察性因果的 λ 敏感性分析。
+"""第二轮：CATE 估计与观察性因果的 λ 敏感性分析。
 
 用法
 ----
@@ -133,6 +133,19 @@ def run_cate(cfg) -> tuple[pd.DataFrame, pd.DataFrame]:
     result = pd.DataFrame(rows)
     save_table(result, "r2_cate_comparison")
     save_table(pd.concat(calib_frames, ignore_index=True), "r2_cate_calibration")
+
+    # 逐用户预测与 r2_cate_comparison **同一次运行**产出：表、图、正文的 sd 与
+    # min/max 因此只有一个来源。旧实现让绘图脚本"另算一次并缓存"，三次运行的
+    # 数字（RMSE 1.586 / 1.625 等）互相对不上。
+    pred = pd.DataFrame(
+        {
+            "user_id": np.arange(len(pop), dtype=int)[split.test],
+            "tau_true": tau_true_test,
+        }
+    )
+    for method, tau_hat in scatter.items():
+        pred[method] = tau_hat
+    save_table(pred, "r2_cate_predictions")
 
     _plot_cate_scatter(scatter, tau_true_test, cfg)
     _plot_cate_calibration(calib_frames, cfg)
@@ -474,50 +487,60 @@ def _plot_lambda_curves(agg: pd.DataFrame, cfg) -> None:
     save_fig(fig, "r2_lambda_sensitivity")
 
 
-def run_psm_balance(cfg, *, lam: float = 0.5) -> pd.DataFrame:
-    """PSM/IPW 的平衡性诊断：匹配/加权前后的标准化均值差。
+def run_psm_balance(cfg, *, lams: tuple[float, ...] = (0.25, 0.5)) -> pd.DataFrame:
+    """PSM/IPW 的平衡性诊断：匹配/加权前后的标准化均值差，**逐 λ 给出**。
 
     这一张图回答"为什么 PSM 在 L3 下不行"：它在**可观测特征上确实平衡了**，
     但偏差依然存在——因为问题不在 X，而在不可观测的 U。
+
+    λ 必须显式入表：正文曾写"λ=0.25 时 SMD 全部低于 0.004"，而脚本只算了
+    λ=0.5，表里连 λ 列都没有，读者无法复算。现在两个 λ 各算一行一列。
     """
-    pop = dgp.build("L3", cfg, 0, lam=lam)
-    pop, _ = dgp.assign_observational(cfg, pop, lam=lam, index=0)
-    X = design_matrix(pop)
-    t = pop.treatment.astype(int)
-    e = fit_propensity(X, t)
-
-    from numpy import ones_like
-
-    # IPW 权重下的平衡
-    w = np.where(t == 1, 1.0 / e, 1.0 / (1.0 - e))
-    smd_raw = standardized_mean_diff(X, t)
-    smd_ipw = standardized_mean_diff(X, t, w)
-
+    frames: list[pd.DataFrame] = []
     from causal_growth.contracts import FEATURE_ORDER
 
-    out = pd.DataFrame(
-        {
-            "特征": list(FEATURE_ORDER),
-            "匹配前SMD": smd_raw,
-            "IPW加权后SMD": smd_ipw,
-            "加权后平衡": np.abs(smd_ipw) < 0.1,
-        }
-    )
+    for lam in lams:
+        pop = dgp.build("L3", cfg, 0, lam=lam)
+        pop, _ = dgp.assign_observational(cfg, pop, lam=lam, index=0)
+        X = design_matrix(pop)
+        t = pop.treatment.astype(int)
+        e = fit_propensity(X, t)
+
+        # IPW 权重下的平衡
+        w = np.where(t == 1, 1.0 / e, 1.0 / (1.0 - e))
+        smd_raw = standardized_mean_diff(X, t)
+        smd_ipw = standardized_mean_diff(X, t, w)
+
+        frames.append(
+            pd.DataFrame(
+                {
+                    "lambda": lam,
+                    "特征": list(FEATURE_ORDER),
+                    "匹配前SMD": smd_raw,
+                    "IPW加权后SMD": smd_ipw,
+                    "加权后平衡": np.abs(smd_ipw) < 0.1,
+                }
+            )
+        )
+    out = pd.concat(frames, ignore_index=True)
     save_table(out, "r2_psm_balance")
 
     fig, ax = plt.subplots(figsize=(6.5, 4))
-    y = np.arange(len(out))
-    ax.scatter(out["匹配前SMD"], y, label="加权前", color="#E53935", marker="o")
-    ax.scatter(out["IPW加权后SMD"], y, label="IPW 加权后", color="#2E7D32", marker="D")
+    y = np.arange(len(FEATURE_ORDER))
+    for lam, marker, color, shift in ((lams[0], "s", "#6A1B9A", -0.12), (lams[-1], "D", "#2E7D32", 0.12)):
+        sub = out[out["lambda"] == lam].reset_index(drop=True)
+        ax.scatter(sub["匹配前SMD"], y, marker="o", facecolors="none", edgecolors="#E53935",
+                   label="加权前" if lam == lams[0] else None)
+        ax.scatter(sub["IPW加权后SMD"], y + shift, marker=marker, color=color,
+                   label=f"IPW 加权后（λ={lam}）")
     ax.axvline(0, color="grey", ls="-", lw=1)
     for v in (-0.1, 0.1):
         ax.axvline(v, color="black", ls="--", lw=1, label="|SMD|=0.1 平衡阈" if v > 0 else None)
-    ax.set_yticks(y, out["特征"])
+    ax.set_yticks(y, list(FEATURE_ORDER))
     ax.set_xlabel("标准化均值差（SMD）")
-    ax.set_title(f"λ={lam}：可观测特征被平衡了，但偏差依然存在\n"
-                 "——问题不在 X，而在不可观测的 U")
-    ax.legend(fontsize=8)
-    add_source_note(fig, f"seed={_seed(cfg)} | L3 λ={lam} | 4 万样本")
+    ax.set_title("可观测特征被平衡了，偏差依然存在\n——问题不在 X，而在不可观测的 U")
+    ax.legend(fontsize=7)
+    add_source_note(fig, f"seed={_seed(cfg)} | L3 | 每个 λ 各 20 万样本")
     save_fig(fig, "r2_psm_balance")
     return out
 
@@ -557,8 +580,10 @@ def main() -> int:
     lambda_anchor_table(cfg)
 
     print("[5/5] PSM 平衡性诊断 ...")
-    bal = run_psm_balance(cfg, lam=0.5)
-    print(f"      加权后 |SMD|<0.1 的特征数：{int(bal['加权后平衡'].sum())}/{len(bal)}")
+    bal = run_psm_balance(cfg)
+    for lam, g in bal.groupby("lambda", observed=True):
+        print(f"      λ={lam}: 加权后 |SMD| 最大 {float(g['IPW加权后SMD'].abs().max()):.4f}，"
+              f"|SMD|<0.1 的特征 {int(g['加权后平衡'].sum())}/{len(g)}")
 
     _plot_lambda_curves(agg, cfg)
     print("\n[done] 产物已落盘 outputs/tables/r2_*.csv 与 outputs/figures/r2_*.png")

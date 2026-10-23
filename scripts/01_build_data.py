@@ -247,6 +247,41 @@ def main() -> int:
     )
     print(f"      两条利润路径最大差 {max_diff:.4f} 元（容差 {tol} 元 = 两单×3 字段按分存储的舍入上限）")
 
+    # 复购路径的可核对数字：第二单有多少人、值多少钱、折算到全体用户是多少。
+    # 正文的 13.98 / 17,555 / 0.088 / 13% 必须来自这张表，而不是手算。
+    from causal_growth.data.profit import compute_order_components
+
+    ord_net = tables["orders"].copy()
+    ord_net["net_profit"] = compute_order_components(ord_net, cfg)["net_profit"].to_numpy()
+    ord_net = ord_net.sort_values(["user_id", "order_time"], kind="stable")
+    ord_net["seq"] = ord_net.groupby("user_id", observed=True).cumcount()
+    second = ord_net[ord_net["seq"] == 1]
+    n_users = len(pop)
+    truth_ate = float(np.mean(pop.truth.cate_profit))
+    repeat_sum = float(second["net_profit"].sum())
+    repeat_per_user = repeat_sum / n_users
+    save_table(
+        pd.DataFrame(
+            [
+                {"项": "多单用户数", "值": float(second["user_id"].nunique()), "单位": "人",
+                 "说明": "订单表里同一 user_id 出现两次的用户"},
+                {"项": "第二单单均净贡献", "值": float(second["net_profit"].mean()), "单位": "元/单",
+                 "说明": "复购单不带券；退款按其自身标记核算"},
+                {"项": "第二单净贡献合计", "值": repeat_sum, "单位": "元",
+                 "说明": "全部第二单之和"},
+                {"项": "折算到全体用户", "值": repeat_per_user, "单位": "元/人",
+                 "说明": "第二单合计 ÷ 全部被分配用户（R1 分母）"},
+                {"项": "L1 真值 ITT（解析）", "值": truth_ate, "单位": "元/人",
+                 "说明": "作为复购占比的分母"},
+                {"项": "占真值 ITT 比例", "值": repeat_per_user / truth_ate, "单位": "比例",
+                 "说明": "复购被静默丢弃时利润低估的量级"},
+            ]
+        ),
+        "r1_repeat_check",
+    )
+    print(f"      复购核对：{second['user_id'].nunique():,} 人二单，合计 {repeat_sum:,.0f} 元，"
+          f"折合 {repeat_per_user:.4f} 元/人（真值 ITT 的 {repeat_per_user / truth_ate:.1%}）")
+
     # ---------- 6. 落库到 SQLite 并跑 SQL 分析（核心数据能力） ----------
     print("[6/6] 建立 SQLite 数据库并执行 SQL 分析 ...")
     from causal_growth.data.sql_layer import SQLStore, build_database, list_queries

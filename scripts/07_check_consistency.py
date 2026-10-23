@@ -182,10 +182,12 @@ def key_numbers() -> list[dict]:
             "must_in": ["README.md", "02_随机实验报告.md"],
         },
         {
-            "name": "护栏非劣效检验功效",
-            "value": pick("r1_guardrail_power.csv", "当前功效", 情景="真实小幅恶化（0.225pp，DGP 设定）"),
+            "name": "护栏非劣效检验功效（条件分母）",
+            "value": pick("r1_guardrail_power.csv", "当前功效",
+                          **{"情景": "真实小幅恶化（0.225pp，DGP 设定）",
+                             "分母": "已下单用户"}),
             "source": "r1_guardrail_power.csv",
-            "tokens": ["0.198"],
+            "tokens": ["0.194"],
             "must_in": ["README.md", "02_随机实验报告.md", "05_业务决策摘要.md"],
         },
         {
@@ -231,8 +233,9 @@ def key_numbers() -> list[dict]:
             "must_in": ["03_异质性与观察性因果.md"],
         },
         {
-            "name": "PSM 加权后最大 |SMD|",
-            "value": max(abs(float(r["IPW加权后SMD"])) for r in _load("r2_psm_balance.csv")),
+            "name": "PSM 加权后最大 |SMD|（λ=0.5）",
+            "value": max(abs(float(r["IPW加权后SMD"])) for r in _load("r2_psm_balance.csv")
+                         if float(r["lambda"]) == 0.5),
             "source": "r2_psm_balance.csv",
             "tokens": ["0.004", "0.0038"],
             "must_in": ["03_异质性与观察性因果.md"],

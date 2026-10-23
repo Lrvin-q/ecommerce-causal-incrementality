@@ -68,6 +68,9 @@ def analysis_arrays(population: Population, cfg: Any) -> dict[str, np.ndarray]:
     rate_trt = rate_ctrl * float(b["refund_rate_treated_multiplier"])
     # 退款只可能发生在**已下单**的用户身上。若不乘 converted，
     # "退款标记数 / 已下单人数" 会算出 >70% 的假退款率（分母缩小、分子没缩小）。
+    # 用户级退款标记 = **窗口内至少一笔订单退款**（首单或复购第二单），
+    # 与 ``user_outcomes``/``v_outcome_profit`` 的 ``MAX(refunded)`` 口径一致。
+    # 若只记首单，复购第二单退款的用户会被漏计（SQL 与 pandas 两条路径因此打架）。
     refunded = (refund_u < np.where(t == 1, rate_trt, rate_ctrl)) & (y_obs == 1)
 
     redeemed = population.latent["redeemed"]
@@ -94,7 +97,10 @@ def analysis_arrays(population: Population, cfg: Any) -> dict[str, np.ndarray]:
             np.asarray(population.latent["pay_amount"]) + np.where(has_second, pay2, 0.0),
             0.0,
         ),
-        "refunded": refunded.astype(np.int8),
+        "refunded": (
+            refunded | (has_second & (np.asarray(population.latent["refund_u_2"]) < np.where(
+                t == 1, rate_trt, rate_ctrl)))
+        ).astype(np.int8),
         "coupon_used": coupon_used.astype(np.int8),
         "coupon_value": coupon_value.astype(float),
         "n_orders": np.where(y_obs == 1, 1, 0) + has_second.astype(np.int64),

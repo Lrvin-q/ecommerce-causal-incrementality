@@ -58,6 +58,8 @@ $tex = [regex]::Replace($tex, '(?m)^\\textbf\{表 ', '\needspace{11\baselineskip
 # 表 B1 是附录里的整表；若在页底再插 needspace，会把整表推到下一页并留下近空白页。
 # 其余表仍在题注前预留 11 行，防止“题注在页底、表体翻页”。
 $tex = $tex.Replace('\needspace{11\baselineskip}\textbf{表 B1', '\textbf{表 B1')
+# 表 C1 同理：它在附录 C 标题之后，若在页底预留空间会把标题单独留在上一页（实测出现过整页空白）。
+$tex = $tex.Replace('\needspace{11\baselineskip}\textbf{表 C1', '\textbf{表 C1')
 Set-Content -Path (Join-Path $paper 'body.tex') -Value $tex -Encoding utf8 -NoNewline
 $nFig = ([regex]::Matches($tex, '\\begin\{figure\}')).Count
 Write-Host ("      表 {0} 张、图 {1} 张" -f $nTable, $nFig)

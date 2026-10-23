@@ -156,40 +156,18 @@ def _finish(fig: plt.Figure, name: str, note: str) -> Path:
 def ensure_cate_predictions() -> pd.DataFrame:
     """逐用户 CATE 预测（fig4a 的六边形分箱需要个体级数据）。
 
-    表里没有逐用户预测，故按 ``scripts/03_cate_obs.py`` 中 ``run_cate`` 的同一套
-    切分与同一套估计器重算一次并缓存到 ``outputs/tables/r2_cate_predictions.csv``
-    （约 30 秒）。重算结果与 ``r2_cate_comparison.csv`` 的 RMSE / R² 逐位一致，
-    因此图与表不会打架。
+    这张表由 ``scripts/03_cate_obs.py`` 的 ``run_cate`` 在**同一次运行**里
+    与 ``r2_cate_comparison.csv``、``r2_cate_calibration.csv`` 一起落盘。
+    这里只读，绝不重算：旧实现在缓存缺失时"另拟合一次"，于是图、表、正文
+    来自三次不同运行（RMSE 1.586 / 1.625 / 第三次），sd 与 min/max 全对不上。
     """
     path = TABLES / "r2_cate_predictions.csv"
-    if path.exists():
-        return pd.read_csv(path)
-
-    from causal_growth import dgp
-    from causal_growth.config import load_config
-    from causal_growth.data.split import train_val_test_split
-    from causal_growth.estimate.cate import CAUSAL_METHODS, estimate_cate
-
-    print("    [缓存缺失] 重算逐用户 CATE 预测（约 30 秒）...")
-    cfg = load_config()
-    pop = dgp.assign_random(cfg, dgp.build("L1", cfg, 0))
-    split = train_val_test_split(
-        len(pop),
-        test_size=float(cfg.require("evaluation.test_size")),
-        val_size=float(cfg.require("evaluation.val_size")),
-        master_seed=int(cfg.require("project.master_seed")),
-        index=0,
-    )
-    out = pd.DataFrame(
-        {
-            "user_id": np.arange(len(pop), dtype=int)[split.test],
-            "tau_true": pop.truth.cate_profit[split.test],
-        }
-    )
-    for method in CAUSAL_METHODS:
-        out[method] = estimate_cate(pop, cfg, split, outcome="net_profit", method=method).tau_test
-    out.to_csv(path, index=False, encoding="utf-8-sig", float_format="%.6f")
-    return out
+    if not path.exists():
+        raise FileNotFoundError(
+            f"缺少 {path.name}；请先跑 scripts/03_cate_obs.py——"
+            "图 5 必须与表 4 共用同一次拟合的逐用户预测。"
+        )
+    return pd.read_csv(path)
 
 
 # --------------------------------------------------------------------------- #
@@ -230,7 +208,7 @@ def fig0_roadmap() -> Path:
         ),
         (
             "预算约束优化",
-            "c(X) = 面额 × 核销概率\n贪心 · 0-1 背包 · 线性松弛上界 · 精确 DP",
+            "c(X) = 面额 × 核销概率\n贪心 + 局部改进（近似背包）· LP 松弛上界",
             STRATEGY_COLORS["target_knapsack"],
         ),
         (
@@ -488,33 +466,38 @@ def fig2_design() -> Path:
     _legend_below(ax, ncol=1, y=-0.42)
     _panel(ax, "b", "AA 校验：p 值分布与名义水平一致")
 
-    # (c) 护栏单侧置信上界
+    # (c) 护栏单侧置信上界：两个分母并列。分母不同，符号可以相反——
+    # 全用户口径把"转化率上升 → 更多人下单 → 更多人退款"的构成效应算进来，
+    # 条件口径只回答"已下单用户里退款比例是否恶化"。
     ax = axes[1, 0]
-    ni = guard[guard["检验"].astype(str).str.contains("非劣效", na=False)].iloc[0]
-    d = float(ni["差值_pp"])
-    ub = float(ni["单侧CI上界_pp"])
-    margin = float(ni["界值_pp"])
-    ax.axhline(0, color="#333333", lw=0.9)
-    ax.axvline(0, color="#333333", lw=0.9, ls=":")
-    ax.axvline(margin, color="red", lw=1.6, ls="--")
-    ax.axvline(ub, color=METHOD_COLORS["dr"], lw=1.0, ls="-.")
-    ax.plot([-2.4, d], [0, 0], color=METHOD_COLORS["ipw"], lw=5, alpha=0.35, solid_capstyle="butt")
-    ax.plot([d, ub], [0, 0], color=METHOD_COLORS["ipw"], lw=5, alpha=0.85, solid_capstyle="butt")
-    ax.plot([d], [0], marker="o", ms=7, color=METHOD_COLORS["ipw"], zorder=5)
-    # 三条竖线的标签都挪到线的一侧、错开高度：旧版"界值"与"上界"两行在右侧挤成一团
-    ax.annotate(f"点估计 {d:+.2f}", xy=(d, 0), xytext=(d - 0.06, 0.40),
-                fontsize=FS_NOTE, ha="right", color=METHOD_COLORS["ipw"])
-    ax.annotate(f"单侧 95% 上界 {ub:.2f}", xy=(ub, 0), xytext=(ub - 0.04, -0.42),
-                fontsize=FS_NOTE, ha="right", color=METHOD_COLORS["dr"])
-    ax.annotate(f"界值 {margin:.1f} pp", xy=(margin, 0), xytext=(margin - 0.04, 0.40),
-                fontsize=FS_NOTE, ha="right", color="red")
-    ax.text(-2.32, -0.42, "← 单侧区间无下界", fontsize=FS_NOTE, color="#666666")
-    ax.set_xlim(-2.4, 0.95)
-    ax.set_ylim(-0.62, 0.62)
-    ax.set_yticks([])
+    ni_all = guard[(guard["口径"] == "R1 全用户（主口径）")
+                   & guard["检验"].astype(str).str.contains("非劣效", na=False)].iloc[0]
+    ni_cond = guard[(guard["口径"] == "条件口径（灵敏度）")
+                    & guard["检验"].astype(str).str.contains("非劣效", na=False)].iloc[0]
+    margin = float(ni_all["界值_pp"])
+    ax.axhline(0, color="#333333", lw=0.8)
+    ax.axvline(0, color="#333333", lw=0.8, ls=":")
+    ax.axvline(margin, color="red", lw=1.5, ls="--")
+    rows_c = [
+        (0.5, ni_all, METHOD_COLORS["dr"], "全用户\n（主口径）"),
+        (-0.5, ni_cond, METHOD_COLORS["ipw"], "已下单\n（灵敏度）"),
+    ]
+    for yi, row, color, _ in rows_c:
+        d = float(row["差值_pp"])
+        ub = float(row["单侧CI上界_pp"])
+        ax.errorbar([d], [yi], xerr=[[0.0], [ub - d]], fmt="o", ms=6, capsize=5,
+                    lw=1.8, color=color)
+        # 数值统一写在左上/左下空白区：既避开误差棒，也不与 0.5pp 界值线交叉
+        ax.text(-0.82, 0.78 if yi > 0 else -0.80,
+                f"差值 {d:+.2f}，上界 {ub:.2f}", fontsize=FS_NOTE,
+                ha="left", va="center", color=color)
+    ax.set_yticks([0.5, -0.5], [r[3] for r in rows_c], fontsize=FS_TICK)
+    ax.text(margin - 0.02, -0.92, f"界值 {margin:.1f}pp", fontsize=FS_NOTE,
+            color="red", ha="right", va="bottom")
+    ax.set_xlim(-0.85, 0.80)
+    ax.set_ylim(-0.95, 0.95)
     ax.set_xlabel("退款率差（处理组 − 对照组，百分点）", fontsize=FS_LABEL)
-    # 功效数字（0.20 / 需 1.3 万已转化用户）不再压在图里，进正文；图只标三条线本身。
-    _panel(ax, "c", "护栏非劣效：上界合格 ≠ 测得出")
+    _panel(ax, "c", "护栏非劣效：两个分母都通过，方向相反")
 
     # (d) 重复 200 次的 ITT 分布
     ax = axes[1, 1]
@@ -540,7 +523,7 @@ def fig2_design() -> Path:
     return _finish(
         fig,
         "fig2_design",
-        "seed=20240101 | R=200（ITT）/1000（AA）；护栏功效由已转化用户数解析计算；样本量为每组、1:1",
+        "seed=20240101 | R=200（ITT）/1000（AA）；护栏两套分母各算一次；样本量为每组、1:1",
     )
 
 
@@ -550,7 +533,6 @@ def fig2_design() -> Path:
 def fig3_itt() -> Path:
     itt = _read("r1_itt.csv")
     aux = _read("r1_auxiliary.csv")
-    face = float(_read("r3_robustness.csv").loc[lambda d: d["扰动"] == "×1.0", "券面额"].iloc[0])
 
     fig, axes = plt.subplots(1, 2, figsize=(6.6, 2.85), gridspec_kw={"width_ratios": [1.15, 1.0]})
     fig.subplots_adjust(hspace=0.3, wspace=0.34, top=0.90, bottom=0.285, left=0.115, right=0.975)
@@ -596,21 +578,19 @@ def fig3_itt() -> Path:
     _panel(ax, "a", "ITT 对真值：三个层级、三个区间全覆盖")
 
     # (b) 利润侵蚀瀑布：多转化增益 − 券成本 + 订单经济差异 = 净增
+    # 四项一律取自 r1_profit_decomposition.csv（同一张表、同一套口径），
+    # 图里不再现算——旧稿的四个数字不在任何 CSV 里，读者无从复算。
     ax = axes[1]
-    p0, p1 = float(aux["转化率"].iloc[0]), float(aux["转化率"].iloc[1])
-    n0, n1 = float(aux["用户数"].iloc[0]), float(aux["用户数"].iloc[1])
+    dec = _read("r1_profit_decomposition.csv").set_index("项")
+    gain = float(dec.loc["多转化增益", "值_元每百人"])
+    coupon_cost = float(dec.loc["券成本", "值_元每百人"])
+    econ = float(dec.loc["订单经济差异（剩余项）", "值_元每百人"])
+    net = float(dec.loc["净增 = ITT", "值_元每百人"])
     profit0, profit1 = float(aux["人均净贡献利润"].iloc[0]), float(aux["人均净贡献利润"].iloc[1])
-    a0, a1 = profit0 / p0, profit1 / p1
-    red_share = float(aux["券核销率_占已下单"].iloc[1])
-    coupon_per_order = face * red_share
-    gain = (p1 - p0) * a1 * 100.0
-    coupon_cost = -p0 * coupon_per_order * 100.0
-    econ = p0 * ((a1 - a0) + coupon_per_order) * 100.0
-    net = (profit1 - profit0) * 100.0
 
     labels = [
         "多转化\n$(p_1-p_0)A_1$",
-        "券成本\n$-p_0\\cdot$面额",
+        "券成本\n$-p_0\\cdot$面额\n·核销率",
         "订单经济\n剩余项",
         "净增\n= ITT",
     ]
@@ -871,91 +851,89 @@ def fig6_policy() -> Path:
     gap = _read("r3_greedy_gap.csv")
     ci = _read("r3_six_strategies_ci.csv")
     rnd = _read("r3_random_seeds.csv")
+    ci_inc = ci[ci["指标"] == "incremental_value"].set_index("strategy_key")
+
+    by_key = six.set_index("strategy_key")
+    oracle_v = float(by_key.loc["oracle", "incremental_value"])
 
     fig, axes = plt.subplots(2, 2, figsize=(6.6, 4.5))
-    fig.subplots_adjust(hspace=0.88, wspace=0.40, top=0.93, left=0.125, right=0.975, bottom=0.235)
+    fig.subplots_adjust(hspace=0.92, wspace=0.40, top=0.93, left=0.125, right=0.975, bottom=0.245)
 
-    six = six.sort_values("incremental_value", ascending=False).reset_index(drop=True)
-    keys = list(six["strategy_key"])
-
-    # (a) 六策略增量价值（带 bootstrap 95% CI）
+    # (a) 可行策略的增量价值（带 bootstrap 95% CI）。全量发券超预算 5 倍，
+    # 画成最高柱会让人误以为它最优——移到右侧灰柱"不可行"区，不参与比较。
     ax = axes[0, 0]
-    vals = six["incremental_value"].to_numpy()
-    colors = [STRATEGY_COLORS[k] for k in keys]
-    ci_inc = ci[ci["指标"] == "incremental_value"].set_index("strategy_key")
-    err = np.array(
-        [
-            [v - float(ci_inc.loc[k, "CI下界"]) if k in ci_inc.index else 0.0,
-             float(ci_inc.loc[k, "CI上界"]) - v if k in ci_inc.index else 0.0]
-            for k, v in zip(keys, vals)
-        ]
-    ).T
-    bars = ax.bar(range(len(keys)), vals, color=colors, width=0.62,
-                  yerr=err, capsize=2.0, error_kw=dict(elinewidth=0.9))
-    for i, (b, v, k) in enumerate(zip(bars, vals, keys)):
-        if bool(six.loc[i, "over_budget"]):
-            b.set_hatch("///")
-        if abs(v) < 1e-9:
-            # 0 值柱没有高度，标签写在柱右侧，避免压在坐标轴上
-            ax.text(i + 0.36, 0.004, "0", ha="left", va="bottom", fontsize=FS_TICK)
-            continue
-        tag = f"{v:.3f}"
-        # 柱内原来的"占真值解的百分比"白字（30%/86%/100%）比柱体还宽、并且压在误差棒上，
-        # 会同时越出柱体边缘；该比例表里就有（pct_of_oracle），图里只保留柱顶数值。
-        ax.text(i, v + (err[1, i] if np.isfinite(err[1, i]) else 0.0) + 0.012, tag,
-                ha="center", va="bottom", fontsize=FS_TICK)
-    oracle_v = float(six.loc[six["strategy_key"] == "oracle", "incremental_value"].iloc[0])
+    plan = [
+        ("no_coupon", 0.0, "不发券"),
+        ("random", 1.0, "随机"),
+        ("target_greedy", 2.0, "定向-贪心"),
+    ]
+    for key, xi, lab in plan:
+        v = float(by_key.loc[key, "incremental_value"])
+        if key in ci_inc.index:
+            lo = float(ci_inc.loc[key, "CI下界"])
+            hi = float(ci_inc.loc[key, "CI上界"])
+            ax.bar(xi, v, width=0.6, color=STRATEGY_COLORS[key],
+                   yerr=[[v - lo], [hi - v]], capsize=3, error_kw=dict(elinewidth=0.9))
+        else:
+            hi = v
+            ax.bar(xi, v, width=0.6, color=STRATEGY_COLORS[key])
+        ax.text(xi, max(v, hi) + 0.018, f"{v:.3f}", ha="center", va="bottom", fontsize=FS_TICK)
+    v_all = float(by_key.loc["all", "incremental_value"])
+    ax.bar(3.7, v_all, width=0.6, color="#BDBDBD", hatch="///", edgecolor="#757575")
+    ax.text(3.7, v_all + 0.018, f"{v_all:.3f}", ha="center", va="bottom", fontsize=FS_TICK,
+            color="#616161")
+    ax.text(3.7, v_all * 0.52, "不可行", ha="center", va="center",
+            fontsize=FS_NOTE, color="#424242")
     ax.axhline(oracle_v, color=STRATEGY_COLORS["oracle"], ls="--", lw=1.1,
                label=f"真值贪心解 {oracle_v:.3f}")
-    short = {
-        "no_coupon": "不发券",
-        "all": "全量",
-        "random": "随机",
-        "target_greedy": "贪心",
-        "target_knapsack": "背包",
-        "oracle": "真值解",
-    }
-    ax.set_xticks(range(len(keys)), [short[k] for k in keys], fontsize=FS_TICK)
+    ax.set_xticks([0, 1, 2, 3.7], ["不发券", "随机", "定向-贪心", "全量\n超预算 5 倍"], fontsize=FS_TICK)
+    ax.set_xlim(-0.7, 4.4)
     ax.set_ylabel("增量价值（元/人）", fontsize=FS_LABEL)
-    ax.set_ylim(0, max(vals) * 1.34)
-    v_greedy = float(six.loc[six["strategy_key"] == "target_greedy", "incremental_value"].iloc[0])
-    v_random = float(six.loc[six["strategy_key"] == "random", "incremental_value"].iloc[0])
-    # 图例（真值贪心解参考线）从右上移到坐标区下方：右上角就是最高柱"全量"的顶端
+    ax.set_ylim(0, max(v_all, oracle_v) * 1.28)
+    v_greedy = float(by_key.loc["target_greedy", "incremental_value"])
+    v_random = float(by_key.loc["random", "incremental_value"])
     _legend_below(ax, ncol=1, y=-0.32)
-    _panel(ax, "a", f"定向 vs 随机：{v_greedy / v_random:.2f} 倍")
+    _panel(ax, "a", f"可行策略：定向 vs 随机 {v_greedy / v_random:.2f} 倍")
 
-    # (b) 预算使用率
+    # (b) 预算越紧，定向的相对优势越强。横轴从最紧的 ×0.2 开始，
+    # 4.55 倍这个头号数字就落在第一个点上；旧版只画到 ×0.5 之外，读者看不到它。
     ax = axes[0, 1]
-    util = six["budget_utilization"].to_numpy() * 100
-    ypos = np.arange(len(keys))[::-1]
-    bars = ax.barh(ypos, np.clip(util, 0, 112), color=colors, height=0.6)
-    for yi, u, b in zip(ypos, util, bars):
-        if u > 112:
-            b.set_hatch("///")
-        ax.text(np.clip(u, 0, 112) + 1.5, yi, f"{u:.0f}%", va="center", fontsize=FS_TICK)
-    ax.axvline(100, color="#E53935", ls="--", lw=1.1)
-    ax.set_yticks(ypos, [short[k] for k in keys], fontsize=FS_TICK)
-    ax.set_xlim(0, 132)
-    ax.set_xlabel("预算使用率（%，100% = 预算 B）", fontsize=FS_LABEL)
-    _panel(ax, "b", "预算使用率：谁真的花完了预算")
+    ax.plot(scan["预算倍数"], scan["定向相对优势倍数"], "o-",
+            color=STRATEGY_COLORS["target_greedy"], ms=4, lw=1.6)
+    ax.axhline(1.0, color="#888888", ls="--", lw=1.0)
+    ax.set_xlim(0.05, 3.15)
+    ax.set_xticks([0.2, 0.55, 1.0, 1.6, 2.3, 3.0])
+    ax.set_xticklabels(["0.2", "0.55", "1.0", "1.6", "2.3", "3.0"], fontsize=FS_TICK)
+    ax.set_ylim(1.0, float(scan["定向相对优势倍数"].max()) * 1.16)
+    ax.set_xlabel("预算倍数（1 = 基准预算）", fontsize=FS_LABEL)
+    ax.set_ylabel("定向 / 随机（倍）", fontsize=FS_LABEL)
+    i_min = float(scan["预算倍数"].min())
+    ratio_min = float(scan.loc[scan["预算倍数"] == i_min, "定向相对优势倍数"].iloc[0])
+    i_max = float(scan["预算倍数"].max())
+    ratio_max = float(scan.loc[scan["预算倍数"] == i_max, "定向相对优势倍数"].iloc[0])
+    ax.annotate(f"×{i_min:.1f}：{ratio_min:.2f} 倍", xy=(i_min, ratio_min),
+                xytext=(i_min + 0.18, ratio_min - 0.42), fontsize=FS_NOTE,
+                color=STRATEGY_COLORS["target_greedy"])
+    ax.annotate(f"×{i_max:.1f}：{ratio_max:.2f} 倍", xy=(i_max, ratio_max),
+                xytext=(i_max - 0.85, ratio_max + 0.42), fontsize=FS_NOTE, color="#555555")
+    _panel(ax, "b", "最紧预算处定向优势最大")
 
     # (c) 策略价值随预算倍数变化
     ax = axes[1, 0]
-    ax.plot(scan["预算倍数"], scan["价值_随机"], "o-", color=STRATEGY_COLORS["random"], ms=3, lw=1.3, label="随机发券")
-    ax.plot(scan["预算倍数"], scan["价值_贪心"], "s-", color=STRATEGY_COLORS["target_greedy"], ms=3, lw=1.6, label="定向-贪心")
-    ax.plot(scan["预算倍数"], scan["价值_真值贪心解"], "^", color=STRATEGY_COLORS["oracle"], ms=3, lw=1.0, ls="--",
-            label="真值贪心解")
+    ax.plot(scan["预算倍数"], scan["价值_随机"], "o-", color=STRATEGY_COLORS["random"], ms=3, lw=1.3,
+            label="随机发券")
+    ax.plot(scan["预算倍数"], scan["价值_贪心"], "s-", color=STRATEGY_COLORS["target_greedy"], ms=3,
+            lw=1.6, label="定向-贪心")
+    ax.plot(scan["预算倍数"], scan["价值_真值贪心解"], "^", color=STRATEGY_COLORS["oracle"], ms=3,
+            lw=1.0, ls="--", label="真值贪心解")
     ax.fill_between(scan["预算倍数"], scan["价值_随机"], scan["价值_贪心"],
                     color=STRATEGY_COLORS["target_greedy"], alpha=0.12)
+    ax.set_xlim(0.1, 3.1)
+    ax.set_xticks([0.2, 1.0, 2.0, 3.0])
+    ax.set_xticklabels(["0.2", "1.0", "2.0", "3.0"], fontsize=FS_TICK)
     ax.set_xlabel("预算倍数（1 = 基准预算）", fontsize=FS_LABEL)
     ax.set_ylabel("策略价值（元/人）", fontsize=FS_LABEL)
     ax.set_ylim(0, float(scan[["价值_贪心", "价值_随机", "价值_真值贪心解"]].to_numpy().max()) * 1.35)
-    i_min = int(scan["定向相对优势倍数"].to_numpy().argmax())
-    i_peak = int(scan["定向增益_相对随机"].to_numpy().argmax())
-    # 旧版把这个面板做成双 y 轴，右轴的紫色曲线正好横穿图例框，把数据挡掉了。
-    # 相对优势的数字改为注释文字，面板只留三条价值曲线，任何缩放都不重叠。
-    # 图例从左上（会压住 y 轴 0.8 刻度并贴近首个数据点）移到坐标区下方；
-    # 底部紫框（绝对增益峰值/相对优势）整块删除，那两个数字进正文与表。
     _legend_below(ax, ncol=3, y=-0.46)
     _panel(ax, "c", "预算越紧，定向越是必需品")
 
@@ -968,11 +946,9 @@ def fig6_policy() -> Path:
     dp = gap["精确DP"].to_numpy()
     ax.bar(x - 0.26, greedy, width=0.24, color=STRATEGY_COLORS["target_greedy"], label="贪心")
     ax.bar(x, lp, width=0.24, color=STRATEGY_COLORS["no_coupon"], label="线性松弛上界")
-    ax.bar(x + 0.26, np.nan_to_num(dp, nan=0.0), width=0.24, color=STRATEGY_COLORS["target_knapsack"], label="精确 DP")
+    ax.bar(x + 0.26, np.nan_to_num(dp, nan=0.0), width=0.24,
+           color=STRATEGY_COLORS["target_knapsack"], label="精确 DP")
     ax.set_yscale("log")
-    # 三根柱只隔 0.26 个单位，在 3.3cm 宽的子图里横排数字必然互相压字。
-    # 因此**不标逐柱数字**，改把三条关键比值写进注释（表格里有完整数值）——
-    # 这正是审稿指出的"图 7(d) 两个数字重叠"的根因。
     for xi, d in zip(x, dp):
         if not np.isfinite(d):
             ax.text(xi + 0.26, 1.35, "不可行", ha="center", va="bottom", fontsize=FS_TICK,
@@ -980,8 +956,6 @@ def fig6_policy() -> Path:
     ax.set_xticks(x, ["全规模\n60,000 人", "降规模\n1,000 人", "反例\n3 件"], fontsize=FS_TICK)
     ax.set_ylabel("策略总价值（元，对数）", fontsize=FS_LABEL)
     ax.set_ylim(1, max(lp) * 30)
-    # 左上角那块三行文本框（全规模 99.9999% / DP/贪心 / 反例 −33%）删除：它紧贴 y 轴顶端的
-    # 10⁵ 刻度；三个比值本来就在 r3_greedy_gap.csv 里，正文直接引表。
     _legend_below(ax, ncol=3, y=-0.46)
     _panel(ax, "d", "贪心近似程度：三个规模三种结论")
 
@@ -989,11 +963,10 @@ def fig6_policy() -> Path:
         fig,
         "fig6_policy",
         f"seed=20240101 | 独立测试集 60,000 人；预算 B={float(six['budget'].iloc[0]):,.0f} 元；"
-        f"六策略同预算同人群；随机策略为 {int(rnd['种子数'].iloc[0])} 个种子均值；误差棒 = bootstrap 95% CI",
+        f"五个策略同预算同人群；随机策略为 {int(rnd['种子数'].iloc[0])} 个种子均值；误差棒 = bootstrap 95% CI",
     )
 
 
-# --------------------------------------------------------------------------- #
 def main() -> int:
     apply_style()
     font = available_cjk_font()

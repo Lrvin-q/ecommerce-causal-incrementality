@@ -146,6 +146,9 @@ def run_six_strategies(cfg, s) -> pd.DataFrame:
     oracle_value = incremental_value(strategies["oracle"].policy, pi1, pi0)
 
     # ---- 真值贪心解的**区间**：下界 = 近似最优解，上界 = LP 松弛 ----
+    # 三个数必须写清口径，否则读者会把"实现值 0.405"当成上界去比"解析上界 0.404745"：
+    #   * 实现口径（π₁−π₀）含测试集抽样噪声，**不是**任何界；
+    #   * 解析口径（E[τ] 加权）才与 LP 上界同量纲，上界 ≥ 下界必须逐位成立。
     lp_true = lp_upper_bound(tau_true, cost, budget)
     lp_per_user = float(lp_true["upper_bound"]) / n
     v_oracle_analytic = float(tau_true[orc.policy].sum()) / n
@@ -154,18 +157,33 @@ def run_six_strategies(cfg, s) -> pd.DataFrame:
             {
                 "项": "真值贪心解（近似最优解，实现值 π₁−π₀）",
                 "值_元每人": oracle_value,
+                "口径": "实现值（含抽样噪声，不可与上界比较）",
+                "说明": "表 7 的 100% 基准",
             },
             {
-                "项": "真值贪心解（解析口径 E[τ] 加权）",
+                "项": "真值贪心解（近似最优解，解析口径 E[τ] 加权）",
                 "值_元每人": v_oracle_analytic,
+                "口径": "解析",
+                "说明": "LP 上界的下界一侧（启发式解）",
             },
             {
                 "项": "LP 松弛上界（含分数件，解析口径）",
                 "值_元每人": lp_per_user,
+                "口径": "解析",
+                "说明": f"分数件占 {float(lp_true['fraction']):.6f} 件",
             },
             {
-                "项": "松弛间隙（上界 − 下界）",
+                "项": "松弛间隙（上界 − 解析下界）",
                 "值_元每人": lp_per_user - v_oracle_analytic,
+                "口径": "解析",
+                "说明": "≥ 0；相对间隙 "
+                f"{(lp_per_user - v_oracle_analytic) / lp_per_user:.3e}",
+            },
+            {
+                "项": "上界是否不低于解析下界",
+                "值_元每人": float(lp_per_user >= v_oracle_analytic),
+                "口径": "布尔（1=成立）",
+                "说明": "定义式校验",
             },
         ]
     )
@@ -244,6 +262,11 @@ def run_six_strategies(cfg, s) -> pd.DataFrame:
     df.loc[keep, "regret"] = oracle_value - df.loc[keep, "incremental_value"]
     df["note"] = np.where(
         df["over_budget"], "无视预算（成本超支），价值不可与预算约束下的策略比较", ""
+    )
+    # 局部改进是在贪心解上做 1-2 交换，本文数据上**没有改变选择**：两者选中人数
+    # 与增量价值逐位相同。它不是独立的第三种方法，报告不得并排当互证。
+    df.loc[df["strategy_key"] == "target_knapsack", "note"] = (
+        "与定向-贪心同一解（1-2 交换未改变选择）；非独立方法"
     )
     df["oracle_value_lp"] = oracle_value * np.nan  # 占位，区间另表
     df["oracle_lp_per_user"] = lp_per_user
@@ -483,9 +506,9 @@ def run_robustness(cfg) -> pd.DataFrame:
     B. 定向相对真值贪心解（近似最优解）约 85%；
     C. 每元预算的净增量利润 > 1（即发券赚钱）。
 
-    为控制计算量，这里用 **S-learner** 做 CATE（主结果用 Causal Forest）——
-    两个方法在第二轮已证明方向一致（S-learner R²=0.18、CF R²=0.33，都不改变"新客效应更高"）。
-    **报告里必须注明这个替换**，不能让人以为稳健性扫描用的是同一个模型。
+    为与主结果可比，CATE 一律用 **Causal Forest**（与 build_setup 同一学习器、
+    同一 DGP 种子、同一按用户切分）。因此 ×1.0 档必须逐位复现表 7 的
+    0.349 / 2.085；若换了学习器，×1.0 会给出另一组数，读者会以为表 7 写错了。
     """
     # 每个扰动必须打到 **DGP 真正读取的旋钮** 上，否则扫描是空转。
     # 踩过的坑：`business.baseline_conversion` 只用于样本量公式，DGP 读的是
@@ -517,7 +540,10 @@ def run_robustness(cfg) -> pd.DataFrame:
             master_seed=_seed(variant),
             index=0,
         )
-        fit = estimate_cate(pop, variant, sp, outcome="net_profit", method="s_learner")
+        # 与主结果**同一个学习器**（Causal Forest），否则 ×1.0 档对不上表 7。
+        # 旧实现为了省时间换成 S-learner，导致 ×1.0 给出 0.3651/2.1815，
+        # 而表 7 是 0.3489/2.0845——同一数据、同一预算，两个数只因为换了模型。
+        fit = estimate_cate(pop, variant, sp, outcome="net_profit", method="causal_forest")
         X = design_matrix(pop)
         t = pop.treatment.astype(int)
         y_obs, _ = pop.potential.observed(t)

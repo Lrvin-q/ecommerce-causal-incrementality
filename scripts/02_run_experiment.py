@@ -1,4 +1,4 @@
-﻿"""第一轮实验主线：样本量 → AA 校验 → ITT → 护栏非劣效 → 多重比较 → 重复实验。
+"""第一轮实验主线：样本量 → AA 校验 → ITT → 护栏非劣效 → 多重比较 → 重复实验。
 
 用法
 ----
@@ -244,6 +244,38 @@ def step_main_experiment(cfg) -> tuple[pd.DataFrame, pd.DataFrame]:
     aux = auxiliary_metrics(df_l1, cfg)
     save_table(aux, "r1_auxiliary")
 
+    # 利润侵蚀分解：每 100 名用户的利润变化 = 多转化收益 − 券成本 + 订单经济差异。
+    # 三项与净增在**代数上恒等**（不是拟合），因此这也是分解口径的自检。
+    # 旧稿只把结果画在图 4(b) 里，表 B1 找不到"利润分解表"，读者无法复算。
+    p0 = float(aux["转化率"].iloc[0])
+    p1 = float(aux["转化率"].iloc[1])
+    profit0 = float(aux["人均净贡献利润"].iloc[0])
+    profit1 = float(aux["人均净贡献利润"].iloc[1])
+    a0, a1 = profit0 / p0, profit1 / p1
+    red_share = float(aux["券核销率_占已下单"].iloc[1])
+    face = float(cfg.require("business.coupon_reference_face"))
+    gain = (p1 - p0) * a1 * 100.0
+    coupon_cost = -p0 * face * red_share * 100.0
+    econ = p0 * ((a1 - a0) + face * red_share) * 100.0
+    net = (profit1 - profit0) * 100.0
+    decomp = pd.DataFrame(
+        [
+            {"项": "多转化增益", "符号": "(p1−p0)·A1",
+             "值_元每百人": gain, "说明": f"A1={a1:.4f} 元/已转化用户（含复购期望）"},
+            {"项": "券成本", "符号": "−p0·面额·核销率",
+             "值_元每百人": coupon_cost,
+             "说明": f"面额 {face:.0f} 元、已下单核销率 {red_share:.4f}"},
+            {"项": "订单经济差异（剩余项）", "符号": "p0·[(A1−A0)+面额·核销率]",
+             "值_元每百人": econ, "说明": "客单价、成本、退款与复购的综合差异"},
+            {"项": "净增 = ITT", "符号": "三项之和",
+             "值_元每百人": net, "说明": "与 r1_itt.csv 的 L1 利润 ITT×100 一致"},
+            {"项": "代数校验（三项和 − 净增）", "符号": "=0",
+             "值_元每百人": gain + coupon_cost + econ - net,
+             "说明": "浮点误差内应为 0"},
+        ]
+    )
+    save_table(decomp, "r1_profit_decomposition")
+
     _plot_itt_forest(itt_df, cfg)
     return itt_df, aux
 
@@ -273,172 +305,202 @@ def _plot_itt_forest(itt_df: pd.DataFrame, cfg) -> None:
     save_fig(fig, "r1_itt_forest")
 
 
-def step_guardrail(cfg, df: pd.DataFrame) -> pd.DataFrame:
-    """护栏非劣效检验：退款率。
+#: 护栏的两个分母口径。R1 要求主分析的分母是**随机分配的全部用户**；
+#: "已下单为分母"是条件指标（单笔退款质量），只作为灵敏度分析。
+GUARDRAIL_DENOMS: tuple[tuple[str, str], ...] = (
+    ("R1 全用户（主口径）", "全部分配用户"),
+    ("条件口径（灵敏度）", "已下单用户"),
+)
 
-    **"不显著" ≠ "安全"**。这里对 0 做一个双侧检验作对照，
-    再对预设界值做单侧非劣效检验，展示两者给出不同结论的场景。
-    """
-    margin = float(cfg.require("experiment.guardrail.noninferiority_margin"))
-    alpha_one = float(cfg.require("experiment.guardrail.alpha_one_sided"))
 
+def _guardrail_counts(df: pd.DataFrame, denominator: str) -> tuple[int, int, int, int]:
+    """返回 ``(处理组退款人数, 处理组分母, 对照组退款人数, 对照组分母)``。"""
     t = df["treatment"].to_numpy() == 1
     conv = df["converted"].to_numpy() == 1
     ref = df["refunded"].to_numpy() == 1
+    if denominator == "全部分配用户":
+        return int((ref & t).sum()), int(t.sum()), int((ref & ~t).sum()), int((~t).sum())
+    return (
+        int((ref & t & conv).sum()),
+        int((t & conv).sum()),
+        int((ref & ~t & conv).sum()),
+        int((~t & conv).sum()),
+    )
 
-    s_t, n_t = int((ref & t & conv).sum()), int((t & conv).sum())
-    s_c, n_c = int((ref & ~t & conv).sum()), int((~t & conv).sum())
 
-    ni = noninferiority_binary(s_t, n_t, s_c, n_c, margin=margin, alpha_one_sided=alpha_one)
+def step_guardrail(cfg, df: pd.DataFrame) -> pd.DataFrame:
+    """护栏非劣效检验：退款率，**两套分母并列**。
 
-    # 对照：对 0 做双侧检验（很多人误以为"不显著就是安全"）
+    R1 规定分析分母是随机分配的全部用户，因此主口径必须是"发生退款的用户数 /
+    全部分配用户数"。但全用户口径会把"处理组转化率更高 → 更多人下单 → 更多人
+    退款"的构成效应一并算进护栏；条件口径（已下单用户为分母）才回答"单笔退款
+    质量是否恶化"。两者可以符号相反，报告必须写清用的是哪一个。
+
+    "不显著" ≠ "安全"：对 0 的双侧检验只作对照，判定一律用单侧上界对预设界值。
+    """
+    margin = float(cfg.require("experiment.guardrail.noninferiority_margin"))
+    alpha_one = float(cfg.require("experiment.guardrail.alpha_one_sided"))
     from causal_growth.estimate.itt import itt_difference_proportions
 
-    sub = df[conv].copy()
-    two_sided = itt_difference_proportions(sub, "refunded", alpha=float(cfg.require("experiment.alpha")))
-
-    out = pd.DataFrame(
-        [
+    rows: list[dict[str, object]] = []
+    for label, denominator in GUARDRAIL_DENOMS:
+        s_t, n_t, s_c, n_c = _guardrail_counts(df, denominator)
+        ni = noninferiority_binary(
+            s_t, n_t, s_c, n_c, margin=margin, alpha_one_sided=alpha_one
+        )
+        sub = df if denominator == "全部分配用户" else df[df["converted"].to_numpy() == 1]
+        two = itt_difference_proportions(
+            sub, "refunded", alpha=float(cfg.require("experiment.alpha"))
+        )
+        base = {
+            "检验": "非劣效检验（对预设界值）",
+            "口径": label,
+            "分母": denominator,
+            "处理组退款人数": s_t,
+            "处理组分母": n_t,
+            "对照组退款人数": s_c,
+            "对照组分母": n_c,
+            "处理组": s_t / n_t,
+            "对照组": s_c / n_c,
+            "差值_pp": ni.diff * 100,
+            "标准误_pp": ni.se * 100,
+            "界值_pp": margin * 100,
+            "单侧CI上界_pp": ni.ci_one_sided_upper * 100,
+            "方法": ni.method,
+        }
+        rows.append(
             {
-                "检验": "非劣效检验（对预设界值）",
-                "指标": "退款率（已下单为分母）",
-                "处理组": s_t / n_t,
-                "对照组": s_c / n_c,
-                "差值_pp": ni.diff * 100,
-                "标准误_pp": ni.se * 100,
-                "界值_pp": margin * 100,
+                **base,
                 "结论": "通过：未显著超过界值" if ni.passed else "未通过：显著超过界值",
-                "单侧CI上界_pp": ni.ci_one_sided_upper * 100,
                 "p值": np.nan,
-                "方法": ni.method,
-            },
+            }
+        )
+        rows.append(
             {
+                **base,
                 "检验": "双侧显著性检验（对 0）",
-                "指标": "退款率（已下单为分母）",
-                "处理组": s_t / n_t,
-                "对照组": s_c / n_c,
-                "差值_pp": two_sided.diff * 100,
-                "标准误_pp": two_sided.se * 100,
                 "界值_pp": 0.0,
-                "结论": "对 0 显著" if two_sided.p_value < 0.05 else "对 0 不显著（**不等于安全**）",
-                "单侧CI上界_pp": two_sided.ci_upper * 100,
-                "p值": two_sided.p_value,
-                "方法": two_sided.method,
-            },
-        ]
-    )
+                "单侧CI上界_pp": two.ci_upper * 100,
+                "结论": "对 0 显著" if two.p_value < 0.05 else "对 0 不显著（**不等于安全**）",
+                "p值": two.p_value,
+                "方法": two.method,
+            }
+        )
+    out = pd.DataFrame(rows)
     save_table(out, "r1_guardrail")
 
-    fig, ax = plt.subplots(figsize=(7.5, 3.0))
-    # 只画**单侧**区间：从点估计到单侧 95% 上界。只画一个点毫无意义——
-    # 非劣效的判定依据是"上界 < 界值"，看不到上界这张图就不成立。
-    ax.errorbar(
-        [ni.diff * 100], [0],
-        xerr=[[0.0], [(ni.ci_one_sided_upper - ni.diff) * 100]],
-        fmt="o", capsize=6, lw=2, color=METHOD_COLORS["psm"],
-        label="单侧 95% 置信上界",
-    )
-    ax.axvline(ni.ci_one_sided_upper * 100, color=METHOD_COLORS["psm"], ls=":", lw=1)
+    fig, ax = plt.subplots(figsize=(7.5, 3.2))
+    ypos = {"全部分配用户": 0.22, "已下单用户": -0.22}
+    for label, denominator in GUARDRAIL_DENOMS:
+        s_t, n_t, s_c, n_c = _guardrail_counts(df, denominator)
+        ni = noninferiority_binary(
+            s_t, n_t, s_c, n_c, margin=margin, alpha_one_sided=alpha_one
+        )
+        y = ypos[denominator]
+        ax.errorbar(
+            [ni.diff * 100], [y],
+            xerr=[[0.0], [(ni.ci_one_sided_upper - ni.diff) * 100]],
+            fmt="o", capsize=6, lw=2,
+            color=METHOD_COLORS["psm"] if denominator == "全部分配用户" else METHOD_COLORS["ipw"],
+            label=f"{label}：{ni.diff*100:+.2f}pp，上界 {ni.ci_one_sided_upper*100:+.2f}pp",
+        )
     ax.axvline(margin * 100, color="red", ls="--", label=f"非劣效界值 {margin*100:.2f}pp")
     ax.axvline(0, color="grey", ls=":", label="无差异")
-    ax.axvspan(-1.2, margin * 100, alpha=0.12, color="green", label="非劣效区域")
-    ax.set_xlim(-1.0, margin * 100 + 0.6)
+    ax.set_xlim(-0.9, margin * 100 + 0.5)
     ax.set_ylim(-0.6, 0.6)
     ax.set_yticks([])
     ax.set_xlabel("退款率差异（百分点，处理组 − 对照组）")
-    ax.set_title(
-        f"护栏非劣效：差值 {ni.diff*100:+.2f}pp，单侧 95% 上界 "
-        f"{ni.ci_one_sided_upper*100:+.2f}pp {'<' if ni.passed else '≥'} "
-        f"界值 {margin*100:.2f}pp → {'通过' if ni.passed else '未通过'}"
-    )
-    ax.legend(fontsize=8, loc="upper left")
+    ax.set_title("护栏非劣效：分母不同，符号可以相反")
+    ax.legend(fontsize=7, loc="upper left")
     add_source_note(fig, f"seed={_seed(cfg)} | 单侧 α={alpha_one} | 界值={margin*100:.2f}pp")
     save_fig(fig, "r1_guardrail_ci")
     return out
 
 
 def step_guardrail_power(cfg, df: pd.DataFrame) -> pd.DataFrame:
-    """护栏非劣效检验的**功效分析** —— 第一轮最重要的方法论发现。
+    """护栏非劣效检验的功效分析，**两个分母各算一套**。
 
-    问题：界值（0.5pp）与样本量是否匹配？答案是不匹配。
-
-    当前样本下只有约 2.5 万个已转化用户，退款率差值的标准误约 0.34pp，
-    而界值仅 0.5pp。要让单侧检验有 80% 功效去分辨"真实恶化 0.225pp 与 0.5pp 界值"，
-    需要把标准误压到约 0.11pp，即已转化用户数扩大约 9.5 倍。
-
-    结论：**非劣效检验"通过"这件事本身几乎不携带信息**——
-    它主要是功效不足的产物，不是"护栏安全"的证据（方案 §2.4"不显著≠安全"的
-    更深一层：**不显著也可能是因为根本测不出来**）。
+    全用户口径的分母大得多（20 万而非 2.5 万已转化用户），标准误更小，但它的
+    真实差值也更大：处理组转化率更高，"更多人下单"本身就会带来更多退款。
+    这个构成效应由 DGP 参数唯一决定，用观测转化率 × DGP 退款率推算，
+    与条件口径的 0.225pp（净退款率 ×1.03）不是同一个量。
     """
     from scipy.stats import norm
 
     margin = float(cfg.require("experiment.guardrail.noninferiority_margin"))
     alpha_one = float(cfg.require("experiment.guardrail.alpha_one_sided"))
-    true_uplift = float(cfg.require("business.refund_rate")) * (
-        float(cfg.require("business.refund_rate_treated_multiplier")) - 1.0
-    )
+    b = cfg.section("business")
+    rate_c = float(b["refund_rate"])
+    rate_t = rate_c * float(b["refund_rate_treated_multiplier"])
 
     t = df["treatment"].to_numpy() == 1
     conv = df["converted"].to_numpy() == 1
-    n_conv_t, n_conv_c = int((t & conv).sum()), int((~t & conv).sum())
-    p_t = float(df.loc[t & conv, "refunded"].mean())
-    p_c = float(df.loc[~t & conv, "refunded"].mean())
+    p_conv_t = float(conv[t].mean())
+    p_conv_c = float(conv[~t].mean())
 
-    def power_at(n_t: int, n_c: int, true_diff: float) -> float:
+    rows: list[dict[str, object]] = []
+    for label, denominator in GUARDRAIL_DENOMS:
+        s_t, n_t, s_c, n_c = _guardrail_counts(df, denominator)
+        p_t, p_c = s_t / n_t, s_c / n_c
         se = float(np.sqrt(p_t * (1 - p_t) / n_t + p_c * (1 - p_c) / n_c))
-        if se == 0:
-            return float("nan")
-        return float(norm.cdf((margin - true_diff) / se - norm.ppf(1 - alpha_one)))
 
-    def required_converters(true_diff: float, target_power: float = 0.80) -> int:
-        """在给定真实差值与目标功效下，处理组所需的已转化用户数（1:1 折算）。"""
-        z_req = norm.ppf(target_power) + norm.ppf(1 - alpha_one)
-        if margin - true_diff <= 0:
-            return -1  # 真值已超过界值，任何样本量都救不了
-        se_req = (margin - true_diff) / z_req
-        # 两组方差近似相等时，se ≈ sqrt(2·p(1-p)/n)，反解得每组 n
-        p_bar = (p_t + p_c) / 2
-        return int(np.ceil(2.0 * p_bar * (1 - p_bar) / se_req**2))
+        if denominator == "全部分配用户":
+            unit = "全部分配用户"
+            true_diff = p_conv_t * rate_t - p_conv_c * rate_c
+            scenarios = (
+                (0.0, "真实无恶化（0pp）"),
+                (true_diff, f"DGP 隐含（转化率构成效应计入，{true_diff*100:.3f}pp）"),
+                (margin, f"真实恶化恰在界值（{margin*100:.2f}pp）"),
+            )
+        else:
+            unit = "已转化用户"
+            true_diff = rate_c * (float(b["refund_rate_treated_multiplier"]) - 1.0)
+            scenarios = (
+                (0.0, "真实无恶化（0pp）"),
+                (true_diff, f"真实小幅恶化（{true_diff*100:.3f}pp，DGP 设定）"),
+                (margin, f"真实恶化恰在界值（{margin*100:.2f}pp）"),
+            )
 
-    rows = []
-    for true_diff, label in (
-        (0.0, "真实无恶化（0pp）"),
-        (true_uplift, f"真实小幅恶化（{true_uplift*100:.3f}pp，DGP 设定）"),
-        (margin, f"真实恶化恰在界值（{margin*100:.2f}pp）"),
-    ):
-        need = required_converters(true_diff)
-        # S3：把"每组需要多少**已转化**用户"翻译回"需要多少**总**用户"。
-        # 换算用两组各自的转化率：每组总人数 = 该组已转化人数 / 该组转化率。
-        p_t_conv = n_conv_t / max(int(t.sum()), 1)
-        p_c_conv = n_conv_c / max(int((~t).sum()), 1)
-        total_needed = (
-            float(need) * (1.0 / p_t_conv + 1.0 / p_c_conv) if need > 0 else float("nan")
-        )
-        rows.append(
-            {
-                "情景": label,
-                "真实差值_pp": true_diff * 100,
-                "当前已转化用户_处理组": n_conv_t,
-                "当前已转化用户_对照组": n_conv_c,
-                "当前SE_pp": float(
-                    np.sqrt(p_t * (1 - p_t) / n_conv_t + p_c * (1 - p_c) / n_conv_c)
-                ) * 100,
-                "当前功效": power_at(n_conv_t, n_conv_c, true_diff),
-                "达到80%功效所需_每组已转化用户": need,
-                "达到80%功效所需_总样本量": total_needed,
-                "界值_pp": margin * 100,
-                "单侧α": alpha_one,
-            }
-        )
+        z_req = norm.ppf(0.80) + norm.ppf(1 - alpha_one)
+        p_bar = (p_t + p_c) / 2.0
+        for true_d, scenario in scenarios:
+            power = float(norm.cdf((margin - true_d) / se - norm.ppf(1 - alpha_one)))
+            if margin - true_d <= 0:
+                need, total = -1, float("nan")
+            else:
+                se_req = (margin - true_d) / z_req
+                need = int(np.ceil(2.0 * p_bar * (1 - p_bar) / se_req**2))
+                total = (
+                    float(need) * (1.0 / p_conv_t + 1.0 / p_conv_c)
+                    if denominator == "已下单用户"
+                    else float(2 * need)
+                )
+            rows.append(
+                {
+                    "口径": label,
+                    "分母": denominator,
+                    "情景": scenario,
+                    "真实差值_pp": true_d * 100,
+                    "当前_处理组n": n_t,
+                    "当前_对照组n": n_c,
+                    "当前SE_pp": se * 100,
+                    "当前功效": power,
+                    "所需_每组": need,
+                    "所需_总样本量": total,
+                    "所需单位": unit,
+                    "界值_pp": margin * 100,
+                    "单侧α": alpha_one,
+                }
+            )
     out = pd.DataFrame(rows)
     save_table(out, "r1_guardrail_power")
 
-    cur = out.iloc[1]
-    print(
-        f"      [功效] 真实恶化 {true_uplift*100:.3f}pp、界值 {margin*100:.2f}pp 下，"
-        f"当前功效仅 {cur['当前功效']:.3f}；"
-        f"要达 80% 需每组约 {int(cur['达到80%功效所需_每组已转化用户'])} 个已转化用户"
-    )
+    for _, row in out.iterrows():
+        if row["情景"].startswith("真实小幅恶化") or row["情景"].startswith("DGP 隐含"):
+            print(
+                f"      [功效] {row['分母']}：真实差值 {row['真实差值_pp']:+.3f}pp、"
+                f"SE {row['当前SE_pp']:.3f}pp → 功效 {row['当前功效']:.3f}"
+            )
     return out
 
 
@@ -479,34 +541,31 @@ def step_srm(cfg, df: pd.DataFrame) -> pd.DataFrame:
 
 
 def step_guardrail_sensitivity(cfg, df: pd.DataFrame) -> pd.DataFrame:
-    """S3：护栏界值本身是拍的 0.5pp —— 换成 0.2/0.3/0.5/1.0pp 结论会不会翻转？
+    """界值敏感性：同一份差值放到 0.2/0.3/0.5/1.0pp 四个界值下，逐口径看结论。
 
-    只报"界值 0.5pp 时通过"是一句没有信息量的话：界值是可以调的。
-    把同一份差值（含其单侧置信上界）放到四个界值下逐一看，才知道
-    "结论对界值有多敏感"，也才知道这条护栏真正能拦住什么。
+    界值是可以调的。只报"0.5pp 通过"没有信息量；两个分母同时给出，
+    才能看出"结论翻转"究竟来自数据还是来自分母。
     """
     alpha_one = float(cfg.require("experiment.guardrail.alpha_one_sided"))
-    t = df["treatment"].to_numpy() == 1
-    conv = df["converted"].to_numpy() == 1
-    ref = df["refunded"].to_numpy() == 1
-    s_t, n_t = int((ref & t & conv).sum()), int((t & conv).sum())
-    s_c, n_c = int((ref & ~t & conv).sum()), int((~t & conv).sum())
-
-    rows = []
-    for margin_pp in (0.2, 0.3, 0.5, 1.0):
-        ni = noninferiority_binary(
-            s_t, n_t, s_c, n_c, margin=margin_pp / 100.0, alpha_one_sided=alpha_one
-        )
-        rows.append(
-            {
-                "界值_pp": margin_pp,
-                "差值_pp": ni.diff * 100,
-                "标准误_pp": ni.se * 100,
-                "单侧CI上界_pp": ni.ci_one_sided_upper * 100,
-                "上界是否低于界值": bool(ni.ci_one_sided_upper < margin_pp / 100.0),
-                "结论": "非劣效成立" if ni.passed else "**非劣效不成立**",
-            }
-        )
+    rows: list[dict[str, object]] = []
+    for label, denominator in GUARDRAIL_DENOMS:
+        s_t, n_t, s_c, n_c = _guardrail_counts(df, denominator)
+        for margin_pp in (0.2, 0.3, 0.5, 1.0):
+            ni = noninferiority_binary(
+                s_t, n_t, s_c, n_c, margin=margin_pp / 100.0, alpha_one_sided=alpha_one
+            )
+            rows.append(
+                {
+                    "口径": label,
+                    "分母": denominator,
+                    "界值_pp": margin_pp,
+                    "差值_pp": ni.diff * 100,
+                    "标准误_pp": ni.se * 100,
+                    "单侧CI上界_pp": ni.ci_one_sided_upper * 100,
+                    "上界是否低于界值": bool(ni.ci_one_sided_upper < margin_pp / 100.0),
+                    "结论": "非劣效成立" if ni.passed else "**非劣效不成立**",
+                }
+            )
     out = pd.DataFrame(rows)
     save_table(out, "r1_guardrail_sensitivity")
     return out
@@ -644,10 +703,12 @@ def main() -> int:
     df_l1, _ = _run_level(cfg, "L1")
     guard = step_guardrail(cfg, df_l1)
     for _, row in guard.iterrows():
-        print(f"      {row['检验']}: 差值 {row['差值_pp']:+.3f}pp -> {row['结论']}")
+        print(f"      [{row['口径']}] {row['检验']}: 差值 {row['差值_pp']:+.3f}pp "
+              f"上界 {row['单侧CI上界_pp']:+.3f}pp -> {row['结论']}")
     sens = step_guardrail_sensitivity(cfg, df_l1)
     for _, row in sens.iterrows():
-        print(f"      界值 {row['界值_pp']:.1f}pp: 单侧上界 {row['单侧CI上界_pp']:+.3f}pp -> {row['结论']}")
+        print(f"      [{row['口径']}] 界值 {row['界值_pp']:.1f}pp: "
+              f"单侧上界 {row['单侧CI上界_pp']:+.3f}pp -> {row['结论']}")
     step_guardrail_power(cfg, df_l1)
 
     print("[5/7] SRM（分流比例）检验 ...")
