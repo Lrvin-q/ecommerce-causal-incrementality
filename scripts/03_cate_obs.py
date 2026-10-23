@@ -314,6 +314,11 @@ def run_lambda_scan(cfg) -> pd.DataFrame:
                         "truth": truth, "realized_ate": realized_ate,
                         "failed": False, "error": "",
                         "n_treated": res.n_treated, "n_control": res.n_control,
+                        # IPW 的权截断是"必须披露"的实现选择（obs.ipw_estimate 的
+                        # diagnostics 自己这么写）。逐格记下来，附录才能给出比例。
+                        "n_e_clipped": float(res.diagnostics.get("n_e_clipped", np.nan)),
+                        "clip_quantile": float(res.diagnostics.get("clip_quantile", np.nan)),
+                        "n_obs": int(t.size),
                     }
                 )
     raw = pd.DataFrame(rows)
@@ -345,6 +350,26 @@ def run_lambda_scan(cfg) -> pd.DataFrame:
     # 单看"跌到 0.75"根本无法区分"真的失效"与"抽样波动"。
     agg = _attach_coverage_ci(agg, alpha=alpha)
     save_table(agg, "r2_lambda_summary")
+
+    # 权截断披露表：IPW 把倾向得分截在 clip_quantile 分位。截断本身引入偏差，
+    # 不写清比例就等于隐藏了一个实现选择（审稿意见 S4）。
+    ipw_raw = raw[(~raw["failed"]) & (raw["method"] == "ipw")]
+    clip = (
+        ipw_raw.assign(截断比例=ipw_raw["n_e_clipped"] / ipw_raw["n_obs"])
+        .groupby("lambda", observed=True)
+        .agg(
+            重复次数=("repeat", "size"),
+            平均截断人数=("n_e_clipped", "mean"),
+            最大截断人数=("n_e_clipped", "max"),
+            平均截断比例=("截断比例", "mean"),
+            最大截断比例=("截断比例", "max"),
+            截断分位=("clip_quantile", "first"),
+        )
+        .reset_index()
+        .sort_values("lambda")
+    )
+    clip["说明"] = "IPW 权重截断在倾向得分 0.99 分位；被截断的样本权重被压到该分位，估计有偏但方差可控"
+    save_table(clip, "r2_ipw_clip")
     return agg
 
 

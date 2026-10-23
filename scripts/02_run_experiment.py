@@ -1,4 +1,4 @@
-"""第一轮实验主线：样本量 → AA 校验 → ITT → 护栏非劣效 → 多重比较 → 重复实验。
+﻿"""第一轮实验主线：样本量 → AA 校验 → ITT → 护栏非劣效 → 多重比较 → 重复实验。
 
 用法
 ----
@@ -352,6 +352,9 @@ def step_guardrail(cfg, df: pd.DataFrame) -> pd.DataFrame:
         two = itt_difference_proportions(
             sub, "refunded", alpha=float(cfg.require("experiment.alpha"))
         )
+        # 双侧 95% 区间与 p 值必须与单侧上界并列落盘：正文既要报"上界未超界值"
+        # （非劣效），也要报"恶化本身显著"（双侧）。只落单侧上界，正文就会
+        # 只剩一句话可说，读起来像"没检出问题"，而实际是一次显著恶化。
         base = {
             "检验": "非劣效检验（对预设界值）",
             "口径": label,
@@ -366,6 +369,8 @@ def step_guardrail(cfg, df: pd.DataFrame) -> pd.DataFrame:
             "标准误_pp": ni.se * 100,
             "界值_pp": margin * 100,
             "单侧CI上界_pp": ni.ci_one_sided_upper * 100,
+            "双侧CI下界_pp": two.ci_lower * 100,
+            "双侧CI上界_pp": two.ci_upper * 100,
             "方法": ni.method,
         }
         rows.append(
@@ -373,6 +378,7 @@ def step_guardrail(cfg, df: pd.DataFrame) -> pd.DataFrame:
                 **base,
                 "结论": "通过：未显著超过界值" if ni.passed else "未通过：显著超过界值",
                 "p值": np.nan,
+                "双侧p值": two.p_value,
             }
         )
         rows.append(
@@ -383,6 +389,7 @@ def step_guardrail(cfg, df: pd.DataFrame) -> pd.DataFrame:
                 "单侧CI上界_pp": two.ci_upper * 100,
                 "结论": "对 0 显著" if two.p_value < 0.05 else "对 0 不显著（**不等于安全**）",
                 "p值": two.p_value,
+                "双侧p值": two.p_value,
                 "方法": two.method,
             }
         )
@@ -571,6 +578,173 @@ def step_guardrail_sensitivity(cfg, df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def step_guardrail_margin(cfg, df: pd.DataFrame) -> pd.DataFrame:
+    """把 0.5pp 的非劣效界值翻译成一笔钱：这是**业务容差**，不是统计导出量。
+
+    审稿意见 N2：界值凭空出现，读者无法判断 0.5pp 是宽还是紧。这里按本文自己的
+    利润口径逐项拆开，算出"允许恶化 0.5pp"最大会让平台损失多少，再与三个基准比：
+    全体用户总利润、本次定向发券的增量利润、（利润指标的）MDE。
+
+    每一行都是"参数 × 公式"，参数全部来自 configs/base.yaml，没有新的假设。
+    """
+    n_users = int(cfg.require("dgp.n_users"))
+    margin_pp = float(cfg.require("experiment.guardrail.noninferiority_margin")) * 100.0
+    aov = float(cfg.require("business.aov_mean"))
+    goods_ratio = float(cfg.require("business.goods_cost_ratio"))
+    recoverable = float(cfg.require("business.refundable_goods_ratio"))
+    fulfill = float(cfg.require("business.fulfill_cost_mean"))
+    fee_rate = float(cfg.require("business.refund_handling_fee_rate"))
+    mde_profit = float(cfg.require("experiment.mde.profit_per_user"))
+
+    extra_refunds = margin_pp / 100.0 * n_users
+    goods_cost = aov * goods_ratio
+    ok_profit = aov * (1.0 - goods_ratio) - fulfill          # 正常订单净贡献
+    refund_profit = -(goods_cost * (1.0 - recoverable)) - fulfill - aov * fee_rate
+    swing = ok_profit - refund_profit                         # 每多一笔退款的净贡献落差
+    margin_cost = extra_refunds * swing
+    profit = df["net_profit"].astype(float)
+    t = df["treatment"].to_numpy() == 1
+    total_profit = float(profit.sum())
+    itt_profit = float(profit[t].mean() - profit[~t].mean())
+    lift_total = itt_profit * n_users
+    per_user_cost = margin_cost / n_users
+
+    rows = [
+        {"项": "界值（百分点）", "值": margin_pp, "单位": "pp", "算式": "experiment.guardrail.noninferiority_margin"},
+        {"项": "合格用户数", "值": n_users, "单位": "人", "算式": "dgp.n_users"},
+        {"项": "界值对应的额外退款单", "值": extra_refunds, "单位": "单", "算式": "界值 × 用户数"},
+        {"项": "客单价", "值": aov, "单位": "元/单", "算式": "business.aov_mean"},
+        {"项": "商品成本", "值": goods_cost, "单位": "元/单", "算式": "客单价 × 成本率 0.68"},
+        {"项": "正常订单净贡献", "值": ok_profit, "单位": "元/单", "算式": "客单价×(1−成本率) − 履约成本"},
+        {"项": "退款单净贡献", "值": refund_profit, "单位": "元/单", "算式": "−商品成本×(1−可回收率 0.85) − 履约成本 − 客单价×手续费率 0.01"},
+        {"项": "每笔额外退款的净贡献落差", "值": swing, "单位": "元/单", "算式": "正常订单净贡献 − 退款单净贡献"},
+        {"项": "界值对应的利润损失", "值": margin_cost, "单位": "元", "算式": "额外退款单 × 落差"},
+        {"项": "全体用户总利润", "值": total_profit, "单位": "元", "算式": "Σ 用户级净贡献利润（L1，20 万人）"},
+        {"项": "本次实验的增量利润总额", "值": lift_total, "单位": "元", "算式": "ITT × 用户数"},
+        {"项": "占全体用户总利润", "值": margin_cost / total_profit * 100.0, "单位": "%", "算式": "利润损失 / 总利润"},
+        {"项": "占本次实验的增量利润", "值": margin_cost / lift_total * 100.0, "单位": "%", "算式": "利润损失 / 增量利润总额"},
+        {"项": "折合人均", "值": per_user_cost, "单位": "元/人", "算式": "利润损失 / 用户数"},
+        {"项": "占利润 MDE", "值": per_user_cost / mde_profit * 100.0, "单位": "%", "算式": "折合人均 / experiment.mde.profit_per_user"},
+    ]
+    out = pd.DataFrame(rows)
+    out["说明"] = ""
+    out.loc[out["项"] == "每笔额外退款的净贡献落差", "说明"] = (
+        "退款单的收入冲减为 0、商品成本只回收 85%、履约与通道费不可回收；券成本在两种状态下都发生，故落差与之无关"
+    )
+    out.loc[out["项"] == "占本次实验的增量利润", "说明"] = (
+        "经营含义：界值允许的退款恶化，会吃掉这次活动增量利润的三分之一左右"
+    )
+    out.loc[out["项"] == "占利润 MDE", "说明"] = (
+        "约占实验设计要检出的利润量级（0.5 元/人）的一半"
+    )
+    out.loc[out["项"] == "界值（百分点）", "说明"] = (
+        "业务容差，不是从数据或功效公式反解出来的；敏感性见 r1_guardrail_sensitivity.csv"
+    )
+    save_table(out, "r1_guardrail_margin")
+    return out
+
+
+def step_guardrail_decomposition(cfg, df: pd.DataFrame) -> pd.DataFrame:
+    """把"全用户口径差值"拆成构成效应与质量效应（审稿意见 S1）。
+
+    全用户退款率 = 转化率 × 已下单退款率：``r = p·q``。于是
+
+        Δr = q0·(p1−p0) + p0·(q1−q0) + (p1−p0)(q1−q0)
+
+    第一项是"更多人下单 → 更多人退款"的量效应，第二项是"单笔退款质量"的
+    质量效应，第三项是交互。三项在代数上恒等于 r1 与 r0 之差，因此这也是
+    口径自检：合不上就说明分母混用了。
+    """
+    t = df["treatment"].to_numpy() == 1
+    conv = df["converted"].to_numpy() == 1
+    ref = df["refunded"].to_numpy() == 1
+    p1, p0 = float(conv[t].mean()), float(conv[~t].mean())
+    q1 = float(ref[t & conv].sum() / conv[t].sum())
+    q0 = float(ref[~t & conv].sum() / conv[~t].sum())
+    r1, r0 = p1 * q1, p0 * q0
+    volume = q0 * (p1 - p0)
+    quality = p0 * (q1 - q0)
+    inter = (p1 - p0) * (q1 - q0)
+    total = r1 - r0
+    rows = []
+    for name, val, formula in (
+        ("量效应（更多人下单）", volume, "q0·(p1−p0)"),
+        ("质量效应（单笔退款率变化）", quality, "p0·(q1−q0)"),
+        ("交互项", inter, "(p1−p0)(q1−q0)"),
+        ("合计（= 全用户口径差值）", total, "p1·q1 − p0·q0"),
+        ("代数校验（三项和 − 合计）", volume + quality + inter - total, "=0，浮点误差内"),
+    ):
+        rows.append(
+            {
+                "项": name,
+                "符号": formula,
+                "值_pp": val * 100.0,
+                "占比_%": (val / total * 100.0) if total else np.nan,
+            }
+        )
+    out = pd.DataFrame(rows)
+    out.loc[out.index[-1], ["占比_%", "符号"]] = [np.nan, "=0"]
+    out["口径参数"] = [
+        f"p1={p1:.6f}, p0={p0:.6f}, q1={q1:.6f}, q0={q0:.6f}",
+        "", "", "", "",
+    ]
+    save_table(out, "r1_guardrail_decomposition")
+    return out
+
+
+def step_ci_width_decomposition(cfg, itt_df: pd.DataFrame) -> pd.DataFrame:
+    """L2 的利润区间为什么是 L0/L1 的两倍：样本量、分流比例、方差各占多少。
+
+    审稿意见 N3：旧稿把宽度翻倍直接归因于 30/70 分流，复算后不成立。
+    区间半宽 ∝ σ·sqrt(1/n1 + 1/n0)（balanced 1:1 时 sqrt(4/n)），因此可以
+    乘性分解为三个因子：样本量 20 万→6 万、6 万 1:1→6 万 30/70、以及两层的
+    实现标准差之比。三者相乘必须等于实际半宽之比。
+    """
+    prof = itt_df[itt_df["指标"] == "net_profit_per_user"].set_index("层级")
+    l1, l2 = prof.loc["L1"], prof.loc["L2"]
+    hw1 = float((l1["CI上界"] - l1["CI下界"]) / 2.0)
+    hw2 = float((l2["CI上界"] - l2["CI下界"]) / 2.0)
+    n1_t, n1_c = int(l1["n处理组"]), int(l1["n对照组"])
+    n2_t, n2_c = int(l2["n处理组"]), int(l2["n对照组"])
+    se1 = float(np.sqrt(1.0 / n1_t + 1.0 / n1_c))
+    se2 = float(np.sqrt(1.0 / n2_t + 1.0 / n2_c))
+    # 反事实：6 万人按 1:1 分流 → 每组 3 万人 → sqrt(1/30000+1/30000) = sqrt(4/60000)
+    se_6w_11 = float(np.sqrt(4.0 / (n2_t + n2_c)))
+    f_sample = se_6w_11 / se1
+    f_alloc = se2 / se_6w_11
+    f_sigma = (hw2 / hw1) / (f_sample * f_alloc)
+    ratio = hw2 / hw1
+    log_shares = {
+        "样本量": np.log(f_sample) / np.log(ratio) * 100.0,
+        "分流比例": np.log(f_alloc) / np.log(ratio) * 100.0,
+        "实现标准差": np.log(f_sigma) / np.log(ratio) * 100.0,
+    }
+    rows = [
+        {"项": "L1 利润区间半宽（元/人）", "值": hw1, "算式": f"(CI 上界−下界)/2，n={n1_t:,}/{n1_c:,} 1:1"},
+        {"项": "L2 利润区间半宽（元/人）", "值": hw2, "算式": f"(CI 上界−下界)/2，n={n2_t:,}/{n2_c:,} 30/70"},
+        {"项": "半宽之比", "值": ratio, "算式": "L2 / L1"},
+        {"项": "因子①：20 万→6 万（1:1）", "值": f_sample, "算式": f"sqrt(4/{n2_t + n2_c:,}) / sqrt(1/{n1_t:,}+1/{n1_c:,})"},
+        {"项": "因子②：6 万 1:1→6 万 30/70", "值": f_alloc, "算式": f"sqrt(1/{n2_t:,}+1/{n2_c:,}) / sqrt(4/{n2_t + n2_c:,})"},
+        {"项": "因子③：两层实现标准差之比", "值": f_sigma, "算式": "半宽之比 ÷ (因子①×因子②)"},
+        {"项": "三因子乘积（应等于半宽之比）", "值": f_sample * f_alloc * f_sigma, "算式": "①×②×③"},
+        {"项": "因子① 对数占比（%）", "值": log_shares["样本量"], "算式": "ln① / ln(半宽比)"},
+        {"项": "因子② 对数占比（%）", "值": log_shares["分流比例"], "算式": "ln② / ln(半宽比)"},
+        {"项": "因子③ 对数占比（%）", "值": log_shares["实现标准差"], "算式": "ln③ / ln(半宽比)"},
+    ]
+    out = pd.DataFrame(rows)
+    # 为什么是 6 万而不是 4 万或 10 万：给出三个候选的预期半宽，让选择可核对。
+    sigma = hw2 / (1.959963984540054 * se2)
+    for n_cand in (40000, 60000, 100000):
+        hw_cand = 1.959963984540054 * sigma * float(np.sqrt(1.0 / (0.3 * n_cand) + 1.0 / (0.7 * n_cand)))
+        out.loc[len(out)] = {
+            "项": f"候选规模 n={n_cand:,} 的预期半宽（元/人）",
+            "值": hw_cand,
+            "算式": "1.96·σ·sqrt(1/(0.3n)+1/(0.7n))，σ 取 L2 实现值",
+        }
+    save_table(out, "r1_ci_width_decomposition")
+    return out
+
+
 def step_multiplicity(cfg, itt_df: pd.DataFrame) -> pd.DataFrame:
     """两个主指标（利润、转化率）的 Holm 校正。
 
@@ -709,6 +883,14 @@ def main() -> int:
     for _, row in sens.iterrows():
         print(f"      [{row['口径']}] 界值 {row['界值_pp']:.1f}pp: "
               f"单侧上界 {row['单侧CI上界_pp']:+.3f}pp -> {row['结论']}")
+    mars = step_guardrail_margin(cfg, df_l1)
+    for _, row in mars.iterrows():
+        if row["单位"] in ("元", "%"):
+            print(f"      界值成本：{row['项']} = {row['值']:.4g} {row['单位']}")
+    comp = step_guardrail_decomposition(cfg, df_l1)
+    print("      构成分解：" + "、".join(
+        f"{r['项']} {r['值_pp']:+.4f}pp" for _, r in comp.head(4).iterrows()))
+    step_ci_width_decomposition(cfg, itt_df)
     step_guardrail_power(cfg, df_l1)
 
     print("[5/7] SRM（分流比例）检验 ...")

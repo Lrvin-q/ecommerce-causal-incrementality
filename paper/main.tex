@@ -1,4 +1,4 @@
-% =============================================================================
+﻿% =============================================================================
 %  预算约束下电商营销策略的因果评估与增量利润优化
 %  副标题：基于已知数据生成过程的模拟验证研究
 %
@@ -8,7 +8,7 @@
 \documentclass[UTF8, fontset=windows, a4paper, zihao=5]{ctexart}
 
 % ---------- 页面 ----------
-\usepackage[a4paper, margin=2.05cm, top=2.3cm, bottom=2.05cm, footskip=1.0cm]{geometry}
+\usepackage[a4paper, margin=1.95cm, top=2.15cm, bottom=1.95cm, footskip=0.9cm]{geometry}
 
 % ---------- 数学 ----------
 \usepackage{amsmath, amssymb, amsthm, bm}
@@ -50,7 +50,7 @@
 \setlength{\LTcapwidth}{\linewidth}
 \setlength{\LTpre}{2pt}
 \setlength{\LTpost}{2pt}
-\renewcommand{\arraystretch}{1.14}
+\renewcommand{\arraystretch}{1.08}
 % 列间距：默认 6pt 下"表 5（10 列）"会溢出 9pt；4.5pt 是 booktabs 表格的常见取值，
 % 既解决溢出，又不至于让相邻列粘在一起。
 \setlength{\tabcolsep}{4.5pt}
@@ -109,13 +109,13 @@
 \ctexset{
   section = {
     format   = \Large\bfseries\sffamily,
-    beforeskip = 12pt plus 2pt minus 2pt,
-    afterskip  = 6pt plus 1pt,
+    beforeskip = 9pt plus 2pt minus 2pt,
+    afterskip  = 5pt plus 1pt,
   },
   subsection = {
     format   = \large\bfseries\sffamily,
-    beforeskip = 12pt plus 2pt minus 2pt,
-    afterskip  = 6pt plus 1pt,
+    beforeskip = 9pt plus 2pt minus 2pt,
+    afterskip  = 5pt plus 1pt,
   },
   subsubsection = {
     format   = \normalsize\bfseries\sffamily,
@@ -191,9 +191,13 @@
 % 首页需容纳“标题 + 摘要 + 关键词”，故摘要段落使用更紧的行距（1.18 倍），
 % 否则关键词会被挤到第二页，形成近空白页。
 \begin{abstract}
-\linespread{1.15}\selectfont
+\linespread{1.04}\selectfont
 \small
-电商营销长期以转化率为目标。该指标无法区分真实增量、利润侵蚀与需求提前，也支撑不了“是否发券、发给谁、发多大面额”的组合决策。本文构建微观机制已知的分层模拟器（L0--L3），以每位合格用户的净增量贡献利润为首要指标、转化率为共同主指标，在预算与风险约束下评估营销策略的因果效应与策略价值。模拟器的真值由解析式给出，训练与测试按用户切分。方法包括随机实验（样本量双指标、AA 与 SRM 校验、ITT、护栏非劣效与 Holm 校正）、观察性识别（朴素差分、PSM、IPW、DR 随未观测混淆强度 $\lambda$ 扫描，每格重复 100 次并给 Clopper--Pearson 区间）与预算约束优化（贪心 + 局部改进（近似背包）、LP 松弛上界）。20 万用户、重复 200 次的结果是：ITT 偏差 $+0.002$ 元/人，覆盖率 0.950；定向发券人均增量利润 0.349 元（95\% CI 0.318--0.384），为随机发券 0.122 元（200 个种子）的 2.9 倍，每元回报 2.08 元（95\% CI 1.91--2.29），占真值贪心解 86\%（95\% CI 82\%--91\%）。边界结论有三条。样本量约束者可以不是主指标，翻转临界 0.36 元/人。护栏的分母决定结论：全用户口径差值 $+0.36$pp、单侧上界 0.435pp、功效 0.64；已下单口径差值 $-0.36$pp、上界 0.215pp、功效 0.194，“通过”必须连同分母与功效一起报。轻度混淆（$\lambda=0.25$）下 IPW/DR 覆盖率跌至 0.82/0.79，而 $\lambda=0.5$ 时标准化均值差全部低于 0.004，平衡性诊断全绿时观察性估计仍可能失效。贪心另有一处边界：全规模下与 LP 松弛上界只差 $1.8\times10^{-7}$，3 件大额件的反例中损失 33\%。结果基于合成数据与已知 DGP，结论只在给定生成机制内成立。
+电商营销长期以转化率为目标。该指标无法区分真实增量、利润侵蚀与需求提前，也支撑不了“是否发券、发给谁、发多大面额”的组合决策。本文构建微观机制已知的分层模拟器（L0--L3），以每位合格用户的净增量贡献利润为首要指标、转化率为共同主指标，在预算与风险约束下评估营销策略的因果效应与策略价值。模拟器的真值由解析式给出，训练与测试按用户切分。方法包括随机实验（样本量双指标、AA 与 SRM 校验、ITT、护栏非劣效与 Holm 校正）、观察性识别（朴素差分、PSM、IPW、DR 随未观测混淆强度 $\lambda$ 扫描，每格重复 100 次并给 Clopper--Pearson 区间）与预算约束优化（贪心 + 局部改进（近似背包）、LP 松弛上界）。
+
+20 万用户、重复 200 次的结果是：ITT 偏差 $+0.002$ 元/人，覆盖率 0.950；定向发券人均增量利润 0.349 元（95\% CI 0.309--0.389，已并入再训练波动），为随机发券 0.122 元（200 个种子）的 2.9 倍，每元回报 2.08 元（95\% CI 1.85--2.32），占真值贪心解 86\%（95\% CI 79\%--94\%）。
+
+边界结论有三条。样本量约束者可以不是主指标，翻转临界 0.36 元/人。护栏的分母决定结论：全用户口径差值 $+0.36$pp（双侧 $p=9.0\times10^{-16}$）、单侧上界 0.435pp、功效 0.64；已下单口径差值 $-0.36$pp、上界 0.215pp、功效 0.194，“通过”必须连同分母与功效一起报。轻度混淆（$\lambda=0.25$）下 IPW/DR 覆盖率跌至 0.82/0.79，而 $\lambda=0.5$ 时标准化均值差全部低于 0.004：平衡性诊断全绿时观察性估计仍可能失效，覆盖率比偏差更早崩塌。贪心另有一处边界：全规模下与 LP 松弛上界只差 $1.8\times10^{-7}$，3 件大额件的反例中损失 33\%。结果基于合成数据与已知 DGP，结论只在给定生成机制内成立。
 
 \paperkeywords{因果推断；增量利润；异质性处理效应；预算约束优化；模拟验证}
 \end{abstract}
@@ -206,7 +210,7 @@
 % 摘要+关键词约占版心 2/3，剩余空间正好容纳 8 行目录。
 % \vspace 收紧 titlesec 给 \section* 预留的上间距。
 \setcounter{tocdepth}{1}
-\vspace{-10pt}
+\vspace{-20pt}
 {\linespread{1.0}\selectfont
 \tableofcontents
 }

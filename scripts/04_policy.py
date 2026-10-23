@@ -381,6 +381,170 @@ def _point_value(res: SelectionResult, pi1: np.ndarray, pi0: np.ndarray) -> floa
     return incremental_value(res.policy, pi1, pi0)
 
 
+def run_policy_refit_bootstrap(cfg, s, *, n_reps: int | None = None) -> pd.DataFrame:
+    """**全过程** bootstrap：重抽训练集 → 重拟合 CATE 与核销成本模型 → 重跑贪心。
+
+    为什么这一个区间不可省
+    ----------------------
+    ``bootstrap_strategy_intervals`` 只重抽测试集用户、策略固定不动，得到的是
+    **条件区间**：它回答"这 6 万人的抽样误差有多大"，不回答"换一批训练数据，
+    学出来的策略值多少"。后者才是决策者每次重新建模都会面对的不确定性。
+
+    做法（每一步都真的重跑，不是模拟）：
+    1. 从训练集**有放回**重抽同样多的人；
+    2. 在重抽样本上重拟合 Causal Forest（``seed_index`` 逐次不同，森林本身也变）；
+    3. 在重抽样本上重拟合核销模型，得到新的 c(X)；
+    4. 预算固定在基准 B（不同重抽之间预算可比，否则"值变了"可能只是预算变了）；
+    5. 重跑 τ̂/c 贪心 + 1-2 交换，在原测试集上评估实现价值。
+
+    区间用**重抽均值 ± 1.96 倍重抽标准差**（正态近似），并同时给出分位数范围。
+    次数少（默认 10）时分位数极不稳定，2.5% 分位实际上就是最小值，不能当 CI 报。
+    """
+    from types import SimpleNamespace
+
+    pop, split = s["pop"], s["split"]
+    X = s["X"]
+    t = pop.treatment.astype(int)
+    y_obs, _ = pop.potential.observed(t)
+    coupon_used = (t == 1) & (y_obs == 1) & pop.latent["redeemed"]
+    face = float(pop.truth.face_value)
+    budget = s["budget"]
+    pi1, pi0, tau_true_test = s["pi1"], s["pi0"], s["tau_true"]
+    n = pi1.size
+    oracle_policy = local_improvement(
+        tau_true_test, s["cost"], budget, greedy_by_ratio(tau_true_test, s["cost"], budget).policy
+    ).policy
+    oracle_value = incremental_value(oracle_policy, pi1, pi0)
+
+    n_reps = int(n_reps or cfg.require("evaluation.policy_refit_reps"))
+    rows: list[dict] = []
+    for b in range(n_reps):
+        rng_b = child_rng(_seed(cfg), "policy.refit", b)
+        train_b = split.train[rng_b.integers(0, split.train.size, size=split.train.size)]
+        # estimate_cate 只读 split 的三个索引数组，用一个轻量对象即可承载重抽后的训练集；
+        # 不能用 data.split.Split —— 它断言三者不相交且并集为全体，重抽必然违反。
+        boot_split = SimpleNamespace(train=train_b, val=split.val, test=split.test)
+        fit_b = estimate_cate(
+            pop, cfg, boot_split, outcome="net_profit", method="causal_forest", seed_index=100 + b
+        )
+        # 核销模型也在重抽样本上重拟合：把"重抽的训练集"和"原测试集"拼在一起喂进去，
+        # fit_mask 只覆盖前半段，于是返回值的后半段就是测试集的预测（含重抽带来的变化）。
+        X_aug = np.vstack([X[train_b], X[split.test]])
+        t_aug = np.concatenate([t[train_b], t[split.test]])
+        used_aug = np.concatenate([coupon_used[train_b], coupon_used[split.test]])
+        mask_aug = np.concatenate([np.ones(train_b.size, dtype=bool),
+                                   np.zeros(split.test.size, dtype=bool)])
+        p_red_b = fit_redemption_model(
+            X_aug, used_aug, t_aug, fit_mask=mask_aug, cfg=cfg, seed_index=100 + b
+        )
+        cost_b = compute_expected_cost(p_red_b[-split.test.size:], face_value=face, cfg=cfg).cost()
+        g_b = greedy_by_ratio(fit_b.tau_test, cost_b, budget)
+        ls_b = local_improvement(fit_b.tau_test, cost_b, budget, g_b.policy)
+        v = incremental_value(ls_b.policy, pi1, pi0)
+        rows.append(
+            {
+                "repeat": b,
+                "增量价值_元每人": v,
+                "每元回报": v * n / float(cost_b[ls_b.policy].sum())
+                if cost_b[ls_b.policy].sum() > 0 else np.nan,
+                "占真值贪心解_%": 100.0 * v / oracle_value if oracle_value > 0 else np.nan,
+                "选中人数": int(ls_b.policy.sum()),
+                "成本_元": float(cost_b[ls_b.policy].sum()),
+                "tau与真值相关": float(np.corrcoef(fit_b.tau_test, tau_true_test)[0, 1]),
+            }
+        )
+    raw = pd.DataFrame(rows)
+    save_table(raw, "r3_policy_refit_raw")
+
+    point = {
+        "增量价值_元每人": incremental_value(
+            local_improvement(
+                s["tau_hat"], s["cost"], budget,
+                greedy_by_ratio(s["tau_hat"], s["cost"], budget).policy,
+            ).policy,
+            pi1, pi0,
+        )
+    }
+    _g0 = local_improvement(
+        s["tau_hat"], s["cost"], budget, greedy_by_ratio(s["tau_hat"], s["cost"], budget).policy
+    )
+    point = {
+        "增量价值_元每人": incremental_value(_g0.policy, pi1, pi0),
+        "每元回报": incremental_value(_g0.policy, pi1, pi0) * n / float(_g0.cost_total),
+        "占真值贪心解_%": 100.0 * incremental_value(_g0.policy, pi1, pi0) / oracle_value,
+    }
+    summary_rows = []
+    spec = [
+        ("增量价值_元每人", "增量价值（元/人）"),
+        ("每元回报", "每元回报（元）"),
+        ("占真值贪心解_%", "占真值贪心解（%）"),
+    ]
+    for col, label in spec:
+        arr = raw[col].to_numpy(dtype=float)
+        summary_rows.append(
+            {
+                "指标": label,
+                "主实验点估计": point[col],
+                "重抽次数": n_reps,
+                "重抽均值": float(arr.mean()),
+                "重抽标准差": float(arr.std(ddof=1)),
+                "正态CI下界": float(arr.mean() - 1.959963984540054 * arr.std(ddof=1)),
+                "正态CI上界": float(arr.mean() + 1.959963984540054 * arr.std(ddof=1)),
+                "分位2.5": float(np.percentile(arr, 2.5)),
+                "分位97.5": float(np.percentile(arr, 97.5)),
+                "最小": float(arr.min()),
+                "最大": float(arr.max()),
+                "说明": "重抽训练集 → 重拟合 CATE 与核销模型 → 重跑贪心；预算固定为基准 B",
+            }
+        )
+    summary = pd.DataFrame(summary_rows)
+    save_table(summary, "r3_policy_refit_ci")
+    return summary
+
+
+def combine_policy_intervals(ci: pd.DataFrame, refit: pd.DataFrame) -> pd.DataFrame:
+    """把"测试集抽样"与"再训练"两个不确定性按方差相加，给出全过程区间。
+
+    为什么要合成：``r3_six_strategies_ci.csv`` 的条件区间只重抽测试集（策略固定），
+    ``r3_policy_refit_ci.csv`` 的重抽区间只重抽训练集（测试集固定）。决策者面对的
+    不确定性两者都有，方差可加（两个来源近似独立），于是合并标准差
+    ``sqrt(sd_cond² + sd_refit²)``，区间取点估计 ± 1.96 倍合并标准差。
+
+    注意重抽均值的**位置**不用：有放回重抽只保留约 63% 的不同用户，模型略弱，
+    重抽均值系统性低于点估计（自助法的向下偏），拿它当中心会把区间整体压偏。
+    这里只用重抽的**离散度**。
+    """
+    cond = ci[ci["strategy_key"] == "target_greedy"].set_index("指标")
+    rows = []
+    for metric_label, key in (
+        ("增量价值（元/人）", "incremental_value"),
+        ("每元回报（元）", "value_per_yuan"),
+        ("占真值贪心解（%）", "pct_of_oracle"),
+    ):
+        point = float(cond.loc[key, "点估计"])
+        half = (float(cond.loc[key, "CI上界"]) - float(cond.loc[key, "CI下界"])) / 2.0
+        sd_cond = half / 1.959963984540054
+        sd_refit = float(refit.loc[refit["指标"] == metric_label, "重抽标准差"].iloc[0])
+        sd_all = float(np.sqrt(sd_cond**2 + sd_refit**2))
+        rows.append(
+            {
+                "指标": metric_label,
+                "点估计": point,
+                "条件区间下界": float(cond.loc[key, "CI下界"]),
+                "条件区间上界": float(cond.loc[key, "CI上界"]),
+                "条件标准差": sd_cond,
+                "再训练标准差": sd_refit,
+                "合并标准差": sd_all,
+                "合并区间下界": point - 1.959963984540054 * sd_all,
+                "合并区间上界": point + 1.959963984540054 * sd_all,
+                "说明": "合并 = sqrt(条件² + 再训练²)；区间以点估计为中心，用合并标准差定宽",
+            }
+        )
+    out = pd.DataFrame(rows)
+    save_table(out, "r3_policy_combined_ci")
+    return out
+
+
 def _over_budget(res: SelectionResult) -> bool:
     return bool(res.cost_total > res.budget * 1.0000001)
 
@@ -406,6 +570,15 @@ def run_greedy_gap(cfg, s) -> pd.DataFrame:
             "贪心/上界": v_g / ub if ub > 0 else np.nan,
             "局部改进/上界": v_ls / ub if ub > 0 else np.nan,
             "精确DP": np.nan,
+            # 1-2 交换到底改了什么：先看选中人数，再看成本。两者都逐位记录，
+            # 正文的"成本只差 X 元"才能从表里直接读出（旧稿把预算使用率之差
+            # 当成了成本之差，差了三个数量级）。
+            "选中人数_贪心": int(g.policy.sum()),
+            "选中人数_局部改进": int(ls.policy.sum()),
+            "成本_贪心": g.cost_total,
+            "成本_局部改进": ls.cost_total,
+            "成本差_元": ls.cost_total - g.cost_total,
+            "相对预算差": (ls.cost_total - g.cost_total) / budget if budget > 0 else np.nan,
             "说明": "LP 上界是松弛，不是最优解；比值越接近 1 说明贪心越好",
         }
     ]
@@ -461,36 +634,66 @@ def run_greedy_gap(cfg, s) -> pd.DataFrame:
 # 预算敏感性
 # --------------------------------------------------------------------------- #
 def run_budget_scan(cfg, s) -> pd.DataFrame:
-    """预算从 5% 覆盖扫到 60%，看哪种策略最优是否稳定。"""
+    """预算从 5% 覆盖扫到 60%，看哪种策略最优是否稳定。
+
+    随机基线必须按**分布**报，而不是一次抽样（审稿意见 N5）。旧版每个预算点只
+    抽一次 ``random_under_budget``，于是"相对优势倍数"随单次运气跳动：预算越紧，
+    随机策略选的人越少，单次实现的标准差越大（×0.2 处只选 2,400 人，相对误差约
+    20%），曲线看上去非单调其实是噪声。现在每个点跑 ``budget.scan.seeds`` 个种子，
+    报均值与百分位区间，倍数也换成"定向 ÷ 随机均值"并给区间。
+    """
     scan = cfg.section("budget.scan")
     ratios = np.linspace(float(scan["min_ratio"]), float(scan["max_ratio"]), int(scan["n_points"]))
+    n_seeds = int(scan.get("seeds", 50))
     cost, tau_hat, tau_true = s["cost"], s["tau_hat"], s["tau_true"]
     pi1, pi0 = s["pi1"], s["pi0"]
     base_budget = s["budget"]
-    rng = child_rng(_seed(cfg), "policy.scan", 0)
 
     rows = []
-    for r in ratios:
+    draw_store: list[np.ndarray] = []
+    for point_idx, r in enumerate(ratios):
         b = base_budget * float(r)
         g = greedy_by_ratio(tau_hat, cost, b)
         orc = local_improvement(tau_true, cost, b, greedy_by_ratio(tau_true, cost, b).policy)
-        rnd = random_under_budget(cost, b, rng)
+        v_g = incremental_value(g.policy, pi1, pi0)
+        v_o = incremental_value(orc.policy, pi1, pi0)
+        draws = np.empty(n_seeds, dtype=float)
+        for k in range(n_seeds):
+            rnd = random_under_budget(
+                cost, b, child_rng(_seed(cfg), "policy.scan", point_idx * 1000 + k)
+            )
+            draws[k] = incremental_value(rnd.policy, pi1, pi0)
+        draw_store.append(draws)
+        lo, hi = np.percentile(draws, [2.5, 97.5])
         rows.append(
             {
                 "预算倍数": float(r),
                 "预算_元": b,
                 "覆盖率_贪心": float(g.policy.mean()),
-                "价值_贪心": incremental_value(g.policy, pi1, pi0),
-                "价值_随机": incremental_value(rnd.policy, pi1, pi0),
-                "价值_真值贪心解": incremental_value(orc.policy, pi1, pi0),
-                "定向增益_相对随机": (
-                    incremental_value(g.policy, pi1, pi0) - incremental_value(rnd.policy, pi1, pi0)
-                ),
+                "价值_贪心": v_g,
+                "价值_随机": float(draws.mean()),
+                "价值_随机_标准差": float(draws.std(ddof=1)),
+                "价值_随机_CI下界": float(lo),
+                "价值_随机_CI上界": float(hi),
+                "随机种子数": n_seeds,
+                "价值_真值贪心解": v_o,
+                "定向增益_相对随机": v_g - float(draws.mean()),
+                "定向增益_CI下界": v_g - float(hi),
+                "定向增益_CI上界": v_g - float(lo),
             }
         )
     out = pd.DataFrame(rows)
     out["贪心达上界比"] = out["价值_贪心"] / out["价值_真值贪心解"].replace(0, np.nan)
     out["定向相对优势倍数"] = out["价值_贪心"] / out["价值_随机"].replace(0, np.nan)
+    # 倍数的区间：分子（定向）是确定性的，分母（随机）是抽出来的分布，逐次相除取分位。
+    ratio_lo, ratio_hi = [], []
+    for (_, row), draws in zip(out.iterrows(), draw_store):
+        v_g = float(row["价值_贪心"])
+        q = np.percentile(v_g / np.where(draws != 0, draws, np.nan), [2.5, 97.5])
+        ratio_lo.append(float(q[0]))
+        ratio_hi.append(float(q[1]))
+    out["定向相对优势_CI下界"] = ratio_lo
+    out["定向相对优势_CI上界"] = ratio_hi
     save_table(out, "r3_budget_scan")
     return out
 
@@ -686,12 +889,32 @@ def main() -> int:
     scan = run_budget_scan(cfg, s)
     for _, row in scan.iterrows():
         print(f"      B×{row['预算倍数']:.2f}: 贪心 {row['价值_贪心']:+.4f}  "
-              f"随机 {row['价值_随机']:+.4f}  上界 {row['价值_真值贪心解']:+.4f}  "
-              f"定向增益 {row['定向增益_相对随机']:+.4f}")
+              f"随机 {row['价值_随机']:+.4f}±{row['价值_随机_标准差']:.4f}"
+              f"（{int(row['随机种子数'])} 种子）  上界 {row['价值_真值贪心解']:+.4f}  "
+              f"定向增益 {row['定向增益_相对随机']:+.4f}  "
+              f"倍数 {row['定向相对优势倍数']:.2f} [{row['定向相对优势_CI下界']:.2f}, "
+              f"{row['定向相对优势_CI上界']:.2f}]")
+    print(f"      9 个预算点的倍数区间："
+          f"[{scan['定向相对优势_CI下界'].min():.2f}, {scan['定向相对优势_CI上界'].max():.2f}]，"
+          f"全部点下界 > 1：{bool((scan['定向相对优势_CI下界'] > 1).all())}")
 
     print("[5/6] 出图 ...")
     plot_six(six, cfg)
     plot_budget_scan(scan, cfg)
+
+    print(f"[5b/6] 全过程 bootstrap（重抽训练集 → 重拟合 → 重跑贪心，"
+          f"{cfg.require('evaluation.policy_refit_reps')} 次）...")
+    refit = run_policy_refit_bootstrap(cfg, s)
+    for _, row in refit.iterrows():
+        print(f"      {row['指标']}: 点估计 {row['主实验点估计']:.4f}  "
+              f"重抽 {row['重抽均值']:.4f} ± {row['重抽标准差']:.4f}  "
+              f"正态 CI [{row['正态CI下界']:.4f}, {row['正态CI上界']:.4f}]  "
+              f"范围 [{row['最小']:.4f}, {row['最大']:.4f}]")
+    comb = combine_policy_intervals(six_ci, refit)
+    for _, row in comb.iterrows():
+        print(f"      合并：{row['指标']} {row['点估计']:.4f} "
+              f"[{row['合并区间下界']:.4f}, {row['合并区间上界']:.4f}]"
+              f"（条件半宽折合 sd {row['条件标准差']:.4f}，再训练 sd {row['再训练标准差']:.4f}）")
 
     print("[6/6] 业务合理性扫描（四参数 ±20%）...")
     rob = run_robustness(cfg)
