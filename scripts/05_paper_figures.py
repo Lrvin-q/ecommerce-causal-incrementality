@@ -931,8 +931,10 @@ def fig6_policy() -> Path:
             # 数值改柱内白字（审稿意见 N5 的两种改法之一），贴在柱脚而不是柱顶：
             # 误差棒的**下半截**（CI 下界 0.318 → 柱顶 0.349）正好落在柱内，
             # 标签若贴柱顶会被这根竖线穿过（视觉复验第一版就是这么判的）。
+            # 第 5 轮：0.122 压在浅橙 #FB8C00 上，白字对比度只有 2.4:1；浅色柱改深色字。
+            label_color = "white" if key == "target_greedy" else "#3E2723"
             ax.text(xi, 0.014, f"{v:.3f}", ha="center", va="bottom", fontsize=FS_TICK,
-                    color="white", fontweight="bold", zorder=6)
+                    color=label_color, fontweight="bold", zorder=6)
         else:
             # 0.000 这根柱高为 0，标签贴基线与"随机"的标签会叠；靠左对齐放在柱脚。
             ax.text(xi - 0.02, 0.014, f"{v:.3f}", ha="right", va="bottom", fontsize=FS_TICK)
@@ -1020,38 +1022,36 @@ def fig6_policy() -> Path:
     _legend_below(ax, ncol=3, y=-0.46)
     _panel(ax, "c", f"9 个预算点上定向始终更高")
 
-    # (d) 贪心 / LP 上界 / 精确 DP：改用**比值柱**，纵轴线性。
-    # 旧版画绝对价值并取对数：0.9999993 与 0.9970 在对数轴上成了两根等高柱，
-    # 12 / 18 / 19.2、0.30%、33% 一个都标不出来；竖排"不可行"又落在灰柱右侧、
-    # 读起来像在否定上界本身。比值柱把"三种规模三种结论"直接摆在 1.0 参考线上下。
+    # (d) 三个规模统一成“算法 / 参考答案”，越高越好。
+    # 旧版三根柱分别是 贪心/上界=0.9999993、DP/贪心=0.9970（越小越好）、
+    # 贪心/最优=0.667，方向相反，不能放在同一把尺上；横轴三组刻度各占 2–3 行，
+    # 第一组的“贪心 / 上界”与第二组的“1,000 人”在版面上压在一起。
+    # 现在横轴只留三个规模名，人数与“精确 DP 不可行”移入图注；
+    # 三根柱一律是“贪心 / 参考答案”：0.9999993、1.00298、0.66667。
     ax = axes[1, 1]
     by_item = {str(r["项"]): r for _, r in gap.iterrows()}
     full = by_item["全规模（n=60000）"]
     down = by_item["降规模（n=1000）"]
     counter = by_item["方案反例（3 件）"]
     ratios = np.array([
-        float(full["贪心/上界"]),                                  # 0.9999993
-        float(down["精确DP"]) / float(down["贪心估计价值"]),        # 0.9970
-        float(counter["贪心估计价值"]) / float(counter["精确DP"]),  # 0.667
+        float(full["贪心/上界"]),                                   # 0.9999993
+        float(down["贪心估计价值"]) / float(down["精确DP"]),         # 1.00298
+        float(counter["贪心估计价值"]) / float(counter["精确DP"]),   # 0.66667
     ])
-    texts = [f"{ratios[0]:.7f}", f"{ratios[1]:.4f}", f"{ratios[2]:.3f}"]
+    values = ["1.000", "1.003", "0.667"]
+    # 方向标注：全规模只写“≈ 上界”。正文的 1.8×10⁻⁷ 是元/人绝对差，与这里的
+    # 比值差量纲不同，同屏写出 7×10⁻⁷ 容易被读成与正文互相矛盾。
+    directions = ["≈ 上界", "贪心高 0.30%", "贪心低 33%"]
     x = np.arange(len(ratios))
     ax.bar(x, ratios, width=0.55, color=STRATEGY_COLORS["target_greedy"], alpha=0.9)
-    for xi, v, s in zip(x, ratios, texts):
-        ax.text(xi, v + 0.055, s, ha="center", va="bottom", fontsize=FS_TICK)
-    # 不再画 y=1 的参考虚线：前两根柱顶就是 1.00，柱顶数值标签与虚线只隔 3–4pt，
-    # 视觉复验判为"非常拥挤、容易误读"。1.00 仍在纵轴刻度上，纵轴标题也写明
-    # "1 = 持平"，参考线是重复信息。
-    ax.set_xticks(
-        x,
-        ["全规模（精确 DP 不可行）\n60,000 人 · 贪心 / 上界",
-         "降规模\n1,000 人 · DP / 贪心",
-         "反例\n3 件 · 贪心 / 最优"],
-        fontsize=FS_TICK,
-    )
-    ax.set_ylim(0, 1.18)
+    for xi, v, s, d in zip(x, ratios, values, directions):
+        ax.text(xi, v + 0.05, f"{s}\n{d}", ha="center", va="bottom", fontsize=FS_TICK,
+                linespacing=1.15)
+    ax.set_xticks(x, ["全规模", "降规模", "反例"], fontsize=FS_TICK)
+    ax.set_ylim(0, 1.40)
     ax.set_xlim(-0.65, 2.65)
-    ax.set_ylabel("相对参照解的比例（1 = 持平）", fontsize=FS_LABEL)
+    ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
+    ax.set_ylabel("算法 / 参考答案（越高越好）", fontsize=FS_LABEL)
     _panel(ax, "d", "贪心近似程度：三个规模三种结论")
 
     return _finish(
