@@ -1,4 +1,4 @@
-﻿"""第一轮数据构建：五张关系表 + 脏数据层 + 质量检查 + 数据字典。
+"""第一轮数据构建：五张关系表 + 脏数据层 + 质量检查 + 数据字典。
 
 用法
 ----
@@ -212,7 +212,7 @@ def main() -> int:
     print(f"      截尾：{clean_log['winsorize']['n_winsorized']:,} 行（未删除任何行）")
 
     # ---------- 5. 落盘 ----------
-    print("[5/5] 落盘 ...")
+    print("[5/6] 落盘 ...")
     out = ensure_dir(data_dir())
     for name, frame in tables.items():
         write_csv(frame, out / f"{name}.csv")
@@ -242,6 +242,41 @@ def main() -> int:
         "r1_profit_crosscheck",
     )
     print(f"      两条利润路径最大差 {max_diff:.4f} 元（容差 0.02 元 = 金额按分存储的舍入）")
+
+    # ---------- 6. 落库到 SQLite 并跑 SQL 分析（核心数据能力） ----------
+    print("[6/6] 建立 SQLite 数据库并执行 SQL 分析 ...")
+    from causal_growth.data.sql_layer import SQLStore, build_database, list_queries
+
+    db_path = build_database(tables, cfg, verbose=True)
+    store = SQLStore(db_path)
+    print(f"      库文件 {db_path.name}（{db_path.stat().st_size / 1024 / 1024:.1f} MB）"
+          f"  表 {len(store.tables())} / 视图 {len(store.views())} / 命名查询 {len(list_queries())}")
+
+    sql_itt = store.run("itt_difference").iloc[0]
+    print(f"      SQL 口径 ITT：利润 {sql_itt['itt_net_profit']:+.4f} 元/人，"
+          f"转化 {sql_itt['itt_conversion']:+.4f}，GMV {sql_itt['itt_gmv']:+.4f} 元/人")
+
+    for query_name in (
+        "channel_funnel",
+        "new_vs_returning",
+        "daily_rollup",
+        "itt_group_summary",
+        "qc_treatment_share",
+        "qc_refund_retention",
+    ):
+        save_table(store.run(query_name), f"r1_sql_{query_name}")
+    print("      已落盘 6 张 SQL 分析结果表（outputs/tables/r1_sql_*.csv）")
+
+    checks = {
+        "孤儿订单": int(store.run("qc_orphan_orders").iloc[0, 0]),
+        "重复分配": int(store.run("qc_multi_assignment").iloc[0, 0]),
+        "窗口异常用户": int(store.run("qc_window_integrity").iloc[0, 0]),
+        "转化窗口含利润": int(store.run("qc_convert_window_profit_must_be_null").iloc[0, 0]),
+        "对照组持有券": int(store.run("qc_coupon_only_in_treatment").iloc[0, 0]),
+    }
+    if any(v != 0 for v in checks.values()):
+        raise RuntimeError(f"SQL 质量门禁未通过：{checks}")
+    print(f"      SQL 质量门禁：{[f'{k}={v}' for k, v in checks.items()]}，全部通过")
 
     plot_overview(df_clean, cfg)
 

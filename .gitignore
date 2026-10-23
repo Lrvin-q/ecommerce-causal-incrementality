@@ -55,3 +55,6 @@ paper/*.toc
 paper/body.md
 paper/body.tex
 paper/_preview/
+# ---- 营销数据库（可完整重生成）----
+data/*.db
+data/*.db-journal
