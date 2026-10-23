@@ -234,6 +234,14 @@ def run_six_strategies(cfg, s) -> pd.DataFrame:
     # 超预算策略的价值**不能**与预算约束下的策略比"占真值贪心解百分比"——
     # 它花了 5 倍的钱，拿到的价值当然更高，算百分比只会误导读者。
     df.loc[df["over_budget"], ["pct_of_oracle", "regret"]] = np.nan
+    # 随机策略的 incremental_value 上面已被替换成"200 个种子的均值"，
+    # 但这一行的 pct_of_oracle / regret 还是 evaluate_policy() 按**单次实现**算的
+    # → 同一行里 0.1222/0.4050 = 30.2% 却写着 34.3%，regret 也对不上。
+    # 统一按本行最终的 incremental_value 重算，保证每行都满足
+    #   pct_of_oracle = 100·V/V_oracle，regret = V_oracle − V。
+    keep = ~df["over_budget"]
+    df.loc[keep, "pct_of_oracle"] = 100.0 * df.loc[keep, "incremental_value"] / oracle_value
+    df.loc[keep, "regret"] = oracle_value - df.loc[keep, "incremental_value"]
     df["note"] = np.where(
         df["over_budget"], "无视预算（成本超支），价值不可与预算约束下的策略比较", ""
     )
