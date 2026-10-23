@@ -8,7 +8,7 @@
 
 | 阶段 | 范围 | 状态 | 完成度 |
 |---|---|---|---|
-| 阶段 0 | 环境与工程地基 | `[~]` 进行中 | 见下 |
+| 阶段 0 | 环境与工程地基 | `[x]` 完成 | 13 / 13 |
 | 第一轮 | L0–L3 DGP + ITT 主线 | `[ ]` | 0 / 6 |
 | 第二轮 | CATE + 观察性因果 | `[ ]` | 0 / 4 |
 | 第三轮 | 预算优化 + 策略评估 + 报告 | `[ ]` | 0 / 6 |
@@ -23,13 +23,14 @@
 - [x] 核对 Python 3.13 下全部依赖有 cp313 轮子（含 econml 0.17.0、lightgbm 4.7.0）
 - [x] 创建 `GOAL.md` / `TODO.md` / `AGENTS.md` / `.gitignore`
 - [x] 创建项目内 `.venv`
-- [ ] 安装依赖并冒烟测试（numpy/pandas/scipy/sklearn/statsmodels/matplotlib/seaborn/pyarrow/econml/lightgbm/pytest）
-- [ ] 锁定 `requirements.txt`（精确版本）
-- [ ] `git init` + 首次 commit
-- [ ] 建立目录骨架 `src/causal_growth/*`、`scripts/`、`tests/`、`configs/`、`data/`、`outputs/`、`reports/`
-- [ ] 配置加载器 `config.py` + 种子派生 `rng.py` + 路径/IO `io_utils.py`
-- [ ] `configs/base.yaml` 落地纲领 A.1 参数起点表（每个参数带业务解释注释）
-- [ ] 冒烟测试：`pytest tests/` 通过
+- [x] 安装依赖并冒烟测试（numpy 2.5.4 / pandas 3.1.0 / scipy 1.18.1 / sklearn 1.9.1 / statsmodels 0.15.0 / matplotlib 3.11.2 / seaborn 0.13.2 / pyarrow 26.0.0 / econml 0.17.0 / lightgbm 4.7.0 / pytest 9.1.1）
+- [x] 锁定 `requirements.txt`（直接依赖）+ `requirements.lock.txt`（46 项完整传递依赖）
+- [x] `git init` + 首次 commit `d67914f`（24 个文件；`.venv`/`data`/`outputs/runs` 已忽略）
+- [x] 建立目录骨架 `src/causal_growth/{dgp,data,design,estimate,policy,evaluation}`、`scripts/`、`tests/`、`configs/`、`data/`、`outputs/{figures,tables,runs}`、`reports/`
+- [x] 地基模块：`rng.py`（确定性 + 正交性，sha256 派生 stream）、`config.py`（点号访问 + 硬约束校验）、`io_utils.py`（路径/落盘/RunPaths）、`viz.py`（中文字体 + 六策略/四方法固定配色 + 来源脚注）
+- [x] `configs/base.yaml` 落地纲领 A.1 参数起点表，每个参数附业务依据注释；硬约束（`p0+τmax≤1`、概率边界、切分不重叠、双窗口有序）已做成校验
+- [x] 冒烟测试：`pytest tests/` **56 passed**（含"两次运行随机数逐位一致""新增随机流不扰动旧流""中文标题无缺字"）
+- [x] 已知环境坑并已解决：① 工作目录缺 WRITE_OWNER 导致沙箱无法写入 → 已修复；② 系统 Temp 下 `pytest-of-<user>` 权限异常 → pytest basetemp 已重定向到项目内
 
 ---
 
