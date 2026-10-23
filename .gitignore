@@ -61,3 +61,4 @@ data/*.db-journal
 # ---- 审稿脚手架 ----
 .review_pages/
 paper/_*.txt
+out/
