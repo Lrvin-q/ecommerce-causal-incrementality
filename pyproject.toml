@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "causal-growth"
+version = "0.1.0"
+description = "电商营销策略的因果评估与增量利润优化（合成数据 / 已知 DGP）"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "scikit-learn",
+    "statsmodels",
+    "econml",
+    "lightgbm",
+    "matplotlib",
+    "seaborn",
+    "pyarrow",
+    "PyYAML",
+    "tabulate",
+    "tqdm",
+    "joblib",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# 把 pytest 临时目录放在项目内：系统 Temp 下的 pytest-of-<user> 目录存在权限异常，
+# 会让所有使用 tmp_path 的测试报 PermissionError。
+addopts = "-q --strict-markers --basetemp=.pytest_basetemp"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
