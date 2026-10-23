@@ -58,6 +58,9 @@ SUBDIR = "paper"
 #: 按**最终尺寸**出图：A4 版心 16.3cm ≈ 6.4in，故 figsize 宽 6.6in、插入时 \linewidth。
 #: dpi=600 保证 600×6.6 = 3960px 宽，缩到版心后仍有 >500dpi 的有效分辨率。
 DPI = 600
+#: 是否在图内绘制“数据来源…”脚注。论文里这些信息统一放进附录的图表说明一节，
+#: 图下不再重复一行小字（7pt 缩到版心后不足 5pt，既占版面又难读）。
+SHOW_SOURCE_NOTE = False
 SEED = 20240101
 
 # 论文按 1:1 尺寸插入后仍要清楚：标题 9 / 标签 8 / 刻度 7 / 图例 7（正文 12pt 基准）。
@@ -106,18 +109,45 @@ def _legend(ax: plt.Axes, **kw) -> None:
     ax.legend(**kw)
 
 
-def _note(ax: plt.Axes, text: str, *, xy=(0.03, 0.97), **kw) -> None:
-    """统一风格的注释框（字号不低于 FS_NOTE，避免"图里的小字看不见"）。"""
+def _legend_below(ax: plt.Axes, *, ncol: int = 2, y: float = -0.30, **kw) -> None:
+    """把图例放到坐标区**下方**（无边框、无底色），保证永不压数据。
+
+    图例压在曲线/柱子上是论文图最常见的硬伤，而"挪到某个空白角"总会随数据变化失效。
+    统一放到坐标区外，版面就不会因数据变化而重新遮挡。
+    """
+    kw.setdefault("fontsize", FS_LEG)
+    ax.legend(
+        loc="upper center",
+        bbox_to_anchor=(0.5, y),
+        ncol=ncol,
+        frameon=False,
+        fontsize=kw.pop("fontsize"),
+        handlelength=1.4,
+        columnspacing=1.0,
+        handletextpad=0.5,
+        labelspacing=0.3,
+        borderpad=0.0,
+        borderaxespad=0.0,
+        **kw,
+    )
+
+
+def _caption(ax: plt.Axes, text: str, *, y: float = -0.34, **kw) -> None:
+    """把一句短说明放在坐标区**下方**（图内说明，不进图区）。"""
     kw.setdefault("fontsize", FS_NOTE)
-    kw.setdefault("bbox", dict(boxstyle="round,pad=0.25", fc="white", ec="#BBBBBB", alpha=0.92))
-    ha = kw.pop("ha", "left")
-    va = kw.pop("va", "top")
-    ax.annotate(text, xy=xy, xycoords="axes fraction", ha=ha, va=va, **kw)
+    kw.setdefault("color", "#333333")
+    ax.text(0.5, y, text, transform=ax.transAxes, ha="center", va="top", **kw)
 
 
 def _finish(fig: plt.Figure, name: str, note: str) -> Path:
-    # 脚注留白按最终尺寸给：6.6in 宽、7pt 字，只需 ~0.10 figure 高度
-    add_source_note(fig, note, reserve_bottom=0.10)
+    """保存图。
+
+    图内不再画"数据来源…"脚注：这类信息统一写进附录的《数据与图表说明》一节，
+    避免每张图下方重复一行小字（7pt 缩到版心后不足 5pt，既占位又难读）。
+    ``note`` 参数保留，仅供需要单独导出带注版本时调用。
+    """
+    if SHOW_SOURCE_NOTE:
+        add_source_note(fig, note, reserve_bottom=0.10)
     path = save_fig(fig, name, subdir=SUBDIR, dpi=DPI)
     print(f"    -> {path.relative_to(ROOT)}")
     return path
@@ -216,7 +246,8 @@ def fig0_roadmap() -> Path:
     ]
 
     fig = plt.figure(figsize=(6.6, 3.6))
-    ax = fig.add_axes([0.0, 0.035, 1.0, 0.945])
+    # 高度从 0.945 收到 0.93：顶部那行斜体说明原本压在画布外沿（bbox 出界 3px，可能被裁切）
+    ax = fig.add_axes([0.0, 0.035, 1.0, 0.93])
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
@@ -270,7 +301,6 @@ def fig1_data() -> Path:
     frame = pd.read_csv(TABLES / "r1_analysis_frame_clean.csv", usecols=["net_profit"])
     profit = frame["net_profit"].to_numpy()
     zero_share = float((profit == 0).mean())
-    n_user = int(profit.size)
     aux = _read("r1_auxiliary.csv")
     funnel = _read("r1_sql_channel_funnel.csv").sort_values("conversion_rate", ascending=False)
     dirty = _read("r1_quality_dirty.csv")
@@ -288,7 +318,7 @@ def fig1_data() -> Path:
     overall_missing = float(overall_row["数值"])
 
     fig, axes = plt.subplots(2, 2, figsize=(6.6, 4.25))
-    fig.subplots_adjust(hspace=0.62, wspace=0.30, top=0.93, left=0.10, right=0.98, bottom=0.15)
+    fig.subplots_adjust(hspace=0.78, wspace=0.30, top=0.93, left=0.10, right=0.98, bottom=0.205)
 
     # (a) 人均利润零膨胀
     ax = axes[0, 0]
@@ -296,46 +326,34 @@ def fig1_data() -> Path:
     ax.set_yscale("log")
     ax.set_xlabel("人均净贡献利润（元/人，30 天窗口）", fontsize=FS_LABEL)
     ax.set_ylabel("用户数（对数刻度）", fontsize=FS_LABEL)
-    n_nonzero = int((profit != 0).sum())
-    ax.annotate(
-        f"利润 = 0 的用户占 {zero_share * 100:.1f}%\n（{n_nonzero:,} / {n_user:,} 人非零）\n"
-        f"标准差 {profit.std(ddof=1):.2f} 元，均值 {profit.mean():.2f} 元",
-        xy=(0.97, 0.97),
-        xycoords="axes fraction",
-        va="top",
+    # 旧版在右上角压了一个三行灰框（含均值/标准差），框的下缘正好落在 0 元尖峰上；
+    # 现在只留一行、贴在（无柱体的）右上角，且去掉了压在尖峰顶上的紫色箭头。
+    ax.text(
+        0.97,
+        0.95,
+        f"0 元处为尖峰：占 {zero_share * 100:.1f}%",
+        transform=ax.transAxes,
         ha="right",
-        fontsize=FS_TICK,
-        bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="#BBBBBB", alpha=0.92),
-    )
-    ax.annotate(
-        "0 元处为尖峰",
-        xy=(0.0, (n_user - n_nonzero) * 0.35),
-        xytext=(0.22, 0.55),
-        textcoords="axes fraction",
+        va="top",
         fontsize=FS_TICK,
         color="#6A1B9A",
-        arrowprops=dict(arrowstyle="->", color="#6A1B9A", lw=0.9),
+        bbox=dict(boxstyle="round,pad=0.22", fc="white", ec="none", alpha=0.9),
     )
     _panel(ax, "a", "人均利润高度零膨胀")
 
-    # (b) 分组转化率
+    # (b) 分组转化率：样本量并入刻度标签，柱体内部不再放白字
     ax = axes[0, 1]
     conv = aux["转化率"].to_numpy() * 100
-    labels = ["对照组", "处理组"]
+    n_by_group = aux["用户数"].to_numpy()
+    labels = [f"对照组\nn={int(n_by_group[0]):,}", f"处理组\nn={int(n_by_group[1]):,}"]
     bars = ax.bar(labels, conv, color=[STRATEGY_COLORS["no_coupon"], STRATEGY_COLORS["target_greedy"]], width=0.5)
-    for b, v, n in zip(bars, conv, aux["用户数"].to_numpy()):
-        ax.text(b.get_x() + b.get_width() / 2, v + 0.35, f"{v:.2f}%", ha="center", fontsize=FS_LABEL)
-        ax.text(b.get_x() + b.get_width() / 2, 0.45, f"n={n:,}", ha="center", fontsize=FS_TICK, color="white")
-    ax.annotate(
-        f"ITT 转化 +{conv[1] - conv[0]:.2f} 个百分点",
-        xy=(0.5, 0.90),
-        xycoords="axes fraction",
-        ha="center",
-        fontsize=FS_TICK,
-        bbox=dict(boxstyle="round,pad=0.3", fc="#FFF3E0", ec="#FB8C00"),
-    )
+    for b, v in zip(bars, conv):
+        ax.text(b.get_x() + b.get_width() / 2, v + 0.30, f"{v:.2f}%",
+                ha="center", va="bottom", fontsize=FS_LABEL)
     ax.set_ylim(0, max(conv) * 1.35)
     ax.set_ylabel("7 天转化率（%）", fontsize=FS_LABEL)
+    # 转化率差写在坐标区下方：旧版橙框下缘紧贴 y 轴上限刻度，视觉上压迫刻度
+    _caption(ax, f"ITT 转化 +{conv[1] - conv[0]:.2f} 个百分点（组间差分）", y=-0.40, color="#E65100")
     _panel(ax, "b", "随机分组的转化率差")
 
     # (c) 分渠道转化率
@@ -344,32 +362,26 @@ def fig1_data() -> Path:
     chs = funnel["channel"].to_numpy()
     bars = ax.bar(chs, vals, color=STRATEGY_COLORS["target_greedy"], width=0.55)
     for b, v in zip(bars, vals):
-        ax.text(b.get_x() + b.get_width() / 2, v + 0.08, f"{v:.2f}%", ha="center", fontsize=FS_TICK)
+        ax.text(b.get_x() + b.get_width() / 2, v + 0.08, f"{v:.2f}%", ha="center", va="bottom", fontsize=FS_TICK)
     ax.set_ylim(10, max(vals) * 1.06)
     ax.set_xlabel("渠道", fontsize=FS_LABEL)
     ax.set_ylabel("转化率（%，纵轴自 10% 起）", fontsize=FS_LABEL)
     _panel(ax, "c", "分渠道转化率：差异真实存在")
 
-    # (d) 分渠道购物车缺失率
+    # (d) 分渠道购物车缺失率：参考线交给图例（图例在坐标区下方）
     ax = axes[1, 1]
     order = ["search", "feed", "other", "xhs"]
     vals = np.array([miss[ch] * 100 for ch in order])
     bars = ax.bar(order, vals, color=STRATEGY_COLORS["all"], width=0.55, alpha=0.85)
     for b, v in zip(bars, vals):
-        ax.text(b.get_x() + b.get_width() / 2, v + 0.22, f"{v:.2f}%", ha="center", fontsize=FS_TICK)
-    ax.axhline(overall_missing * 100, color="#333333", ls="--", lw=1.2)
-    ax.text(
-        -0.45,
-        overall_missing * 100 + 0.60,
-        f"渠道加权 {overall_missing * 100:.2f}%",
-        ha="left",
-        fontsize=FS_TICK,
-        color="#333333",
-    )
+        ax.text(b.get_x() + b.get_width() / 2, v + 0.22, f"{v:.2f}%", ha="center", va="bottom", fontsize=FS_TICK)
+    ax.axhline(overall_missing * 100, color="#333333", ls="--", lw=1.2,
+               label=f"渠道加权缺失率 {overall_missing * 100:.2f}%")
     ax.set_xlim(-0.6, len(order) - 0.4)
     ax.set_ylim(0, max(vals) * 1.3)
     ax.set_xlabel("渠道", fontsize=FS_LABEL)
     ax.set_ylabel("购物车金额缺失率（%）", fontsize=FS_LABEL)
+    _legend_below(ax, ncol=1, y=-0.46)
     _panel(ax, "d", "脏数据层：渠道差异化缺失")
 
     return _finish(
@@ -388,12 +400,13 @@ def fig2_design() -> Path:
     curve_p = _read("r1_sample_size_curve_profit.csv").sort_values("mde_profit")
     aa = _read("r1_aa_summary.csv")
     guard = _read("r1_guardrail.csv")
-    power = _read("r1_guardrail_power.csv")
     reps = _read("r1_repeats_raw.csv")
     rep_sum = _read("r1_repeats_summary.csv")
 
     fig, axes = plt.subplots(2, 2, figsize=(6.6, 4.55))
-    fig.subplots_adjust(hspace=0.70, wspace=0.34, top=0.90, left=0.115, right=0.975, bottom=0.145)
+    # top 从 0.90 收到 0.885：子图 (a) 是 twin 轴，标题会被 matplotlib 抬到上轴标签之上，
+    # 原来正好顶到画布外沿 7px（靠 bbox_inches=tight 兜住，但不该依赖它）
+    fig.subplots_adjust(hspace=0.92, wspace=0.34, top=0.885, left=0.115, right=0.975, bottom=0.235)
 
     # (a) 样本量随 MDE 的双曲线
     ax = axes[0, 0]
@@ -443,20 +456,15 @@ def fig2_design() -> Path:
         zorder=5,
     )
     ax2.plot([0.5], [float(ss["n_per_group_profit"])], marker="*", ms=13, color=STRATEGY_COLORS["target_greedy"], zorder=5)
-    ax.annotate(
-        f"约束者：转化率\n每组 {int(ss['n_per_group_conversion']):,} → 合计 {int(ss['n_total']):,}",
-        xy=(0.03, 0.06),
-        xycoords="axes fraction",
-        va="bottom",
-        fontsize=FS_NOTE,
-        bbox=dict(boxstyle="round,pad=0.3", fc="#FFF3E0", ec="#FB8C00"),
+    # 旧版这里有一个三行图例压在两条递减曲线上（右端数据点被盖住），另有一个橙框贴着 y=10³。
+    # 两条曲线本来就用**彩色轴标签**区分（下紫=转化率、上橙=利润），图例纯属重复，删除；
+    # 星形"设计取值"改为一句话写在坐标区下方的空白里。
+    _caption(
+        ax,
+        f"★ 设计取值：每组 {int(ss['n_per_group_conversion']):,} 人（合计 {int(ss['n_total']):,}，由转化率指标约束）",
+        y=-0.52,
+        color="#E65100",
     )
-    handles = [
-        Line2D([], [], color=METHOD_COLORS["itt"], marker="o", ms=4, label="转化率指标"),
-        Line2D([], [], color=STRATEGY_COLORS["target_greedy"], marker="s", ms=4, label="利润指标"),
-        Line2D([], [], color="none", marker="*", ms=10, markerfacecolor="#555555", label="设计取值"),
-    ]
-    _legend(ax, handles=handles, loc="upper right")
     _panel(ax, "a", "样本量：两条曲线分别取大")
 
     # (b) AA 校验：假阳性率与 95% 区间
@@ -472,14 +480,12 @@ def fig2_design() -> Path:
     for b, v, h in zip(bars, fpr, hi):
         ax.text(b.get_x() + b.get_width() / 2, v + h + 0.45, f"{v:.1f}%",
                 ha="center", va="bottom", fontsize=FS_LABEL)
-    ax.axhline(5.0, color="red", ls="--", lw=1.2)
+    ax.axhline(5.0, color="red", ls="--", lw=1.2, label="名义 α=5%（1000 次无效应重复）")
     ax.set_ylim(0, max(fpr + hi) * 1.75)
     ax.set_ylabel("假阳性率（%）", fontsize=FS_LABEL)
-    txt = "｜".join(
-        f"{m} KS p={r['KS_p值']:.3f}"
-        for m, (_, r) in zip(["转化", "利润"], aa.iterrows())
-    )
-    _note(ax, txt + "\n名义 α=5%（红虚线）；1000 次无效应重复", xy=(0.03, 0.99))
+    # 旧版把"KS p 值 + 名义 α + 重复次数"四行压在子图顶部；KS 检验数值进正文与表，
+    # 图里只留参考线的图例（坐标区下方）。
+    _legend_below(ax, ncol=1, y=-0.42)
     _panel(ax, "b", "AA 校验：p 值分布与名义水平一致")
 
     # (c) 护栏单侧置信上界
@@ -495,26 +501,19 @@ def fig2_design() -> Path:
     ax.plot([-2.4, d], [0, 0], color=METHOD_COLORS["ipw"], lw=5, alpha=0.35, solid_capstyle="butt")
     ax.plot([d, ub], [0, 0], color=METHOD_COLORS["ipw"], lw=5, alpha=0.85, solid_capstyle="butt")
     ax.plot([d], [0], marker="o", ms=7, color=METHOD_COLORS["ipw"], zorder=5)
-    ax.annotate(f"点估计 {d:+.2f}", xy=(d, 0), xytext=(d - 0.05, 0.30), fontsize=FS_NOTE, ha="right", color=METHOD_COLORS["ipw"])
-    ax.annotate(f"单侧 95% 上界 {ub:.2f}", xy=(ub, 0), xytext=(ub + 0.04, -0.32), fontsize=FS_NOTE, color=METHOD_COLORS["dr"])
-    ax.annotate(f"界值 {margin:.1f} pp", xy=(margin, 0), xytext=(margin + 0.03, 0.36), fontsize=FS_NOTE, color="red")
-    ax.text(-2.3, -0.34, "← 单侧区间无下界", fontsize=FS_NOTE, color="#666666")
+    # 三条竖线的标签都挪到线的一侧、错开高度：旧版"界值"与"上界"两行在右侧挤成一团
+    ax.annotate(f"点估计 {d:+.2f}", xy=(d, 0), xytext=(d - 0.06, 0.40),
+                fontsize=FS_NOTE, ha="right", color=METHOD_COLORS["ipw"])
+    ax.annotate(f"单侧 95% 上界 {ub:.2f}", xy=(ub, 0), xytext=(ub - 0.04, -0.42),
+                fontsize=FS_NOTE, ha="right", color=METHOD_COLORS["dr"])
+    ax.annotate(f"界值 {margin:.1f} pp", xy=(margin, 0), xytext=(margin - 0.04, 0.40),
+                fontsize=FS_NOTE, ha="right", color="red")
+    ax.text(-2.32, -0.42, "← 单侧区间无下界", fontsize=FS_NOTE, color="#666666")
     ax.set_xlim(-2.4, 0.95)
     ax.set_ylim(-0.62, 0.62)
     ax.set_yticks([])
     ax.set_xlabel("退款率差（处理组 − 对照组，百分点）", fontsize=FS_LABEL)
-    pw = power.set_index("情景")["当前功效"]
-    need_conv = int(power["达到80%功效所需_每组已转化用户"].iloc[1])
-    need_all = float(power["达到80%功效所需_总样本量"].iloc[1])
-    _note(
-        ax,
-        f"非劣效成立，但功效仅 {pw.iloc[1]:.2f}\n"
-        f"真实恶化 {power['真实差值_pp'].iloc[1]:.3f} pp\n"
-        f"达 0.80 功效需 {need_conv:,} 已转化用户/组\n"
-        f"≈ {need_all / 1e4:.0f} 万总样本",
-        xy=(0.02, 0.97),
-        bbox=dict(boxstyle="round,pad=0.3", fc="#FFEBEE", ec="#E53935", alpha=0.95),
-    )
+    # 功效数字（0.20 / 需 1.3 万已转化用户）不再压在图里，进正文；图只标三条线本身。
     _panel(ax, "c", "护栏非劣效：上界合格 ≠ 测得出")
 
     # (d) 重复 200 次的 ITT 分布
@@ -524,15 +523,8 @@ def fig2_design() -> Path:
         ax.hist(v, bins=24, color=color, alpha=alpha, edgecolor="white", linewidth=0.4, label=f"{lvl}（R={v.size}）")
     truth = float(reps["truth_profit"].iloc[0])
     mean_l1 = float(reps.loc[reps["level"] == "L1", "est_profit"].mean())
-    cov = rep_sum.set_index("level")["利润_覆盖真值率"]
     ax.axvline(truth, color="#212121", lw=1.8, ls="--")
     ax.axvline(mean_l1, color=STRATEGY_COLORS["all"], lw=1.2, ls="-.")
-    _note(
-        ax,
-        f"均值 {mean_l1:.3f}（偏差 {mean_l1 - truth:+.3f}）\n"
-        f"覆盖率 {cov['L0']:.3f} / {cov['L1']:.3f}",
-        xy=(0.03, 0.99),
-    )
     ax.set_xlabel("ITT 估计（净增量利润，元/人）", fontsize=FS_LABEL)
     ax.set_ylabel("重复次数", fontsize=FS_LABEL)
     handles = [
@@ -541,7 +533,8 @@ def fig2_design() -> Path:
         Line2D([], [], color="#212121", ls="--", lw=1.8, label=f"解析真值 {truth:.3f}"),
         Line2D([], [], color=STRATEGY_COLORS["all"], ls="-.", lw=1.2, label=f"200 次均值 {mean_l1:.3f}"),
     ]
-    _legend(ax, handles=handles, loc="upper right", bbox_to_anchor=(1.0, 0.84))
+    # 图例从右上移到坐标区下方：旧版图例压在直方图高柱上，灰色说明框又贴着图例
+    _legend_below(ax, handles=handles, ncol=2, y=-0.46)
     _panel(ax, "d", "重复实验：分布与真值")
 
     return _finish(
@@ -560,7 +553,7 @@ def fig3_itt() -> Path:
     face = float(_read("r3_robustness.csv").loc[lambda d: d["扰动"] == "×1.0", "券面额"].iloc[0])
 
     fig, axes = plt.subplots(1, 2, figsize=(6.6, 2.85), gridspec_kw={"width_ratios": [1.15, 1.0]})
-    fig.subplots_adjust(hspace=0.3, wspace=0.34, top=0.90, bottom=0.20, left=0.115, right=0.975)
+    fig.subplots_adjust(hspace=0.3, wspace=0.34, top=0.90, bottom=0.285, left=0.115, right=0.975)
 
     # (a) 森林图
     ax = axes[0]
@@ -598,7 +591,8 @@ def fig3_itt() -> Path:
         Line2D([], [], color=STRATEGY_COLORS["target_greedy"], marker="o", lw=1.8, label="ITT 估计 + 95% CI"),
         Line2D([], [], color="none", marker="D", ms=6, markerfacecolor="red", label="解析真值"),
     ]
-    _legend(ax, handles=handles, loc="upper left", fontsize=FS_LEG)
+    # 图例改到坐标区下方：森林图左上角就是最高一层的区间，图例放那里必然压线
+    _legend_below(ax, handles=handles, ncol=2, y=-0.40)
     _panel(ax, "a", "ITT 对真值：三个层级、三个区间全覆盖")
 
     # (b) 利润侵蚀瀑布：多转化增益 − 券成本 + 订单经济差异 = 净增
@@ -636,13 +630,15 @@ def fig3_itt() -> Path:
     # 旧版 ylim 下界给到 −52，但最矮的柱子只到 −55 的一半，底部留了 40% 空白；
     # 这里把下界收紧到"最矮柱 + 一点余量"，注释框也改到右下角，不再占满底部。
     ax.set_ylim(min(0.0, gain + coupon_cost) - 12, max(gain, net) * 1.16)
-    _note(
+    # 旧版橙框压在红色柱体（多转化增益）顶上；这句话是"GMV 涨了、利润没涨"的关键数字，
+    # 因此不删，改写成坐标区下方的一行图内说明。
+    _caption(
         ax,
         f"GMV 人均 +{(float(aux['人均GMV'].iloc[1]) - float(aux['人均GMV'].iloc[0])):.2f} 元"
-        f"（+{(float(aux['人均GMV'].iloc[1]) / float(aux['人均GMV'].iloc[0]) - 1) * 100:.0f}%）\n"
-        f"人均净利润仅 +{(profit1 - profit0):.2f} 元（+{(profit1 / profit0 - 1) * 100:.0f}%）",
-        xy=(0.34, 0.97),
-        bbox=dict(boxstyle="round,pad=0.3", fc="#FFF8E1", ec="#FB8C00"),
+        f"（+{(float(aux['人均GMV'].iloc[1]) / float(aux['人均GMV'].iloc[0]) - 1) * 100:.0f}%），"
+        f"净利润仅 +{(profit1 - profit0):.2f} 元",
+        y=-0.30,
+        color="#E65100",
     )
     _panel(ax, "b", "利润去了哪里：GMV 增长被券成本吃掉")
 
@@ -664,13 +660,14 @@ def fig4_cate() -> Path:
 
     fig = plt.figure(figsize=(6.6, 4.6))
     gs = fig.add_gridspec(
-        2, 2, hspace=0.60, wspace=0.34, top=0.865, bottom=0.135, left=0.105, right=0.975
+        2, 2, hspace=0.72, wspace=0.34, top=0.865, bottom=0.135, left=0.105, right=0.975
     )
 
     # (a) 分面板六边形分箱：三者共用同一坐标轴范围，差异才可比
     sub = gs[0, 0].subgridspec(1, 3, wspace=0.10)
     true = pred["tau_true"].to_numpy()
     ax_a = []
+    sd_list: list[float] = []
     for i, (name, col) in enumerate(LEARNER_COLORS.items()):
         key = name.lower().replace("-", "_").replace(" ", "_")
         a = fig.add_subplot(sub[0, i])
@@ -679,17 +676,7 @@ def fig4_cate() -> Path:
         a.set_xlim(-2.45, 1.8)
         a.set_ylim(-6.0, 6.0)
         a.set_title(f"{name}", fontsize=FS_TICK, pad=2)
-        a.text(
-            0.96,
-            0.96,
-            f"sd={pred[key].std(ddof=1):.2f}",
-            transform=a.transAxes,
-            fontsize=FS_TICK,
-            ha="right",
-            va="top",
-            color="white",
-            bbox=dict(boxstyle="round,pad=0.15", fc="#333333", ec="none", alpha=0.65),
-        )
+        sd_list.append(float(pred[key].std(ddof=1)))
         a.tick_params(labelsize=FS_TICK, length=2.5)
         a.set_xticks([-2, 0])
         a.set_yticks([-5, 0, 5])
@@ -700,21 +687,22 @@ def fig4_cate() -> Path:
         ax_a.append(a)
     ax_a[1].set_xlabel("真值 $\\tau_\\Pi(x)$（元/人）", fontsize=FS_LABEL)
     ax_a[0].set_ylabel("估计 $\\hat\\tau(x)$", fontsize=FS_LABEL)
-    ax_a[0].text(
-        0.04,
-        0.03,
-        f"预测范围\n{pred['t_learner'].min():.1f} ~ {pred['t_learner'].max():.1f}",
-        transform=ax_a[0].transAxes,
-        fontsize=FS_TICK,
-        color="white",
-        va="bottom",
-        bbox=dict(boxstyle="round,pad=0.18", fc="#E53935", ec="none", alpha=0.8),
+    # 旧版在三个 hexbin 面板里各压了一个深色 sd 角标、左下角还有一块红底"预测范围"，
+    # 都会盖住六边形数据与刻度；改为组标题下一行字（坐标区之外），信息不丢、也不压数据。
+    fig.text(
+        0.02,
+        0.925,
+        "估计值标准差 sd：" + "　".join(f"{n} {v:.2f}" for n, v in zip(LEARNER_COLORS, sd_list)),
+        fontsize=FS_NOTE,
+        color="#555555",
+        ha="left",
+        va="top",
     )
     # 组标题必须用 fig.text：挂在中间子图的 set_title 上会把 "S-learner" 覆盖掉
     # （这正是审稿指出的"图 5(a) S-learner 子图标题被压掉"）。
     fig.text(
         0.02,
-        0.975,
+        0.985,
         "(a) 三种学习器：同一真值、同一坐标轴",
         fontsize=FS_TITLE,
         fontweight="bold",
@@ -728,22 +716,13 @@ def fig4_cate() -> Path:
     ax.plot(cf["mean_pred"], cf["mean_true"], "o-", color=LEARNER_COLORS["Causal Forest"], ms=4, lw=1.5, label="分箱实际值")
     lim = [min(cf["mean_pred"].min(), cf["mean_true"].min()) - 0.1, max(cf["mean_pred"].max(), cf["mean_true"].max()) + 0.1]
     ax.plot(lim, lim, color="#212121", ls="--", lw=1.1, label="完美校准")
-    hi_pt = cf.iloc[-1]
-    lo_pt = cf.iloc[0]
     ax.set_xlim(*lim)
     ax.set_ylim(-0.75, max(cf["mean_true"].max(), cf["mean_pred"].max()) + 0.75)
     ax.set_xlabel("预测 CATE 的十分位箱均值（元/人）", fontsize=FS_LABEL)
     ax.set_ylabel("真值 CATE 同箱均值（元/人）", fontsize=FS_LABEL)
-    _legend(ax, loc="upper left")
-    # 两端过冲直接写成一个注释块（旧版用两个箭头，字号 7pt，箱体互相压住）
-    _note(
-        ax,
-        f"两端放大\n低端 {lo_pt['mean_pred']:.2f}→{lo_pt['mean_true']:.2f}\n"
-        f"高端 {hi_pt['mean_pred']:.2f}→真值 {hi_pt['mean_true']:.2f}",
-        xy=(0.97, 0.03),
-        ha="right",
-        va="bottom",
-    )
+    # 图例下移出坐标区（旧版压在左上角，正好盖住低端箱体）；"两端放大"的注释块删除，
+    # 过冲幅度可由 45° 参考线与箱体位置直接读出，具体数字进正文。
+    _legend_below(ax, ncol=2, y=-0.42)
     _panel(ax, "b", "Causal Forest 校准：中段准、两端放大")
 
     # (c) RMSE 与 R²
@@ -752,24 +731,23 @@ def fig4_cate() -> Path:
     x = np.arange(len(methods))
     rmse = cmp_tab["CATE_RMSE"].to_numpy()
     r2 = cmp_tab["R2"].to_numpy()
-    ax.bar(x - 0.19, rmse, width=0.36, color=[LEARNER_COLORS[m] for m in methods], alpha=0.9, label="CATE RMSE（左轴）")
+    ax.bar(x - 0.19, rmse, width=0.36, color=[LEARNER_COLORS[m] for m in methods], alpha=0.9)
     for xi, v in zip(x, rmse):
-        ax.text(xi - 0.19, v + 0.04, f"{v:.3f}", ha="center", fontsize=FS_TICK)
+        ax.text(xi - 0.19, v + 0.04, f"{v:.3f}", ha="center", va="bottom", fontsize=FS_TICK)
     ax.set_xticks(x, methods, fontsize=FS_TICK)
     ax.set_ylabel("CATE RMSE（元/人，越小越好）", fontsize=FS_LABEL)
     ax.set_ylim(0, max(rmse) * 1.62)
     ax2 = ax.twinx()
-    ax2.plot(x + 0.19, r2, "o--", color="#212121", ms=6, lw=1.2, label="$R^2$（右轴）")
+    ax2.plot(x + 0.19, r2, "o--", color="#212121", ms=6, lw=1.2)
     for xi, v in zip(x, r2):
-        ax2.text(xi + 0.19, v + 0.18, f"{v:.2f}", ha="center", fontsize=FS_TICK, color="#212121")
+        ax2.text(xi + 0.19, v + 0.30, f"{v:.2f}", ha="center", va="bottom",
+                 fontsize=FS_TICK, color="#212121")
     ax2.axhline(0, color="#888888", lw=0.9, ls=":")
     ax2.set_ylabel("$R^2$（右轴）", fontsize=FS_LABEL)
     ax2.set_ylim(min(r2) - 1.2, 2.8)
     ax2.tick_params(labelsize=FS_TICK)
     ax2.spines["top"].set_visible(False)
-    h1, l1 = ax.get_legend_handles_labels()
-    h2, l2 = ax2.get_legend_handles_labels()
-    _legend(ax, handles=h1 + h2, labels=l1 + l2, loc="upper left")
+    # 左右轴已经在 y 轴标签里写明（"左轴/右轴"），图例纯属重复且压在柱子上，删除
     _panel(ax, "c", "T-learner 的 $R^2$ 为负：不如直接报均值")
 
     # (d) 重复 20 次的 RMSE 箱线图（Causal Forest 只有 2 次，改为散点并加星标注）
@@ -797,13 +775,8 @@ def fig4_cate() -> Path:
     ax.set_xticks([1, 2, 3] if cf_rep.size else [1, 2], tick_labels, fontsize=FS_TICK)
     ax.set_ylabel("重复实验的 CATE RMSE（元/人）", fontsize=FS_LABEL)
     ax.set_ylim(0, max(d.max() for d in data) * 1.30)
-    _note(
-        ax,
-        f"T vs S 的 95% 区间不重叠（R={reps['repeat'].nunique()}）\n$^*$Causal Forest 重复次数不足以做区间",
-        xy=(0.97, 0.95),
-        ha="right",
-        bbox=dict(boxstyle="round,pad=0.28", fc="#E8F5E9", ec="#2E7D32"),
-    )
+    # 旧版右上角的绿框说明压住箱体与须；区间是否重叠在 x 刻度标签里已经给出（2.5%/97.5% 分位），
+    # 这句话删掉，结论写进正文。
     _panel(ax, "d", "重复实验的稳定性")
 
     return _finish(
@@ -819,7 +792,7 @@ def fig4_cate() -> Path:
 def fig5_obs() -> Path:
     lam = _read("r2_lambda_summary.csv")
     fig, axes = plt.subplots(1, 2, figsize=(6.6, 2.95))
-    fig.subplots_adjust(hspace=0.3, wspace=0.30, top=0.90, bottom=0.185, left=0.095, right=0.98)
+    fig.subplots_adjust(hspace=0.3, wspace=0.30, top=0.90, bottom=0.30, left=0.095, right=0.98)
 
     truth_by_lambda = lam.groupby("lambda")["真值"].first()
 
@@ -833,15 +806,9 @@ def fig5_obs() -> Path:
     ax.axhline(0, color="#888888", lw=0.9, ls=":")
     ax.set_xlabel("混淆强度 $\\lambda$", fontsize=FS_LABEL)
     ax.set_ylabel("偏差（元/人，估计 − 真值）", fontsize=FS_LABEL)
-    _note(
-        ax,
-        "$\\lambda=0$：三种调整法偏差 $<0.06$\nNaive 已达 "
-        f"{lam.loc[(lam['method'] == 'naive') & (lam['lambda'] == 0.0), '偏差'].iloc[0]:.2f}",
-        xy=(0.97, 0.03),
-        ha="right",
-        va="bottom",
-    )
-    _legend(ax, loc="upper left")
+    # 旧版左下角的灰框说明压住 λ=0.75~1.0 的曲线段；左上角图例又压住 λ=0/0.25 的起点。
+    # 两个面板的颜色语义相同（四种方法），因此改用**整图底部一个共享图例**，
+    # 两个坐标区内都不再出现图例，任何 λ 处的数据都不会被盖住。
     _panel(ax, "a", "偏差随混淆强度线性扩大")
 
     # (b) 覆盖率随 λ（带 Clopper–Pearson 95% 区间）
@@ -853,29 +820,40 @@ def fig5_obs() -> Path:
         hi = sub["覆盖率_CP上界"].to_numpy() - cov
         ax.errorbar(sub["lambda"], cov, yerr=[lo, hi], fmt="o-", color=METHOD_COLORS[m],
                     ms=3.0, lw=1.2, elinewidth=1.0, capsize=2.0, alpha=0.95)
-    # 图例单独给，避免 errorbar 把图例条目画成带误差棒的样子
-    handles = [
-        Line2D([], [], color=METHOD_COLORS[m], marker="o", ms=3.5, lw=1.3, label=OBS_LABELS[m])
-        for m in OBS_ORDER
-    ]
-    handles.append(Line2D([], [], color="#555555", marker="|", ms=6, lw=1.0,
-                          label="Clopper–Pearson 95% 区间"))
     ax.axhline(0.95, color="#212121", ls="--", lw=1.0)
     ax.axhline(0.90, color="#E53935", ls=":", lw=1.2)
     ax.set_ylim(-0.08, 1.16)
     ax.set_xlabel("混淆强度 $\\lambda$", fontsize=FS_LABEL)
     ax.set_ylabel("95% 置信区间覆盖率", fontsize=FS_LABEL)
-    _note(
-        ax,
-        f"R={int(lam['重复次数'].max())}；黑虚线 0.95、红虚线 0.90\n"
-        f"$\\lambda=0.25$：IPW/DR 的区间上界已低于 0.90\n"
-        f"（点估计 0.82 / 0.79）→ 失效结论成立",
-        xy=(0.03, 0.34),
-        va="top",
-        bbox=dict(boxstyle="round,pad=0.28", fc="#FFEBEE", ec="#E53935"),
-    )
-    _legend(ax, handles=handles, loc="upper right")
+    # 旧版中部粉色框把 λ=0.50 处全部方法的数据点与误差棒整个盖住，还压住 y 轴 0.2–0.4 刻度。
+    # 该框里的结论（λ=0.25 时 IPW/DR 上界已低于 0.90）写进正文，图里不再重复。
     _panel(ax, "b", "覆盖率崩塌快于偏差增长")
+
+    # 整图共享图例（8 条，4 列 2 行），放在画布底部
+    handles = [
+        Line2D([], [], color=METHOD_COLORS[m], marker="o", ms=3.5, lw=1.3, label=OBS_LABELS[m])
+        for m in OBS_ORDER
+    ]
+    handles += [
+        Line2D([], [], color="#212121", ls="--", lw=1.1, label="真值 ATE（a）"),
+        Line2D([], [], color="#555555", marker="|", ms=6, lw=1.0, label="95% 区间（CP，b）"),
+        Line2D([], [], color="#212121", ls="--", lw=1.0, label="名义覆盖率 0.95（b）"),
+        Line2D([], [], color="#E53935", ls=":", lw=1.2, label="警戒线 0.90（b）"),
+    ]
+    fig.legend(
+        handles=handles,
+        loc="lower center",
+        bbox_to_anchor=(0.5, 0.005),
+        ncol=4,
+        frameon=False,
+        fontsize=FS_LEG,
+        handlelength=1.4,
+        columnspacing=1.0,
+        handletextpad=0.5,
+        labelspacing=0.3,
+        borderpad=0.0,
+        borderaxespad=0.0,
+    )
 
     return _finish(
         fig,
@@ -895,7 +873,7 @@ def fig6_policy() -> Path:
     rnd = _read("r3_random_seeds.csv")
 
     fig, axes = plt.subplots(2, 2, figsize=(6.6, 4.5))
-    fig.subplots_adjust(hspace=0.66, wspace=0.40, top=0.93, left=0.125, right=0.975, bottom=0.115)
+    fig.subplots_adjust(hspace=0.88, wspace=0.40, top=0.93, left=0.125, right=0.975, bottom=0.235)
 
     six = six.sort_values("incremental_value", ascending=False).reset_index(drop=True)
     keys = list(six["strategy_key"])
@@ -921,13 +899,11 @@ def fig6_policy() -> Path:
             # 0 值柱没有高度，标签写在柱右侧，避免压在坐标轴上
             ax.text(i + 0.36, 0.004, "0", ha="left", va="bottom", fontsize=FS_TICK)
             continue
-        pct = six.loc[i, "pct_of_oracle"]
         tag = f"{v:.3f}"
+        # 柱内原来的"占真值解的百分比"白字（30%/86%/100%）比柱体还宽、并且压在误差棒上，
+        # 会同时越出柱体边缘；该比例表里就有（pct_of_oracle），图里只保留柱顶数值。
         ax.text(i, v + (err[1, i] if np.isfinite(err[1, i]) else 0.0) + 0.012, tag,
                 ha="center", va="bottom", fontsize=FS_TICK)
-        if pd.notna(pct) and not bool(six.loc[i, "over_budget"]):
-            ax.text(i, v * 0.55, f"{pct:.0f}%", ha="center", color="white",
-                    fontsize=FS_TICK, fontweight="bold")
     oracle_v = float(six.loc[six["strategy_key"] == "oracle", "incremental_value"].iloc[0])
     ax.axhline(oracle_v, color=STRATEGY_COLORS["oracle"], ls="--", lw=1.1,
                label=f"真值贪心解 {oracle_v:.3f}")
@@ -944,7 +920,8 @@ def fig6_policy() -> Path:
     ax.set_ylim(0, max(vals) * 1.34)
     v_greedy = float(six.loc[six["strategy_key"] == "target_greedy", "incremental_value"].iloc[0])
     v_random = float(six.loc[six["strategy_key"] == "random", "incremental_value"].iloc[0])
-    _legend(ax, loc="upper right")
+    # 图例（真值贪心解参考线）从右上移到坐标区下方：右上角就是最高柱"全量"的顶端
+    _legend_below(ax, ncol=1, y=-0.32)
     _panel(ax, "a", f"定向 vs 随机：{v_greedy / v_random:.2f} 倍")
 
     # (b) 预算使用率
@@ -977,17 +954,9 @@ def fig6_policy() -> Path:
     i_peak = int(scan["定向增益_相对随机"].to_numpy().argmax())
     # 旧版把这个面板做成双 y 轴，右轴的紫色曲线正好横穿图例框，把数据挡掉了。
     # 相对优势的数字改为注释文字，面板只留三条价值曲线，任何缩放都不重叠。
-    _note(
-        ax,
-        f"绝对增益峰值 {scan['定向增益_相对随机'].iloc[i_peak]:+.3f}（×{scan['预算倍数'].iloc[i_peak]:.1f}）\n"
-        f"相对优势：最紧时 {scan['定向相对优势倍数'].iloc[i_min]:.2f}×（右端 "
-        f"{scan['定向相对优势倍数'].iloc[-1]:.2f}×）",
-        xy=(0.98, 0.03),
-        ha="right",
-        va="bottom",
-        bbox=dict(boxstyle="round,pad=0.28", fc="#F3E5F5", ec="#6A1B9A"),
-    )
-    _legend(ax, loc="upper left")
+    # 图例从左上（会压住 y 轴 0.8 刻度并贴近首个数据点）移到坐标区下方；
+    # 底部紫框（绝对增益峰值/相对优势）整块删除，那两个数字进正文与表。
+    _legend_below(ax, ncol=3, y=-0.46)
     _panel(ax, "c", "预算越紧，定向越是必需品")
 
     # (d) 贪心 / LP 上界 / 精确 DP
@@ -1011,14 +980,9 @@ def fig6_policy() -> Path:
     ax.set_xticks(x, ["全规模\n60,000 人", "降规模\n1,000 人", "反例\n3 件"], fontsize=FS_TICK)
     ax.set_ylabel("策略总价值（元，对数）", fontsize=FS_LABEL)
     ax.set_ylim(1, max(lp) * 30)
-    ratio = float(gap.loc[gap["项"].str.startswith("全规模"), "贪心/上界"].iloc[0])
-    dp_ratio = float(gap["精确DP"].iloc[1]) / float(gap["贪心估计价值"].iloc[1])
-    _note(
-        ax,
-        f"全规模 {ratio * 100:.4f}%\nDP/贪心 {dp_ratio:.4f}\n反例 −33%",
-        xy=(0.03, 0.99),
-    )
-    _legend(ax, loc="upper right")
+    # 左上角那块三行文本框（全规模 99.9999% / DP/贪心 / 反例 −33%）删除：它紧贴 y 轴顶端的
+    # 10⁵ 刻度；三个比值本来就在 r3_greedy_gap.csv 里，正文直接引表。
+    _legend_below(ax, ncol=3, y=-0.46)
     _panel(ax, "d", "贪心近似程度：三个规模三种结论")
 
     return _finish(

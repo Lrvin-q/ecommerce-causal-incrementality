@@ -213,10 +213,17 @@ def check_figure(fig: plt.Figure, name: str) -> list[dict[str, Any]]:
                     or tb.y0 < fig_bb.y0 - 1 or tb.y1 > fig_bb.y1 + 1:
                 add("error", "C4", f"{tname} 超出画布边界（被裁切）")
 
-        # ---- C3 文字/图例互相重叠 ----
+        # ---- C3 文字/图例/标题/轴标签互相重叠 ----
+        # 纳入标题与轴标签是必要的：把图例移到坐标区下方之后，图例最容易压到
+        # X 轴标签或相邻子图的标题，而 ax.texts 里看不到这两类文字。
         objs: list[tuple[str, Any]] = list(texts)
         if leg is not None:
             objs.append(("图例", leg))
+        for nm, obj in (("子图标题", ax.title),
+                        ("X 轴标签", ax.xaxis.label),
+                        ("Y 轴标签", ax.yaxis.label)):
+            if obj.get_text().strip():
+                objs.append((nm, obj))
         for i in range(len(objs)):
             for j in range(i + 1, len(objs)):
                 n1, o1 = objs[i]
@@ -224,6 +231,17 @@ def check_figure(fig: plt.Figure, name: str) -> list[dict[str, Any]]:
                 a = _area(o1.get_window_extent(rend), o2.get_window_extent(rend))
                 if a > TEXT_TOL:
                     add("error", "C3", f"{n1} 与 {n2} 重叠（{a:.0f}pt²）")
+
+        # ---- C4（续）标题与轴标签不得出界 ----
+        for nm, obj in (("子图标题", ax.title),
+                        ("X 轴标签", ax.xaxis.label),
+                        ("Y 轴标签", ax.yaxis.label)):
+            if not obj.get_text().strip():
+                continue
+            bb = obj.get_window_extent(rend)
+            if bb.x0 < fig_bb.x0 - 1 or bb.x1 > fig_bb.x1 + 1 \
+                    or bb.y0 < fig_bb.y0 - 1 or bb.y1 > fig_bb.y1 + 1:
+                add("error", "C4", f"{nm} 超出画布边界（被裁切）")
 
         # ---- C5 轴标签压刻度 ----
         ticks = [t for t in ax.get_xticklabels() + ax.get_yticklabels()
