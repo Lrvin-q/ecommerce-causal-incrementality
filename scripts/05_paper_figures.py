@@ -266,8 +266,9 @@ def fig0_roadmap() -> Path:
                         arrowprops=dict(arrowstyle="-|>", color="#888888", lw=0.8, mutation_scale=7),
                         zorder=1)
 
-    ax.text(0.03, 0.995, "数据与设计（1-4）→ 估计与决策（5-8）", fontsize=FS_NOTE,
-            color="#888888", style="italic", va="bottom")
+    # 顶部那行斜体灰字（"数据与设计（1-4）→ 估计与决策（5-8）"）是图外注解：
+    # 框内已经有 1–8 的编号，这句话只是把编号再分组说一遍，且不在任何框内，
+    # 读起来像"图例缺失"。第 4 轮审稿 S2(i) 要求删除，位置留给框体本身。
 
     return _finish(fig, "fig0_roadmap", "seed=20240101 | 技术路线图（流程设计，非数据产物；数字见正文与表）")
 
@@ -351,8 +352,12 @@ def fig1_data() -> Path:
     order = ["search", "feed", "other", "xhs"]
     vals = np.array([miss[ch] * 100 for ch in order])
     bars = ax.bar(order, vals, color=STRATEGY_COLORS["all"], width=0.55, alpha=0.85)
+    # 数值标签放进柱内（白字）：旧版 4.10% 的标签顶到 5.58% 的加权缺失率虚线上，
+    # 间距不足 1pt（审稿意见 S4）。抬高标签只会更靠近虚线，故改为柱内白字，
+    # 虚线只从柱子上方经过，与任何文字都不接触。
     for b, v in zip(bars, vals):
-        ax.text(b.get_x() + b.get_width() / 2, v + 0.22, f"{v:.2f}%", ha="center", va="bottom", fontsize=FS_TICK)
+        ax.text(b.get_x() + b.get_width() / 2, v - 0.30, f"{v:.2f}%", ha="center", va="top",
+                fontsize=FS_TICK, color="white", fontweight="bold", zorder=6)
     ax.axhline(overall_missing * 100, color="#333333", ls="--", lw=1.2,
                label=f"渠道加权缺失率 {overall_missing * 100:.2f}%")
     ax.set_xlim(-0.6, len(order) - 0.4)
@@ -742,7 +747,9 @@ def fig4_cate() -> Path:
     r2 = cmp_tab["R2"].to_numpy()
     ax.bar(x - 0.19, rmse, width=0.36, color=[LEARNER_COLORS[m] for m in methods], alpha=0.9)
     for xi, v in zip(x, rmse):
-        ax.text(xi - 0.19, v + 0.04, f"{v:.3f}", ha="center", va="bottom", fontsize=FS_TICK)
+        # 标签上移 0.06：右轴 R²=0 的参考线已删，这里只需与误差棒/右轴数据点离开；
+        # T-learner 的 1.625 是最高柱，标签原来紧贴柱顶。
+        ax.text(xi - 0.19, v + 0.10, f"{v:.3f}", ha="center", va="bottom", fontsize=FS_TICK)
     ax.set_xticks(x, methods, fontsize=FS_TICK)
     ax.set_ylabel("CATE RMSE（元/人，越小越好）", fontsize=FS_LABEL)
     ax.set_ylim(0, max(rmse) * 1.62)
@@ -751,17 +758,23 @@ def fig4_cate() -> Path:
     for xi, v in zip(x, r2):
         ax2.text(xi + 0.19, v + 0.30, f"{v:.2f}", ha="center", va="bottom",
                  fontsize=FS_TICK, color="#212121")
-    ax2.axhline(0, color="#888888", lw=0.9, ls=":")
-    # 这条虚线是 R² = 0（"等于直接报均值"的水平）。旧版没有标签，而且正好压在
-    # T-learner 的 1.625 数据标签旁边，容易被读成 1.625 的参考线（审稿意见 S9）。
-    # 标签放在 S 与 CF 之间、虚线上方 0.08，与任何柱体和数据标签都不相邻。
-    ax2.text(1.5, 0.08, "$R^2=0$", fontsize=FS_TICK, color="#888888",
-             ha="center", va="bottom")
-    ax2.set_ylabel("$R^2$（右轴）", fontsize=FS_LABEL)
+    # 旧版这里有一条 ax2.axhline(0)（R²=0 的灰点线）横贯全图，正好穿过「1.625」标签顶部；
+    # 另有一处灰字「R² = 0」贴着黑折线与「0.21」挤在一起。右轴刻度 0 已经足以表达
+    # "等于直接报均值"，两者一并删除（审稿意见 N3）。右轴标题改水平放在坐标区上方，
+    # 不再竖排占着右侧、与 (d) 的纵轴标题只剩半个字的间距。
+    ax2.set_ylabel("")
+    # 轴上方被 (c) 的一行式标题占满（标题居中且几乎与坐标区等宽），故放在坐标区
+    # 右上的空白角：水平书写、不与 (d) 的纵轴标题争右侧那条 3mm 的缝。
+    ax2.text(0.98, 0.97, "右轴：$R^2$（越高越好）", transform=ax2.transAxes,
+             ha="right", va="top", fontsize=FS_NOTE, color="#212121")
     ax2.set_ylim(min(r2) - 1.2, 2.8)
     ax2.tick_params(labelsize=FS_TICK)
     ax2.spines["top"].set_visible(False)
-    # 左右轴已经在 y 轴标签里写明（"左轴/右轴"），图例纯属重复且压在柱子上，删除
+    # 关键：twin 轴默认也画网格。右轴刻度 -5/0/5 映射回左轴，0 那条网格线正好落在
+    # 左轴 y≈1.81，横穿「1.625」标签（1.725–1.946）——审稿意见 N3 说的"R²=0 灰点线"
+    # 就是它，而不是旧版那条 axhline。只留左轴网格（RMSE 刻度），右轴不再画网格。
+    ax2.grid(False)
+    # 左右轴已经在坐标区上方与纵轴标签里写明（"右轴/左轴"），图例纯属重复且压在柱子上，删除
     _panel(ax, "c", "T-learner 的 $R^2$ 为负：不如直接报均值")
 
     # (d) 重复 20 次的 RMSE 箱线图（Causal Forest 只有 2 次，改为散点并加星标注）
@@ -907,12 +920,22 @@ def fig6_policy() -> Path:
         if key in ci_inc.index:
             lo = float(ci_inc.loc[key, "CI下界"])
             hi = float(ci_inc.loc[key, "CI上界"])
+            # 误差棒上帽从 3pt 收到 1.5pt：上帽原来与 0.405 的真值参考线只剩 3pt，
+            # 加上标签后看着像"参考线穿过帽子"（审稿意见 N5）。
             ax.bar(xi, v, width=0.6, color=STRATEGY_COLORS[key],
-                   yerr=[[v - lo], [hi - v]], capsize=3, error_kw=dict(elinewidth=0.9))
+                   yerr=[[v - lo], [hi - v]], capsize=1.5, error_kw=dict(elinewidth=0.9))
         else:
             hi = v
             ax.bar(xi, v, width=0.6, color=STRATEGY_COLORS[key])
-        ax.text(xi, max(v, hi) + 0.018, f"{v:.3f}", ha="center", va="bottom", fontsize=FS_TICK)
+        if v > 0:
+            # 数值改柱内白字（审稿意见 N5 的两种改法之一），贴在柱脚而不是柱顶：
+            # 误差棒的**下半截**（CI 下界 0.318 → 柱顶 0.349）正好落在柱内，
+            # 标签若贴柱顶会被这根竖线穿过（视觉复验第一版就是这么判的）。
+            ax.text(xi, 0.014, f"{v:.3f}", ha="center", va="bottom", fontsize=FS_TICK,
+                    color="white", fontweight="bold", zorder=6)
+        else:
+            # 0.000 这根柱高为 0，标签贴基线与"随机"的标签会叠；靠左对齐放在柱脚。
+            ax.text(xi - 0.02, 0.014, f"{v:.3f}", ha="right", va="bottom", fontsize=FS_TICK)
     # 定向这一根再叠一层**全过程**区间：重抽训练集 → 重拟合 → 重跑贪心（10 次）。
     # 细的误差棒（上一段）只重抽测试集、策略固定，是条件区间；粗的这一根才是
     # "换一批训练数据，策略值会落到哪"（审稿意见 N4）。
@@ -927,11 +950,14 @@ def fig6_policy() -> Path:
     ax.bar(3.7, v_all, width=0.6, color="#BDBDBD", hatch="///", edgecolor="#757575")
     ax.text(3.7, v_all + 0.018, f"{v_all:.3f}", ha="center", va="bottom", fontsize=FS_TICK,
             color="#616161")
-    ax.text(3.7, v_all * 0.52, "不可行", ha="center", va="center",
-            fontsize=FS_NOTE, color="#424242")
-    ax.axhline(oracle_v, color=STRATEGY_COLORS["oracle"], ls="--", lw=1.1,
-               label=f"真值贪心解 {oracle_v:.3f}")
-    ax.set_xticks([0, 1, 2, 3.7], ["不发券", "随机", "定向-贪心", "全量\n超预算 5 倍"], fontsize=FS_TICK)
+    # "不可行"原来竖排写在斜纹柱体内部，与 hatch 纹理叠在一起（视觉复验指出"杂乱"）。
+    # 改为横排写进横轴组标题：既说明这根柱不参与比较，也不再压住柱体。
+    # 真值参考线只画到"全量"柱的左缘：全量发券不可行、不参与比较，
+    # 把参考线横穿到斜纹柱里既无意义，也会和 hatch 混在一起。
+    ax.hlines(oracle_v, -0.7, 3.4, color=STRATEGY_COLORS["oracle"], ls="--", lw=1.1,
+              label=f"真值贪心解 {oracle_v:.3f}")
+    ax.set_xticks([0, 1, 2, 3.7], ["不发券", "随机", "定向-贪心", "全量\n不可行（超预算 5 倍）"],
+                  fontsize=FS_TICK)
     ax.set_xlim(-0.7, 4.4)
     ax.set_ylabel("增量价值（元/人）", fontsize=FS_LABEL)
     ax.set_ylim(0, max(v_all, oracle_v) * 1.28)
@@ -994,26 +1020,38 @@ def fig6_policy() -> Path:
     _legend_below(ax, ncol=3, y=-0.46)
     _panel(ax, "c", f"9 个预算点上定向始终更高")
 
-    # (d) 贪心 / LP 上界 / 精确 DP
+    # (d) 贪心 / LP 上界 / 精确 DP：改用**比值柱**，纵轴线性。
+    # 旧版画绝对价值并取对数：0.9999993 与 0.9970 在对数轴上成了两根等高柱，
+    # 12 / 18 / 19.2、0.30%、33% 一个都标不出来；竖排"不可行"又落在灰柱右侧、
+    # 读起来像在否定上界本身。比值柱把"三种规模三种结论"直接摆在 1.0 参考线上下。
     ax = axes[1, 1]
-    items = list(gap["项"])
-    x = np.arange(len(items))
-    greedy = gap["贪心估计价值"].to_numpy()
-    lp = gap["LP松弛上界"].to_numpy()
-    dp = gap["精确DP"].to_numpy()
-    ax.bar(x - 0.26, greedy, width=0.24, color=STRATEGY_COLORS["target_greedy"], label="贪心")
-    ax.bar(x, lp, width=0.24, color=STRATEGY_COLORS["no_coupon"], label="线性松弛上界")
-    ax.bar(x + 0.26, np.nan_to_num(dp, nan=0.0), width=0.24,
-           color=STRATEGY_COLORS["target_knapsack"], label="精确 DP")
-    ax.set_yscale("log")
-    for xi, d in zip(x, dp):
-        if not np.isfinite(d):
-            ax.text(xi + 0.26, 1.35, "不可行", ha="center", va="bottom", fontsize=FS_TICK,
-                    rotation=90, color="#555555")
-    ax.set_xticks(x, ["全规模\n60,000 人", "降规模\n1,000 人", "反例\n3 件"], fontsize=FS_TICK)
-    ax.set_ylabel("策略总价值（元，对数）", fontsize=FS_LABEL)
-    ax.set_ylim(1, max(lp) * 30)
-    _legend_below(ax, ncol=3, y=-0.46)
+    by_item = {str(r["项"]): r for _, r in gap.iterrows()}
+    full = by_item["全规模（n=60000）"]
+    down = by_item["降规模（n=1000）"]
+    counter = by_item["方案反例（3 件）"]
+    ratios = np.array([
+        float(full["贪心/上界"]),                                  # 0.9999993
+        float(down["精确DP"]) / float(down["贪心估计价值"]),        # 0.9970
+        float(counter["贪心估计价值"]) / float(counter["精确DP"]),  # 0.667
+    ])
+    texts = [f"{ratios[0]:.7f}", f"{ratios[1]:.4f}", f"{ratios[2]:.3f}"]
+    x = np.arange(len(ratios))
+    ax.bar(x, ratios, width=0.55, color=STRATEGY_COLORS["target_greedy"], alpha=0.9)
+    for xi, v, s in zip(x, ratios, texts):
+        ax.text(xi, v + 0.055, s, ha="center", va="bottom", fontsize=FS_TICK)
+    # 不再画 y=1 的参考虚线：前两根柱顶就是 1.00，柱顶数值标签与虚线只隔 3–4pt，
+    # 视觉复验判为"非常拥挤、容易误读"。1.00 仍在纵轴刻度上，纵轴标题也写明
+    # "1 = 持平"，参考线是重复信息。
+    ax.set_xticks(
+        x,
+        ["全规模（精确 DP 不可行）\n60,000 人 · 贪心 / 上界",
+         "降规模\n1,000 人 · DP / 贪心",
+         "反例\n3 件 · 贪心 / 最优"],
+        fontsize=FS_TICK,
+    )
+    ax.set_ylim(0, 1.18)
+    ax.set_xlim(-0.65, 2.65)
+    ax.set_ylabel("相对参照解的比例（1 = 持平）", fontsize=FS_LABEL)
     _panel(ax, "d", "贪心近似程度：三个规模三种结论")
 
     return _finish(

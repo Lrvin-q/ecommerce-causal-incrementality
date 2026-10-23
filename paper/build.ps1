@@ -55,11 +55,22 @@ $nTable = ([regex]::Matches($tex, '(?m)^\\textbf\{表 ')).Count
 # 11 个 baselineskip ≈ 「两行表题 + 8 行表体」所需高度。原来只留 7，
 # 表 6（7 行 × 9 列、表题两行）会出现「表题在页底、表体翻到下一页」。
 $tex = [regex]::Replace($tex, '(?m)^\\textbf\{表 ', '\needspace{11\baselineskip}\textbf{表 ')
-# 表 B1 是附录里的整表；若在页底再插 needspace，会把整表推到下一页并留下近空白页。
-# 其余表仍在题注前预留 11 行，防止“题注在页底、表体翻页”。
-$tex = $tex.Replace('\needspace{11\baselineskip}\textbf{表 B1', '\textbf{表 B1')
-# 表 C1 同理：它在附录 C 标题之后，若在页底预留空间会把标题单独留在上一页（实测出现过整页空白）。
-$tex = $tex.Replace('\needspace{11\baselineskip}\textbf{表 C1', '\textbf{表 C1')
+# 表 B1 / C1 是附录里的整表（B1 有 17 行、多数单元格折 2–4 行，约占半页）。
+# 第 4 轮审稿 N2：整条删掉 needspace 后，B1 的题注被留在页底、表体翻到下一页；
+# 同样的分页在内容整体上移后也会轮到 C1。修法不是把 11 行预约加回来（那会把整表
+# 推走、多占一页），而是：
+#   ① 题注前只留 6 行预约，保证题注本身不会孤零零落在页底最后一行；
+#   ② 题注后用 \nopagebreak[4] 把「题注 + 后面那个不可分页的 minipage」绑成一块。
+# TeX 于是只能在题注**之前**换页：题注与表体永远同页，也不会平白多占一页。
+foreach ($tbl in @('B1', 'C1')) {
+    $tex = $tex.Replace(
+        '\needspace{11\baselineskip}\textbf{表 ' + $tbl,
+        '\needspace{6\baselineskip}\textbf{表 ' + $tbl)
+    $tex = [regex]::Replace(
+        $tex,
+        '(\\textbf\{表 ' + $tbl + '\}[^\r\n]*\r?\n\r?\n)(\{\\def\\LTcaptype\{none\})',
+        '$1' + "`n" + '\nopagebreak[4]' + "`n" + '$2')
+}
 # 表 A1 由 8 行拆成 18 行（一参数一行）后，同样的预留也会在附录 A 标题之后触发换页：
 # 标题单独留在上一页、整表落到下一页，实测多出 1 页且那一页近空白（16 页）。
 # 附录 A 标题之后紧接着就是表格题注，不存在“题注孤悬页底”的问题，故一并去掉预约空间。

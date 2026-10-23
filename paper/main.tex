@@ -84,6 +84,14 @@
 \usepackage{xcolor}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
+% 目录引导点：ctexart 的目录条目走 \CTEXnumberline，编号与页码之间不画点，
+% 页码孤零零挂在行尾（审稿意见 S8）。titletoc 与已加载的 titlesec 同源，
+% 只改"条目 → 页码"这一段：正文条目仍是黑体/常规体，不引入新的缩进层级。
+\usepackage{titletoc}
+\titlecontents{section}[0pt]{\addvspace{3pt}\sffamily}
+  {}{}{\titlerule*[0.8pc]{.}\contentspage}
+\titlecontents{subsection}[1.6em]{\sffamily}
+  {}{}{\titlerule*[0.8pc]{.}\contentspage}
 \usepackage[hidelinks, unicode, bookmarksnumbered]{hyperref}
 % 可跳转引用（目录、章节、图、表、公式、文献）统一用蓝色显示，便于读者跳转。
 \hypersetup{
