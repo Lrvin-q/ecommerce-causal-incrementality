@@ -143,17 +143,32 @@ def add_source_note(
     note: str,
     *,
     data_label: str = "合成数据 / 已知 DGP（非真实企业数据）",
+    reserve_bottom: float = 0.19,
 ) -> None:
-    """在图底部加来源脚注（AGENTS.md §6 强制要求）。"""
+    """在图底部加来源脚注（AGENTS.md §6 强制要求）。
+
+    两件事必须做对：
+    1. **不要重复数据来源标注**——``note`` 传的是 seed/层级/R 等附加信息，
+       来源标注由本函数统一加，脚本里不要再手打一遍。
+    2. **给脚注留出底部空间**，否则它会压住 x 轴标签（这是最容易漏的排版 bug）。
+       ``reserve_bottom`` 要同时容下"轴标签高度 + 脚注高度 + 间隙"。
+    """
     fig.text(
         0.005,
-        0.005,
+        0.012,
         f"数据来源：{data_label}　|　{note}",
         fontsize=7,
         color="#666666",
         ha="left",
         va="bottom",
     )
+    try:
+        current = float(fig.subplotpars.bottom)
+        if current < reserve_bottom:
+            fig.subplots_adjust(bottom=reserve_bottom)
+    except (AttributeError, ValueError):
+        # 非 plt.subplots 构造的 Figure 没有 subplotpars，跳过即可
+        pass
 
 
 def save_fig(

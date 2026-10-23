@@ -66,10 +66,15 @@ def analysis_arrays(population: Population, cfg: Any) -> dict[str, np.ndarray]:
         raise ValueError("population.latent 缺少 'refund_u'；请用 dgp 构造总体")
     rate_ctrl = float(b["refund_rate"])
     rate_trt = rate_ctrl * float(b["refund_rate_treated_multiplier"])
-    refunded = refund_u < np.where(t == 1, rate_trt, rate_ctrl)
+    # 退款只可能发生在**已下单**的用户身上。若不乘 converted，
+    # "退款标记数 / 已下单人数" 会算出 >70% 的假退款率（分母缩小、分子没缩小）。
+    refunded = (refund_u < np.where(t == 1, rate_trt, rate_ctrl)) & (y_obs == 1)
 
     redeemed = population.latent["redeemed"]
-    coupon_used = (t == 1) & redeemed
+    # 券核销的前提是**有订单**：没下单的人不可能核销券。
+    # 少写这个 `& (y_obs == 1)` 会让"核销率"莫名飙到 55% 而转化率只有 15%，
+    # 是一个不会报错、但一眼假的口径错误。
+    coupon_used = (t == 1) & redeemed & (y_obs == 1)
     coupon_value = np.where(coupon_used, population.truth.face_value, 0.0)
 
     cov = population.covariates
@@ -227,7 +232,7 @@ def build_five_tables(
     orders.loc[~refunded, "refund_time"] = pd.NaT
 
     # ---- user_events（行为日志）----
-    user_events = _build_user_events(population, assign_time)
+    user_events = _build_user_events(population, assign_time, cfg)
 
     # ---- user_outcomes（每用户每窗口一行）----
     user_outcomes = build_user_outcomes(
@@ -246,16 +251,22 @@ def build_five_tables(
     }
 
 
-def _build_user_events(population: Population, assign_time: np.ndarray) -> pd.DataFrame:
+def _build_user_events(
+    population: Population, assign_time: np.ndarray, cfg: Any
+) -> pd.DataFrame:
     """生成行为日志：分配前的浏览与加购事件。
 
     粒度是"每次行为一行"。每个用户的最后一次事件是 ``add_to_cart``——
-    这正是"加购未支付"人群的定义来源。``browse_depth_7d`` 应等于
-    分配前 7 天内的事件数，这个等式由数据质量检查校验。
+    这正是"加购未支付"人群的定义来源。
+
+    规模控制：单用户事件数上限取自 ``business.user_events_cap``（默认 20）。
+    **超过上限的用户，``browse_depth_7d`` 仍记录真实深度，但日志只保留前 N 条**，
+    因此 "browse_depth_7d == 事件计数" 只在 ``depth <= cap`` 时严格成立。
+    质量检查按这个口径核对，不会误报。
     """
     cov = population.covariates
-    # 事件数上限 20：保留"少数重度用户"特征，同时避免极端值把表撑爆
-    depth = np.clip(cov.browse_depth.astype(int), 0, 20)
+    cap = int(cfg.require("business.user_events_cap"))
+    depth = np.clip(cov.browse_depth.astype(int), 0, cap)
     n_total = int(depth.sum())
     if n_total == 0:
         return pd.DataFrame(

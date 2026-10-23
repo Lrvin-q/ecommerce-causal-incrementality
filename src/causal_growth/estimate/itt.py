@@ -244,17 +244,19 @@ def auxiliary_metrics(df: pd.DataFrame, cfg: Any) -> pd.DataFrame:
     for label, mask in (("对照组", ~t), ("处理组", t)):
         n = int(mask.sum())
         n_conv = int(conv[mask].sum())
+        n_redeemed = int(coupon_used[mask].sum())
         rows.append(
             {
                 "分组": label,
                 "用户数": n,
                 "转化用户数": n_conv,
                 "转化率": n_conv / n if n else np.nan,
-                "券核销用户数": int(coupon_used[mask].sum()),
-                # 核销率分母是**处理组用户**（券核销人数 / 领券人数）
-                "券核销率": (
-                    int(coupon_used[mask].sum()) / n if n and label == "处理组" else np.nan
-                ),
+                "券核销用户数": n_redeemed,
+                # 口径一：占**已发券**——回答"发出去的券有多少真的被用了"
+                "券核销率_占已发券": (n_redeemed / n) if n and label == "处理组" else np.nan,
+                # 口径二：占**已下单**——回答"下单的人里有多少用了券"
+                # 它受转化率影响，两个口径必须同时报，否则会得出矛盾的数字
+                "券核销率_占已下单": (n_redeemed / n_conv) if n_conv else np.nan,
                 # 退款率分母是**已转化订单**，不是全部用户
                 "退款率_已下单为分母": (int(refund[mask].sum()) / n_conv) if n_conv else np.nan,
                 "人均GMV": float(df.loc[mask, "gmv"].mean()),

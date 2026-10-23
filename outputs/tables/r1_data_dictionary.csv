@@ -1,0 +1,35 @@
+﻿表,字段,类型,业务含义,口径说明,在表中存在
+users,user_id,int64,用户唯一标识,主键；同一用户全局唯一,True
+users,is_new,int8,是否新客,1 = 注册 30 天内,True
+users,reg_date,date,注册日期,新客近 30 天内，老客近 2 年内,True
+users,channel,category,获客渠道,search / feed / xhs / other,True
+users,hist_gmv,float64,历史累计 GMV（元）,新老客分两支分布,True
+users,cart_value_at_assign,float64,加购金额（元）,随机分配时点快照；脏数据层会注入 MNAR 缺失,True
+users,browse_depth_7d,int64,近 7 天浏览事件数,= user_events 中分配前 7 天的事件数,True
+user_events,user_id,int64,用户标识,外键 → users.user_id,True
+user_events,event_type,category,行为类型,page_view / add_to_cart,True
+user_events,event_time,datetime,**事件发生**时间,统计口径必须用它，不是 ts_ingested,True
+user_events,sku_id,int64,商品标识,—,True
+user_events,ts_ingested,datetime,日志入库时间,受上报延迟影响；脏数据层会放大,True
+coupon_assignment,exp_id,str,实验标识,同一实验内唯一,True
+coupon_assignment,user_id,int64,用户标识,外键 → users.user_id；**每用户仅一行**,True
+coupon_assignment,group,category,实验分组,treatment / control；随机分配,True
+coupon_assignment,coupon_value,float64,券面额（元）,对照组为 0,True
+coupon_assignment,assign_time,datetime,分配时间,两个观察窗口都以它为起点,True
+orders,order_id,str,订单唯一标识,主键,True
+orders,user_id,int64,用户标识,外键 → users.user_id,True
+orders,order_time,datetime,下单时间,用于判定落在哪个观察窗口,True
+orders,pay_amount,float64,支付金额（元）,退款单也保留此列,True
+orders,refund_amount,float64,退款金额（元）,未退款为 0,True
+orders,goods_cost,float64,商品成本（元）,= pay_amount × 商品成本率,True
+orders,fulfill_cost,float64,履约成本（元）,配送+仓储+包材；**不可回收**,True
+orders,coupon_used,bool,券是否核销,仅处理组且已转化用户可能为 True,True
+orders,coupon_value,float64,核销券面额（元）,未核销为 0,True
+orders,refunded,bool,是否退款,**退款单必须保留在样本中**（R1）,True
+orders,refund_time,datetime,退款时间,未退款为 NaT；须在利润成熟窗口内,True
+user_outcomes,user_id,int64,用户标识,每用户恰有 2 行（两个窗口各一行）,True
+user_outcomes,window_type,category,观察窗口,convert_7d / profit_30d；**等长，不得混用**,True
+user_outcomes,converted,int8,该窗口内是否下单,分析分母是全部随机分配用户,True
+user_outcomes,gmv,float64,该窗口内支付金额（元）,—,True
+user_outcomes,net_profit,float64,净贡献利润（元）,convert_7d 为 NaN（利润未成熟）；已含券成本（R3）,True
+user_outcomes,refunded,bool,该窗口内是否退款,convert_7d 为 NaN（尚未结算）,True
