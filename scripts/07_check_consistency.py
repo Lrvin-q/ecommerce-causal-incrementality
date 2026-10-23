@@ -321,8 +321,19 @@ def read_without_exempt(path: Path) -> list[tuple[int, str]]:
 
 
 def check_version_banner(problems: list[str]) -> None:
-    """每份文档顶部必须有统一的"数据版本：v2"说明。"""
+    """内部文档顶部必须有统一的"数据版本：v2"说明。
+
+    **论文本身（``00_项目总报告.md``）除外**：它是对外交付物，按体例不应出现
+    内部版本迭代痕迹（版本、变更记录、旧值映射都属于内部文档的职责）。
+    论文的数字一致性由关键数字校验与旧值黑名单守住，不依赖版本横幅。
+    """
     for doc in DOCS:
+        if doc.name.startswith("00_"):
+            if "数据版本" in doc.read_text(encoding="utf-8"):
+                problems.append(
+                    f"{doc.relative_to(ROOT)} 出现内部版本标记：论文不应携带版本横幅"
+                )
+            continue
         head = "\n".join(doc.read_text(encoding="utf-8").splitlines()[:12])
         if "数据版本：v2" not in head:
             problems.append(f"{doc.relative_to(ROOT)}:1 缺少版本说明行（应含“数据版本：v2”）")
