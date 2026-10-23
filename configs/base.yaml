@@ -237,6 +237,10 @@ dgp:
   # U = 未观测混淆（如线下客服私下推荐），同时影响发券与购买。
   # 可观测部分复用 l1 的 β / γ，于是 L1→L3 是"只拆掉可忽略性"的干净对照。
   l3:
+    # λ 扫描的样本量：单次 2 万。为什么比 L1 的 20 万小——
+    # 扫描是 7 个 λ × 20 次重复 × 4 种方法，用 20 万会跑数小时。
+    # 2 万已足够让偏差被清晰识别：L3 的混淆偏差量级远大于抽样误差。
+    n_users: 20000
     alpha_x:
       is_new: 0.30
       hist_gmv_z: 0.50
@@ -331,6 +335,14 @@ evaluation:
   # 重复实验次数。正式数值 200~500；调试可用 20，但报告必须用正式值并注明。
   repeats_r: 200
 
+  # ---- 第二轮的重复设置（计算量不同，单独配）----
+  # CATE 比较：LightGBM 三方法各跑一次，重复 20 次取 RMSE 分布。
+  cate_repeats: 20
+  # Causal Forest 单次拟合约 1 分钟，只跑 2 次做方法间对照（报告注明）。
+  causal_forest_repeats: 2
+  # λ 扫描：7 个 λ 点 × 4 种方法 × 20 次重复 = 560 次估计
+  lambda_scan_repeats: 20
+
   # 排序指标：估计 top-k 与真实 top-k 的重合度
   top_share: 0.20
 
@@ -364,10 +376,12 @@ estimators:
       subsample: 0.8
       colsample_bytree: 0.8
     causal_forest_params:
-      n_estimators: 500
-      min_samples_leaf: 40
+      # 降到 300/3 是为了让 12 万样本的单次拟合控制在 ~1 分钟。
+      # 500 棵树 + 5 折在 12 万行上要约 4 分钟，跑重复实验不现实。
+      n_estimators: 300
+      min_samples_leaf: 60
       max_depth: null
-      cv: 5
+      cv: 3
   obs:
     # 倾向得分模型
     propensity: logistic

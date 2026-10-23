@@ -233,7 +233,9 @@ def build_l3(
     """
     l3 = cfg.section("dgp.l3")
     base_l1 = cfg.section("dgp.l1")
-    n = int(cfg.require("dgp.n_users"))
+    # λ 扫描是"7 个 λ × 20 次重复 × 4 种方法"，用 20 万样本会跑几小时，
+    # 因此 L3 允许独立设定样本量（默认 4 万）。
+    n = int(l3.get("n_users", cfg.require("dgp.n_users")))
     face = reference_face(cfg) if face_value is None else float(face_value)
 
     covariates, order_draws, conversion_u = _common_inputs(cfg, "l3", index, n)
