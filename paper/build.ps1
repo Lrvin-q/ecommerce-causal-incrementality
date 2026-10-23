@@ -24,8 +24,8 @@ foreach ($exe in @($pandoc, $xelatex)) {
 
 Write-Host '[1/4] 提取正文并改写公式编号 ...'
 $md = Get-Content $src -Raw -Encoding utf8
-$i = $md.IndexOf('## 1 问题背景')
-if ($i -lt 0) { throw '未找到正文起点 “## 1 问题背景”' }
+$i = $md.IndexOf('## 1 引言')
+if ($i -lt 0) { throw '未找到正文起点 “## 1 引言”' }
 $body = $md.Substring($i)
 # display math 的 \[ \] 中不允许 \tag，改写为右对齐编号
 $body = [regex]::Replace($body, '\\tag\{(\d+)\}', '\qquad($1)')
@@ -41,7 +41,9 @@ if ($LASTEXITCODE -ne 0) { throw "pandoc 失败（exit=$LASTEXITCODE）" }
 Write-Host '[3/4] 插入 \needspace 防止表题孤悬页底 ...'
 $tex = Get-Content (Join-Path $paper 'body.tex') -Raw -Encoding utf8
 $nTable = ([regex]::Matches($tex, '(?m)^\\textbf\{表 ')).Count
-$tex = [regex]::Replace($tex, '(?m)^\\textbf\{表 ', '\needspace{7\baselineskip}\textbf{表 ')
+# 11 个 baselineskip ≈ 「两行表题 + 8 行表体」所需高度。原来只留 7，
+# 表 6（7 行 × 9 列、表题两行）会出现「表题在页底、表体翻到下一页」。
+$tex = [regex]::Replace($tex, '(?m)^\\textbf\{表 ', '\needspace{11\baselineskip}\textbf{表 ')
 Set-Content -Path (Join-Path $paper 'body.tex') -Value $tex -Encoding utf8 -NoNewline
 $nFig = ([regex]::Matches($tex, '\\begin\{figure\}')).Count
 Write-Host ("      表 {0} 张、图 {1} 张" -f $nTable, $nFig)

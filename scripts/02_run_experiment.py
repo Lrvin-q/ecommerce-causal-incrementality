@@ -1,4 +1,4 @@
-"""第一轮实验主线：样本量 → AA 校验 → ITT → 护栏非劣效 → 多重比较 → 重复实验。
+﻿"""第一轮实验主线：样本量 → AA 校验 → ITT → 护栏非劣效 → 多重比较 → 重复实验。
 
 用法
 ----
@@ -54,6 +54,17 @@ def step_sample_size(cfg) -> pd.DataFrame:
     inputs = df.pop("inputs").iloc[0]
     flat = pd.DataFrame([{"参数": k, "取值": v} for k, v in inputs.items()])
     save_table(flat, "r1_sample_size_inputs")
+
+    # S1：约束者翻转的**临界 MDE**。两个指标的样本量都与 MDE² 成反比，
+    # 令 n_profit(Δ*) = n_conversion 得 Δ* = Δ_profit · sqrt(n_profit / n_conv)。
+    # 低于 Δ* 时约束者从转化率翻转为利润；这就是"预算/合格用户口径"下
+    # 0.5 元/人的业务含义必须被拿出来对照的原因。
+    n_conv = int(ss.n_per_group_conversion)
+    n_prof = int(ss.n_per_group_profit)
+    mde_profit = float(cfg.require("experiment.mde.profit_per_user"))
+    df["临界利润MDE_元每人"] = mde_profit * float(np.sqrt(n_prof / max(n_conv, 1)))
+    df["约束者"] = ss.binding_metric
+
     save_table(df, "r1_sample_size")
     return df
 
@@ -395,6 +406,14 @@ def step_guardrail_power(cfg, df: pd.DataFrame) -> pd.DataFrame:
         (true_uplift, f"真实小幅恶化（{true_uplift*100:.3f}pp，DGP 设定）"),
         (margin, f"真实恶化恰在界值（{margin*100:.2f}pp）"),
     ):
+        need = required_converters(true_diff)
+        # S3：把"每组需要多少**已转化**用户"翻译回"需要多少**总**用户"。
+        # 换算用两组各自的转化率：每组总人数 = 该组已转化人数 / 该组转化率。
+        p_t_conv = n_conv_t / max(int(t.sum()), 1)
+        p_c_conv = n_conv_c / max(int((~t).sum()), 1)
+        total_needed = (
+            float(need) * (1.0 / p_t_conv + 1.0 / p_c_conv) if need > 0 else float("nan")
+        )
         rows.append(
             {
                 "情景": label,
@@ -405,7 +424,8 @@ def step_guardrail_power(cfg, df: pd.DataFrame) -> pd.DataFrame:
                     np.sqrt(p_t * (1 - p_t) / n_conv_t + p_c * (1 - p_c) / n_conv_c)
                 ) * 100,
                 "当前功效": power_at(n_conv_t, n_conv_c, true_diff),
-                "达到80%功效所需_每组已转化用户": required_converters(true_diff),
+                "达到80%功效所需_每组已转化用户": need,
+                "达到80%功效所需_总样本量": total_needed,
                 "界值_pp": margin * 100,
                 "单侧α": alpha_one,
             }
@@ -419,6 +439,76 @@ def step_guardrail_power(cfg, df: pd.DataFrame) -> pd.DataFrame:
         f"当前功效仅 {cur['当前功效']:.3f}；"
         f"要达 80% 需每组约 {int(cur['达到80%功效所需_每组已转化用户'])} 个已转化用户"
     )
+    return out
+
+
+def step_srm(cfg, df: pd.DataFrame) -> pd.DataFrame:
+    """样本比例失衡检查（Sample Ratio Mismatch，SRM）。
+
+    分流若不成 50/50，"随机实验"的前提就先破了——后面所有 ITT 都不可信。
+    判据用卡方（1 自由度，等价于两比例 z 检验的平方），惯例阈值 p < 0.001
+    才判定 SRM（Kohavi 等的工程口径：p < 0.05 在小样本上误报太多）。
+    """
+    from scipy.stats import chi2
+
+    n_t = int((df["treatment"] == 1).sum())
+    n_c = int((df["treatment"] == 0).sum())
+    n = n_t + n_c
+    expected = n / 2.0
+    chi = (n_t - expected) ** 2 / expected + (n_c - expected) ** 2 / expected
+    p = float(chi2.sf(chi, df=1))
+    z = float((n_t - expected) / np.sqrt(n * 0.25))
+    out = pd.DataFrame(
+        [
+            {
+                "检查项": "SRM（分流比例）",
+                "处理组": n_t,
+                "对照组": n_c,
+                "期望每组": expected,
+                "处理组占比": n_t / n,
+                "z统计量": z,
+                "卡方统计量": float(chi),
+                "p值": p,
+                "判定阈值": 0.001,
+                "结论": "不拒绝 50/50" if p >= 0.001 else "**存在 SRM，需排查分流实现**",
+            }
+        ]
+    )
+    save_table(out, "r1_srm")
+    return out
+
+
+def step_guardrail_sensitivity(cfg, df: pd.DataFrame) -> pd.DataFrame:
+    """S3：护栏界值本身是拍的 0.5pp —— 换成 0.2/0.3/0.5/1.0pp 结论会不会翻转？
+
+    只报"界值 0.5pp 时通过"是一句没有信息量的话：界值是可以调的。
+    把同一份差值（含其单侧置信上界）放到四个界值下逐一看，才知道
+    "结论对界值有多敏感"，也才知道这条护栏真正能拦住什么。
+    """
+    alpha_one = float(cfg.require("experiment.guardrail.alpha_one_sided"))
+    t = df["treatment"].to_numpy() == 1
+    conv = df["converted"].to_numpy() == 1
+    ref = df["refunded"].to_numpy() == 1
+    s_t, n_t = int((ref & t & conv).sum()), int((t & conv).sum())
+    s_c, n_c = int((ref & ~t & conv).sum()), int((~t & conv).sum())
+
+    rows = []
+    for margin_pp in (0.2, 0.3, 0.5, 1.0):
+        ni = noninferiority_binary(
+            s_t, n_t, s_c, n_c, margin=margin_pp / 100.0, alpha_one_sided=alpha_one
+        )
+        rows.append(
+            {
+                "界值_pp": margin_pp,
+                "差值_pp": ni.diff * 100,
+                "标准误_pp": ni.se * 100,
+                "单侧CI上界_pp": ni.ci_one_sided_upper * 100,
+                "上界是否低于界值": bool(ni.ci_one_sided_upper < margin_pp / 100.0),
+                "结论": "非劣效成立" if ni.passed else "**非劣效不成立**",
+            }
+        )
+    out = pd.DataFrame(rows)
+    save_table(out, "r1_guardrail_sensitivity")
     return out
 
 
@@ -533,37 +623,45 @@ def main() -> int:
     cfg = load_config()
     print(f"[config] seed={_seed(cfg)}  data={cfg.require('project.data_source_label')}")
 
-    print("[1/6] 样本量与功效曲线 ...")
+    print("[1/7] 样本量与功效曲线 ...")
     ss = step_sample_size(cfg)
     step_sample_size_curve(cfg)
     print(f"      n_per_group={ss.n_per_group.iloc[0]}  n_total={ss.n_total.iloc[0]}  "
           f"binding={ss.binding_metric.iloc[0]}")
 
-    print("[2/6] AA 校验（1000 次无效应重复）...")
+    print("[2/7] AA 校验（1000 次无效应重复）...")
     aa = step_aa(cfg)
     for _, row in aa.iterrows():
         print(f"      {row['指标']}: FPR={row['假阳性率']:.4f}  KS p={row['KS_p值']:.3f}")
 
-    print("[3/6] 主实验 ITT（L0/L1/L2）...")
+    print("[3/7] 主实验 ITT（L0/L1/L2）...")
     itt_df, aux = step_main_experiment(cfg)
     for _, row in itt_df.iterrows():
         print(f"      {row['层级']} {row['指标']}: 估计 {row['ITT估计']:+.4f}  "
               f"真值 {row['真值']:+.4f}  CI=[{row['CI下界']:+.4f}, {row['CI上界']:+.4f}]")
 
-    print("[4/6] 护栏非劣效 + 功效分析 ...")
+    print("[4/7] 护栏非劣效 + 界值敏感性 + 功效分析 ...")
     df_l1, _ = _run_level(cfg, "L1")
     guard = step_guardrail(cfg, df_l1)
     for _, row in guard.iterrows():
         print(f"      {row['检验']}: 差值 {row['差值_pp']:+.3f}pp -> {row['结论']}")
+    sens = step_guardrail_sensitivity(cfg, df_l1)
+    for _, row in sens.iterrows():
+        print(f"      界值 {row['界值_pp']:.1f}pp: 单侧上界 {row['单侧CI上界_pp']:+.3f}pp -> {row['结论']}")
     step_guardrail_power(cfg, df_l1)
 
-    print("[5/6] 多重比较（Holm）...")
+    print("[5/7] SRM（分流比例）检验 ...")
+    srm = step_srm(cfg, df_l1)
+    print(f"      {srm.iloc[0]['处理组']:,} / {srm.iloc[0]['对照组']:,}  "
+          f"z={srm.iloc[0]['z统计量']:+.3f}  p={srm.iloc[0]['p值']:.4f}  → {srm.iloc[0]['结论']}")
+
+    print("[6/7] 多重比较（Holm）...")
     mult = step_multiplicity(cfg, itt_df)
     for _, row in mult.iterrows():
         print(f"      {row['指标']}: p={row['原始p值']:.4g} -> 校正 {row['校正后p值']:.4g}  "
               f"拒绝={row['是否拒绝']}")
 
-    print(f"[6/6] 重复实验 R={cfg.require('evaluation.repeats_r')} ...")
+    print(f"[7/7] 重复实验 R={cfg.require('evaluation.repeats_r')} ...")
     rep = step_repeats(cfg)
     for _, row in rep.iterrows():
         print(f"      {row['level']}: 利润偏差 {row['利润_偏差']:+.4f}、RMSE {row['利润_RMSE']:.4f}、"

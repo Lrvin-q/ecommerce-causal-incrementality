@@ -113,9 +113,14 @@ class GroundTruth:
     tau_conversion: np.ndarray
     #: 逐用户净增量贡献利润 CATE 的**解析真值**
     cate_profit: np.ndarray
-    #: 已转化订单在有/无券下的期望净贡献利润
+    #: 已转化订单在有/无券下的期望净贡献利润（**仅首单**，不含复购）
     net_per_order_treated: np.ndarray
     net_per_order_control: np.ndarray
+    #: 已转化用户在有/无券下的期望净贡献（**首单 + 复购期望**）。
+    #: 恒等式 ``cate_profit = p1·A1 − p0·A0`` 用的是这两个字段而非首单字段——
+    #: 复购路径（B7）加进来以后，二者不再相等，混用会让真值系统性偏低。
+    net_per_converted_treated: np.ndarray
+    net_per_converted_control: np.ndarray
     #: 生成该真值所用的参数快照（写进报告，保证可追溯）
     params: dict[str, Any] = field(default_factory=dict)
 
@@ -138,6 +143,8 @@ class GroundTruth:
             "mean_p1": float(np.mean(self.p1)),
             "mean_net_per_order_control": float(np.mean(self.net_per_order_control)),
             "mean_net_per_order_treated": float(np.mean(self.net_per_order_treated)),
+            "mean_net_per_converted_control": float(np.mean(self.net_per_converted_control)),
+            "mean_net_per_converted_treated": float(np.mean(self.net_per_converted_treated)),
         }
 
 

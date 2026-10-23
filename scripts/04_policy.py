@@ -107,7 +107,18 @@ def build_setup(cfg):
 
 
 def run_six_strategies(cfg, s) -> pd.DataFrame:
-    """六策略对比（同一测试集、同一预算、增量口径价值）。"""
+    """六策略对比（同一测试集、同一预算、增量口径价值）。
+
+    B2 的两处不确定性：
+    * **随机策略**不是"一个实现值"而是**一个分布**——选谁全靠运气，
+      所以跑 ``evaluation.random_strategy_seeds`` 个种子，报均值 ± 标准差；
+    * 其余策略的增量价值 / 每元回报 / 占真值贪心解比例都给**测试集 bootstrap 95% CI**
+      （重抽用户，不是重跑 DGP：这里要的是"这 6 万人的抽样误差"）。
+
+    B3 的口径：真值一侧不再是单一"上界"，而是**区间**
+    ``[真值贪心解, LP 松弛上界]``——前者是"贪心 + 局部改进"的启发式解（近似最优），
+    后者才是有数学保证的松弛上界。二者之间的宽度就是启发式解的不确定性。
+    """
     cost, budget = s["cost"], s["budget"]
     tau_hat, tau_true = s["tau_hat"], s["tau_true"]
     pi1, pi0 = s["pi1"], s["pi0"]
@@ -123,16 +134,74 @@ def run_six_strategies(cfg, s) -> pd.DataFrame:
     g = greedy_by_ratio(tau_hat, cost, budget)
     strategies["target_greedy"] = _mk("target_greedy", g.policy, cost, budget)
 
-    # 全规模精确 DP 不可行（见报告 §4），用 1-2 交换局部搜索作为实用最优基准
+    # 全规模精确 DP 不可行（见报告 §8），用 1-2 交换局部搜索作为实用最优基准
     ls = local_improvement(tau_hat, cost, budget, g.policy)
     strategies["target_knapsack"] = _mk("target_knapsack", ls.policy, cost, budget)
 
-    # 真值最优：用**真值 τ 与真值成本**排序 + 局部搜索 —— 这是可达上界
+    # 真值一侧：贪心(真值τ) + 局部改进 = **近似最优解**（不是上界！）
     g_or = greedy_by_ratio(tau_true, cost, budget)
     orc = local_improvement(tau_true, cost, budget, g_or.policy)
     strategies["oracle"] = _mk("oracle", orc.policy, cost, budget)
 
     oracle_value = incremental_value(strategies["oracle"].policy, pi1, pi0)
+
+    # ---- 真值贪心解的**区间**：下界 = 近似最优解，上界 = LP 松弛 ----
+    lp_true = lp_upper_bound(tau_true, cost, budget)
+    lp_per_user = float(lp_true["upper_bound"]) / n
+    v_oracle_analytic = float(tau_true[orc.policy].sum()) / n
+    bound = pd.DataFrame(
+        [
+            {
+                "项": "真值贪心解（近似最优解，实现值 π₁−π₀）",
+                "值_元每人": oracle_value,
+            },
+            {
+                "项": "真值贪心解（解析口径 E[τ] 加权）",
+                "值_元每人": v_oracle_analytic,
+            },
+            {
+                "项": "LP 松弛上界（含分数件，解析口径）",
+                "值_元每人": lp_per_user,
+            },
+            {
+                "项": "松弛间隙（上界 − 下界）",
+                "值_元每人": lp_per_user - v_oracle_analytic,
+            },
+        ]
+    )
+    save_table(bound, "r3_oracle_bound")
+
+    # ---- 随机策略：200 个种子的分布（B2）----
+    n_seeds = int(cfg.require("evaluation.random_strategy_seeds"))
+    rand_vals = np.empty(n_seeds, dtype=float)
+    rand_per_yuan = np.empty(n_seeds, dtype=float)
+    rand_nsel = np.empty(n_seeds, dtype=float)
+    rand_cost = np.empty(n_seeds, dtype=float)
+    for i in range(n_seeds):
+        r_i = random_under_budget(cost, budget, child_rng(_seed(cfg), "policy.random_seeds", i))
+        v_i = incremental_value(r_i.policy, pi1, pi0)
+        rand_vals[i] = v_i
+        rand_nsel[i] = r_i.n_selected
+        rand_cost[i] = r_i.cost_total
+        rand_per_yuan[i] = v_i * n / r_i.cost_total if r_i.cost_total > 0 else np.nan
+    random_summary = pd.DataFrame(
+        [
+            {
+                "策略": STRATEGY_LABELS["random"],
+                "种子数": n_seeds,
+                "增量价值_均值": float(rand_vals.mean()),
+                "增量价值_标准差": float(rand_vals.std(ddof=1)),
+                "增量价值_最小": float(rand_vals.min()),
+                "增量价值_最大": float(rand_vals.max()),
+                "每元回报_均值": float(np.nanmean(rand_per_yuan)),
+                "每元回报_标准差": float(np.nanstd(rand_per_yuan, ddof=1)),
+                "选中人数_均值": float(rand_nsel.mean()),
+                "选中人数_标准差": float(rand_nsel.std(ddof=1)),
+                "成本_均值": float(rand_cost.mean()),
+            }
+        ]
+    )
+    save_table(random_summary, "r3_random_seeds")
 
     rows = []
     for key, res in strategies.items():
@@ -141,18 +210,148 @@ def run_six_strategies(cfg, s) -> pd.DataFrame:
         row["strategy"] = STRATEGY_LABELS[key]
         row["n_test"] = n
         row["oracle_value"] = oracle_value
+        # 解析口径（按选中用户的人均真值 τ 折算到全体用户）：与实现值只差抽样噪声
+        row["incremental_value_analytic"] = (
+            float(np.mean(tau_true[res.policy]) * res.n_selected / n) if res.n_selected else 0.0
+        )
+        if key == "random":
+            # 随机策略报 200 个种子的均值，而不是某一次实现的运气
+            row["incremental_value"] = float(rand_vals.mean())
+            row["incremental_value_sd"] = float(rand_vals.std(ddof=1))
+            row["value_per_yuan"] = float(np.nanmean(rand_per_yuan))
+            row["value_per_yuan_sd"] = float(np.nanstd(rand_per_yuan, ddof=1))
+            row["n_selected"] = float(rand_nsel.mean())
+            row["cost_total"] = float(rand_cost.mean())
+            row["mean_tau_selected"] = float(np.mean(tau_true[res.policy]))
+            row["incremental_value_analytic"] = float(rand_vals.mean())
+        else:
+            row["incremental_value_sd"] = np.nan
+            row["value_per_yuan_sd"] = np.nan
         rows.append(row)
     df = pd.DataFrame(rows)
     # 全量策略天然超预算，报告里必须显式标出来
     df["over_budget"] = df["cost_total"] > budget * 1.0000001
-    # 超预算策略的价值**不能**与预算约束下的策略比"达上界百分比"——
+    # 超预算策略的价值**不能**与预算约束下的策略比"占真值贪心解百分比"——
     # 它花了 5 倍的钱，拿到的价值当然更高，算百分比只会误导读者。
     df.loc[df["over_budget"], ["pct_of_oracle", "regret"]] = np.nan
     df["note"] = np.where(
         df["over_budget"], "无视预算（成本超支），价值不可与预算约束下的策略比较", ""
     )
+    df["oracle_value_lp"] = oracle_value * np.nan  # 占位，区间另表
+    df["oracle_lp_per_user"] = lp_per_user
+    df["oracle_greedy_per_user"] = oracle_value
+    df["pct_of_oracle_greedy"] = 100.0 * df["incremental_value_analytic"] / v_oracle_analytic
+    df["pct_of_oracle_lp"] = 100.0 * df["incremental_value_analytic"] / lp_per_user
+    df.loc[df["over_budget"], ["pct_of_oracle_greedy", "pct_of_oracle_lp"]] = np.nan
+
+    # ---- B2：测试集 bootstrap 95% CI ----
+    ci = bootstrap_strategy_intervals(cfg, s, strategies, oracle_value=oracle_value)
+    # 随机策略的口径必须与表里的数字一致：表里报的是 **200 个种子的均值**，
+    # 就不能用"某一次实现"的 bootstrap 区间（那是另一件事的不确定性）。
+    # 这里把随机行的区间换成 200 个种子的 2.5/97.5 分位，并在"区间方法"列写明。
+    rand_pct = {
+        "incremental_value": (
+            float(rand_vals.mean()),
+            float(np.percentile(rand_vals, 2.5)),
+            float(np.percentile(rand_vals, 97.5)),
+        ),
+        "value_per_yuan": (
+            float(np.nanmean(rand_per_yuan)),
+            float(np.nanpercentile(rand_per_yuan, 2.5)),
+            float(np.nanpercentile(rand_per_yuan, 97.5)),
+        ),
+        "pct_of_oracle": (
+            float(100.0 * rand_vals.mean() / oracle_value),
+            float(100.0 * np.percentile(rand_vals, 2.5) / oracle_value),
+            float(100.0 * np.percentile(rand_vals, 97.5) / oracle_value),
+        ),
+    }
+    for metric, (point, lo, hi) in rand_pct.items():
+        m = (ci["strategy_key"] == "random") & (ci["指标"] == metric)
+        ci.loc[m, "点估计"] = point
+        ci.loc[m, "CI下界"] = lo
+        ci.loc[m, "CI上界"] = hi
+    ci["区间方法"] = np.where(ci["strategy_key"] == "random", f"{n_seeds} 个种子分位数", "bootstrap 百分位")
+    save_table(ci, "r3_six_strategies_ci")
+
     save_table(df, "r3_six_strategies")
-    return df
+    return df, ci, bound, random_summary
+
+
+def bootstrap_strategy_intervals(
+    cfg, s, strategies: dict[str, SelectionResult], *, oracle_value: float, n_boot: int | None = None
+) -> pd.DataFrame:
+    """在**测试集**上重抽用户（bootstrap）给三个核心数字 95% 区间。
+
+    * ``incremental_value`` = mean(π·(Π₁−Π₀))；
+    * ``value_per_yuan`` = 增量价值 × n / 总成本；
+    * ``pct_of_oracle`` = 增量价值 / 真值贪心解的实现值。
+
+    为什么要 bootstrap 而不是解析式：策略价值是"每人一个数"的均值，
+    但**成本分母**与**真值贪心解**都是同一批用户算出来的，三者相关，
+    解析式很难给对比量的区间；重抽用户一次性把它们一起重算，关系不会被打散。
+    """
+    cost, budget = s["cost"], s["budget"]
+    pi1, pi0, n = s["pi1"], s["pi0"], s["cost"].size
+    n_boot = int(n_boot or cfg.require("evaluation.bootstrap_repeats"))
+    rng = child_rng(_seed(cfg), "policy.bootstrap", 0)
+
+    keys = [k for k in strategies if k != "no_coupon"]  # 全零策略三个指标恒为 0/未定义
+    draws = {
+        k: {"incremental_value": np.empty(n_boot), "value_per_yuan": np.empty(n_boot),
+            "pct_of_oracle": np.empty(n_boot)}
+        for k in keys
+    }
+    for b in range(n_boot):
+        idx = rng.integers(0, n, size=n)
+        v_tau = pi1[idx] - pi0[idx]
+        c_b = cost[idx]
+        for k in keys:
+            pol = strategies[k].policy[idx]
+            v = float(pol @ v_tau) / n
+            c_tot = float(c_b[pol].sum())
+            draws[k]["incremental_value"][b] = v
+            draws[k]["value_per_yuan"][b] = v * n / c_tot if c_tot > 0 else np.nan
+            orc = strategies["oracle"].policy[idx]
+            v_orc = float(orc @ v_tau) / n
+            draws[k]["pct_of_oracle"][b] = 100.0 * v / v_orc if v_orc > 0 else np.nan
+
+    rows = []
+    for k in keys:
+        for metric, arr in draws[k].items():
+            point = {
+                "incremental_value": _point_value(strategies[k], pi1, pi0),
+                "value_per_yuan": (
+                    _point_value(strategies[k], pi1, pi0) * n / strategies[k].cost_total
+                    if strategies[k].cost_total > 0 else np.nan
+                ),
+                "pct_of_oracle": (
+                    100.0 * _point_value(strategies[k], pi1, pi0) / oracle_value
+                    if oracle_value > 0 and not _over_budget(strategies[k]) else np.nan
+                ),
+            }[metric]
+            ok = arr[np.isfinite(arr)]
+            rows.append(
+                {
+                    "strategy_key": k,
+                    "strategy": STRATEGY_LABELS[k],
+                    "指标": metric,
+                    "点估计": point,
+                    "CI下界": float(np.percentile(ok, 2.5)) if ok.size else np.nan,
+                    "CI上界": float(np.percentile(ok, 97.5)) if ok.size else np.nan,
+                    "bootstrap次数": n_boot,
+                    "超预算": _over_budget(strategies[k]),
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def _point_value(res: SelectionResult, pi1: np.ndarray, pi0: np.ndarray) -> float:
+    return incremental_value(res.policy, pi1, pi0)
+
+
+def _over_budget(res: SelectionResult) -> bool:
+    return bool(res.cost_total > res.budget * 1.0000001)
 
 
 def run_greedy_gap(cfg, s) -> pd.DataFrame:
@@ -252,14 +451,14 @@ def run_budget_scan(cfg, s) -> pd.DataFrame:
                 "覆盖率_贪心": float(g.policy.mean()),
                 "价值_贪心": incremental_value(g.policy, pi1, pi0),
                 "价值_随机": incremental_value(rnd.policy, pi1, pi0),
-                "价值_真值最优": incremental_value(orc.policy, pi1, pi0),
+                "价值_真值贪心解": incremental_value(orc.policy, pi1, pi0),
                 "定向增益_相对随机": (
                     incremental_value(g.policy, pi1, pi0) - incremental_value(rnd.policy, pi1, pi0)
                 ),
             }
         )
     out = pd.DataFrame(rows)
-    out["贪心达上界比"] = out["价值_贪心"] / out["价值_真值最优"].replace(0, np.nan)
+    out["贪心达上界比"] = out["价值_贪心"] / out["价值_真值贪心解"].replace(0, np.nan)
     out["定向相对优势倍数"] = out["价值_贪心"] / out["价值_随机"].replace(0, np.nan)
     save_table(out, "r3_budget_scan")
     return out
@@ -273,7 +472,7 @@ def run_robustness(cfg) -> pd.DataFrame:
 
     主结论是三条：
     A. 定向-贪心的价值显著高于随机（绝对增益 > 0）；
-    B. 定向达真值最优上界的比例约 85%；
+    B. 定向相对真值贪心解（近似最优解）约 85%；
     C. 每元预算的净增量利润 > 1（即发券赚钱）。
 
     为控制计算量，这里用 **S-learner** 做 CATE（主结果用 Causal Forest）——
@@ -342,9 +541,9 @@ def run_robustness(cfg) -> pd.DataFrame:
                 "券面额": face,
                 "定向价值": v_g,
                 "随机价值": v_r,
-                "真值最优": v_o,
+                "真值贪心解": v_o,
                 "定向减随机": v_g - v_r,
-                "达上界比": v_g / v_o if v_o > 0 else np.nan,
+                "占真值贪心解比": v_g / v_o if v_o > 0 else np.nan,
                 "每元预算回报": (v_g * len(cost)) / g.cost_total if g.cost_total > 0 else np.nan,
             }
         )
@@ -369,7 +568,7 @@ def plot_six(df: pd.DataFrame, cfg) -> None:
     axes[0].bar(x, d["incremental_value"], color=colors)
     oracle_val = float(df.loc[df["strategy_key"] == "oracle", "oracle_value"].iloc[0])
     axes[0].axhline(oracle_val, color="black", ls="--", lw=1.2,
-                    label=f"真值最优上界 {oracle_val:.3f}")
+                    label=f"真值贪心解 {oracle_val:.3f}（近似最优）")
     axes[0].set_xticks(x, [STRATEGY_LABELS[k] for k in d.index], rotation=18, ha="right")
     axes[0].set_ylabel("增量策略价值（元/人）")
     axes[0].set_title("六策略价值对比（同一测试集、同一预算）")
@@ -390,7 +589,7 @@ def plot_six(df: pd.DataFrame, cfg) -> None:
 
 def plot_budget_scan(scan: pd.DataFrame, cfg) -> None:
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-    axes[0].plot(scan["预算倍数"], scan["价值_真值最优"], "o-", color="#212121", label="真值最优")
+    axes[0].plot(scan["预算倍数"], scan["价值_真值贪心解"], "o-", color="#212121", label="真值贪心解")
     axes[0].plot(scan["预算倍数"], scan["价值_贪心"], "s-", color=STRATEGY_COLORS["target_greedy"], label="定向-贪心")
     axes[0].plot(scan["预算倍数"], scan["价值_随机"], "^-", color=STRATEGY_COLORS["random"], label="随机")
     axes[0].set_xlabel("预算倍数（相对基准）")
@@ -428,26 +627,32 @@ def main() -> int:
     print(f"      成本模型：口径={cm['basis']} 面额={cm['face_value']:.0f} 元 "
           f"均值={cm['mean_cost']:.4f} 元 90分位={cm['p90_cost']:.4f} 元")
 
-    print("[2/5] 六策略对比 ...")
-    six = run_six_strategies(cfg, s)
+    print("[2/6] 六策略对比（随机策略 200 个种子 + 测试集 bootstrap CI）...")
+    six, six_ci, bound, rnd = run_six_strategies(cfg, s)
     for _, row in six.iterrows():
         flag = " (超预算!)" if row["over_budget"] else ""
-        print(f"      {row['strategy']:<14} 选中 {int(row['n_selected']):>6,} 人  "
-              f"成本 {row['cost_total']:>9,.0f} 元  价值 {row['incremental_value']:+.4f} 元/人  "
-              f"达上界 {row['pct_of_oracle']:5.1f}%{flag}")
+        sd = row["incremental_value_sd"]
+        sd_txt = f" ± {sd:.4f}" if np.isfinite(sd) else ""
+        print(f"      {row['strategy']:<16} 选中 {int(row['n_selected']):>6,} 人  "
+              f"成本 {row['cost_total']:>9,.0f} 元  价值 {row['incremental_value']:+.4f}{sd_txt} 元/人  "
+              f"占真值贪心解 {row['pct_of_oracle']:5.1f}%{flag}")
+    print(f"      真值贪心解区间：[{bound['值_元每人'].iloc[1]:.4f}, {bound['值_元每人'].iloc[2]:.4f}] 元/人 "
+          f"（下界=近似最优解，上界=LP 松弛）")
+    print(f"      随机策略 {int(rnd['种子数'].iloc[0])} 个种子："
+          f"{rnd['增量价值_均值'].iloc[0]:.4f} ± {rnd['增量价值_标准差'].iloc[0]:.4f} 元/人")
 
-    print("[3/5] 贪心近似程度 ...")
+    print("[3/6] 贪心近似程度 ...")
     gap = run_greedy_gap(cfg, s)
     for _, row in gap.iterrows():
         dp = row["精确DP"]
         print(f"      {row['项']:<18} 贪心/上界={row['贪心/上界']:.6f}  "
               f"DP={dp if isinstance(dp,str) else f'{dp:.4f}'}")
 
-    print("[4/5] 预算敏感性扫描 ...")
+    print("[4/6] 预算敏感性扫描 ...")
     scan = run_budget_scan(cfg, s)
     for _, row in scan.iterrows():
         print(f"      B×{row['预算倍数']:.2f}: 贪心 {row['价值_贪心']:+.4f}  "
-              f"随机 {row['价值_随机']:+.4f}  上界 {row['价值_真值最优']:+.4f}  "
+              f"随机 {row['价值_随机']:+.4f}  上界 {row['价值_真值贪心解']:+.4f}  "
               f"定向增益 {row['定向增益_相对随机']:+.4f}")
 
     print("[5/6] 出图 ...")
@@ -458,7 +663,7 @@ def main() -> int:
     rob = run_robustness(cfg)
     for _, row in rob.iterrows():
         print(f"      {row['参数']:<10} {row['扰动']}: 定向减随机 {row['定向减随机']:+.4f}  "
-              f"达上界 {row['达上界比']:.1%}  每元回报 {row['每元预算回报']:.3f}")
+              f"占真值贪心解 {row['占真值贪心解比']:.1%}  每元回报 {row['每元预算回报']:.3f}")
     stable = bool((rob["定向减随机"] > 0).all()) and bool((rob["每元预算回报"] > 1).all())
     print(f"      结论方向稳定性：{'稳定（12/12 单元均满足 定向>随机 且 每元回报>1）' if stable else '**不稳定，需在报告中标注**'}")
 

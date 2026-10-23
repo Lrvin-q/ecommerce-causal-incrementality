@@ -5,10 +5,10 @@
 %  编译：xelatex 两遍（交叉引用），或直接用 latexmk / build.ps1
 %  依赖：TeX Live 2025（ctex, booktabs, longtable, caption, hyperref 等）
 % =============================================================================
-\documentclass[UTF8, fontset=windows, a4paper, zihao=-4]{ctexart}
+\documentclass[UTF8, fontset=windows, a4paper, zihao=5]{ctexart}
 
 % ---------- 页面 ----------
-\usepackage[a4paper, margin=2.35cm, top=2.6cm, bottom=2.35cm, footskip=1.05cm]{geometry}
+\usepackage[a4paper, margin=2.05cm, top=2.3cm, bottom=2.05cm, footskip=1.0cm]{geometry}
 
 % ---------- 数学 ----------
 \usepackage{amsmath, amssymb, amsthm, bm}
@@ -51,6 +51,9 @@
 \setlength{\LTpre}{2pt}
 \setlength{\LTpost}{2pt}
 \renewcommand{\arraystretch}{1.14}
+% 列间距：默认 6pt 下"表 5（10 列）"会溢出 9pt；4.5pt 是 booktabs 表格的常见取值，
+% 既解决溢出，又不至于让相邻列粘在一起。
+\setlength{\tabcolsep}{4.5pt}
 
 % ---------- 图 ----------
 \usepackage{graphicx}
@@ -65,10 +68,19 @@
 \usepackage{enumitem}
 \setlist{itemsep=2pt, topsep=4pt, parsep=0pt}
 \usepackage{needspace}            % 防止“表题在页底、表体翻页”的孤行
-% 【重要】build.ps1 会在每个粗体表题前插入 \needspace{7\baselineskip}。原实现会往页面里
-% 加一段最多 5.2cm 的可伸缩胶水，TeX 于是容忍“内容超出页高”而裁掉多余部分
-% （overfull vbox + 正文丢失）。这里换成“只允许在表题前断页、不加胶水”。
-\renewcommand{\needspace}[1]{\par\penalty-200\vspace{0pt}}
+% 【重要】build.ps1 会在每个粗体表题前插入 \needspace{11\baselineskip}。
+% 原实现会往页面里加一段可伸缩胶水，TeX 于是容忍“内容超出页高”而裁掉多余部分
+% （overfull vbox + 正文丢失）；但若只是插入 \penalty，又保不住"表题与表体同页"。
+% 这里用经典 needspace 语义：**剩余高度不足就直接换页**，且不添加任何胶水。
+\makeatletter
+\renewcommand{\needspace}[1]{%
+  \par
+  \ifdim\pagegoal<\maxdimen
+    \ifdim\dimexpr\pagegoal-\pagetotal\relax<\dimexpr#1\relax
+      \newpage
+    \fi
+  \fi}
+\makeatother
 \usepackage{xcolor}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
@@ -79,8 +91,10 @@
   pdfkeywords={因果推断, 增量利润, 异质性处理效应, 预算约束优化, 观察性因果, 模拟验证}
 }
 
-% 学术版式：1.45 倍行距（近似中文期刊的 1.5 倍行距观感）
-\linespread{1.32}
+% 学术版式：1.22 倍行距（近似中文期刊的 1.4 倍行距观感）。
+% 原为 1.32，但加入 §11 展望与放大到最终尺寸的 7 张图后页数升到 17，
+% 收紧到 1.22 仍保持可读性，页数回落到 15 以内。
+\linespread{1.15}
 \setlength{\parskip}{1pt plus 1pt}
 
 % 章节标题样式（黑体，编号由正文文本自带，故关闭自动编号）
@@ -154,7 +168,7 @@
   {\sffamily\bfseries 预算约束下电商营销策略的\\[2pt]
    因果评估与增量利润优化}\\[8pt]
   {\large\sffamily ——基于已知数据生成过程的模拟验证研究}}
-\author{{\sffamily Lrvin}}
+\author{\sffamily Lrvin\\[2pt] \texttt{liliw@126.com}}
 \date{\sffamily\today}
 
 \maketitle
@@ -170,11 +184,11 @@
 % 首页需容纳“标题 + 摘要 + 关键词”，故摘要段落使用更紧的行距（1.18 倍），
 % 否则关键词会被挤到第二页，形成近空白页。
 \begin{abstract}
-\linespread{1.18}\selectfont
+\linespread{1.15}\selectfont
 \small
-电商营销决策长期以转化率为目标，而该指标无法区分真实增量、利润侵蚀与需求提前，也支撑不了“是否发券、发给谁、发多大面额”的组合决策。本文构建已知微观生成机制的分层模拟器（L0--L3），以\textbf{每位合格用户的净增量贡献利润}为唯一主指标，在预算与风险约束下评估营销策略的因果效应与策略价值。数据以 SQLite 五张关系表与 6 个视图承载，三条口径红线被固化为 DDL 约束与视图 JOIN 结构；随机实验主线完成样本量双指标设计、AA 校验、ITT 估计、护栏非劣效与 Holm 校正；观察性主线比较朴素差分、PSM、IPW 与双稳健估计随混淆强度的失效轨迹；决策主线把异质性效应嵌入预算约束下的 0-1 背包。在 20 万用户、重复 200 次的实测中：ITT 偏差 $+0.002$ 元/人，95\% 覆盖率 $0.945\sim0.955$；定向发券人均净增量利润 0.330 元，为随机发券 0.129 元的 2.56 倍，每元预算回报由 0.77 元升至 1.97 元，达解析最优上界的 84.9\%。方法学层面得到三条边界性结论：样本量的约束指标可以不是主指标（利润高度零膨胀使转化率成为约束者）；护栏检验功效仅 0.20，“非劣效通过”不构成安全证据；即便把可观测特征的标准化均值差全部压到 0.004 以下，$\lambda=0.25$ 的轻度不可观测混淆仍使覆盖率降至 $0.75\sim0.85$——“平衡性诊断全绿”恰是最危险的信号。
+电商营销决策长期以转化率为目标，而该指标无法区分真实增量、利润侵蚀与需求提前，也支撑不了“是否发券、发给谁、发多大面额”的组合决策。本文构建已知微观生成机制的分层模拟器（L0--L3），以每位合格用户的净增量贡献利润为\textbf{首要指标}、转化率为\textbf{共同主指标}，在预算与风险约束下评估营销策略的因果效应与策略价值。方法上完成三条主线：随机实验（样本量双指标、AA 与 SRM 校验、ITT 估计、护栏非劣效与 Holm 校正）、观察性识别（朴素差分、PSM、IPW、DR 随未观测混淆强度 $\lambda$ 扫描，每格重复 100 次并给 Clopper--Pearson 区间）、预算约束优化（0-1 背包与线性松弛上界）。20 万用户、重复 200 次实测：ITT 偏差 $+0.002$ 元/人、95\% 覆盖率 0.950；定向发券人均增量利润 0.349 元（95\% CI 0.318--0.384），为随机发券（200 个种子）0.122 元的 2.9 倍，每元回报 2.08 元（95\% CI 1.91--2.29），占真值贪心解 86\%（95\% CI 82\%--91\%）。三条边界性结论：样本量约束者可以不是主指标（翻转临界 0.36 元/人）；护栏检验功效仅 0.198，“非劣效通过”不等于安全；轻度混淆（$\lambda=0.25$）下 IPW/DR 覆盖率已跌至 0.82/0.79，而可观测特征的标准化均值差全部低于 0.004——“平衡性诊断全绿”恰是最危险的信号。另一处边界在贪心：全规模下它与松弛上界几乎重合（99.9999\%），但 3 件大额件的反例中损失 33\%。全部结果基于合成数据与已知 DGP，结论只在给定生成机制内成立。
 
-\paperkeywords{因果推断；增量利润；异质性处理效应；预算约束优化；观察性因果；模拟验证}
+\paperkeywords{因果推断；增量利润；异质性处理效应；预算约束优化；模拟验证}
 \end{abstract}
 
 \vspace{2pt}

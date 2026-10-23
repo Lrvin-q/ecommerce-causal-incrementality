@@ -147,11 +147,11 @@ experiment:
     # 低于此量级的增量利润不足以覆盖预算投入，因此 0.5 元/人是**盈亏平衡尺度**。
     profit_per_user: 0.50
     # 利润指标的标准差（元/人）= **实测值**，不是拍的：
-    #   在 n=200,000 的 L1 总体上实测 sd(人均净贡献利润) = 10.79，
+    #   在 n=200,000 的 L1 总体上实测 sd(人均净贡献利润) = 11.08（含复购路径），
     #   其中 87.4% 的用户利润为 0（高度零膨胀）。
     # 真实业务中该值应来自历史 A/B 或用户级利润表的方差估计。
     # 敏感性：若真实方差是假设值的 k 倍，每组样本量需乘以 k²。
-    profit_sd_assumed: 10.8
+    profit_sd_assumed: 11.08
 
   # AA 校验：不看单次 AA 是否显著，看 1000 次重复的 p 值分布与假阳性率
   aa:
@@ -169,7 +169,8 @@ experiment:
   multiplicity:
     # bonferroni | holm | bh
     method: holm
-    # 预注册的主指标；探索性切片不在此列，报告中标注"未校正"
+    # **预设**的主指标：利润为 primary，转化为 co-primary（共同主指标）。
+    # 用"预设"而不是"预注册"——本项目没有外部注册平台，说"预注册"是夸大。
     primary_metrics: ["net_profit_per_user", "conversion"]
     # 探索性切片：默认不校正，但报告必须标注
     exploratory_slices: []
@@ -260,6 +261,17 @@ dgp:
     # 方案要求的三个点必须出现在任何汇总表里
     lambda_required: [0.0, 0.5, 1.0]
 
+  # 复购路径（第二单）：B7 要求"多单用户 user 级利润 = 各单之和"可被检验。
+  # 只有**已下单**用户才可能产生第二单，且第二单不带券（券只用于首单转化）。
+  # prob 5% = 30 天窗口内的首单→复购率（该类目历史复购率约 4%~6%）。
+  # value_ratio 0.55 = 复购客单价相对首单的倍数（复购多为补充装/配件，篮子里更小）。
+  repeat:
+    enabled: true
+    prob: 0.05
+    value_ratio: 0.55
+    # 第二单是否带券：False → 第二单不核销券（业务事实：首单券一次性）
+    coupon_used: false
+
   # L4 时间趋势 / DID（有条件才做，见 GOAL.md 第五部分）
   l4:
     enabled: false
@@ -342,10 +354,19 @@ evaluation:
   # ---- 第二轮的重复设置（计算量不同，单独配）----
   # CATE 比较：LightGBM 三方法各跑一次，重复 20 次取 RMSE 分布。
   cate_repeats: 20
-  # Causal Forest 单次拟合约 1 分钟，只跑 2 次做方法间对照（报告注明）。
+  # Causal Forest 单次拟合约 1 分钟，只跑 2 次做方法间对照（报告中加星标注，不当作 20 次重复）。
   causal_forest_repeats: 2
-  # λ 扫描：7 个 λ 点 × 4 种方法 × 20 次重复 = 560 次估计
-  lambda_scan_repeats: 20
+  # λ 扫描：7 个 λ 点 × 4 种方法 × R 次重复。
+  # R 从 20 提到 100：覆盖率是"R 次里有几次覆盖"，R=20 时单个覆盖率的标准误
+  # 高达 0.05~0.10（二项 SE = sqrt(p(1-p)/R)），不足以判断"跌到 0.85"是否真实。
+  # R=100 时 SE ≈ 0.03，配合 Clopper–Pearson 区间才敢说"低于 0.90"。
+  lambda_scan_repeats: 100
+
+  # ---- 第三轮的区间与随机基线（B2）----
+  # 测试集 bootstrap 次数：给增量价值 / 每元回报 / 占真值最优比例出 95% CI。
+  bootstrap_repeats: 500
+  # 随机策略的种子数：单次实现值波动极大（选谁全看运气），必须报均值±SD。
+  random_strategy_seeds: 200
 
   # 排序指标：估计 top-k 与真实 top-k 的重合度
   top_share: 0.20

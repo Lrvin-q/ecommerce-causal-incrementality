@@ -7,10 +7,10 @@ z_1_minus_alpha_over_2,1.959963984540054
 z_1_minus_beta,0.8416212335729143
 mde_conversion_abs,0.01
 mde_profit_per_user,0.5
-profit_sd_assumed,10.8
+profit_sd_assumed,11.08
 treatment_share,0.5
 allocation,1:1
 n_per_group_conversion,14749
-n_per_group_profit,7324
+n_per_group_profit,7709
 formula_conversion,(z_{1-alpha/2}+z_{1-beta})^2*[p1(1-p1)+p0(1-p0)]/mde_abs^2
 formula_profit,(z_{1-alpha/2}+z_{1-beta})^2*2*sigma^2/mde_abs^2

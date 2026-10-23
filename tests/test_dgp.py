@@ -197,6 +197,82 @@ class TestRealizedMatchesAccounting:
         np.testing.assert_allclose(fast, slow, rtol=1e-12, atol=1e-9)
 
 
+class TestRepeatPurchasePath:
+    """B7：复购路径必须让「多单用户 user 级利润 = 各单之和」**可被检验**。
+
+    没有第二单时，每个用户最多一行订单，``SUM`` 与 ``MAX`` 恒等——
+    ``v_user_profit`` 里把 SUM 写成 MAX 这种口径错误会静默通过所有检查。
+    这组测试就是那个漏洞的补丁。
+    """
+
+    @pytest.fixture(scope="class")
+    def pop(self, cfg):
+        return dgp.assign_random(cfg, dgp.build("L1", cfg, 0))
+
+    def test_repeat_flag_matches_configured_probability(self, cfg, pop) -> None:
+        rep = np.asarray(pop.latent["repeat"])
+        p = float(cfg.require("dgp.repeat.prob"))
+        se = float(np.sqrt(p * (1.0 - p) / rep.size))
+        assert abs(float(rep.mean()) - p) < 5 * se, f"复购比例 {rep.mean():.4f} 与配置 {p} 差太远"
+
+    def test_second_order_only_for_converted_users(self, cfg, pop) -> None:
+        from causal_growth.data.tables import build_five_tables
+
+        tables = build_five_tables(pop, cfg)
+        orders = tables["orders"]
+        per_user = orders.groupby("user_id").size()
+        multi = per_user[per_user > 1]
+        assert len(multi) > 0, "没有多单用户 —— MAX/SUM 的口径错误将无法被检出"
+        y_obs, _ = pop.potential.observed(pop.treatment)
+        converted = set(np.flatnonzero(y_obs == 1).tolist())
+        assert set(multi.index.tolist()) <= converted
+
+    def test_user_profit_equals_sum_of_orders_not_max(self, cfg, pop) -> None:
+        from causal_growth.data.profit import aggregate_user_profit, compute_order_components
+        from causal_growth.data.tables import build_five_tables
+
+        tables = build_five_tables(pop, cfg)
+        orders = tables["orders"]
+        per_order = compute_order_components(orders, cfg)["net_profit"]
+        by_user = per_order.groupby(orders["user_id"].to_numpy())
+        summed = by_user.sum()
+        maxed = by_user.max()
+
+        agg = aggregate_user_profit(orders, pop.covariates.user_id, cfg)
+        # ① 用户级利润必须等于**各单之和**（金额按分存储，容差 0.02 元）
+        diff = (agg - summed.reindex(agg.index).fillna(0.0)).abs()
+        assert float(diff.max()) <= 0.02
+
+        # ② 且多单用户的"和"确实严格大于"最大单" —— 这就是 SUM≠MAX 的可检验性
+        per_user = orders.groupby("user_id").size()
+        multi_ids = per_user[per_user > 1].index
+        assert len(multi_ids) > 0
+        gap = (summed.loc[multi_ids] - maxed.loc[multi_ids]).abs()
+        assert float(gap.min()) > 1e-6
+
+    def test_truth_includes_expected_repeat_contribution(self, cfg) -> None:
+        """真值恒等式仍精确成立，且复购使"已转化用户净贡献"大于首单净贡献。"""
+        no_rep = cfg.with_overrides({"dgp.repeat.enabled": False})
+        p_off = dgp.build("L1", no_rep, 0)
+        p_on = dgp.build("L1", cfg, 0)
+        # 关掉复购时两个字段相等（回归保护：默认路径没有被悄悄改动）
+        assert np.allclose(
+            p_off.truth.net_per_converted_control, p_off.truth.net_per_order_control
+        )
+        # 打开复购后，已转化用户净贡献 > 首单净贡献（第二单贡献为正）
+        assert float(p_on.truth.net_per_converted_control.mean()) > float(
+            p_on.truth.net_per_order_control.mean()
+        )
+        # cate_profit = p1·A1 − p0·A0 恒等式（用含复购的 A）
+        t = p_on.truth
+        np.testing.assert_allclose(
+            t.cate_profit,
+            t.p1 * t.net_per_converted_treated - t.p0 * t.net_per_converted_control,
+            rtol=0,
+            atol=1e-12,
+        )
+
+
 class TestSelectionBias:
     """L3：U 必须同时影响发券与购买，否则观察性方法不会真的失效。"""
 

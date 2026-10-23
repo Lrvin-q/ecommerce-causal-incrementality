@@ -36,6 +36,7 @@ from causal_growth.evaluation.metrics import (
     nonneg_policy,
     policy_value,
     ranking_metrics,
+    regret,
 )
 from causal_growth.io_utils import save_table
 from causal_growth.viz import METHOD_COLORS, add_source_note, save_fig
@@ -72,6 +73,16 @@ def run_cate(cfg) -> tuple[pd.DataFrame, pd.DataFrame]:
     pi1_test = pop.potential.pi1[split.test]
     pi0_test = pop.potential.pi0[split.test]
 
+    # 口径声明（B6）：表 5 的"策略价值"一律用**增量口径**
+    #   V_inc(π) = policy_value(π) − policy_value(全 0 策略)
+    # 绝对口径下"不发券"不是 0 而是 E[Π(0)]，两个学习器的差距会被这个
+    # 与模型无关的常数稀释（2.1% 的假象就是这么来的）。
+    baseline_abs = policy_value(np.zeros(pi1_test.size, dtype=int), pi1=pi1_test, pi0=pi0_test)
+
+    # 真值最优（无预算约束）：按真实 τ 的符号投放。regret 与"选中比例"都以它为参照。
+    oracle_pol = (tau_true_test > 0.0).astype(int)
+    oracle_value_inc = policy_value(oracle_pol, pi1=pi1_test, pi0=pi0_test) - baseline_abs
+
     rows: list[dict] = []
     calib_frames: list[pd.DataFrame] = []
     scatter: dict[str, np.ndarray] = {}
@@ -85,7 +96,9 @@ def run_cate(cfg) -> tuple[pd.DataFrame, pd.DataFrame]:
         acc = cate_accuracy(fit.tau_test, tau_true_test)
         rank = ranking_metrics(fit.tau_test, tau_true_test, top_share=float(cfg.require("evaluation.top_share")))
         pol = nonneg_policy(fit.tau_test)
-        value = policy_value(pol, pi1=pi1_test, pi0=pi0_test)
+        value_abs = policy_value(pol, pi1=pi1_test, pi0=pi0_test)
+        value_inc = value_abs - baseline_abs
+        reg = regret(pol, oracle_pol, pi1=pi1_test, pi0=pi0_test)
         scatter[method] = fit.tau_test
 
         rows.append(
@@ -99,7 +112,14 @@ def run_cate(cfg) -> tuple[pd.DataFrame, pd.DataFrame]:
                 "Top20%重合度": rank.top_overlap,
                 "Spearman": rank.spearman,
                 "Kendall": rank.kendall,
-                "策略价值_元每人": value,
+                "策略价值_绝对口径": value_abs,
+                "策略价值_元每人": value_inc,      # 增量口径（表 5 用这个）
+                "regret_元每人": reg,
+                "非负策略选中比例": float(pol.mean()),
+                "真值非负比例": float(oracle_pol.mean()),
+                "重复次数": int(cfg.require("evaluation.cate_repeats"))
+                if method != "causal_forest"
+                else n_cf,
                 "真值ATE_元每人": float(np.mean(tau_true_test)),
                 "预测均值": float(fit.tau_test.mean()),
                 "预测标准差": float(fit.tau_test.std(ddof=1)),
@@ -118,9 +138,10 @@ def run_cate(cfg) -> tuple[pd.DataFrame, pd.DataFrame]:
     _plot_cate_calibration(calib_frames, cfg)
     _plot_cate_metrics(result, cfg)
 
-    # ---- 重复：T/S-learner 的 RMSE 分布 ----
+    # ---- 重复：T/S-learner 的 RMSE 分布（Causal Forest 只跑 2 次，见配置）----
     r = int(cfg.require("evaluation.cate_repeats"))
-    print(f"      重复 {r} 次估计 CATE RMSE 分布 ...")
+    n_cf_rep = int(cfg.require("evaluation.causal_forest_repeats"))
+    print(f"      重复 {r} 次估计 CATE RMSE 分布（Causal Forest 仅 {n_cf_rep} 次，报告需加星）...")
     rep_rows = []
     for i in range(r):
         pop_r = dgp.assign_random(cfg, dgp.build("L1", cfg, i))
@@ -132,7 +153,10 @@ def run_cate(cfg) -> tuple[pd.DataFrame, pd.DataFrame]:
             index=i,
         )
         truth_r = pop_r.truth.cate_profit[sp_r.test]
-        for method in ("t_learner", "s_learner"):
+        methods_here = ["t_learner", "s_learner"]
+        if i < n_cf_rep:
+            methods_here.append("causal_forest")
+        for method in methods_here:
             fit_r = estimate_cate(pop_r, cfg, sp_r, outcome="net_profit", method=method, seed_index=i)
             acc_r = cate_accuracy(fit_r.tau_test, truth_r)
             rank_r = ranking_metrics(fit_r.tau_test, truth_r, top_share=0.2)
@@ -290,6 +314,7 @@ def run_lambda_scan(cfg) -> pd.DataFrame:
         .groupby(["method", "lambda"], observed=True)
         .agg(
             重复次数=("repeat", "size"),
+            覆盖次数=("covered", "sum"),
             偏差=("bias", "mean"),
             偏差_对实现ATE=("bias_realized", "mean"),
             偏差绝对均值=("bias", lambda s: float(s.abs().mean())),
@@ -302,8 +327,51 @@ def run_lambda_scan(cfg) -> pd.DataFrame:
         .reset_index()
         .sort_values(["method", "lambda"])
     )
+    # B4：覆盖率是"R 次里有几次覆盖"的**二项比例**，点估计必须配区间。
+    # 用 Clopper–Pearson（精确法）：R=20 时 0.75 的 95% 区间是 [0.51, 0.91]，
+    # 单看"跌到 0.75"根本无法区分"真的失效"与"抽样波动"。
+    agg = _attach_coverage_ci(agg, alpha=alpha)
     save_table(agg, "r2_lambda_summary")
     return agg
+
+
+def _clopper_pearson(k: int, n: int, *, alpha: float = 0.05) -> tuple[float, float]:
+    """Clopper–Pearson 精确二项区间（用 ``scipy.stats.beta`` 实现）。
+
+    为什么不用 Wald（p ± 1.96·sqrt(p(1-p)/n)）：p 接近 0 或 1 时 Wald 区间
+    会越界或宽度趋 0，而本项目恰好要看"覆盖率跌到 0 附近"这一段。
+    """
+    from scipy.stats import beta
+
+    if n <= 0:
+        return (float("nan"), float("nan"))
+    lo = 0.0 if k <= 0 else float(beta.ppf(alpha / 2.0, k, n - k + 1))
+    hi = 1.0 if k >= n else float(beta.ppf(1.0 - alpha / 2.0, k + 1, n - k))
+    return lo, hi
+
+
+def _attach_coverage_ci(agg: pd.DataFrame, *, alpha: float) -> pd.DataFrame:
+    """给覆盖率表补上 Clopper–Pearson 区间、二项标准误与"区间是否含 0.90"。"""
+    out = agg.copy()
+    los, his, ses, verdicts = [], [], [], []
+    for _, row in out.iterrows():
+        n = int(row["重复次数"])
+        k = int(row["覆盖次数"])
+        lo, hi = _clopper_pearson(k, n, alpha=alpha)
+        p = k / n if n else float("nan")
+        los.append(lo)
+        his.append(hi)
+        ses.append(float(np.sqrt(p * (1 - p) / n)) if n else float("nan"))
+        # 结论必须写成条件式：点估计低于 0.90 但区间上界仍高于 0.90 → 只能叫"趋势"
+        verdicts.append(
+            "不可信（区间上界亦低于 0.90）" if hi < 0.90
+            else ("趋势性偏低（区间含 0.90）" if p < 0.90 else "未见偏离")
+        )
+    out["覆盖率_CP下界"] = los
+    out["覆盖率_CP上界"] = his
+    out["覆盖率标准误"] = ses
+    out["覆盖率判读"] = verdicts
+    return out
 
 
 def find_reliability_threshold(agg: pd.DataFrame, *, coverage_target: float = 0.90) -> pd.DataFrame:
@@ -311,23 +379,70 @@ def find_reliability_threshold(agg: pd.DataFrame, *, coverage_target: float = 0.
 
     这是把结论写成**条件式**的机器实现：
     不是"某方法稳健/失效"，而是"某方法在 λ ≤ θ 时覆盖率 ≥ 0.90，超过 θ 就不行了"。
+
+    B4 要求两套判据分开报，因为它们给出不同强度的结论：
+
+    * ``点估计跌破`` —— 覆盖率点估计 < 0.90 的最小 λ（**趋势**证据）；
+    * ``区间上界跌破`` —— Clopper–Pearson 95% 区间**上界**都 < 0.90 的最小 λ
+      （**结论**证据，可以写"不可信"）。
     """
     rows = []
     for method, g in agg.groupby("method", observed=True):
         g = g.sort_values("lambda")
         below = g[g["覆盖率"] < coverage_target]
-        theta = float(below["lambda"].min()) if not below.empty else float("nan")
+        strict = g[g["覆盖率_CP上界"] < coverage_target]
         rows.append(
             {
                 "method": OBS_LABELS.get(method, method),
-                "覆盖率低于目标的起始λ": theta,
+                "点估计跌破的起始λ": float(below["lambda"].min()) if not below.empty else float("nan"),
+                "区间上界跌破的起始λ": float(strict["lambda"].min()) if not strict.empty else float("nan"),
+                "重复次数": int(g["重复次数"].max()),
                 "最大λ处覆盖率": float(g["覆盖率"].iloc[-1]),
+                "最大λ处覆盖率_CP下界": float(g["覆盖率_CP下界"].iloc[-1]),
+                "最大λ处覆盖率_CP上界": float(g["覆盖率_CP上界"].iloc[-1]),
                 "最大λ处偏差": float(g["偏差"].iloc[-1]),
                 "λ=0时偏差": float(g.loc[g["lambda"] == 0.0, "偏差"].squeeze()) if (g["lambda"] == 0.0).any() else float("nan"),
             }
         )
     out = pd.DataFrame(rows)
     save_table(out, "r2_lambda_threshold")
+    return out
+
+
+def lambda_anchor_table(cfg) -> pd.DataFrame:
+    """S2：给 λ 一个**可换算的锚点**，否则"λ=0.25 就失效"是一句没有量纲的话。
+
+    λ 是未观测混淆 ``U`` 进入基线 logit 的系数。``U`` 已被标准化到均值 0、标准差 1，
+    所以 ``λ`` 的字面含义就是"未观测变量每 1 个标准差推动基线 logit 多少"。
+    把它与**可观测特征**的系数并排，读者立刻知道这个混淆有多强：
+    ``λ=0.25`` 恰好等于浏览深度（``browse_depth_z``）的系数，
+    ``λ=0.5`` 比历史 GMV（0.40）还强。
+    """
+    b = cfg.section("business")
+    l1 = cfg.section("dgp.l1")
+    coefs = {k: float(v) for k, v in l1["p0"].items() if k not in ("target_mean",)}
+    grid = [float(x) for x in cfg.require("dgp.l3.lambda_grid")]
+    rows = []
+    for lam in grid:
+        # 找系数绝对值最接近 λ 的可观测特征（"相当于漏掉了谁"）
+        ref = min(coefs, key=lambda k: abs(abs(coefs[k]) - abs(lam))) if coefs else ""
+        rows.append(
+            {
+                "lambda": lam,
+                "logit位移_每1SD": lam,
+                "等效可观测特征": ref,
+                "该特征系数": coefs.get(ref, float("nan")),
+                "说明": (
+                    f"λ={lam:g} 相当于漏掉一个系数 {lam:g} 的未观测变量"
+                    f"（最接近的可观测特征：{ref}={coefs.get(ref, float('nan')):+.2f}）"
+                ),
+            }
+        )
+    out = pd.DataFrame(rows)
+    save_table(out, "r2_lambda_anchor")
+    print(f"      λ 锚点：λ=0.25 ⇔ 未观测变量每 1 SD 推动基线 logit 0.25"
+          f"（= browse_depth_z 的系数 {coefs.get('browse_depth_z', float('nan')):+.2f}）；"
+          f"λ=0.5 强于 hist_gmv_z 的 {coefs.get('hist_gmv_z', float('nan')):+.2f}")
     return out
 
 
@@ -412,14 +527,14 @@ def main() -> int:
     cfg = load_config()
     print(f"[config] seed={_seed(cfg)}  {cfg.require('project.data_source_label')}")
 
-    print("[1/4] CATE 方法对比（L1 随机实验）...")
+    print("[1/5] CATE 方法对比（L1 随机实验）...")
     cate_df, cate_rep = run_cate(cfg)
     for _, row in cate_df.iterrows():
         print(f"      {row['方法']:<14} RMSE={row['CATE_RMSE']:.4f}  偏差={row['偏差']:+.4f}  "
               f"ρ={row['相关系数']:.3f}  Spearman={row['Spearman']:.3f}  "
               f"Top20重合={row['Top20%重合度']:.3f}")
 
-    print("[2/4] λ 敏感性扫描（L3 观察性）...")
+    print("[2/5] λ 敏感性扫描（L3 观察性）...")
     agg = run_lambda_scan(cfg)
     for method in OBS_METHODS:
         g = agg[agg["method"] == method]
@@ -429,14 +544,19 @@ def main() -> int:
               f"λ={g.iloc[-1]['lambda']:.2f} 偏差 {g.iloc[-1]['偏差']:+.3f}   "
               f"覆盖率 {g.iloc[0]['覆盖率']:.2f} → {g.iloc[-1]['覆盖率']:.2f}")
 
-    print("[3/4] 失效阈值识别 ...")
+    print("[3/5] 失效阈值识别（点估计 / Clopper–Pearson 区间上界两套判据）...")
     thr = find_reliability_threshold(agg)
     for _, row in thr.iterrows():
-        theta = row["覆盖率低于目标的起始λ"]
-        desc = f"λ ≥ {theta:.2f} 起覆盖率跌破 0.90" if theta == theta else "全程覆盖率达标"
-        print(f"      {row['method']:<12} {desc}")
+        theta = row["点估计跌破的起始λ"]
+        theta_s = row["区间上界跌破的起始λ"]
+        desc = f"λ ≥ {theta:.2f} 起点估计跌破 0.90" if theta == theta else "全程点估计达标"
+        desc_s = f"λ ≥ {theta_s:.2f} 起区间上界亦跌破" if theta_s == theta_s else "区间上界全程未跌破"
+        print(f"      {row['method']:<12} {desc}；{desc_s}（R={int(row['重复次数'])}）")
 
-    print("[4/4] PSM 平衡性诊断 ...")
+    print("[4/5] λ 锚点换算（S2）...")
+    lambda_anchor_table(cfg)
+
+    print("[5/5] PSM 平衡性诊断 ...")
     bal = run_psm_balance(cfg, lam=0.5)
     print(f"      加权后 |SMD|<0.1 的特征数：{int(bal['加权后平衡'].sum())}/{len(bal)}")
 

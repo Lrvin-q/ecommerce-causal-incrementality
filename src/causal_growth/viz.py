@@ -61,7 +61,7 @@ STRATEGY_COLORS: dict[str, str] = {
     "random": "#FB8C00",          # 随机 B 预算 —— 橙
     "target_greedy": "#1E88E5",   # 定向-贪心 —— 蓝（基准）
     "target_knapsack": "#0D47A1", # 定向-背包 —— 深蓝（最优基准）
-    "oracle": "#212121",          # 真值最优 —— 黑（上界）
+    "oracle": "#212121",          # 真值贪心解 —— 黑（近似最优解，不是上界）
 }
 
 STRATEGY_LABELS: dict[str, str] = {
@@ -70,7 +70,7 @@ STRATEGY_LABELS: dict[str, str] = {
     "random": "随机（预算 B）",
     "target_greedy": "定向-贪心",
     "target_knapsack": "定向-背包",
-    "oracle": "真值最优（上界）",
+    "oracle": "真值贪心解（近似最优）",
 }
 
 #: 四种观察性因果方法固定配色（方案 §2.4 主线三）

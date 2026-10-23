@@ -228,6 +228,10 @@ def main() -> int:
     # 两条利润路径一致性（GOAL 验收项 ⑤⑦ 的机器证据）
     cc = cross_check_profit(pop, cfg, tables)
     max_diff = float(cc["diff"].abs().max())
+    # 容差的算法依据：关系表里每个金额字段按**分**存储（round(2)），
+    # 单笔订单 3 个金额字段（pay / goods / fulfill）各带 ≤0.005 元舍入，
+    # 复购用户有 2 笔订单 → 上限约 6×0.005 = 0.03 元。取 0.05 元留余量。
+    tol = 0.05
     save_table(
         pd.DataFrame(
             [{
@@ -235,13 +239,13 @@ def main() -> int:
                 "用户数": len(cc),
                 "最大绝对差_元": max_diff,
                 "平均绝对差_元": float(cc["diff"].abs().mean()),
-                "容差_元": 0.02,
-                "结论": "一致（差异仅来自金额按分存储的舍入）" if max_diff <= 0.02 else "**不一致，需排查**",
+                "容差_元": tol,
+                "结论": "一致（差异仅来自金额按分存储的舍入）" if max_diff <= tol else "**不一致，需排查**",
             }]
         ),
         "r1_profit_crosscheck",
     )
-    print(f"      两条利润路径最大差 {max_diff:.4f} 元（容差 0.02 元 = 金额按分存储的舍入）")
+    print(f"      两条利润路径最大差 {max_diff:.4f} 元（容差 {tol} 元 = 两单×3 字段按分存储的舍入上限）")
 
     # ---------- 6. 落库到 SQLite 并跑 SQL 分析（核心数据能力） ----------
     print("[6/6] 建立 SQLite 数据库并执行 SQL 分析 ...")

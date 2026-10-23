@@ -77,16 +77,27 @@ def analysis_arrays(population: Population, cfg: Any) -> dict[str, np.ndarray]:
     coupon_used = (t == 1) & redeemed & (y_obs == 1)
     coupon_value = np.where(coupon_used, population.truth.face_value, 0.0)
 
+    # 复购路径（B7）：已下单且复购标记为真 → 用户级 GMV 是两单之和。
+    # 这条口径必须与 ``orders`` 表的逐行聚合一致，否则两条路径会算出不同的用户利润。
+    repeat = np.asarray(population.latent.get("repeat", np.zeros(len(population), dtype=bool)))
+    pay2 = np.asarray(population.latent.get("pay_amount_2", np.zeros(len(population))))
+    has_second = (y_obs == 1) & repeat
+
     cov = population.covariates
     out = {
         "user_id": cov.user_id,
         "treatment": t,
         "converted": y_obs.astype(np.int8),
         "net_profit": pi_obs.astype(float),
-        "gmv": np.where(y_obs == 1, np.asarray(population.latent["pay_amount"]), 0.0),
+        "gmv": np.where(
+            y_obs == 1,
+            np.asarray(population.latent["pay_amount"]) + np.where(has_second, pay2, 0.0),
+            0.0,
+        ),
         "refunded": refunded.astype(np.int8),
         "coupon_used": coupon_used.astype(np.int8),
         "coupon_value": coupon_value.astype(float),
+        "n_orders": np.where(y_obs == 1, 1, 0) + has_second.astype(np.int64),
         "is_new": cov.is_new,
         "hist_gmv": cov.hist_gmv,
         "cart_value": cov.cart_value,
@@ -124,6 +135,9 @@ def build_truth_frame(population: Population) -> pd.DataFrame:
             "true_cate_profit": truth.cate_profit,
             "net_per_order_control": truth.net_per_order_control,
             "net_per_order_treated": truth.net_per_order_treated,
+            # 含复购期望的"已转化用户"净贡献（真值恒等式用的是这一对）
+            "net_per_converted_control": truth.net_per_converted_control,
+            "net_per_converted_treated": truth.net_per_converted_treated,
         }
     )
 
@@ -230,6 +244,46 @@ def build_five_tables(
     refund_time = order_time + pd.to_timedelta(refund_delay[idx] * 86400.0, unit="s")
     orders["refund_time"] = pd.to_datetime(refund_time)
     orders.loc[~refunded, "refund_time"] = pd.NaT
+
+    # ---- 复购单（第二单）：B7 让"多单用户 user 级利润 = 各单之和"可被检验 ----
+    # 没有这批行，`v_user_profit` 的 MAX/SUM 之争在数据上不可观测——
+    # 每个用户最多一单时，MAX 与 SUM 恒等，口径错误会静默通过所有检查。
+    # 注意这里的下标维度是**订单行**（已转化用户），不是全体用户。
+    repeat_row = np.asarray(population.latent.get("repeat", np.zeros(n, dtype=bool)))[idx]
+    if bool(repeat_row.any()):
+        jdx = np.flatnonzero(repeat_row)
+        pay2 = np.asarray(population.latent["pay_amount_2"])[idx][jdx]
+        goods2 = pay2 * float(cfg.require("business.goods_cost_ratio"))
+        fulfill2 = fulfill[jdx]
+        t2 = t[idx][jdx]
+        refunded2 = np.asarray(population.latent["refund_u_2"])[idx][jdx] < np.where(
+            t2 == 1, rate_trt, rate_ctrl
+        )
+        # 第二单时间 = 首单时间 + 复购延迟（均值 ≈ 9 天，落在 30 天利润窗口内）
+        second_time = order_time[jdx] + pd.to_timedelta(
+            np.asarray(population.latent["order_delay_days_2"])[idx][jdx] * 86400.0, unit="s"
+        )
+        second = pd.DataFrame(
+            {
+                "order_id": [f"{exp_id}-O{u:09d}-2" for u in cov.user_id[idx][jdx]],
+                "user_id": cov.user_id[idx][jdx],
+                "order_time": second_time,
+                "pay_amount": pay2.round(2),
+                "refund_amount": np.where(refunded2, pay2, 0.0).round(2),
+                "goods_cost": goods2.round(2),
+                "fulfill_cost": fulfill2.round(2),
+                # 第二单不带券：券是首单转化工具，复购属自然复购
+                "coupon_used": np.zeros(jdx.size, dtype=bool),
+                "coupon_value": np.zeros(jdx.size, dtype=float),
+                "refunded": refunded2,
+            }
+        )
+        second["refund_time"] = pd.to_datetime(
+            second_time + pd.to_timedelta(refund_delay[idx][jdx] * 86400.0, unit="s")
+        )
+        second.loc[~refunded2, "refund_time"] = pd.NaT
+        orders = pd.concat([orders, second[orders.columns]], ignore_index=True)
+        orders = orders.sort_values(["user_id", "order_time"], kind="stable").reset_index(drop=True)
 
     # ---- user_events（行为日志）----
     user_events = _build_user_events(population, assign_time, cfg)

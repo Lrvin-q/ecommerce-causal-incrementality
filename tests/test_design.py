@@ -172,8 +172,8 @@ class TestDesignSampleSize:
         """GOAL ⑧：两者取较大值。在本项目基准参数下，**约束者是转化率指标**。
 
         这是一个反直觉但重要的结果：利润是主指标，却不是样本量的约束者。
-        原因是利润指标方差仅 10.8 元/人（87% 用户利润为 0，高度零膨胀），
-        检出 0.5 元/人的效应只需 7,324/组；而转化率要检出 1 个百分点的
+        原因是利润指标方差仅 11.08 元/人（87% 用户利润为 0，高度零膨胀），
+        检出 0.5 元/人的效应只需 7,709/组；而转化率要检出 1 个百分点的
         绝对增量（相对提升 10%）需要 14,749/组。
 
         正因如此，方案才要求"分别算、取较大值"——只按利润算样本量，
@@ -219,7 +219,9 @@ class TestDesignSampleSize:
             power=float(cfg.require("experiment.power")),
         )
         assert result.n_per_group_conversion == expected_conv == 14749
-        assert result.n_per_group_profit == expected_profit == 7324
+        # 7,709 由 σ=11.08 元/人（加入复购路径后的实测标准差）算出；
+        # σ 从 10.8 变成 11.08 使样本量 ×1.053。
+        assert result.n_per_group_profit == expected_profit == 7709
 
     def test_inputs_are_traceable(self, cfg) -> None:
         """报告要能逐项追溯：inputs 里必须有全部业务输入与 z 值。"""

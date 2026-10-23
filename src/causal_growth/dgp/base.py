@@ -235,7 +235,12 @@ def generate_covariates(cfg: Any, rng: np.random.Generator, n: int) -> Covariate
 # --------------------------------------------------------------------------- #
 @dataclass(frozen=True)
 class OrderDraws:
-    """每用户的订单特征一次抽定，在 T=0 / T=1 之间共享（原则 2）。"""
+    """每用户的订单特征一次抽定，在 T=0 / T=1 之间共享（原则 2）。
+
+    ``repeat_u`` / ``refund_u_2`` / ``order_delay_days_2`` 属于**复购路径**（第二单）：
+    只有已下单用户才可能兑现，且第二单不带券。它们被安排在抽样序列的最末尾，
+    因此新增复购路径**不扰动**前面任何一条随机流（``pay_amount`` 等逐位不变）。
+    """
 
     pay_amount: np.ndarray
     fulfill_cost: np.ndarray
@@ -243,6 +248,12 @@ class OrderDraws:
     redeemed_u: np.ndarray
     order_delay_days: np.ndarray
     refund_delay_days: np.ndarray
+    #: 复购倾向 U（< prob 则产生第二单）；B7
+    repeat_u: np.ndarray
+    #: 第二单的退款倾向 U
+    refund_u_2: np.ndarray
+    #: 第二单相对首单的下单延迟（天）
+    order_delay_days_2: np.ndarray
 
 
 def sample_order_draws(cfg: Any, rng: np.random.Generator, n: int) -> OrderDraws:
@@ -269,6 +280,14 @@ def sample_order_draws(cfg: Any, rng: np.random.Generator, n: int) -> OrderDraws
     # 退款延迟：下单后 1~25 天（覆盖利润成熟窗口）
     refund_delay_days = rng.uniform(1.0, 25.0, size=n)
 
+    # ---- 复购路径（第二单）的随机流，一律追加在最后，保证既有抽样逐位不变 ----
+    repeat_u = rng.random(n)
+    refund_u_2 = rng.random(n)
+    profit_days = float(cfg.require("windows.profit_days"))
+    order_delay_days_2 = np.clip(
+        rng.gamma(6.0, 1.5, size=n), 1.0, max(1.5, profit_days - 5.0)
+    )
+
     return OrderDraws(
         pay_amount=pay_amount,
         fulfill_cost=fulfill_cost,
@@ -276,6 +295,9 @@ def sample_order_draws(cfg: Any, rng: np.random.Generator, n: int) -> OrderDraws
         redeemed_u=redeemed_u,
         order_delay_days=order_delay_days,
         refund_delay_days=refund_delay_days,
+        repeat_u=repeat_u,
+        refund_u_2=refund_u_2,
+        order_delay_days_2=order_delay_days_2,
     )
 
 
@@ -391,12 +413,44 @@ def build_population_from_curves(
         **common,
     )
 
+    # ---- 复购路径（第二单）：B7 ----
+    # 业务设定：只有已下单用户才可能复购；第二单不带券（首单券一次性）；
+    # 第二单客单价 = 首单 × value_ratio，履约成本按同一用户复用。
+    rep = cfg.get("dgp.repeat", {}) or {}
+    repeat_enabled = bool(rep.get("enabled", False))
+    repeat_prob = float(rep.get("prob", 0.0)) if repeat_enabled else 0.0
+    repeat_ratio = float(rep.get("value_ratio", 0.55))
+    repeat = (order_draws.repeat_u < repeat_prob) if repeat_prob > 0 else np.zeros(n, dtype=bool)
+
+    net_second_ctrl = expected_order_net_profit(
+        coupon_cost_expectation=0.0,
+        refund_rate=refund_rate_control,
+        **{**common, "pay_mean": common["pay_mean"] * repeat_ratio},
+    )
+    net_second_trt = expected_order_net_profit(
+        coupon_cost_expectation=0.0,
+        refund_rate=refund_rate_treated,
+        **{**common, "pay_mean": common["pay_mean"] * repeat_ratio},
+    )
+
     # 同一条 U 驱动两个潜在结果 → y1 >= y0 恒成立
     y0 = (conversion_u < p0).astype(np.int8)
     y1 = (conversion_u < p1).astype(np.int8)
 
     redeemed = order_draws.redeemed_u < redemption_rate
     coupon_cost_treated = np.where(redeemed, face_value, 0.0)
+
+    draws_second = OrderDraws(
+        pay_amount=order_draws.pay_amount * repeat_ratio,
+        fulfill_cost=order_draws.fulfill_cost,
+        refund_u=order_draws.refund_u_2,
+        redeemed_u=np.ones(n),
+        order_delay_days=order_draws.order_delay_days_2,
+        refund_delay_days=order_draws.refund_delay_days,
+        repeat_u=order_draws.repeat_u,
+        refund_u_2=order_draws.refund_u_2,
+        order_delay_days_2=order_draws.order_delay_days_2,
+    )
 
     pi0 = realized_order_net(
         order_draws,
@@ -418,6 +472,33 @@ def build_population_from_curves(
         refund_rate=refund_rate_treated,
         coupon_returned_on_refund=coupon_returned,
     )
+    if repeat_prob > 0:
+        # 逐用户利润 = 首单 + 第二单（这才是"多单用户利润等于各单之和"的实现）
+        pi0 = pi0 + realized_order_net(
+            draws_second,
+            goods_cost_ratio=common["goods_cost_ratio"],
+            refundable_goods_ratio=common["refundable_goods_ratio"],
+            refund_handling_fee_rate=common["refund_handling_fee_rate"],
+            coupon_cost=np.zeros(n),
+            converted=(y0 == 1) & repeat,
+            refund_rate=refund_rate_control,
+            coupon_returned_on_refund=coupon_returned,
+        )
+        pi1 = pi1 + realized_order_net(
+            draws_second,
+            goods_cost_ratio=common["goods_cost_ratio"],
+            refundable_goods_ratio=common["refundable_goods_ratio"],
+            refund_handling_fee_rate=common["refund_handling_fee_rate"],
+            coupon_cost=np.zeros(n),
+            converted=(y1 == 1) & repeat,
+            refund_rate=refund_rate_treated,
+            coupon_returned_on_refund=coupon_returned,
+        )
+
+    # 已转化用户的**期望净贡献**（含复购路径的期望）：A_t = 首单 + prob × 第二单。
+    # 真值恒等式 cate_profit = p1·A1 − p0·A0 因此仍然精确成立。
+    net_conv_ctrl = net_ctrl_order + repeat_prob * net_second_ctrl
+    net_conv_trt = net_trt_order + repeat_prob * net_second_trt
 
     truth = GroundTruth(
         level=level,
@@ -426,9 +507,11 @@ def build_population_from_curves(
         p1=p1,
         tau_conversion=tau,
         # 解析 CATE：E[Π(1)|X] − E[Π(0)|X] = p1·A1 − p0·A0
-        cate_profit=p1 * net_trt_order - p0 * net_ctrl_order,
+        cate_profit=p1 * net_conv_trt - p0 * net_conv_ctrl,
         net_per_order_treated=np.full(n, net_trt_order),
         net_per_order_control=np.full(n, net_ctrl_order),
+        net_per_converted_treated=np.full(n, net_conv_trt),
+        net_per_converted_control=np.full(n, net_conv_ctrl),
         params=dict(params or {}),
     )
 
@@ -450,6 +533,12 @@ def build_population_from_curves(
             "redeemed_u": order_draws.redeemed_u,
             "order_delay_days": order_draws.order_delay_days,
             "refund_delay_days": order_draws.refund_delay_days,
+            # 复购路径：谁是第二单用户、第二单的金额与时间
+            "repeat": repeat,
+            "repeat_prob": np.full(n, repeat_prob),
+            "pay_amount_2": order_draws.pay_amount * repeat_ratio,
+            "refund_u_2": order_draws.refund_u_2,
+            "order_delay_days_2": order_draws.order_delay_days_2,
             **(latent or {}),
         },
     )
