@@ -1,4 +1,4 @@
-% =============================================================================
+﻿% =============================================================================
 %  预算约束下电商营销策略的因果评估与增量利润优化
 %  —— 基于已知数据生成过程的模拟验证研究
 %
@@ -8,7 +8,7 @@
 \documentclass[UTF8, fontset=windows, a4paper, zihao=-4]{ctexart}
 
 % ---------- 页面 ----------
-\usepackage[a4paper, margin=2.6cm, top=2.9cm, bottom=2.6cm, footskip=1.1cm]{geometry}
+\usepackage[a4paper, margin=2.35cm, top=2.6cm, bottom=2.35cm, footskip=1.05cm]{geometry}
 
 % ---------- 数学 ----------
 \usepackage{amsmath, amssymb, amsthm, bm}
@@ -20,23 +20,55 @@
 % pandoc 对无标题表格会输出 \def\LTcaptype{none}（不递增计数器）；
 % caption 包会据此 \refstepcounter{none}，故必须提供一个同名计数器。
 \newcounter{none}
+
+% ---------------------------------------------------------------------------
+% 把 pandoc 的 longtable 改造成“整表不可分页的 tabular”
+%   pandoc 输出：\begin{longtable}[]{@{}<列格式>@{}} \toprule <表头> \\ \midrule
+%   \endhead \bottomrule \endlastfoot <表体> \end{longtable}
+%   longtable 的分页机制在短表上会引发四类问题：续页重复表头、页界处 overfull
+%   vbox、正文被挤出页面而丢失、表体与表题分离。本文的表都很短（≤8 行），
+%   故整表作为不可分页的盒子：吞掉 \endhead 等标记与“表体前的 \bottomrule”，
+%   在表体末尾补回一条 \bottomrule；并用 \nopagebreak 保证表题不与表体分离。
+\makeatletter
+\let\pandoc@bottomrule\bottomrule
+\renewenvironment{longtable}[2][]{%
+  \par\addvspace{\LTpre}\nopagebreak[4]%
+  \noindent\begin{minipage}{\linewidth}\centering
+  \def\endhead##1##2{}%      % 吞掉紧随其后的 \bottomrule \noalign{}
+  \let\endfirsthead\relax
+  \let\endfoot\relax
+  \let\endlastfoot\relax
+  \begin{tabular}{#2}%
+}{%
+  \pandoc@bottomrule\end{tabular}\end{minipage}%
+  \par\addvspace{\LTpost}%
+}
+\makeatother
 \usepackage{etoolbox}
 \AtBeginEnvironment{longtable}{\footnotesize}
 \AtBeginEnvironment{tabular}{\small}
 \setlength{\LTcapwidth}{\linewidth}
-\setlength{\LTpre}{4pt}
-\setlength{\LTpost}{4pt}
-\renewcommand{\arraystretch}{1.22}
+\setlength{\LTpre}{2pt}
+\setlength{\LTpost}{2pt}
+\renewcommand{\arraystretch}{1.14}
 
 % ---------- 图 ----------
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage[font=small, labelfont=bf, labelsep=quad, skip=5pt]{caption}
+% 图只放页顶或独占浮动页，避免“就地放置”时与正文行重叠。
+\floatplacement{figure}{t}
+% 图的浮动参数保持 LaTeX 默认（topfraction=0.7 等）：放宽这些参数会让浮动体
+% 抢占页面顶部，把正文挤出页底（表现为 overfull vbox 与正文被裁掉）。
 
 % ---------- 排版 ----------
 \usepackage{enumitem}
 \setlist{itemsep=2pt, topsep=4pt, parsep=0pt}
 \usepackage{needspace}            % 防止“表题在页底、表体翻页”的孤行
+% 【重要】build.ps1 会在每个粗体表题前插入 \needspace{7\baselineskip}。原实现会往页面里
+% 加一段最多 5.2cm 的可伸缩胶水，TeX 于是容忍“内容超出页高”而裁掉多余部分
+% （overfull vbox + 正文丢失）。这里换成“只允许在表题前断页、不加胶水”。
+\renewcommand{\needspace}[1]{\par\penalty-200\vspace{0pt}}
 \usepackage{xcolor}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
@@ -48,15 +80,15 @@
 }
 
 % 学术版式：1.45 倍行距（近似中文期刊的 1.5 倍行距观感）
-\linespread{1.45}
-\setlength{\parskip}{2pt plus 1pt}
+\linespread{1.32}
+\setlength{\parskip}{1pt plus 1pt}
 
 % 章节标题样式（黑体，编号由正文文本自带，故关闭自动编号）
 \ctexset{
   section = {
     format   = \Large\bfseries\sffamily,
-    beforeskip = 16pt plus 2pt minus 2pt,
-    afterskip  = 8pt plus 1pt,
+    beforeskip = 12pt plus 2pt minus 2pt,
+    afterskip  = 6pt plus 1pt,
   },
   subsection = {
     format   = \large\bfseries\sffamily,
@@ -93,6 +125,7 @@
 \setcounter{figure}{0}
 
 % 中文断行宽松度（避免长英文串与数字造成过挤）
+\raggedbottom
 \tolerance=2000
 \emergencystretch=3em
 
@@ -139,11 +172,7 @@
 \begin{abstract}
 \linespread{1.18}\selectfont
 \small
-电商平台的营销决策长期依赖转化率提升幅度，该指标无法区分真实增量、利润侵蚀与需求提前三类异质性来源，也难以支撑“是否该发券、发给谁、发多大面额”的组合决策。本文构建了一个已知微观生成机制的分层模拟器，以\textbf{每位合格用户的净增量贡献利润}为唯一主指标，在预算与风险约束下系统评估营销策略的因果效应与策略价值。
-
-研究沿三条主线展开：其一，在随机实验框架下完成样本量设计、AA 校验、意向处理效应（ITT）估计、护栏非劣效检验与多重比较校正，并以解析真值为基准检验识别有效性；其二，在可忽略性被逐步破坏的观察性设定下，比较朴素差分、倾向得分匹配、逆概率加权与双稳健估计随混淆强度的失效轨迹；其三，将异质性效应估计嵌入预算约束下的策略学习，比较六种策略的价值与预算效率。
-
-基于本文参数化，主要发现为：随机实验的 ITT 估计在重复 200 次实验中偏差仅 $+0.002$ 元/人，95\% 置信区间覆盖率为 $0.945\sim0.955$，与名义水平一致；在相同预算下，定向发券的人均净增量利润为 0.330 元，是随机发券（0.129 元）的 2.56 倍，每元预算回报由 0.77 元提升至 1.97 元，达到真值最优上界的 84.9\%。方法学层面得到三条边界性结论：其一，样本量的约束指标可以不是主指标——利润高度零膨胀使转化率而非利润成为约束者；其二，护栏检验的功效可能远低于名义水平（本文为 0.20），“非劣效通过”不构成安全证据；其三，即便将可观测特征的标准化均值差全部压缩至 0.004 以下，轻度不可观测混淆（$\lambda=0.25$）仍使 95\% 覆盖率降至 $0.75\sim0.85$，“平衡性诊断全绿”恰是最危险的信号。本文进一步指出，双稳健估计在单一遗漏变量同时影响处理与结果的结构下并不提供额外保护。
+电商营销决策长期以转化率为目标，而该指标无法区分真实增量、利润侵蚀与需求提前，也支撑不了“是否发券、发给谁、发多大面额”的组合决策。本文构建已知微观生成机制的分层模拟器（L0--L3），以\textbf{每位合格用户的净增量贡献利润}为唯一主指标，在预算与风险约束下评估营销策略的因果效应与策略价值。数据以 SQLite 五张关系表与 6 个视图承载，三条口径红线被固化为 DDL 约束与视图 JOIN 结构；随机实验主线完成样本量双指标设计、AA 校验、ITT 估计、护栏非劣效与 Holm 校正；观察性主线比较朴素差分、PSM、IPW 与双稳健估计随混淆强度的失效轨迹；决策主线把异质性效应嵌入预算约束下的 0-1 背包。在 20 万用户、重复 200 次的实测中：ITT 偏差 $+0.002$ 元/人，95\% 覆盖率 $0.945\sim0.955$；定向发券人均净增量利润 0.330 元，为随机发券 0.129 元的 2.56 倍，每元预算回报由 0.77 元升至 1.97 元，达解析最优上界的 84.9\%。方法学层面得到三条边界性结论：样本量的约束指标可以不是主指标（利润高度零膨胀使转化率成为约束者）；护栏检验功效仅 0.20，“非劣效通过”不构成安全证据；即便把可观测特征的标准化均值差全部压到 0.004 以下，$\lambda=0.25$ 的轻度不可观测混淆仍使覆盖率降至 $0.75\sim0.85$——“平衡性诊断全绿”恰是最危险的信号。
 
 \paperkeywords{因果推断；增量利润；异质性处理效应；预算约束优化；观察性因果；模拟验证}
 \end{abstract}
@@ -151,9 +180,7 @@
 \vspace{2pt}
 \noindent\rule{\linewidth}{0.4pt}
 
-% ---------------- 目录 ----------------
-\newpage
-\tableofcontents
+% ---------------- 正文（十页短文，不设目录） ----------------
 \newpage
 
 % ---------------- 正文 ----------------
