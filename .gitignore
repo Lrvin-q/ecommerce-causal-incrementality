@@ -22,10 +22,11 @@ htmlcov/
 .ipynb_checkpoints/
 
 # ---- 项目数据：可完整重生成，不入库 ----
-data/
-outputs/runs/
-!data/.gitkeep
-!outputs/runs/.gitkeep
+# 注意必须用 / 前缀锚定根目录：写 `data/` 会连 src/causal_growth/data/ 一起忽略。
+/data/
+/outputs/runs/
+!/data/.gitkeep
+!/outputs/runs/.gitkeep
 
 # ---- 大体积产物 ----
 *.parquet
