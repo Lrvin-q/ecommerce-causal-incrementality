@@ -1,0 +1,12 @@
+﻿import re, pathlib
+old = pathlib.Path("out/paper_check/orig_main.tex").read_text(encoding="utf-8")
+new = pathlib.Path("paper/main.tex").read_text(encoding="utf-8")
+def abs(s): return re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", s, re.S).group(1)
+a,b = abs(old), abs(new)
+print("abstract CJK:", len(re.findall(r"[\u4e00-\u9fff]", a)), "->", len(re.findall(r"[\u4e00-\u9fff]", b)))
+num = re.compile(r"(?<![\w.,])[−-]?\d+(?:,\d{3})*(?:\.\d+)?%?")
+print("old-only nums:", [x for x in num.findall(a) if x not in num.findall(b)])
+print("new-only nums:", [x for x in num.findall(b) if x not in num.findall(a)])
+print("main.tex emdash:", new.count("——"), "textbf:", new.count("\\textbf{"))
+print("abstract starts:", b.strip()[:80])
+print("abstract ends:", b.strip()[-80:])
