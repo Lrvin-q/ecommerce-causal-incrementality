@@ -421,6 +421,69 @@ def check_key_numbers(problems: list[str], verbose: bool) -> None:
             print(f"  {k['name']}: {', '.join(hit) if hit else '未命中'}")
 
 
+def check_abstract_sync(problems: list[str]) -> None:
+    r"""摘要两处副本必须一致。
+
+    为什么需要这道检查
+    ------------------
+    ``paper/build.ps1`` 只截取 ``reports/00_项目总报告.md`` 里 ``## 1 引言`` 之后的内容
+    （标题页与摘要在 ``paper/main.tex`` 里硬编码）。也就是说**改摘要必须改两处**，
+    而两处里只有一处会进 PDF。第 3 轮审稿就撞上了：Markdown 的摘要已更新为合并区间，
+    ``main.tex`` 仍是条件区间，读者看到的 PDF 与仓库里的源文件说法不一致。
+
+    比对方式：抽出两边的**数字 token**（含小数、百分比、区间端点）与汉字数量级，
+    数字集合不同即报错。文字措辞允许有微差，数字不允许。
+    """
+
+    md = ROOT / "reports" / "00_项目总报告.md"
+    tex = ROOT / "paper" / "main.tex"
+    if not (md.exists() and tex.exists()):
+        return
+
+    md_text = md.read_text(encoding="utf-8")
+    tex_text = tex.read_text(encoding="utf-8")
+
+    # --- Markdown 侧：**摘要** 与 **关键词** 之间 ---
+    m1 = re.search(r"\*\*摘要\*\*(.*?)\*\*关键词\*\*", md_text, re.S)
+    if not m1:
+        problems.append(f"{md.relative_to(ROOT)} 找不到 **摘要** … **关键词** 区段")
+        return
+    md_abs = m1.group(1)
+
+    # --- LaTeX 侧：\begin{abstract} … \end{abstract} ---
+    m2 = re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", tex_text, re.S)
+    if not m2:
+        problems.append(f"{tex.relative_to(ROOT)} 找不到 abstract 环境")
+        return
+    tex_abs = m2.group(1)
+
+    # 去掉 LaTeX 命令与数学标记，只留正文与数字
+    tex_plain = re.sub(r"\\[a-zA-Z@]+\*?(\[[^\]]*\])?(\{[^{}]*\})?", " ", tex_abs)
+    tex_plain = tex_plain.replace("$", " ").replace("{", " ").replace("}", " ")
+
+    def nums(s: str) -> set[str]:
+        """抽数字 token：统一去掉千分位逗号与空白，保留小数/百分号前的主体。"""
+        s = s.replace(",", "").replace("，", "")
+        return {t.rstrip("%") for t in re.findall(r"\d+(?:\.\d+)?", s) if len(t) >= 2}
+
+    a, b = nums(md_abs), nums(tex_plain)
+    only_md = sorted(a - b)
+    only_tex = sorted(b - a)
+    if only_tex:
+        problems.append(
+            "摘要两处副本不一致（main.tex 独有数字："
+            + ", ".join(only_tex[:8])
+            + "）——build.ps1 只截 `## 1 引言` 之后的正文，摘要硬编码在 main.tex，"
+              "改 Markdown 摘要时必须同步改 main.tex"
+        )
+    elif only_md:
+        problems.append(
+            "摘要两处副本不一致（Markdown 独有数字："
+            + ", ".join(only_md[:8])
+            + "）——同上，两处必须同步"
+        )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="文档数字一致性检查（事实源：outputs/tables/*.csv）")
     parser.add_argument("-v", "--verbose", action="store_true", help="打印关键数字的命中位置")
@@ -430,6 +493,7 @@ def main(argv: list[str] | None = None) -> int:
     check_version_banner(problems)
     check_key_numbers(problems, args.verbose)
     check_internal_consistency(problems)
+    check_abstract_sync(problems)
     n_stale = check_stale(problems)
 
     print(f"\n扫描文档 {len(DOCS)} 份：{', '.join(d.name for d in DOCS)}")

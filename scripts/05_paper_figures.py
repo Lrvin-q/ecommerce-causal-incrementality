@@ -218,7 +218,7 @@ def fig0_roadmap() -> Path:
         ),
         (
             "决策建议",
-            "定向发券：每元回报 0.73 → 2.08 元\n占真值贪心解 86%（bootstrap 区间 82%–91%）",
+            "定向发券：每元回报 0.73 → 2.08 元\n占真值贪心解 86%（合并区间 79%–94%）",
             STRATEGY_COLORS["oracle"],
         ),
     ]
@@ -331,7 +331,7 @@ def fig1_data() -> Path:
     ax.set_ylim(0, max(conv) * 1.35)
     ax.set_ylabel("7 天转化率（%）", fontsize=FS_LABEL)
     # 转化率差写在坐标区下方：旧版橙框下缘紧贴 y 轴上限刻度，视觉上压迫刻度
-    _caption(ax, f"ITT 转化 +{conv[1] - conv[0]:.2f} 个百分点（组间差分）", y=-0.40, color="#E65100")
+    _caption(ax, f"ITT 转化 +{conv[1] - conv[0]:.2f}pp（组间差分）", y=-0.40, color="#E65100")
     _panel(ax, "b", "随机分组的转化率差")
 
     # (c) 分渠道转化率
@@ -399,7 +399,7 @@ def fig2_design() -> Path:
         lw=1.5,
         label="转化率指标",
     )
-    ax.set_xlabel("转化的最小可检测效应（百分点）", fontsize=FS_LABEL, color=METHOD_COLORS["itt"])
+    ax.set_xlabel("转化的最小可检测效应（pp）", fontsize=FS_LABEL, color=METHOD_COLORS["itt"])
     ax.set_ylabel("每组样本量（对数）", fontsize=FS_LABEL)
     ax.tick_params(axis="x", colors=METHOD_COLORS["itt"], labelsize=FS_TICK)
     ax.set_xticks([0.5, 1.0, 2.0, 3.0])
@@ -505,10 +505,10 @@ def fig2_design() -> Path:
     ax.set_xlim(-0.85, 1.12)
     ax.set_ylim(-0.95, 0.95)
     ax.set_xticks([-0.5, 0.0, 0.5, 1.0], ["-0.5", "0", "0.5", "1.0"], fontsize=FS_TICK)
-    ax.set_xlabel("退款率差（百分点）；红虚线 = 四档界值 0.2 / 0.3 / 0.5 / 1.0",
+    ax.set_xlabel("退款率差（pp）；红虚线 = 四档界值 0.2 / 0.3 / 0.5 / 1.0",
                   fontsize=FS_LABEL - 1)
     # 通过/不通过写进标题（坐标区之外，不与界值线打架）
-    ax.set_title("(c) 护栏：两分母符号相反\n界值 0.2、0.3 下不成立，0.5 起成立",
+    ax.set_title("(c) 护栏：两分母符号相反\n0.3 起已下单口径成立，0.5 起两个口径成立",
                  fontsize=FS_TITLE, pad=4)
 
     # (d) 重复 200 次的 ITT 分布
@@ -823,7 +823,7 @@ def fig5_obs() -> Path:
     # 旧版左下角的灰框说明压住 λ=0.75~1.0 的曲线段；左上角图例又压住 λ=0/0.25 的起点。
     # 两个面板的颜色语义相同（四种方法），因此改用**整图底部一个共享图例**，
     # 两个坐标区内都不再出现图例，任何 λ 处的数据都不会被盖住。
-    _panel(ax, "a", "偏差随混淆强度线性扩大")
+    _panel(ax, "a", "偏差随混淆强度加速上升")
 
     # (b) 覆盖率随 λ（带 Clopper–Pearson 95% 区间）
     ax = axes[1]

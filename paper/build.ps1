@@ -60,6 +60,10 @@ $tex = [regex]::Replace($tex, '(?m)^\\textbf\{表 ', '\needspace{11\baselineskip
 $tex = $tex.Replace('\needspace{11\baselineskip}\textbf{表 B1', '\textbf{表 B1')
 # 表 C1 同理：它在附录 C 标题之后，若在页底预留空间会把标题单独留在上一页（实测出现过整页空白）。
 $tex = $tex.Replace('\needspace{11\baselineskip}\textbf{表 C1', '\textbf{表 C1')
+# 表 A1 由 8 行拆成 18 行（一参数一行）后，同样的预留也会在附录 A 标题之后触发换页：
+# 标题单独留在上一页、整表落到下一页，实测多出 1 页且那一页近空白（16 页）。
+# 附录 A 标题之后紧接着就是表格题注，不存在“题注孤悬页底”的问题，故一并去掉预约空间。
+$tex = $tex.Replace('\needspace{11\baselineskip}\textbf{表 A1', '\textbf{表 A1')
 Set-Content -Path (Join-Path $paper 'body.tex') -Value $tex -Encoding utf8 -NoNewline
 $nFig = ([regex]::Matches($tex, '\\begin\{figure\}')).Count
 Write-Host ("      表 {0} 张、图 {1} 张" -f $nTable, $nFig)
