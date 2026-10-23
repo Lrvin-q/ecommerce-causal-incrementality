@@ -29,7 +29,7 @@ PY = ROOT / ".venv" / "Scripts" / "python.exe"
 PIPELINE: dict[str, list[str]] = {
     "1": ["01_build_data.py", "02_run_experiment.py"],
     "2": ["03_cate_obs.py"],
-    "3": ["04_policy.py", "05_report.py"],
+    "3": ["04_policy.py"],
 }
 
 
