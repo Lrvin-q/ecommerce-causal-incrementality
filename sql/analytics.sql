@@ -63,7 +63,7 @@ SELECT
     COUNT(n.order_id)                                               AS n_orders,
     COALESCE(MAX(CASE WHEN n.refunded = 1 THEN 1 ELSE 0 END), 0)     AS any_refund,
     COALESCE(MAX(n.coupon_used), 0)                                 AS coupon_used,
-    COALESCE(MAX(n.coupon_cost_net), 0.0)                           AS coupon_cost
+    COALESCE(SUM(n.coupon_cost_net), 0.0)                           AS coupon_cost
 FROM coupon_assignment a
 LEFT JOIN v_order_net n ON n.user_id = a.user_id
 GROUP BY a.user_id, a.grp;
