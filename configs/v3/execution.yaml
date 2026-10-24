@@ -1,0 +1,66 @@
+# 合成数据 / 已知 DGP。正式、pilot、debug 分开，debug 不能进入正式汇总。
+execution:
+  config_status: phase_a_draft_pending_independent_review
+  profile: formal
+  profiles:
+    formal:
+      mutate_scenario_sizes_or_repeats: false
+      output_namespace: v3
+    pilot:
+      repeats_per_workload: 20
+      n_users: 200000
+      workloads: [estimation_only, five_tables_sql_estimation, full_with_causal_forest]
+      scenario: L1_main
+      output_namespace: v3_pilot
+      include_in_formal_aggregate: false
+    debug:
+      repeats: 20
+      n_users: 2000
+      output_namespace: v3_debug
+      include_in_formal_aggregate: false
+  formal_repeats:
+    tier1_ate: 500
+    tier1_full_learning_per_model: 200
+    tier1_independent_validation: 200
+    tier1_aa_per_layer: 1000
+    tier2_ate: 100
+    tier2_full_learning_per_model: 100
+    tier2_independent_validation: 100
+    fixed_policy_bootstrap: 1000
+    retraining_bootstrap: 200
+    random_list_seeds_per_budget: 200
+  job_semantics:
+    full_learning_reuses_first_ate_repetitions: true
+    independent_validation_is_extra_population: true
+    all_models_share_repetition_data_and_split: true
+    paired_scenarios_share_named_latent_streams: true
+    lambda_t_fixed_scan_shares_all_potential_outcomes: true
+    scenario_cell_is_not_model_fit_count: true
+  resources:
+    max_parallel_workers: 6
+    default_parallel_workers: 4
+    model_internal_threads: 1
+    omp_num_threads: 1
+    memory_budget_gb: 6.0
+    release_each_repetition_before_next: true
+    pilot_cost_replan_trigger_ratio: 1.50
+    original_cpu_hours_estimate: [40.0, 55.0]
+    original_estimate_status: invalid_until_recomputed_for_explicit_scenario_manifest
+    change_matrix_requires_versioned_reason_and_review: true
+  storage:
+    representative_rep: 0
+    historical_representative: [raw_five_tables, dirty_five_tables, clean_five_tables, sqlite, sql_analysis, truth, manifest]
+    historical_other_reps: [compressed_five_tables_or_lossless_deltas, sql_results, observed_estimates, audit_summaries, manifest]
+    validation_representative: [full_five_tables, sqlite, sql_analysis, policy_assignment, summaries, manifest]
+    validation_other_reps: [policy_assignment, summaries, manifest]
+    retain_every_reported_number_without_rerun: true
+  paths:
+    data: data/v3/{level}/{scenario}/rep_{rep_id}
+    audit: audit/v3/{level}/{scenario}/rep_{rep_id}
+    output: outputs/v3/{level}/{scenario}/rep_{rep_id}
+    run_status: outputs/v3/manifest/run_status.csv
+  records:
+    required: [run_id, scenario_id, rep_id, profile, config_hash, code_revision, seed_streams, attempted, status, failure_type, retry, elapsed_seconds, peak_memory_mb, row_counts, quality_checks]
+    terminal_statuses: [passed, failed]
+    missing_or_failed_reps_cannot_be_dropped: true
+    parameter_changing_retries_forbidden: true

@@ -1,0 +1,75 @@
+# 合成数据 / 已知 DGP。数值为预设设计或模拟假设，非平台实测。
+design:
+  primary_metric: net_profit_30d_per_assigned_user
+  auxiliary_metric: paid_purchase_7d
+  alpha_two_sided: 0.05
+  power_targets: [0.80, 0.90]
+  n_total: 200000
+  treatment_probability: 0.50
+  count_convention: n_total_and_n_per_arm_separate
+  mde_direction: fixed_n_inverse_power
+  variance_source: independent_design_pilot_observed_sql_outcomes
+  variance_from_final_test_or_truth_forbidden: true
+  mde_cohorts:
+    - {id: full_history, n_total: 200000, treatment_probability: 0.50}
+    - {id: training, n_total: 100000, treatment_probability: 0.50}
+    - {id: heldout_test, n_total: 60000, treatment_probability: 0.50}
+    - {id: independent_validation, n_total: 200000, arm_probabilities: [0.3333333333333333, 0.3333333333333333, 0.3333333333333334]}
+  split:
+    unit: user_id_within_run
+    train: 0.50
+    validation: 0.20
+    test: 0.30
+    random_split_stratify_on: [treatment, channel, is_new]
+  local_power:
+    active_mde_multiplier: null
+    effect_construction: rescale_legal_purchase_probability_increment_then_reintegrate_profit
+    relative_to_observed_design_mde: [0.0, 0.5, 1.0, 1.5, 2.0]
+    repeats_per_point: 100
+    tier: 2
+    base_scenarios: [L0_P_main, L1_main, L2_n200000_p050, L3_fixed_lt000]
+    report: [target_effect, achieved_effect, rejection_rate, R, MC_SE, binomial_interval]
+    constant_profit_shift_forbidden: true
+  aa:
+    actual_action: 0
+    virtual_label_probability: 0.50
+    label_effect_on_mechanism: none
+    pipeline: [five_tables, dirty, clean, sql, estimation]
+    repeats_per_layer: 1000
+  guardrail:
+    primary_metric: any_refund_30d_per_assigned_user
+    auxiliary_descriptive_metric: refunded_orders_per_paid_order
+    noninferiority_margin_probability_points: 0.005
+    alpha_one_sided: 0.05
+    power_targets: [0.80, 0.90]
+    margin_evidence: hypothetical_business_tolerance_not_empirical_fact
+  multiplicity:
+    confirmatory_metrics: [net_profit_30d_per_assigned_user]
+    auxiliary_family: [paid_purchase_7d, any_refund_30d_per_assigned_user]
+    auxiliary_adjustment: holm
+    policy_comparisons: [targeted_vs_same_budget_random, targeted_vs_no_coupon]
+    policy_comparison_adjustment: holm
+    exploratory_slices: [channel, is_new, assignment_week]
+    exploratory_label: exploratory_not_confirmatory
+  temporal:
+    assignment_weeks: [1, 2, 3, 4, 5, 10, 11, 16, 22, 28]
+    cohort_shares: [0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10]
+    train_weeks: [1, 2, 3, 4, 5]
+    validation_weeks: [10, 11]
+    test_weeks: [16, 22, 28]
+    rolling_origin_weeks: [16, 22, 28]
+    days_per_week: 7
+    assignment_day_within_week_uniform: [0.0, 6.999999]
+    training_asof_rule: profit_window_end_and_ingestion_time_both_before_origin
+    evaluation_asof_rule: test_window_complete_and_all_required_ingestion_arrived
+    strategies: [static, time_features, rolling_retrain]
+    primary_strategy: rolling_retrain
+    uncertainty: user_cluster_with_assignment_week_block_sensitivity
+    block_length_active_cohorts: 2
+    immature_negative_control_snapshot_days_after_assignment: 7
+    immature_control_primary_claims_allowed: false
+  numerical:
+    root_tolerance: 1.0e-10
+    probability_tolerance: 1.0e-12
+    calibration_reference_n: 1000000
+    calibration_reference_independent_from_evaluation: true

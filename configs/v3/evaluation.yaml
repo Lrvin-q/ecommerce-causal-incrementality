@@ -1,0 +1,166 @@
+# 合成数据 / 已知 DGP。Phase A 协议草案，待独立评审。
+evaluation:
+  estimators:
+  - ipw_increment
+  - dr_increment
+  - snips_increment
+  crossfit_folds: 3
+  randomized_propensity: recorded_design_probability
+  observational_propensity: estimated_from_observed_features_only
+  normalize_snips_arms_separately: true
+  primary_weighting: untrimmed_with_probability_floor_diagnostics
+  weight_sensitivity_quantiles:
+  - 0.95
+  - 0.99
+  - 1.0
+  paired_policy_differences: true
+  paired_variance_includes_covariance: true
+  confidence_level: 0.95
+  primary_interval: crossfit_influence_function
+  guardrail_interval: one_sided_influence_function
+  reliability_gate:
+    minimum_ess_per_action: 200
+    minimum_ess_fraction_per_action: 0.05
+    maximum_observed_support_violation_fraction: 0.01
+    probability_support_bounds:
+    - 0.01
+    - 0.99
+    fail_label: 无法可靠评估
+    numbers_are_predeclared_simulation_decision_rules: true
+  decision:
+    benefit_threshold_cny_per_user: 0.0
+    require_lower_ci_above_threshold: true
+    require_guardrail_noninferiority: true
+    require_predicted_budget_feasibility: true
+    require_reliability_gate: true
+    error_definitions:
+      unsupported_recommendation: history_recommends_and_random_trial_does_not_pass
+      truth_harmful_recommendation: history_recommends_and_audit_value_below_zero
+      missed_positive: history_rejects_and_random_trial_passes
+    benefit_evidence:
+      coupon_worth_issuing: selected_targeted_minus_no_coupon
+      targeting_better_than_random: selected_targeted_minus_same_budget_random
+      family:
+      - selected_targeted_minus_no_coupon
+      - selected_targeted_minus_same_budget_random
+      family_alpha_one_sided: 0.05
+      adjustment: holm_step_down_on_paired_one_sided_tests
+      confidence_limits: invert_same_holm_family_tests_no_unadjusted_ci_substitution
+      output_two_separate_claims: true
+      recommendation_requires: coupon_worth_issuing_passes_adjusted_test
+      targeting_superiority_requires: targeting_better_than_random_passes_adjusted_test
+    budget_evidence:
+      observed_cost_estimator: crossfit_dr_total_coupon_cost_per_assigned_user
+      overrun_risk_estimator: observed_cost_predictive_bootstrap_frozen_policy_no_truth
+      overrun_predictive_bootstrap_repeats: 1000
+      overrun_probability_confidence_level: 0.95
+      cost_interval_confidence_level: 0.95
+      reject_if_observed_cost_lower_bound_exceeds_budget: true
+      uncertain_if_cost_interval_crosses_budget: true
+      uncertain_budget_action: may_enter_simulated_random_validation_with_budget_uncertainty_label_no_upper_cost_guarantee
+      primary_constraint: frozen_predicted_expected_cost_at_or_below_budget
+      overrun_risk_role: reporting_and_sensitivity_only_not_recommendation_gate
+      overrun_predictive_bootstrap_scope: each_complete_rep_selected_policy_primary_budget_only
+      overrun_mc_se: sqrt_estimated_p_times_one_minus_p_divided_by_predictive_bootstrap_repeats
+      overrun_mc_interval: clopper_pearson
+    recommendation_scope: candidate_for_simulated_randomized_policy_validation_not_actual_deployment
+  independent_validation:
+    n_users_per_rep: 200000
+    arms:
+    - no_coupon
+    - random_same_budget
+    - selected_targeted_policy
+    arm_probabilities:
+    - 0.3333333333333333
+    - 0.3333333333333333
+    - 0.3333333333333334
+    budget_basis: same_per_assigned_user_in_each_active_arm
+    primary_budget_cny_per_user: 0.2
+    other_budgets: historical_heldout_ope_and_truth_audit_only
+    policy_selection_stage: validation_before_test
+    randomization_unit: new_user
+    denominator: every_user_assigned_to_policy_arm
+    historical_user_ids_disjoint: true
+    time_population: same_target_period_as_historical_test_scenario
+    per_user_records_retained:
+    - run_id
+    - user_id
+    - assigned_policy_arm
+    - issued_action
+    - selected_policy_id
+    - observed_outcome_summary
+    save_full_five_tables_only_for_representative_rep: true
+    must_execute_five_tables_and_sql_every_rep: true
+  uncertainty:
+    fixed_policy_bootstrap_repeats: 1000
+    fixed_policy_bootstrap_scope: representative_rep_per_scenario_all_budgets_selected_policy_and_random_difference
+    retraining_bootstrap_repeats: 200
+    retraining_bootstrap_scenarios:
+    - L0_P_main
+    - L1_main
+    - L2_n200000_p050
+    - L3_fixed_lt000
+    retraining_bootstrap_refit:
+    - preprocessing
+    - all_required_models
+    - cost_model
+    - model_selection
+    - policy
+    retraining_evaluation_sample: independent_heldout_same_target_population
+    variance_components_addition_forbidden_without_proof: true
+    monte_carlo_mean_se: sample_sd_divided_by_sqrt_successful_independent_reps
+    binary_mc_interval: clopper_pearson
+  audit:
+    unlock_after:
+    - models_frozen
+    - policies_frozen
+    - ope_frozen
+    - decisions_frozen
+    - random_validation_frozen
+    metrics:
+    - ate_bias
+    - ate_rmse
+    - se_calibration
+    - coverage
+    - mechanism_cate_rmse_end_to_end
+    - observed_W_group_dr_calibration
+    - top20_overlap
+    - spearman
+    - policy_value
+    - regret
+    - budget_overrun
+    - decision_errors
+    constant_truth_correlation: null
+    constant_truth_r_squared: null
+    constant_truth_rank_overlap: null
+    top_share: 0.2
+    l3_cate_target: integrate_U_given_observable_X
+    integral_absolute_tolerance_cny: 1.0e-06
+    integral_relative_tolerance: 1.0e-06
+    mc_crosscheck_standard_errors: 4.0
+    mc_crosscheck_absolute_floor_cny: 0.001
+    mc_crosscheck_rule: compare_error_to_max_floor_and_mc_se_multiple_with_reported_mc_se
+    precision_check_population_n: 2000000
+    precision_check_batch_size: 100000
+    mechanism_cate_rmse_end_to_end:
+      truth: conditional_effect_given_complete_true_X_integrating_U
+      predictions: functions_of_observed_preprocessed_W
+      interpretation: includes_measurement_missingness_coarsening_and_model_error
+      pure_learning_error_claim_allowed: false
+    learnable_evaluation:
+      grouped_calibration: dr_effect_in_groups_defined_by_observed_W_or_frozen_prediction
+      risk: independent_observed_policy_value_and_paired_differences
+      extra_latent_conditional_integration_required_for_pure_model_rmse: true
+    numerical_homogeneity_tolerance_cny: 0.001
+  reporting:
+    tier2_required_columns:
+    - R
+    - MC_SE
+    - planned
+    - successful
+    - failed
+    - effective
+    abstract_and_conclusion_quantitative_tiers:
+    - 1
+    selection_of_favorable_repeats_forbidden: true
+    record_all_failures: true

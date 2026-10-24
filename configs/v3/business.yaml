@@ -1,0 +1,140 @@
+# 合成数据 / 已知 DGP。Phase A 协议草案；须独立评审通过后实施。
+schema_version: '3.0'
+parameter_evidence_default: simulation_assumption
+parameter_reference: docs/v3_参数依据.md
+units:
+  monetary_values: CNY
+  monetary_storage: integer_cent
+  probabilities_and_shares: unit_interval
+  rate_difference: probability_point
+  duration: day_unless_suffix_specifies_otherwise
+  coefficients: dimensionless_logit_units
+project:
+  name: 电商营销策略的因果评估与增量利润优化
+  master_seed: 20240101
+  data_source_label: 合成数据 / 已知 DGP（非真实企业数据）
+  timezone: Asia/Shanghai
+business:
+  action_space: [0, 1]
+  coupon_reference_face: 10.0
+  coupon_face_values: [10.0]
+  face_value_optimization_enabled: false
+  coupon_eligible_order: first_order_only
+  coupon_discount_rule: min_face_and_gross_order_amount
+  redemption_rate: 0.55
+  redemption_rate_denominator: paid_first_orders_in_coupon_action
+  refund_rate: 0.075
+  refund_rate_treated_multiplier: 1.03
+  refund_rate_denominator: paid_orders
+  goods_cost_ratio: 0.68
+  fulfill_cost_mean: 5.0
+  fulfill_cost_sd: 1.2
+  fulfill_cost_min: 0.5
+  fulfill_cost_distribution: mean_calibrated_lower_clipped_normal
+  fulfill_cost_mean_definition: target_mean_after_floor_and_cent_rounding
+  fulfill_cost_location_calibration: solve_raw_normal_location_for_target_post_transform_mean
+  refundable_goods_ratio: 0.85
+  refund_handling_fee_rate: 0.01
+  coupon_returned_on_refund: false
+  new_user_share: 0.30
+  hist_gmv:
+    distribution: gamma_by_new_user_status
+    returning_mean: 1100.0
+    returning_sd: 700.0
+    new_mean: 60.0
+    new_sd: 90.0
+  cart_value:
+    distribution: lower_clipped_gamma
+    mean_before_floor: 130.0
+    sd_before_floor: 60.0
+    minimum: 15.0
+  browse_depth:
+    distribution: negative_binomial
+    mean: 6.0
+    variance: 9.0
+  channels:
+    search: 0.35
+    feed: 0.30
+    xhs: 0.20
+    other: 0.15
+  first_order_cart_fraction:
+    distribution: truncated_normal
+    mean_before_truncation: 0.70
+    sd_before_truncation: 0.10
+    lower_exclusive: 0.0
+    upper_inclusive: 1.0
+    sampler: inverse_cdf
+    share_draw_between_actions: true
+  repeat:
+    enabled: true
+    probability_given_first_order: 0.05
+    gross_value_ratio: 0.55
+    coupon_used: false
+    share_fulfillment_draw_with_first_order: true
+    second_refund_independent_uniform_given_user: true
+    refund_rate_follows_assigned_action: true
+    require_first_order: true
+  order_timing:
+    first_order_delay_gamma_shape: 2.0
+    first_order_delay_gamma_scale_days: 1.0
+    first_order_delay_clip_days: [0.05, 6.95]
+    refund_delay_uniform_days: [1.0, 25.0]
+    repeat_delay_gamma_shape: 6.0
+    repeat_delay_gamma_scale_days: 1.5
+    repeat_delay_clip_days: [1.0, 25.0]
+    repeat_delay_origin: first_order_time
+    terminal_window_rule: include_only_events_at_or_before_assignment_plus_profit_days
+  money:
+    currency: CNY
+    cents_per_yuan: 100
+    rounding: mixed_explicit_component_rules
+    cart_rounding: floor_to_cent_before_amount_generation
+    first_order_rounding: floor_cart_cent_times_fraction
+    repeat_rounding: round_first_gross_cent_times_repeat_ratio
+    component_rounding: round_each_posted_ledger_component_once
+    repeat_ratio_tolerance_cent: 0.5
+    coupon_cap_tolerance_cent: 0
+    profit_identity_tolerance_cent: 0
+  accounting:
+    revenue_basis: gross_before_coupon
+    consumer_paid: gross_order_amount_minus_coupon_discount
+    consumer_refund: consumer_paid_if_refunded
+    gross_refund_reversal: gross_order_amount_if_refunded
+    refund_processing_fee_basis: gross_order_amount
+    goods_cost_basis: gross_order_amount
+    coupon_cost_after_refund: retained_platform_subsidy
+    gross_refund_interpretation: reverse_full_gross_revenue_while_retaining_coupon_expense
+    net_profit_formula: gross_order_amount-gross_refund_reversal-goods_cost+goods_cost_recovered-fulfill_cost-coupon_cost-refund_processing_fee
+    subsidy_double_charge_forbidden: true
+    refund_orders_retained: true
+    negative_order_profit_allowed: true
+    negative_profit_reason: 退款保留成本、低金额订单及显式同质化控制允许亏损；不得通过删单或截断利润修正
+    gmv: sum_gross_order_amount_before_refunds
+    net_transaction_amount: sum_gross_order_amount_minus_gross_refund_reversal
+windows:
+  convert_days: 7
+  profit_days: 30
+  boundary: inclusive
+  analysis_denominator: all_assigned_eligible_users
+  late_refund_policy: retain_event_but_exclude_from_30d_target_if_event_after_window
+data:
+  event_log_cap: 20
+  event_log_cap_definition: first_events_retained_and_truncation_count_recorded
+  dirty:
+    enabled: true
+    missing_mechanism: MAR_given_observed_channel
+    cart_missing_by_channel: {search: 0.02, feed: 0.04, xhs: 0.12, other: 0.08}
+    missing_rate_multiplier: 1.0
+    fraud_user_rate: 0.002
+    fraud_hist_gmv_multiplier: 60.0
+    duplicate_event_rate: 0.03
+    ingestion_delay_max_hours: 48
+  cleaning:
+    fit_on_training_only: true
+    numeric_imputation: training_channel_median_with_global_training_fallback
+    missing_indicators: true
+    numeric_winsor_quantiles: [0.005, 0.995]
+    standardization: training_mean_and_sd
+    standardized_feature_clip: 3.0
+    deduplicate_on: [run_id, event_id]
+    event_time_filter_before_ingestion_filter: true

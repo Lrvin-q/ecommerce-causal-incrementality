@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "电商营销策略的因果评估与增量利润优化（合成数据 / 已知 DGP）"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Proprietary" }
+license = { text = "MIT" }
 dependencies = [
     "numpy",
     "pandas",
@@ -34,9 +34,9 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# 把 pytest 临时目录放在项目内：系统 Temp 下的 pytest-of-<user> 目录存在权限异常，
-# 会让所有使用 tmp_path 的测试报 PermissionError。
-addopts = "-q --strict-markers --basetemp=.pytest_basetemp"
+# tests/conftest.py creates a fresh project-local directory for each invocation.
+# A reused basetemp can inherit incompatible Windows sandbox permissions.
+addopts = "-q --strict-markers -p no:cacheprovider"
 filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::FutureWarning",

@@ -1,0 +1,41 @@
+{
+  "data_source": "合成数据 / 已知 DGP（非真实企业数据）",
+  "status": "phase_a_approved",
+  "approved_on": "2026-10-25",
+  "config_hash": "30511a32bcee9db55e8f5ec1bbc2b9d63eb63dc2a13aa5c720f948c781eccdbe",
+  "source_sha256": {
+    "business.yaml": "d1259d2342aba1a4cdcaca5c0de6e4914c8a55b315a80af7c0923757d1ba0e0a",
+    "design.yaml": "d2fd51a1156457257cf7977b32bd5aeb1c9745a10e528d029a877ef1b531fa99",
+    "models.yaml": "19ce3bf5a338ea0e055e3ba0ff676054e8926dde7ce44409ca7699443361bdf2",
+    "policy.yaml": "57ff5721de12af0cc285bb235f320fd7047a06837dc5f2ac00e228690d36958a",
+    "evaluation.yaml": "5f6dfcb2c700bc72831efb1ff94b3b2137bc8dd9680b862981c4b2755c3241d1",
+    "execution.yaml": "dc1c8e9ab147e58d95e1367c2abcd90ba02acf05ca27da11e3dfb84da8631733",
+    "scenarios.yaml": "29a158b046cb91661f2327cc5acbc1dc868a57c17dc0783cfe9d6d41058e9ddb"
+  },
+  "protocol_sha256": "eb85a3284a01a4f428c29d4cd84098a123ae629d44ceb6b1ac9fcd11f107e6fc",
+  "parameter_rationale_sha256": "350fed0902ebc186c77b951d6ebee748533414b933a1e3512b5ec673b86e6839",
+  "review_file": "docs/reviews/v3_phase_A_review.md",
+  "review_sha256": "f5c11b1ee3630991d7b89cc10a2552f9c4a24089d5ea3e6d7779980bbf07788c",
+  "matrix_sha256": "c3c7a63ad99fb921698ebbc638db50c18f5c0b672aad09d0a67c37c1dba9a8c7",
+  "regression_evidence": {
+    "pytest": {
+      "passed": 418,
+      "elapsed_seconds": 19.85,
+      "log_sha256": "85fb4c2dec5531cd59480a7744806854774043469024873f4783175850f4061a"
+    },
+    "v2_numeric_gate": "passed_24_key_numbers_40_old_value_patterns",
+    "v2_figures_gate": "passed_7_figures_0_errors_0_warnings_isolated_baseline",
+    "v2_build": {
+      "pages": 15,
+      "warnings": [],
+      "pdf_sha256": "500c7f88eae6b4c04abb63367f41fed064dd8e0551774ce70015866c2f374d3c"
+    },
+    "v2_pdf_text": {
+      "forbidden_paths_scripts_versions": 0,
+      "legacy_table_missing_value_dashes": 5
+    }
+  },
+  "experimental_results_exist": false,
+  "scope": "Phase A only; implementation, formal repetitions, manuscript and cleanup remain pending.",
+  "status_note": "Reviewed source retains its pre-review draft label; this exact-hash approval is authoritative. Semantic changes require a recorded revision and review."
+}
