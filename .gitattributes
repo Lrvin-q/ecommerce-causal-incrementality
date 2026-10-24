@@ -1,0 +1,7 @@
+# 二进制资产不做文本 diff / 行尾转换
+*.pdf   -diff
+*.png   -diff
+*.pptx  -diff
+*.docx  -diff
+*.xlsx  -diff
+*.db    -diff

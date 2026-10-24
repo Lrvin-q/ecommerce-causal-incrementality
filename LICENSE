@@ -1,0 +1,35 @@
+MIT License
+
+Copyright (c) 2026 Lrvin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+────────────────────────────────────────────────────────────────────────────
+
+数据说明 / Data notice
+
+本仓库全部数据由已知的数据生成过程（DGP）合成，不包含任何真实企业数据、
+真实用户数据或商业机密。文中"电商平台""运营预算""券面额"等设定均为
+模拟情景，不代表任何实际企业的经营情况。所有数值结论仅在该生成机制内成立。
+
+All data in this repository is synthetic, produced by a known data-generating
+process. It contains no real corporate data, no real user records and no trade
+secrets. The e-commerce setting is a simulated scenario, not a description of
+any actual company. All numerical conclusions hold only within the stated
+generative mechanism.

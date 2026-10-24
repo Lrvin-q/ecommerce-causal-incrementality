@@ -1,6 +1,9 @@
 # 电商营销策略的因果评估与增量利润优化
 
-> 数据版本：v2（含复购路径，5% 用户产生第二单）。v1→v2 的关键数字变化见 [reports/00_项目总报告.md](reports/00_项目总报告.md) 附录 D。
+> **当前为 v2 版本，已打 tag `v2.0` 归档。** v3 将按
+> [HITL/完整修订建议_L0-L3与观测评估闭环.md](HITL/完整修订建议_L0-L3与观测评估闭环.md)
+> 重建：金额链路改为「购物车 → 首单 → 复购」、L0–L3 四层各自完整、新增不依赖真值的
+> 观测评估闭环、正文扩为四部分长稿。**v3 会改变 DGP，v2 的全部数值结论届时作废，请勿与新稿混用。**
 
 > **数据来源：合成数据 / 已知 DGP（非真实企业数据）。**
 > 本项目用**已知微观生成机制**的模拟器构造数据，再用分析方法去估计，把估计值与真值对比，
@@ -136,3 +139,58 @@ python scripts\run_all.py --round all      # 约 10 分钟，重跑全部数据/
 3. **券成本只扣一次**：`Π^net` 已含，策略价值 `V(π)` 不再二次扣除；预算约束独立存在。
 
 详见 [GOAL.md](GOAL.md) 第三部分与 [AGENTS.md](AGENTS.md) 第四部分。
+---
+
+## 仓库结构
+
+```text
+configs/            参数唯一事实源（业务口径 / DGP / 实验 / 预算 / 评估）
+src/causal_growth/  库代码：dgp · data · design · estimate · policy · evaluation
+sql/                SQLite 五表 DDL + 6 个视图 + 19 条命名查询（口径下沉到 DDL 与视图）
+scripts/            薄编排入口：01 建数据 → 02 实验 → 03 因果与观察性 → 04 策略
+tests/              404 项 pytest（口径红线 / 层级一致性 / SQL 视图约束 / 金额账务）
+outputs/tables/     聚合结果表——正文每一个数字都能在这里找到出处
+outputs/figures/    论文组图（600 dpi，按最终尺寸出图）
+paper/              main.tex + build.ps1 + xref.py + main.pdf
+reports/            00 论文源 · 01–06 分环节报告 · 07 执行复盘（25 条踩坑）
+HITL/               人工评审意见与 v3 修订建议
+```
+
+## 快速开始
+
+```powershell
+$env:PYTHONUTF8 = '1'
+.\.venv\Scripts\Activate.ps1
+
+python scripts\run_all.py --round all        # 约 12 分钟，重生成 data/ 与 outputs/tables/
+python -m pytest tests                       # 404 项
+& .\paper\build.ps1                          # 重建 paper/main.pdf（Markdown → pandoc → xelatex ×2）
+python scripts\07_check_consistency.py       # 文档数字 ↔ 结果表 一致性门禁
+python scripts\08_check_figures.py --strict  # 组图版式门禁：图例/文字是否遮挡数据
+```
+
+> **逐用户中间表未入库**：`r1_truth_L1.csv`（31 MB）、`r1_analysis_frame_clean.csv`（27 MB）、
+> `r2_cate_predictions.csv`（5 MB）体积大且可由 `run_all.py` 完全重生成。
+> 克隆后请先跑 `run_all.py`，否则出图与论文重建会缺输入。
+
+## 三道门禁（防的是"静默漂移"）
+
+| 脚本 | 防什么 |
+|---|---|
+| `07_check_consistency.py` | 同一数字在 9 份文档里漂成两套；论文摘要与 `main.tex` 双副本不一致 |
+| `08_check_figures.py` | 图例/标注遮挡数据、文字互叠、出界裁切——用渲染器包围盒与数据墨点求交 |
+| `pytest` | 口径红线、SQL 视图约束、DGP 一致性、金额账务 |
+
+本项目曾四次出现"同一信息有两个副本、却无机制保证一致"（口径 / 数字版本 / 稳健性端点 /
+摘要双副本），每次都是被这三道门禁拦住的。详见
+[reports/07_执行复盘与踩坑记录.md](reports/07_执行复盘与踩坑记录.md)。
+
+## 可复现性等级
+
+- **随机流完全确定**：同一 `(master_seed, stream, index)` 三元组必然产出同一串随机数
+- **主结果逐位可重建**；少数浮点汇总列存在 `1e-15` 量级差异（累加顺序所致）
+- 提供 `outputs/SHA256SUMS.txt` 产物哈希清单，可逐文件核对
+
+## 许可
+
+代码 MIT（见 [LICENSE](LICENSE)）。数据全部为合成数据，不含任何真实企业或用户信息。
