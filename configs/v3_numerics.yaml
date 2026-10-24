@@ -1,0 +1,46 @@
+# 合成数据 / 已知 DGP。Phase B 数值实现与校验参数，不改变Phase A业务/实验矩阵。
+schema_version: '3.0'
+status: phase_b_pending_independent_review
+phase_a_approved_config_hash: 30511a32bcee9db55e8f5ec1bbc2b9d63eb63dc2a13aa5c720f948c781eccdbe
+integration:
+  absolute_tolerance: 1.0e-6
+  relative_tolerance: 1.0e-6
+  quad_epsabs: 1.0e-13
+  quad_epsrel: 1.0e-13
+  quad_limit: 200
+  refinement_epsabs: 1.0e-14
+  refinement_epsrel: 1.0e-14
+  refinement_limit: 400
+  u_initial_nodes: 32
+  u_max_nodes: 512
+  u_batch_size: 2048
+  tail_probability_budget: 1.0e-14
+root:
+  bracket: [-40.0, 40.0]
+  max_iterations: 200
+  absolute_tolerance: 1.0e-12
+  relative_tolerance: 1.0e-12
+fulfillment:
+  tail_probability: 1.0e-14
+  location_xtol: 1.0e-12
+  bracket_sd_multiple: 12.0
+cache:
+  reference_max_entries: 16
+  amount_distribution_entries: 32
+  amount_expectation_entries: 100000
+  parameter_entries: 128
+controls:
+  cache_max_entries: 200000
+validation:
+  source_label: 合成数据 / 已知 DGP；机制校验，非正式学习重复
+  master_seed: 20261025
+  independent_mc_n: 2000000
+  mc_chunk_size: 100000
+  mc_standard_error_multiplier: 4.0
+  mc_absolute_floor_cny: 0.001
+  boundary_cart_cents: [0, 1, 100, 1499, 1500, 5000, 13000, 50000]
+  conditional_mc_cart_cents: [1500, 13000, 50000]
+  mechanism_check_n: 5000
+  representative_n: 200000
+  representative_rep: 0
+  report_quantiles: [0.0, 0.01, 0.25, 0.5, 0.75, 0.99, 1.0]

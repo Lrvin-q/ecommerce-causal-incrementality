@@ -1,0 +1,9 @@
+﻿source_label,category,metric,expected,observed,absolute_error,MC_SE,n,tolerance,passed,scenario_id,subset,total_generated_n
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L0_actual_redemption_MC,coupon_cost,0.5076339290898534,0.507104675,0.0005292540898533815,0.0015513852378180122,2000000,0.006205540951272049,True,L0_Pi_equal_cost,full,2000000
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L0_actual_redemption_MC,coupon_cost,0.5,0.49999155099639353,8.44900360646994e-06,0.0015595676403404072,1952893,0.006238270561361629,True,L0_Pi_equal_cost,own_feasible,2000000
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L0_actual_redemption_MC,coupon_cost,0.5,0.4999497334292697,5.026657073031737e-05,0.0015811176243103527,1899871,0.006324470497241411,True,L0_Pi_equal_cost,common_feasible,2000000
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L0_actual_redemption_MC,coupon_cost,0.8234715716039528,0.8019901500838517,0.02148142152010113,0.01250304973129669,47107,0.05001219892518676,True,L0_Pi_equal_cost,outside_own_feasible,2000000
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L0_actual_redemption_MC,coupon_cost,0.8249639256133839,0.8294838350000001,0.004519909386616172,0.0019501966801313635,2000000,0.007800786720525454,True,L0_Pi_heterogeneous_cost,full,2000000
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L0_actual_redemption_MC,coupon_cost,0.8249999992776935,0.8293170376708274,0.00431703839313391,0.0020005097835418474,1900383,0.00800203913416739,True,L0_Pi_heterogeneous_cost,own_feasible,2000000
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L0_actual_redemption_MC,coupon_cost,0.8249999992776935,0.8293170376708274,0.00431703839313391,0.0020005097835418474,1900383,0.00800203913416739,True,L0_Pi_heterogeneous_cost,common_feasible,2000000
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L0_actual_redemption_MC,coupon_cost,0.8242785259915,0.832665810052501,0.008387284061000977,0.008750668048902835,99617,0.03500267219561134,True,L0_Pi_heterogeneous_cost,outside_own_feasible,2000000

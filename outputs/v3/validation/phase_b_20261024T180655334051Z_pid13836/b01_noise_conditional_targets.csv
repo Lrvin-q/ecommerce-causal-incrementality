@@ -1,0 +1,28 @@
+﻿source_label,scenario_id,cart_cent,action,fixed_purchase_probability,net_profit_mean_cny,baseline_net_profit_mean_cny,input_fulfillment_sd,analytic_net_profit_variance_delta_from_base_cny2,variance_identity
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_weak,1500,0,0.1,-0.2147683729927443,-0.21476837299274998,2.4,0.4610162319944437,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_weak,13000,0,0.1,2.164782910917244,2.1647829109172387,2.4,0.4610162319944437,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_weak,50000,0,0.1,9.820730242983366,9.82073024298336,2.4,0.4610162319944437,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_weak,1500,1,0.15000000000000002,-1.1170537222709043,-1.1170537222709127,2.4,0.6915243479916656,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_weak,13000,1,0.15000000000000002,2.4086638809364556,2.408663880936447,2.4,0.6915243479916656,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_weak,50000,1,0.15000000000000002,13.854129649387716,13.854129649387708,2.4,0.6915243479916656,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_weak,1500,paired_cate,,-0.90228534927816,,,,
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_weak,13000,paired_cate,,0.2438809700192115,,,,
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_weak,50000,paired_cate,,4.0333994064043495,,,,
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_strong,1500,0,0.1,-0.21476837299274518,-0.21476837299274998,0.6,-0.12417136430725258,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_strong,13000,0,0.1,2.1647829109172436,2.1647829109172387,0.6,-0.12417136430725258,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_strong,50000,0,0.1,9.820730242983366,9.82073024298336,0.6,-0.12417136430725258,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_strong,1500,1,0.15000000000000002,-1.1170537222709056,-1.1170537222709127,0.6,-0.1862570464608789,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_strong,13000,1,0.15000000000000002,2.4086638809364542,2.408663880936447,0.6,-0.1862570464608789,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_strong,50000,1,0.15000000000000002,13.854129649387714,13.854129649387708,0.6,-0.1862570464608789,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_strong,1500,paired_cate,,-0.9022853492781604,,,,
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_strong,13000,paired_cate,,0.2438809700192106,,,,
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_signal_strong,50000,paired_cate,,4.033399406404348,,,,
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_main,1500,0,0.1,-0.21476837299274998,-0.21476837299274998,1.2,0.0,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_main,13000,0,0.1,2.1647829109172387,2.1647829109172387,1.2,0.0,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_main,50000,0,0.1,9.82073024298336,9.82073024298336,1.2,0.0,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_main,1500,1,0.15000000000000002,-1.1170537222709127,-1.1170537222709127,1.2,0.0,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_main,13000,1,0.15000000000000002,2.408663880936447,2.408663880936447,1.2,0.0,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_main,50000,1,0.15000000000000002,13.854129649387708,13.854129649387708,1.2,0.0,independent_F_shared_across_orders; E[K^2]*(VarF-VarF_base)
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_main,1500,paired_cate,,-0.9022853492781627,,,,
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_main,13000,paired_cate,,0.2438809700192084,,,,
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L1_main,50000,paired_cate,,4.033399406404348,,,,

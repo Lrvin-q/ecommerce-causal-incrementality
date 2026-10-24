@@ -1,0 +1,175 @@
+{
+  "status": "passed",
+  "started_at_utc": "2026-10-24T18:12:39.935713+00:00",
+  "pid": 22684,
+  "source_label": "合成数据 / 已知 DGP；机制校验，非正式学习重复",
+  "formal_repetitions_completed": 0,
+  "protocol_hash": "30511a32bcee9db55e8f5ec1bbc2b9d63eb63dc2a13aa5c720f948c781eccdbe",
+  "numerics_hash": "cd9d501e00cf34972348ec0d1eb9cb1630b1bbc37b3efa7a3dffeb156bcc73b3",
+  "source_hashes": {
+    "configs/v3/business.yaml": "d1259d2342aba1a4cdcaca5c0de6e4914c8a55b315a80af7c0923757d1ba0e0a",
+    "configs/v3/design.yaml": "d2fd51a1156457257cf7977b32bd5aeb1c9745a10e528d029a877ef1b531fa99",
+    "configs/v3/evaluation.yaml": "5f6dfcb2c700bc72831efb1ff94b3b2137bc8dd9680b862981c4b2755c3241d1",
+    "configs/v3/execution.yaml": "dc1c8e9ab147e58d95e1367c2abcd90ba02acf05ca27da11e3dfb84da8631733",
+    "configs/v3/models.yaml": "19ce3bf5a338ea0e055e3ba0ff676054e8926dde7ce44409ca7699443361bdf2",
+    "configs/v3/policy.yaml": "57ff5721de12af0cc285bb235f320fd7047a06837dc5f2ac00e228690d36958a",
+    "configs/v3/scenarios.yaml": "29a158b046cb91661f2327cc5acbc1dc868a57c17dc0783cfe9d6d41058e9ddb",
+    "configs/v3_numerics.yaml": "e183b6ec852e5d42e7020ab60a6614bcf6a21b777b7aedfd77441e603ae67332",
+    "scripts/10_validate_v3_mechanism.py": "3f0e9d108905d992f7196a142a51c2c393399d2d192547e1c4718d2a4369f66e",
+    "src/causal_growth/config.py": "36792dde643c3ff6c300643efcc9974945c9ccae2bfdf3bfed4536f8c82dbe75",
+    "src/causal_growth/dgp/v3_amounts.py": "0f0332a02b7973f58c46f4b238ec901d77bda2820fb0c194a3fc0da8e309a3ac",
+    "src/causal_growth/dgp/v3_controls.py": "ba3ff495464f162a62a9cfdf015ae511568875b431792f2f7a0dd47139645627",
+    "src/causal_growth/dgp/v3_covariates.py": "a53c2926e8a2e673e076a1019c10f4f696f1ca6b56236efd44109cdccda89c84",
+    "src/causal_growth/dgp/v3_engine.py": "f8f3c886c8ec014b651a7397926a95734dd94cc49f606b2b633792ec14adfd24",
+    "src/causal_growth/dgp/v3_ledger.py": "4d341bc8b02a94b6175d8d9df1c652aab6b0eecd96eaeb179e4162a56776eb2e",
+    "src/causal_growth/dgp/v3_probability.py": "773339eb04fe2fbd000e1d16296613d35fc8b04ba65ffac1313ff4ce4d6cd469",
+    "src/causal_growth/dgp/v3_semantics.py": "e90b1f445f7072c2096d67caaa64ffc8c653cbd50989e81806cf5336a82b9c1d",
+    "src/causal_growth/dgp/v3_timing.py": "fe01d430533d119b26f7c4fdb44bee16c8eef3de951a634e71ca289439287a3c",
+    "src/causal_growth/evaluation/v3_mechanism_checks.py": "2fe6ef554ef4ad961d78dbfe5337c888487464fa9806e30761ea4d0dc4199706",
+    "src/causal_growth/rng.py": "a6a536b75e5d988cb7aa5692efd9218a7c0a9aa16600ae52a0b83beb98d04bad",
+    "src/causal_growth/v3_config.py": "63b6584e9eb7f80528312ef5ae4a93c6cf094769ffeca39310a0bbf151784fe7",
+    "src/causal_growth/v3_numerics.py": "a966f81540ab09c168bb958f557a551a2461d08e6cb272a461899953e56d3522"
+  },
+  "validation_parameters": {
+    "source_label": "合成数据 / 已知 DGP；机制校验，非正式学习重复",
+    "master_seed": 20261025,
+    "independent_mc_n": 2000000,
+    "mc_chunk_size": 100000,
+    "mc_standard_error_multiplier": 4.0,
+    "mc_absolute_floor_cny": 0.001,
+    "boundary_cart_cents": [
+      0,
+      1,
+      100,
+      1499,
+      1500,
+      5000,
+      13000,
+      50000
+    ],
+    "conditional_mc_cart_cents": [
+      1500,
+      13000,
+      50000
+    ],
+    "mechanism_check_n": 5000,
+    "representative_n": 200000,
+    "representative_rep": 0,
+    "report_quantiles": [
+      0.0,
+      0.01,
+      0.25,
+      0.5,
+      0.75,
+      0.99,
+      1.0
+    ]
+  },
+  "stages": [
+    {
+      "name": "b01_amount_distribution",
+      "status": "passed",
+      "started_at_utc": "2026-10-24T18:12:40.468034+00:00",
+      "elapsed_seconds": 0.41701420000754297
+    },
+    {
+      "name": "b01_conditional_mc",
+      "status": "passed",
+      "started_at_utc": "2026-10-24T18:12:40.886837+00:00",
+      "elapsed_seconds": 4.062616400187835
+    },
+    {
+      "name": "b02_u_integrals",
+      "status": "passed",
+      "started_at_utc": "2026-10-24T18:12:44.950704+00:00",
+      "elapsed_seconds": 2.583347000181675
+    },
+    {
+      "name": "b02_l3_fixed_truth",
+      "status": "passed",
+      "started_at_utc": "2026-10-24T18:12:47.535712+00:00",
+      "elapsed_seconds": 34.572180800139904
+    },
+    {
+      "name": "b02_l2_calendar",
+      "status": "passed",
+      "started_at_utc": "2026-10-24T18:13:22.109496+00:00",
+      "elapsed_seconds": 0.9489347001072019
+    },
+    {
+      "name": "b02_l0_controls",
+      "status": "passed",
+      "started_at_utc": "2026-10-24T18:13:23.060213+00:00",
+      "elapsed_seconds": 131.49374229996465
+    },
+    {
+      "name": "b02_negative_controls",
+      "status": "passed",
+      "started_at_utc": "2026-10-24T18:15:34.555395+00:00",
+      "elapsed_seconds": 34.492886800086126
+    }
+  ],
+  "python_version": "3.13.7",
+  "dependency_versions": {
+    "numpy": "2.5.4",
+    "pandas": "3.1.0",
+    "scipy": "1.18.1",
+    "PyYAML": "6.0.3"
+  },
+  "source_hashes_after": {
+    "configs/v3/business.yaml": "d1259d2342aba1a4cdcaca5c0de6e4914c8a55b315a80af7c0923757d1ba0e0a",
+    "configs/v3/design.yaml": "d2fd51a1156457257cf7977b32bd5aeb1c9745a10e528d029a877ef1b531fa99",
+    "configs/v3/evaluation.yaml": "5f6dfcb2c700bc72831efb1ff94b3b2137bc8dd9680b862981c4b2755c3241d1",
+    "configs/v3/execution.yaml": "dc1c8e9ab147e58d95e1367c2abcd90ba02acf05ca27da11e3dfb84da8631733",
+    "configs/v3/models.yaml": "19ce3bf5a338ea0e055e3ba0ff676054e8926dde7ce44409ca7699443361bdf2",
+    "configs/v3/policy.yaml": "57ff5721de12af0cc285bb235f320fd7047a06837dc5f2ac00e228690d36958a",
+    "configs/v3/scenarios.yaml": "29a158b046cb91661f2327cc5acbc1dc868a57c17dc0783cfe9d6d41058e9ddb",
+    "configs/v3_numerics.yaml": "e183b6ec852e5d42e7020ab60a6614bcf6a21b777b7aedfd77441e603ae67332",
+    "scripts/10_validate_v3_mechanism.py": "3f0e9d108905d992f7196a142a51c2c393399d2d192547e1c4718d2a4369f66e",
+    "src/causal_growth/config.py": "36792dde643c3ff6c300643efcc9974945c9ccae2bfdf3bfed4536f8c82dbe75",
+    "src/causal_growth/dgp/v3_amounts.py": "0f0332a02b7973f58c46f4b238ec901d77bda2820fb0c194a3fc0da8e309a3ac",
+    "src/causal_growth/dgp/v3_controls.py": "ba3ff495464f162a62a9cfdf015ae511568875b431792f2f7a0dd47139645627",
+    "src/causal_growth/dgp/v3_covariates.py": "a53c2926e8a2e673e076a1019c10f4f696f1ca6b56236efd44109cdccda89c84",
+    "src/causal_growth/dgp/v3_engine.py": "f8f3c886c8ec014b651a7397926a95734dd94cc49f606b2b633792ec14adfd24",
+    "src/causal_growth/dgp/v3_ledger.py": "4d341bc8b02a94b6175d8d9df1c652aab6b0eecd96eaeb179e4162a56776eb2e",
+    "src/causal_growth/dgp/v3_probability.py": "773339eb04fe2fbd000e1d16296613d35fc8b04ba65ffac1313ff4ce4d6cd469",
+    "src/causal_growth/dgp/v3_semantics.py": "e90b1f445f7072c2096d67caaa64ffc8c653cbd50989e81806cf5336a82b9c1d",
+    "src/causal_growth/dgp/v3_timing.py": "fe01d430533d119b26f7c4fdb44bee16c8eef3de951a634e71ca289439287a3c",
+    "src/causal_growth/evaluation/v3_mechanism_checks.py": "2fe6ef554ef4ad961d78dbfe5337c888487464fa9806e30761ea4d0dc4199706",
+    "src/causal_growth/rng.py": "a6a536b75e5d988cb7aa5692efd9218a7c0a9aa16600ae52a0b83beb98d04bad",
+    "src/causal_growth/v3_config.py": "63b6584e9eb7f80528312ef5ae4a93c6cf094769ffeca39310a0bbf151784fe7",
+    "src/causal_growth/v3_numerics.py": "a966f81540ab09c168bb958f557a551a2461d08e6cb272a461899953e56d3522"
+  },
+  "ended_at_utc": "2026-10-24T18:16:09.060463+00:00",
+  "n_checks": 750,
+  "n_failed_checks": 0,
+  "outputs": {
+    "b01_conditional_mc.csv": "c6f0e1eb34275bbb418cb69d4f04749f2d5faf99d64cd7b6dc9f801db8e2a9ad",
+    "b01_fulfillment.csv": "27dcdd01e19b9f72ba7a73df1b8b423b524b3e4ce440d6f075e371a0a4e4b17e",
+    "b01_noise_conditional_targets.csv": "2e7313c575f126ae4f95c9064e273291f058a0279dd760ae789e5aabd1ffc407",
+    "b01_rounding.csv": "d041345b218ff618a801c1538ac6e898752c24e9f32753e9c9bdb27c787f22ba",
+    "b02_control_actual_cost_mc.csv": "27248dd4b682988f884f9cfbd237c846f3f441ba70b84f6b9928fac22499a1a1",
+    "b02_control_domains_L0_Pi_equal_cost.csv": "37bde83714d1a14ab118e87f419f5e79cecc44a85b623c5a9de49c42cf67046a",
+    "b02_control_domains_L0_Pi_heterogeneous_cost.csv": "0fe696a99401dd047990e33a0e51e384db54ff1f7377f6988da8b1b38e9ba527",
+    "b02_control_failure_reasons.csv": "baa3e78ff1ca65eb1416c58e46c3aa5f0161fa6c703988f0954ec41d9ae2a2d7",
+    "b02_control_summary.csv": "5b636b9d8b39ad4a5eab0163d9fd1e6bb157509a3c48cdcef94ba77bc7ffb71c",
+    "b02_control_users_L0_Pi_equal_cost.csv": "9f794de4c5edf9431a45e733ff5805a5743cbead93d15cf0b1a89652536e99fa",
+    "b02_control_users_L0_Pi_heterogeneous_cost.csv": "16730e213fa2072fbcfeb30b4ee2d2b811ebfe4f31eac4baf9cc3a32e87fe061",
+    "b02_l2_cohorts.csv": "822af825f4a2a7288056a46863920446328d2c476c01870e626610de3d0f243c",
+    "b02_l3_fixed_truth.csv": "08afbc0aa95667144fc0b819bf0e5192aa60c7980ff562d26823f36c8b8ceba1",
+    "b02_negative_controls.csv": "a06a7f623c90c408d89f518da435d16b1a660f7b9eaca213a2041cdbbfd19caa",
+    "b02_representative_X.csv": "322a04b6dc39fc772df8efe84e231029f774418ca0d05ab7716cc0a1f73f75b9",
+    "b02_truth_precision_L0_Pi_equal_cost.csv": "d4a945cca7283c827629af2e967a1ad908b455aaa39b7ab75a5bc861776a498e",
+    "b02_truth_precision_L0_Pi_heterogeneous_cost.csv": "bb13d15fcc460d8d06430639c28e7593ea635189181be84eaa6a66d58a976180",
+    "b02_truth_precision_L3_fixed_lt000.csv": "fe6817595c800a5bf7ea6c511e67824399e075e090f29556803c34a362f953c0",
+    "b02_truth_precision_L3_fixed_lt025.csv": "3d13b261d9aa19c7135a398f115d6d7a7829a6f09349f36052c522ad12420bc8",
+    "b02_truth_precision_L3_fixed_lt050.csv": "01780230804b166c8ca09a1cd37cd340f169122f2be1467a76ac8d6dba7f7853",
+    "b02_truth_precision_L3_fixed_lt075.csv": "0ad1c5c6c1091138d9741126e578b7b6fde6ada9ba89d92d89d7562e22abc537",
+    "b02_truth_precision_L3_fixed_lt100.csv": "0f41daf607add157140e79518d1ca148038e51e5eda95d4576d91551d2827238",
+    "b02_truth_precision_L3_fixed_lt125.csv": "e47d68a277c40ffe31095ad4be9516ac2f0436b6cf4c4110d79b1e8480d8f803",
+    "b02_truth_precision_L3_fixed_lt150.csv": "b1a3e7d1e6cbcc01fe42e4810fa343fd87adc2c03a0bc0abd68372ebefc1ee15",
+    "b02_u_distribution.csv": "8016b0ffcd4efab82d6c7595d3688d5b819f5691c50a3a034939e9f545039b99",
+    "b02_u_integrals.csv": "3cc3cc9b329d22f245f6b5aa0205a2adfc8e94b25dad65dd05a3a445c07908f6",
+    "checks.csv": "ebc9b862be2c32f157af60b3bbab04c6d26f78ce4ac548d4f841d6f1304fa0c2"
+  }
+}

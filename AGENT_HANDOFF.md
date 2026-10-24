@@ -1,7 +1,8 @@
 # AGENT 交接说明 —— v3 重建
 
-> **当前接管记录（2026-10-25）**：主控在`codex/v3-rebuild`完成Phase A独立复审，进入B机制实现；最新进度唯一入口为`TODO.md`，当前验收为`GOAL.md`，决策记录为`docs/v3_决策与反思日志.md`。下文“v3尚未动工”等是接管前快照，保留其施工约束，不作为当前进度。
-> A验收：418项测试通过，93行矩阵逐行核对，批准hash及7配置/2文档hash见`outputs/v3/protocol/approval.json`；独立评审见`docs/reviews/v3_phase_A_review.md`。旧版数字门禁已修复通过，图门禁7图零错误/警告，旧PDF构建15页并保留原文件。humanizer已安装并备份旧技能。正式实验尚未开始；B–H与最终清理仍全部待完成。
+> **当前接管记录（2026-10-25）**：主控在`codex/v3-rebuild`完成Phase A/B独立复审，进入C五表SQL与真值隔离；最新进度唯一入口为`TODO.md`，当前验收为`GOAL.md`，决策记录为`docs/v3_决策与反思日志.md`。下文“v3尚未动工”等是接管前快照，保留其施工约束，不作为当前进度。
+> A验收：418项测试通过，93行矩阵逐行核对，批准hash及7配置/2文档hash见`outputs/v3/protocol/approval.json`；独立评审见`docs/reviews/v3_phase_A_review.md`。旧版数字门禁已修复通过，图门禁7图零错误/警告，旧PDF构建15页并保留原文件。humanizer已安装并备份旧技能。A结束时正式实验尚未开始；B后续验收见下一条记录。
+> B验收：最终750项机制检查、552项测试通过；批准与源码hash见`outputs/v3/validation/approval.json`，独立评审见`docs/reviews/v3_phase_B_review.md`。L0等成本可行4882/5000，自然成本4750/5000；共同域自然成本几乎恒定，后续图表称自然成本机制，不宣称异质成本筛选作用。数值诊断含估计而非严格区间认证；1e-14时间收敛对照告警保留。正式R=0，C–H/Z均待完成。
 
 > **读者**：接手 v3 重建的任何 agent（人或模型）。
 > **写于**：2026-10-25，v2 已归档（git tag `v2.0`），v3 尚未动工。

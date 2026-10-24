@@ -1,0 +1,4 @@
+﻿source_label,user_id,is_new,hist_gmv,cart_value_cent,cart_value,browse_depth,channel,assignment_week,assignment_day,assignment_elapsed_days,split
+合成数据 / 已知 DGP；机制校验，非正式学习重复,1,1,205.87,1500,15.0,6,feed,1,0.22726267085662077,0.22726267085662077,pending_stratified
+合成数据 / 已知 DGP；机制校验，非正式学习重复,2,0,1266.66,13000,130.0,9,search,1,1.9634252063947037,1.9634252063947037,pending_stratified
+合成数据 / 已知 DGP；机制校验，非正式学习重复,3,0,470.57,50000,500.0,6,search,1,5.473316802347858,5.473316802347858,pending_stratified

@@ -1,6 +1,6 @@
 # 电商营销策略的因果评估与增量利润优化
 
-> **当前开发：v3 Phase A协议独立复审通过，进入Phase B；正式结果尚未产生。** 当前状态见 [TODO.md](TODO.md)，验收见 [GOAL.md](GOAL.md)，施工协议见 [docs/v3_协议.md](docs/v3_协议.md)，冻结批准见 [approval.json](outputs/v3/protocol/approval.json)。本轮仅研究不发券/单一10元券，不能外推最优面额。
+> **当前开发：v3 Phase A/B独立复审通过，进入Phase C；正式结果尚未产生。** 当前状态见 [TODO.md](TODO.md)，验收见 [GOAL.md](GOAL.md)，施工协议见 [docs/v3_协议.md](docs/v3_协议.md)，冻结批准见 [approval.json](outputs/v3/protocol/approval.json)。本轮仅研究不发券/单一10元券，不能外推最优面额。
 >
 > **下文数据版本：v2，作为历史基线保留。** 原有数值和结论不属于v3；其中“已扣券净增量/券成本小于1就是亏钱”的解释有误，已在v3协议纠正。待v3完成后替换全文，不混用两版产物。
 

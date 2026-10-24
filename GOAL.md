@@ -11,8 +11,8 @@
 | ID | 要求 | 预定权威证据 | 状态 |
 |---|---|---|---|
 | A01 | Q1–Q8协议、参数依据、全枚举矩阵与正式R | docs/v3_协议.md；configs/v3；outputs/v3/protocol/approval.json；docs/reviews/v3_phase_A_review.md | 通过（仅协议，非实验完成） |
-| B01 | 截断正态首单≤购物车、复购55%、券封顶、分币账 | 机制边界测试；validation表 | 未证实 |
-| B02 | 条件真值积分/MC、L0旋钮可行域、L3固定ATE配对 | 独立真值校验与机制测试 | 未证实 |
+| B01 | 截断正态首单≤购物车、复购55%、券封顶、分币账 | outputs/v3/validation/approval.json；机制边界测试 | 通过（机制验收） |
+| B02 | 条件真值积分/MC、L0旋钮可行域、L3固定ATE配对 | outputs/v3/validation/approval.json；独立B评审 | 通过（机制验收；自然成本近等成本边界保留） |
 | C01 | 各层各场景五表/SQL/清洗、主外键、时间退款多单 | data/v3；代表DB；质量CSV | 未证实 |
 | C02 | 主分析消费SQL观测数据；训练清洗、真值路径/接口隔离 | 白名单与泄漏集成测试 | 未证实 |
 | D01 | 20pilot三粒度实测、资源计划、不削减N/R | outputs/v3/pilot；资源报告 | 未证实 |
@@ -31,7 +31,7 @@
 | H03 | 独立封面/摘要/三级目录、跨页表、引用、无缺字裁切 | 编译、文本、逐页视觉审计 | 未证实 |
 | H04 | 新数字逐条溯源，摘要结论仅Tier1，Tier2带精度 | claim注册表、数字门禁 | 未证实 |
 | H05 | 12篇来源/支持范围，合成属性/局限/失败条件，无面额外推 | 文献核查和内容审计 | 未证实 |
-| R01 | A–H独立评审与返工闭环 | docs/reviews/v3_phase_*.md | A通过；B–H未证实 |
+| R01 | A–H独立评审与返工闭环 | docs/reviews/v3_phase_*.md | A、B通过；C–H未证实 |
 | Z01 | 验收后独立提交清理v2 data/outputs，保留v3与可恢复旧PDF | 清理审计与单独commit | 未证实 |
 | Z02 | 全入口覆盖实验/图/论文/门禁，测试通过、Git干净 | 端到端记录与git status | 未证实 |
 

@@ -1,0 +1,35 @@
+{
+  "validation_manifest": "outputs/v3/validation/phase_b_20261024T181239935713Z_pid22684/manifest.json",
+  "checks": 750,
+  "passed": 750,
+  "verified_source_files": 22,
+  "formal_R": 0,
+  "precision_files": 9,
+  "max_cate_error_cny": 1.5508254751928017e-12,
+  "max_cate_relative_error": 1.023079226545669e-08,
+  "l3_pairwise_cate_difference_max": 0.0,
+  "l3_changed_actions_max": 1028,
+  "source_label": "合成数据 / 已知 DGP；主控独立复核，非正式重复",
+  "regression": {
+    "pytest": {
+      "passed": 552,
+      "elapsed_seconds": 51.1,
+      "warning_count": 1,
+      "warning": "1e-14 timing convergence crosscheck: QUADPACK roundoff warning; not precision certification",
+      "log_sha256": "367962ba1a003e61287493b91bd9f3dc0a618af5076d8f1c10358623a1dc983e"
+    },
+    "legacy_numeric_check": "passed_24_numbers_40_blacklist_patterns",
+    "legacy_figure_check": "7_figures_0_errors_0_warnings",
+    "legacy_paper": {
+      "paper_pages": 15,
+      "tex_warnings": [],
+      "pdf_text_forbidden": {
+        "windows_paths": 0,
+        "scripts": 0,
+        "versions": 0,
+        "em_dash": 5
+      },
+      "original_pdf_preserved": true
+    }
+  }
+}

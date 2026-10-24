@@ -1,0 +1,4 @@
+﻿source_label,scenario_id,n,mean_purchase_cate,mean_profit_cate,mean_label_cate,actual_action_share,label_share,observed_order_count
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L0_P_main,5000,0.05000000000000004,0.25027268160171223,0.25027268160171223,0.5104,0.5104,662
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L0_zero_purchase_effect,5000,0.0,-0.5590259378296658,-0.5590259378296658,0.5104,0.5104,536
+合成数据 / 已知 DGP；机制校验，非正式学习重复,L0_AA,5000,0.05000000000000004,0.25957770237923605,0.0,0.0,0.5012,522
