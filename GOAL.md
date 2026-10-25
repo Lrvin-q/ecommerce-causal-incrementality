@@ -18,7 +18,7 @@
 | C01 | 各层各场景五表/SQL/清洗、主外键、时间退款多单 | outputs/v3/data_validation/approval.json；outputs/tables/v3_phase_C_acceptance.csv；四个代表DB；独立C评审 | 通过（工程范围；正式R=0，功效实际机制待D） |
 | C02 | 主分析消费SQL观测数据；训练清洗、真值路径/接口隔离 | C批准、白名单/泄漏测试、独立CLI补验及C评审 | 通过（观测接口与封存隔离；F释放门禁仍待实现） |
 | D01 | 20pilot三粒度实测、资源计划、不削减N/R | outputs/v3/pilot；资源报告 | 未证实 |
-| D02 | 实际总量/子样本/验证臂MDE、完整AA、护栏功效 | 正式设计表、AA分布与区间 | **D02 状态：未完成**。MDE 与护栏功效已交（`v3_phase_D_mde.csv` 732×66）；完整 AA 只有 R=50/n=1 万的 pilot，正式 4×250 在跑；20 功效格 `achieved_effect/rejection_rate` 仍 pending |
+| D02 | 实际总量/子样本/验证臂MDE、完整AA、护栏功效 | 正式设计表、AA分布与区间 | **D02 状态：部分完成（2026-10-26 01:50 更新）**。已完成：① MDE 与护栏功效（`v3_phase_D_mde.csv` 732×66）；② **正式 AA 四层 ×250 次、n=20 万，池化 1000 次 FPR=0.046、CP[0.0339,0.0609] 含 0.05**（`docs/v3_phase_D_aa_formal.md`）。未完成：③ 负对照 100 次补跑中（约 3.9 CPU·h）；④ **20 功效格的 `achieved_effect/rejection_rate` 仍为 pending**（入口已交付，正式 R=100 未跑，需 58.3 CPU·h）。因③④未齐，**D02 不得标记通过** |
 | D03 | 常数/T/S/CF及适用DR；观测选模、时间/目标正确 | 方法对照、拆分/泄漏测试 | 未证实 |
 | E01 | 成本预测及二元策略；DP/MILP/LP名实相符 | 枚举互证、桶宽/规模/gap | 未证实 |
 | E02 | 预期/实际/硬预算分开；学习与求解误差分开 | 名单、成本风险、误差分解 | 未证实 |
