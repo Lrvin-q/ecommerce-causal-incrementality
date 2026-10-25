@@ -14,35 +14,53 @@ purchase-probability increment is rescaled by the calibrated factor from
 :mod:`causal_growth.dgp.v3_local_power`. That factor is inverted so that the
 mechanism's **analytic** profit effect equals ``multiplier × design MDE``; the
 pipeline therefore runs the frozen DGP code path and only receives an explicit
-authorization object (default otherwise: refusal).
+authorization object (absent it: refusal).
 
-What is reported, and what it does **not** mean
------------------------------------------------
-* ``rejection_rate`` = share of repetitions with ``p < alpha`` on the primary
-  metric ``net_profit`` (yuan per assigned user, R1 denominator). Its binomial
-  interval is Clopper–Pearson (the same implementation as the D.2 AA table), and
-  ``MC_SE = sqrt(rate(1-rate)/R)`` is the Monte Carlo standard error of the rate.
-* ``nominal_power`` is the **analytic** two-sample power at the same per-arm
-  sample size using the calibrated arm standard deviations. Nominal ≠ measured is
-  expected: the analytic formula is a normal approximation to a zero-inflated,
-  skewed profit distribution, and it ignores the between-repetition variation of
-  the realized population ATE (the reference panel's own sampling error).
-* ``multiplier = 0`` is **not** an AA cell. Its true profit effect is calibrated
-  to exactly 0 by *raising* the purchase probability enough to offset the coupon's
-  mechanical debit, so its rejection rate is a size statement **for the profit
-  metric at a calibrated zero**, not the false-positive rate of the analysis
-  pipeline. The pipeline's false-positive rate is D.2's job (virtual-label AA).
-* ``effect_at_zero_increment`` (τ0) is the profit ATE of the increment-null cell;
-  it is reported so nobody can mistake "no purchase increment" for "no effect".
+Contract with D.1
+-----------------
+The per-repetition table carries the four columns
+:func:`causal_growth.design.v3_power.summarize_power_cells` requires
+(``cell_id`` / ``rep_id`` / ``effect_estimate`` / ``reject``), so
+:func:`summarize_local_power` delegates the frozen columns
+(``n_reps / achieved_effect / achieved_effect_mc_se / rejection_rate / mc_se /
+binomial_ci_low / binomial_ci_high / ci_confidence``) to that function instead of
+re-deriving them. Everything this module adds is a *diagnostic* on top:
+``achieved_effect_analytic`` (the calibrated effect), ``nominal_power``,
+``nominal_power_registered_n``, the feasible range, and the measured CPU cost.
+
+Two "achieved effect" columns, never interchangeable
+----------------------------------------------------
+* ``achieved_effect_analytic`` — the analytic re-integration of the constructed
+  mechanism (yuan/person). Its deviation from ``target_effect`` is the
+  construction self-check (relative tolerance 1e-6).
+* ``achieved_effect`` — the **empirical** mean of the per-repetition ITT
+  estimates (D.1's column). It is the effect the full chain actually delivered,
+  with ``achieved_effect_mc_se`` as its Monte Carlo standard error. At small R it
+  is noisy; it must not be replaced by the analytic value.
+
+What the rejection rate does and does **not** mean
+--------------------------------------------------
+``rejection_rate`` = share of repetitions with ``p < alpha`` on ``net_profit``
+(yuan per assigned user, R1 denominator). ``mc_se = sqrt(p(1-p)/R)`` and the
+Clopper–Pearson interval come from D.1. ``nominal_power`` is the analytic
+two-sample power at the *same* per-arm size using the **observed** arm standard
+deviations (they include within-order amount/refund variance; the analytic
+conditional-mean σ in :class:`causal_growth.dgp.v3_local_power.ProfitEffectCurve`
+is only a lower bound and is never used here).
+
+``multiplier = 0`` is **not** an AA cell and **not** the increment-null cell: its
+true profit effect is calibrated to exactly 0 by *raising* the purchase
+probability enough to offset the coupon's mechanical debit. Its rejection rate is
+a size statement for the profit metric at a calibrated zero; the pipeline's
+false-positive rate is D.2's virtual-label AA.
 
 Discipline
 ----------
-* Per-repetition truth is used **only** in the optional audit column
+* Per-repetition truth is used only in the optional audit columns
   (``realized_effect``), never to build the effect.
-* Every repetition's manifest keeps ``formal_repetitions_completed = 0``; this
-  module does not move any formal counter.
-* Failures are loud: an ITT with fewer than two users per arm, a missing treatment
-  column, or a non-finite p value raises instead of being dropped.
+* Every manifest keeps ``formal_repetitions_completed = 0``.
+* Failures are loud: a missing arm, a foreign run_id, a non-finite p value or a
+  denominator that differs from the analysis table raises instead of being dropped.
 """
 
 from __future__ import annotations
@@ -52,7 +70,7 @@ import json
 import math
 import shutil
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Sequence
 
@@ -62,12 +80,11 @@ from scipy import stats
 
 from causal_growth.config import Config
 from causal_growth.data.v3_pipeline import build_observed_pipeline
-from causal_growth.design.v3_power import profit_power, split_counts
+from causal_growth.design.v3_power import POWER_CELL_CLASSES, profit_power, split_counts, summarize_power_cells
 from causal_growth.dgp.v3_engine import V3Population, generate_v3_population
 from causal_growth.dgp.v3_local_power import (
     LOCAL_POWER_EFFECT_CONSTRUCTION,
     LocalPowerCalibration,
-    LocalPowerInfeasible,
     ProfitEffectCurve,
     ReferencePanel,
     build_reference_panel,
@@ -81,11 +98,13 @@ from causal_growth.estimate.itt import itt_difference_means, itt_difference_prop
 from causal_growth.v3_config import V3Protocol, load_v3_protocol
 
 __all__ = [
+    "DESIGN_MDE_TABLE",
     "PROJECT_ROOT",
     "SUMMARY_COLUMNS",
     "LocalPowerBundle",
     "LocalPowerPlan",
     "audit_population_effect",
+    "calibrate_plans",
     "design_mde_table",
     "design_sigma_table",
     "feasibility_table",
@@ -100,21 +119,26 @@ __all__ = [
 #: 项目根目录（``src/causal_growth/data/v3_local_power_pipeline.py`` 往上三层）。
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[3]
 
-#: 设计先导的 MDE 表（D.1 产物，只提供设计期 MDE，不提供任何效应）。
+#: 设计先导的 MDE 表（D.1 产物，只提供设计期 MDE 与设计 σ，不提供任何效应）。
 DESIGN_MDE_TABLE: Path = PROJECT_ROOT / "outputs" / "tables" / "v3_phase_D_mde.csv"
 
 #: 汇总表的稳定列序；报告里引用的每个数字都落在这里。
+#: 前 4 段依次是：格身份 → 设计期量 → 可行性/构造 → 实测功效 → 成本/审计。
 SUMMARY_COLUMNS: tuple[str, ...] = (
-    "source_label", "cell_id", "base_scenario_id", "level", "multiplier", "R", "n_total",
-    "n_treatment_mean", "n_control_mean", "alpha", "design_mde", "target_effect",
-    "achieved_effect", "relative_deviation", "increment_scale", "mean_purchase_increment",
-    "reference_n", "reference_sampling_se", "effect_at_zero_increment", "effect_floor",
-    "effect_upper", "binding_constraint",
-    "profit_sd_treatment_observed", "profit_sd_control_observed",
+    "source_label", "cell_id", "base_scenario_id", "level", "multiplier", "power_cell_class",
+    "design_mde", "target_effect", "achieved_effect_analytic", "relative_deviation",
+    "increment_scale", "mean_purchase_increment",
+    "reference_n", "reference_sampling_se", "effect_at_zero_increment", "effect_upper",
+    "binding_constraint",
     "design_sigma_treatment", "design_sigma_control",
-    "nominal_power", "nominal_power_registered_n", "rejection_rate", "rejection_mc_se",
-    "rejection_cp_lower", "rejection_cp_upper", "rejections", "measured_minus_nominal",
-    "mean_itt", "itt_mean_se", "mean_p_value", "median_p_value",
+    "profit_sd_treatment_observed", "profit_sd_control_observed",
+    "nominal_power", "nominal_power_registered_n",
+    "n_reps", "empirical_n_reps", "n_total", "n_treatment_mean", "n_control_mean",
+    "alpha", "ci_confidence",
+    "rejection_rate", "rejections", "mc_se", "binomial_ci_low", "binomial_ci_high",
+    "measured_minus_nominal",
+    "achieved_effect", "achieved_effect_mc_se",
+    "mean_p_value", "median_p_value",
     "realized_effect_mean", "realized_effect_se", "realized_effect_reps",
     "purchase_increment_mean", "purchase_rejection_rate",
     "dgp_cpu_s_mean", "pipeline_cpu_s_mean", "itt_cpu_s_mean", "audit_cpu_s_mean",
@@ -124,9 +148,12 @@ SUMMARY_COLUMNS: tuple[str, ...] = (
 
 _SOURCE_LABEL = "合成数据 / 已知 DGP"
 
+#: 逐 rep 表里供给 D.1 :func:`summarize_power_cells` 的四列（顺序即契约）。
+POWER_CELL_INPUT_COLUMNS: tuple[str, ...] = ("cell_id", "rep_id", "effect_estimate", "reject")
+
 
 # --------------------------------------------------------------------------- #
-# 设计期 MDE：只读 D.1 的观测方差表
+# 设计期 MDE / σ：只读 D.1 的观测方差表
 # --------------------------------------------------------------------------- #
 def design_mde_table(path: str | Path | None = None) -> dict[tuple[str, float], float]:
     """读 ``outputs/tables/v3_phase_D_mde.csv`` 的 ``power_cell`` 行，返回设计 MDE。
@@ -159,8 +186,8 @@ def design_mde_table(path: str | Path | None = None) -> dict[tuple[str, float], 
 def design_sigma_table(path: str | Path | None = None) -> dict[str, tuple[float, float]]:
     """读 D.1 表里设计先导的 ``(sigma_treatment, sigma_control)``，按基础场景索引。
 
-    这两个 σ 是**观测**方差（含单笔订单内部方差），是"名义功效"的唯一合法输入；
-    不能用 :class:`ProfitEffectCurve` 的条件均值分量代替（它是下界）。
+    这两个 σ 是**观测**方差（含单笔订单内部方差），是"名义功效"的合法输入之一；
+    不能用 :class:`ProfitEffectCurve` 的条件均值分量代替（它只是下界）。
     """
     source = Path(path) if path is not None else DESIGN_MDE_TABLE
     frame = pd.read_csv(source, encoding="utf-8-sig")
@@ -201,23 +228,44 @@ class LocalPowerPlan:
         """目标利润效应（元/人）= 倍数 × 设计 MDE。"""
         return self.multiplier * self.design_mde
 
+    @property
+    def power_cell_class(self) -> str:
+        """与 D.1 同一判据：低于/等于/高于设计 MDE（``required_multiplier == 倍数``）。"""
+        if abs(self.multiplier - 1.0) <= 1e-9:
+            return "boundary_zero_margin"
+        return "above_design_mde" if self.multiplier > 1.0 else "below_design_mde"
+
+    def as_record(self) -> dict[str, Any]:
+        """JSON-safe 计划记录。"""
+        return {
+            "cell_id": self.cell_id, "base_scenario_id": self.base_scenario_id, "level": self.level,
+            "multiplier": self.multiplier, "registered_n": self.registered_n,
+            "registered_reps": self.registered_reps, "design_mde": self.design_mde,
+            "target_effect": self.target_effect, "power_cell_class": self.power_cell_class,
+            "design_sigma_treatment": self.design_sigma_treatment,
+            "design_sigma_control": self.design_sigma_control,
+        }
+
 
 def local_power_plan(
     protocol: V3Protocol | None = None,
     *,
     mde_table: Mapping[tuple[str, float], float] | None = None,
+    sigma_table: Mapping[str, tuple[float, float]] | None = None,
     cell_ids: Sequence[str] | None = None,
     layers: Sequence[str] | None = None,
 ) -> tuple[LocalPowerPlan, ...]:
-    """从冻结注册表 + D.1 的 MDE 表生成 20 个格的执行计划。
+    """从冻结注册表 + D.1 的 MDE/σ 表生成 20 个格的执行计划。
 
-    倍数与基础场景只从 ``design_power_jobs`` 读，设计 MDE 只从 D.1 的观测方差表读；
-    缺任何一格都抛错（不允许用别的层的方差顶替）。
+    倍数与基础场景只从 ``design_power_jobs`` 读，设计 MDE 与设计 σ 只从 D.1 的观测
+    方差表读；缺任何一格都抛错（不允许用别的层的方差顶替）。
     """
     proto = protocol or load_v3_protocol()
     table = dict(design_mde_table() if mde_table is None else mde_table)
-    sigmas = design_sigma_table()
+    sigmas = dict(design_sigma_table() if sigma_table is None else sigma_table)
     jobs = proto.config.to_dict()["design_power_jobs"]
+    if len(jobs) != 20:
+        raise ValueError(f"expected 20 registered design_power_jobs, found {len(jobs)}")
     plans: list[LocalPowerPlan] = []
     for job in jobs:
         cell_id = str(job["id"])
@@ -229,16 +277,16 @@ def local_power_plan(
             raise ValueError(f"{cell_id}: design sigma table has no row for base={base}")
         plans.append(LocalPowerPlan(
             cell_id=cell_id, base_scenario_id=base, level=str(job["level"]), multiplier=multiplier,
-            registered_n=int(job["n"]), registered_reps=int(job["R"]), design_mde=float(table[(base, multiplier)]),
+            registered_n=int(job["n"]), registered_reps=int(job["R"]),
+            design_mde=float(table[(base, multiplier)]),
             design_sigma_treatment=float(sigmas[base][0]), design_sigma_control=float(sigmas[base][1]),
         ))
     if cell_ids is not None:
-        wanted = tuple(str(value) for value in cell_ids)
-        known = {plan.cell_id for plan in plans}
-        unknown = set(wanted) - known
+        wanted = {str(value) for value in cell_ids}
+        unknown = wanted - {plan.cell_id for plan in plans}
         if unknown:
             raise ValueError(f"unknown local-power cells: {sorted(unknown)}")
-        plans = [plan for plan in plans if plan.cell_id in set(wanted)]
+        plans = [plan for plan in plans if plan.cell_id in wanted]
     if layers is not None:
         wanted_layers = {str(value) for value in layers}
         unknown_layers = wanted_layers - {plan.level for plan in plans}
@@ -259,12 +307,12 @@ def calibrate_plans(
     verify_rows: int | None = None,
     progress: Callable[[str], None] | None = None,
 ) -> tuple[list[LocalPowerCalibration], list[ProfitEffectCurve], list[dict[str, Any]]]:
-    """按基础场景逐个构造参考面板并校准选中的格（每层只建一块面板）。
+    """按基础场景逐个构造参考面板并校准选中的格（每层只建一块面板，控制内存）。
 
     Returns
     -------
     tuple
-        ``(calibrations, curves, verifications)``；三者顺序与 ``plans`` 对齐。
+        ``(calibrations, curves, verifications)``，顺序与 ``plans`` 对齐。
     """
     proto = protocol or load_v3_protocol()
     ordered = list(plans)
@@ -276,9 +324,10 @@ def calibrate_plans(
     verifications: dict[str, dict[str, Any]] = {}
     for base, group in by_base.items():
         base_cfg = proto.scenario(base)
+        size = int(base_cfg.require("design.n_total") if reference_n is None else reference_n)
         if progress is not None:
-            progress(f"[panel] {base} reference_n={reference_n or base_cfg.require('design.n_total')}")
-        panel = build_reference_panel(base_cfg, reference_n=reference_n)
+            progress(f"[panel] {base} reference_n={size}")
+        panel: ReferencePanel = build_reference_panel(base_cfg, reference_n=size)
         curve = profit_effect_curve(panel)
         curves[base] = curve
         for plan in group:
@@ -294,6 +343,7 @@ def calibrate_plans(
                     f"[calibrate] {plan.cell_id} target={calibration.target_effect:.6f} "
                     f"achieved={calibration.achieved_effect:.6f} scale={calibration.increment_scale:.6f}"
                 )
+        del panel
     return ([calibrations[plan.cell_id] for plan in ordered],
             [curves[plan.base_scenario_id] for plan in ordered],
             [verifications[plan.cell_id] for plan in ordered])
@@ -342,7 +392,6 @@ class _Stage:
 
     def __enter__(self) -> None:
         self._cpu0, self._wall0 = time.process_time(), time.perf_counter()
-        return None
 
     def __exit__(self, exc_type, exc, tb) -> bool:
         self._timer.rows[f"{self._name}_cpu_s"] = time.process_time() - self._cpu0
@@ -389,8 +438,8 @@ def run_local_power_rep(
     Parameters
     ----------
     calibration:
-        :func:`calibrate_local_power_cell` 的结果；它同时是放行凭据，且其
-        ``scaled_config()`` 是本次生成/流水线使用的唯一配置。
+        :func:`causal_growth.dgp.v3_local_power.calibrate_local_power_cell` 的结果；
+        它同时是放行凭据，且其 ``scaled_config()`` 是本次生成/流水线使用的唯一配置。
     rep:
         DGP 重复序号；同一 ``(master_seed, stream, rep)`` 逐位可复现。
     n:
@@ -417,11 +466,12 @@ def run_local_power_rep(
     timer = _StageTimer()
     succeeded = False
     row: dict[str, Any] = {
-        "source_label": _SOURCE_LABEL, "cell_id": calibration.cell_id,
+        "source_label": _SOURCE_LABEL, "cell_id": calibration.cell_id, "rep_id": rep,
         "base_scenario_id": calibration.base_scenario_id, "level": calibration.level,
-        "multiplier": calibration.multiplier, "rep": rep, "run_id": run_id,
+        "multiplier": calibration.multiplier, "run_id": run_id,
         "n_requested": n, "alpha": level_alpha,
-        "target_effect": calibration.target_effect, "achieved_effect": calibration.achieved_effect,
+        "target_effect": calibration.target_effect,
+        "achieved_effect_analytic": calibration.achieved_effect,
         "increment_scale": calibration.increment_scale,
         "config_hash": cfg.hash(64), "scaled_config_hash": calibration.scaled_config_hash,
         "effect_construction": LOCAL_POWER_EFFECT_CONSTRUCTION,
@@ -455,19 +505,21 @@ def run_local_power_rep(
                                                   metric="paid_purchase_7d")
             if profit.n_treated + profit.n_control != len(observations):
                 raise ValueError(f"{calibration.cell_id}: ITT denominator differs from the analysis table")
+        profit_values = observations["net_profit"].to_numpy(dtype=float)
+        treated_flag = observations["treatment"].to_numpy() == 1
+        if not np.all(np.isfinite(profit_values)):
+            raise ValueError(f"{calibration.cell_id}: non-finite net_profit in the analysis table")
         row.update({
             "itt_diff": profit.diff, "itt_se": profit.se, "itt_ci_lower": profit.ci_lower,
             "itt_ci_upper": profit.ci_upper, "itt_p_value": profit.p_value,
             "purchase_diff": purchase.diff, "purchase_p_value": purchase.p_value,
             "mean_profit_treated": profit.mean_treated, "mean_profit_control": profit.mean_control,
             "mean_purchase_treated": purchase.mean_treated, "mean_purchase_control": purchase.mean_control,
+            "sd_profit_treated": float(np.std(profit_values[treated_flag], ddof=1)),
+            "sd_profit_control": float(np.std(profit_values[~treated_flag], ddof=1)),
+            "reject": bool(profit.p_value < level_alpha),
+            "effect_estimate": float(profit.diff),
         })
-        profit_values = observations["net_profit"].to_numpy(dtype=float)
-        treated_flag = observations["treatment"].to_numpy() == 1
-        if not np.all(np.isfinite(profit_values)):
-            raise ValueError(f"{calibration.cell_id}: non-finite net_profit in the analysis table")
-        row["sd_profit_treated"] = float(np.std(profit_values[treated_flag], ddof=1))
-        row["sd_profit_control"] = float(np.std(profit_values[~treated_flag], ddof=1))
         if audit:
             with timer.stage("audit"):
                 row.update(audit_population_effect(population, cfg))
@@ -521,39 +573,38 @@ def run_local_power_cell(
         )
         rows.append(row)
         if progress is not None:
-            progress(f"[rep]   p={row['itt_p_value']:.4f} cpu={row['total_cpu_s']:.2f}s")
+            progress(f"[rep]   p={row['itt_p_value']:.4f} effect={row['itt_diff']:+.4f} "
+                     f"cpu={row['total_cpu_s']:.2f}s")
     return pd.DataFrame(rows)
 
 
 # --------------------------------------------------------------------------- #
-# 汇总：拒绝率 + 二项区间 + MC_SE
+# 汇总：拒绝率 + 二项区间 + MC_SE（冻结列交给 D.1 的入口）
 # --------------------------------------------------------------------------- #
-def _clopper_pearson(successes: int, trials: int) -> tuple[float, float]:
-    """复用 D.2 的 Clopper–Pearson 实现，保证功效表与 AA 表的区间口径一致。"""
-    from causal_growth.evaluation.v3_aa import clopper_pearson
-
-    return clopper_pearson(int(successes), int(trials))
-
-
 def summarize_local_power(
     repetitions: pd.DataFrame,
     calibrations: Sequence[LocalPowerCalibration],
     *,
     alpha: float,
+    confidence: float = 0.95,
     registered_n: Mapping[str, int] | None = None,
     design_sigma: Mapping[str, tuple[float, float]] | None = None,
 ) -> pd.DataFrame:
-    """把一个格的 R 次重复汇总成一行（拒绝率、区间、名义功效、成本）。
+    """把一个格的 R 次重复汇总成一行；冻结统计列由 D.1 的 ``summarize_power_cells`` 产出。
 
-    ``nominal_power`` 用**本次运行的实测臂内样本 σ**（含单笔订单内部方差）在本次每臂
-    人数上解析计算，因此可与实测拒绝率直接对照。
-    ``nominal_power_registered_n`` 用 D.1 设计先导的 σ 在注册 n 上计算，即设计期名义
-    功效（1×MDE 的格应约为 0.80，这是"名义 vs 实测"的另一半）。
-
-    注意：:class:`ProfitEffectCurve` 的条件均值 σ 是下界，**不用于**功效公式。
+    ``repetitions`` 必须含 :data:`POWER_CELL_INPUT_COLUMNS`；每格 ``R >= 2``
+    （否则 ``MC_SE`` 无定义，D.1 会抛）。``nominal_power`` 用**本次运行的实测臂内
+    样本 σ** 在本次每臂人数上解析计算；``nominal_power_registered_n`` 用 D.1 设计
+    先导的 σ 在注册 n 上计算，即设计期名义功效。
     """
     if repetitions.empty:
         raise ValueError("no repetitions to summarize")
+    missing = set(POWER_CELL_INPUT_COLUMNS) - set(repetitions.columns)
+    if missing:
+        raise ValueError(f"repetition table lacks the D.1 contract columns: {sorted(missing)}")
+    canonical = summarize_power_cells(
+        repetitions.loc[:, list(POWER_CELL_INPUT_COLUMNS)], confidence=confidence,
+    ).set_index("cell_id")
     registered = dict(registered_n or {})
     sigmas = dict(design_sigma or {})
     rows: list[dict[str, Any]] = []
@@ -561,13 +612,12 @@ def summarize_local_power(
         frame = repetitions.loc[repetitions.cell_id == calibration.cell_id].reset_index(drop=True)
         if frame.empty:
             raise ValueError(f"no repetitions recorded for {calibration.cell_id}")
+        if calibration.cell_id not in canonical.index:
+            raise ValueError(f"{calibration.cell_id}: D.1 summary is missing this cell")
+        block = canonical.loc[calibration.cell_id]
         p_values = frame["itt_p_value"].to_numpy(dtype=float)
         if not np.all(np.isfinite(p_values)):
             raise ValueError(f"{calibration.cell_id}: non-finite p values in the repetition table")
-        repetitions_count = int(len(frame))
-        rejections = int(np.count_nonzero(p_values < alpha))
-        rejection_rate = rejections / repetitions_count
-        cp_lower, cp_upper = _clopper_pearson(rejections, repetitions_count)
         n_treatment = int(round(float(frame["n_treatment"].mean())))
         n_control = int(round(float(frame["n_control"].mean())))
         sd_treatment = float(frame["sd_profit_treated"].mean())
@@ -576,13 +626,13 @@ def summarize_local_power(
             calibration.target_effect, sd_treatment, sd_control,
             max(n_treatment, 2), max(n_control, 2), alpha=alpha,
         )
-        design_pair = sigmas.get(calibration.cell_id)
+        pair = sigmas.get(calibration.cell_id)
         registered_size = registered.get(calibration.cell_id)
-        if design_pair is None or registered_size is None:
+        if pair is None or registered_size is None:
             nominal_registered = float("nan")
             design_treatment = design_control = float("nan")
         else:
-            design_treatment, design_control = float(design_pair[0]), float(design_pair[1])
+            design_treatment, design_control = float(pair[0]), float(pair[1])
             counts = split_counts(int(registered_size), (0.5, 0.5))
             nominal_registered = profit_power(
                 calibration.target_effect, design_treatment, design_control,
@@ -594,51 +644,54 @@ def summarize_local_power(
         realized_se = (float(realized.std(ddof=1) / math.sqrt(realized_reps)) if realized_reps > 1
                        else float("nan"))
         curve = calibration.curve
-        row: dict[str, Any] = {
+        rows.append({
             "source_label": _SOURCE_LABEL,
             "cell_id": calibration.cell_id,
             "base_scenario_id": calibration.base_scenario_id,
             "level": calibration.level,
             "multiplier": calibration.multiplier,
-            "R": repetitions_count,
-            "n_total": int(round(float(frame["n_total"].mean()))),
-            "n_treatment_mean": n_treatment,
-            "n_control_mean": n_control,
-            "alpha": float(alpha),
+            "power_cell_class": _power_cell_class(calibration.multiplier),
             "design_mde": calibration.design_mde,
             "target_effect": calibration.target_effect,
-            "achieved_effect": calibration.achieved_effect,
+            "achieved_effect_analytic": calibration.achieved_effect,
             "relative_deviation": calibration.relative_deviation,
             "increment_scale": calibration.increment_scale,
             "mean_purchase_increment": calibration.mean_purchase_increment,
             "reference_n": curve.reference_n,
             "reference_sampling_se": curve.reference_sampling_se,
             "effect_at_zero_increment": curve.effect_at_zero_increment,
-            "effect_floor": curve.effect_min,
             "effect_upper": curve.effect_upper,
             "binding_constraint": curve.binding_constraint,
-            "profit_sd_treatment_observed": sd_treatment,
-            "profit_sd_control_observed": sd_control,
             "design_sigma_treatment": design_treatment,
             "design_sigma_control": design_control,
+            "profit_sd_treatment_observed": sd_treatment,
+            "profit_sd_control_observed": sd_control,
             "nominal_power": nominal,
             "nominal_power_registered_n": nominal_registered,
-            "rejection_rate": rejection_rate,
-            "rejection_mc_se": math.sqrt(max(rejection_rate * (1.0 - rejection_rate), 0.0) / repetitions_count),
-            "rejection_cp_lower": cp_lower,
-            "rejection_cp_upper": cp_upper,
-            "rejections": rejections,
-            "measured_minus_nominal": rejection_rate - nominal,
-            "mean_itt": float(frame["itt_diff"].mean()),
-            "itt_mean_se": float(frame["itt_diff"].std(ddof=1) / math.sqrt(repetitions_count)),
+            "n_reps": int(block["n_reps"]),
+            "empirical_n_reps": int(block["n_reps"]),
+            "n_total": int(round(float(frame["n_total"].mean()))),
+            "n_treatment_mean": n_treatment,
+            "n_control_mean": n_control,
+            "alpha": float(alpha),
+            "ci_confidence": float(block["ci_confidence"]),
+            "rejection_rate": float(block["rejection_rate"]),
+            "rejections": int(np.count_nonzero(p_values < alpha)),
+            "mc_se": float(block["mc_se"]),
+            "binomial_ci_low": float(block["binomial_ci_low"]),
+            "binomial_ci_high": float(block["binomial_ci_high"]),
+            "measured_minus_nominal": float(block["rejection_rate"]) - nominal,
+            "achieved_effect": float(block["achieved_effect"]),
+            "achieved_effect_mc_se": float(block["achieved_effect_mc_se"]),
             "mean_p_value": float(p_values.mean()),
             "median_p_value": float(np.median(p_values)),
             "realized_effect_mean": realized_mean,
             "realized_effect_se": realized_se,
             "realized_effect_reps": realized_reps,
             "purchase_increment_mean": float(frame["purchase_diff"].mean()),
-            "purchase_rejection_rate": float(np.count_nonzero(frame["purchase_p_value"].to_numpy() < alpha)
-                                             / repetitions_count),
+            "purchase_rejection_rate": float(
+                np.count_nonzero(frame["purchase_p_value"].to_numpy() < alpha) / len(frame)
+            ),
             "dgp_cpu_s_mean": float(frame["dgp_cpu_s"].mean()),
             "pipeline_cpu_s_mean": float(frame["pipeline_cpu_s"].mean()),
             "itt_cpu_s_mean": float(frame["itt_cpu_s"].mean()),
@@ -650,15 +703,23 @@ def summarize_local_power(
             "effect_construction": LOCAL_POWER_EFFECT_CONSTRUCTION,
             "interpretation": _interpretation(calibration),
             "note": _note(calibration),
-        }
-        rows.append(row)
+        })
     return pd.DataFrame(rows).loc[:, list(SUMMARY_COLUMNS)]
+
+
+def _power_cell_class(multiplier: float) -> str:
+    """与 D.1 同判据的格类别（``required_multiplier`` 恒等于配置倍数）。"""
+    if abs(float(multiplier) - 1.0) <= 1e-9:
+        return POWER_CELL_CLASSES[1]
+    return POWER_CELL_CLASSES[2] if float(multiplier) > 1.0 else POWER_CELL_CLASSES[0]
 
 
 def _interpretation(calibration: LocalPowerCalibration) -> str:
     """该格的拒绝率该被读成什么（防止把 size 读成功效、把校准零效应读成 AA）。"""
     if calibration.multiplier == 0:
         return "size_at_calibrated_zero_profit_effect_not_aa_not_increment_null"
+    if abs(calibration.multiplier - 1.0) <= 1e-9:
+        return "power_at_design_mde_boundary_zero_margin"
     return "power_at_constructed_profit_effect"
 
 
@@ -672,7 +733,7 @@ def _note(calibration: LocalPowerCalibration) -> str:
             f"profit ATE {base:.4f} yuan/person and is a negative control, not a size check"
         )
     return (
-        "target = multiplier x design MDE; achieved re-integrated analytically; "
+        "target = multiplier x design MDE; achieved_effect_analytic re-integrated analytically; "
         f"increment scale {calibration.increment_scale:.4f} of the registered headroom"
     )
 
@@ -680,14 +741,12 @@ def _note(calibration: LocalPowerCalibration) -> str:
 # --------------------------------------------------------------------------- #
 # 可行域诊断表
 # --------------------------------------------------------------------------- #
-def feasibility_table(
-    calibrations: Sequence[LocalPowerCalibration],
-) -> pd.DataFrame:
+def feasibility_table(calibrations: Sequence[LocalPowerCalibration]) -> pd.DataFrame:
     """20 格的可行域诊断：目标效应相对该机制上界还剩多少余量。
 
-    列 ``scale_margin_to_upper`` = ``scale_upper / increment_scale``：
-    1 表示刚好顶到机制上界，越小越安全。``reachable`` 恒为 True——被拒绝的格
-    在校准阶段就抛 :class:`LocalPowerInfeasible`，不会出现在这张表里。
+    ``scale_margin_to_upper`` = ``scale_upper / increment_scale``（1 表示刚好顶到上界）；
+    ``reachable`` 恒为 True——不可达的格在校准阶段就抛
+    :class:`~causal_growth.dgp.v3_local_power.LocalPowerInfeasible`，不会进这张表。
     """
     rows: list[dict[str, Any]] = []
     for calibration in calibrations:
@@ -699,7 +758,7 @@ def feasibility_table(
             "multiplier": calibration.multiplier,
             "design_mde": calibration.design_mde,
             "target_effect": calibration.target_effect,
-            "achieved_effect": calibration.achieved_effect,
+            "achieved_effect_analytic": calibration.achieved_effect,
             "relative_deviation": calibration.relative_deviation,
             "effect_at_zero_increment": curve.effect_at_zero_increment,
             "effect_at_registered_scale": curve.effect_at_registered_scale,
@@ -746,8 +805,8 @@ def run_local_power_matrix(
 ) -> LocalPowerBundle:
     """跑选中的功效格（默认 20 格）并汇总；``reps``/``n`` 缺省取注册值。
 
-    正式规模是 ``reps=100, n=200000``（20 格 = 2000 rep）；本函数不设上限，
-    但**谁调用谁负责排期**：它只报告实测 CPU，不改变任何正式计数器。
+    正式规模是 ``reps=100, n=200000``（20 格 = 2000 rep）。本函数不设上限，但**谁调用
+    谁负责排期**：它只报告实测 CPU，不改变任何正式计数器。
     """
     proto = protocol or load_v3_protocol()
     chosen = list(plans) if plans is not None else list(local_power_plan(proto))
@@ -757,6 +816,7 @@ def run_local_power_matrix(
     root = Path(run_root)
     root.mkdir(parents=True, exist_ok=False)
     flush = Path(flush_path) if flush_path is not None else root / "local_power_repetitions.csv"
+
     def log(message: str) -> None:
         if progress is not None:
             progress(message)
@@ -764,17 +824,17 @@ def run_local_power_matrix(
     calibrations, curves, verifications = calibrate_plans(
         chosen, proto, reference_n=reference_n, progress=progress,
     )
-    rows: list[dict[str, Any]] = []
+    frames: list[pd.DataFrame] = []
     for plan, calibration in zip(chosen, calibrations):
         size = int(plan.registered_n if n is None else n)
         count = int(plan.registered_reps if reps is None else reps)
-        frame = run_local_power_cell(
+        log(f"[cell] {plan.cell_id} reps={count} n={size} target={plan.target_effect:.6f}")
+        frames.append(run_local_power_cell(
             calibration, reps=count, n=size, run_root=root, alpha=level_alpha,
             keep_representative=keep_representative, audit_rep0=audit_rep0, progress=progress,
-        )
-        rows.append(frame)
-        pd.concat(rows, ignore_index=True).to_csv(flush, index=False, encoding="utf-8-sig")
-    repetitions = pd.concat(rows, ignore_index=True)
+        ))
+        pd.concat(frames, ignore_index=True).to_csv(flush, index=False, encoding="utf-8-sig")
+    repetitions = pd.concat(frames, ignore_index=True)
     summary = summarize_local_power(
         repetitions, calibrations, alpha=level_alpha,
         registered_n={plan.cell_id: plan.registered_n for plan in chosen},
@@ -791,13 +851,14 @@ def run_local_power_matrix(
         "effect_construction": LOCAL_POWER_EFFECT_CONSTRUCTION,
         "protocol_config_hash": proto.config_hash,
         "alpha": level_alpha,
+        "repetition_contract": list(POWER_CELL_INPUT_COLUMNS),
         "cells": [
-            {**plan.__dict__, **{"calibration": calibration.as_record(),
-                                 "verification": verification}}
+            {**plan.as_record(), "calibration": calibration.as_record(),
+             "verification": verification}
             for plan, calibration, verification in zip(chosen, calibrations, verifications)
         ],
         "curves": [curve.as_record() for curve in {c.base_scenario_id: c for c in curves}.values()],
-        "n_note": "n is this run's population size; registered n is recorded per cell",
+        "n_note": "n is this run's population size; the registered n is recorded per cell",
     }
     (root / "local_power_manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8",
@@ -812,7 +873,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run local-power cells end to end (small n by default; formal schedule needs approval).",
     )
-    parser.add_argument("--reps", type=int, default=2, help="repetitions per cell (default 2)")
+    parser.add_argument("--reps", type=int, default=3, help="repetitions per cell (default 3)")
     parser.add_argument("--n", type=int, default=2000, help="population size per rep (default 2000)")
     parser.add_argument("--reference-n", type=int, default=None,
                         help="reference panel size for the analytic effect (default: design n_total)")
@@ -836,8 +897,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         protocol, plans=plans, reps=args.reps, n=args.n, reference_n=args.reference_n,
         alpha=args.alpha, run_root=args.out, progress=print,
     )
-    columns = ["cell_id", "multiplier", "target_effect", "achieved_effect", "nominal_power",
-               "rejection_rate", "rejection_cp_lower", "rejection_cp_upper", "mean_itt"]
+    columns = ["cell_id", "multiplier", "target_effect", "achieved_effect_analytic",
+               "nominal_power", "nominal_power_registered_n", "rejection_rate",
+               "binomial_ci_low", "binomial_ci_high", "achieved_effect"]
     print(bundle.summary.loc[:, columns].to_string(index=False))
     print(f"artifacts: {bundle.run_root}")
     return 0

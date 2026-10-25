@@ -60,11 +60,11 @@ monte_carlo_precision:
 cost_estimate:
   measured_cpu_hours_original: 1186
   revised_cpu_hours_before_optimization: 151
-  revised_cpu_hours_after_optimization: 92
+  revised_cpu_hours_after_optimization: 132.4
   parallel_workers_max: 4
   parallel_limit_reason: "单 rep 峰值 1.88 GB，可用内存 8.4 GB"
   wallclock_days_before_optimization: 1.6
-  wallclock_days_after_optimization: 1.0
+  wallclock_days_after_optimization: 1.4
 
 disclosures:
   - "外围格 R=30：覆盖率 SE≈0.040，只能判大偏差，判不了 0.88 与 0.90 的差别"

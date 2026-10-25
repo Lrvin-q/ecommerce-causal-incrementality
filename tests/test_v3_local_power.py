@@ -384,10 +384,14 @@ def test_single_rep_produces_itt_and_audits_the_realized_effect(
 def test_summary_reports_rejection_rate_mcse_and_interval(protocol, panels) -> None:
     """拒绝率、MC_SE、Clopper–Pearson 区间与名义功效必须口径一致。"""
     calibration = _calibrate(protocol, panels, "L1_power_mde100", 0.130262)
+    p_values = [0.001, 0.01, 0.02, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.9]
+    effects = list(np.linspace(0.05, 0.5, 10))
     frame = pd.DataFrame({
         "cell_id": [calibration.cell_id] * 10,
-        "itt_p_value": [0.001, 0.01, 0.02, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.9],
-        "itt_diff": list(np.linspace(0.05, 0.5, 10)),
+        "rep_id": list(range(10)),
+        "effect_estimate": effects,
+        "reject": [value < 0.05 for value in p_values],
+        "itt_p_value": p_values,
         "purchase_diff": [0.04] * 10,
         "purchase_p_value": [0.001] * 10,
         "n_total": [1000] * 10, "n_treatment": [500] * 10, "n_control": [500] * 10,
@@ -403,18 +407,39 @@ def test_summary_reports_rejection_rate_mcse_and_interval(protocol, panels) -> N
         design_sigma={calibration.cell_id: (10.0, 9.5)},
     )
     row = summary.iloc[0]
-    assert row["R"] == 10
+    assert row["n_reps"] == 10 and row["empirical_n_reps"] == 10
     assert row["rejections"] == 3
     assert row["rejection_rate"] == pytest.approx(0.3)
-    assert row["rejection_mc_se"] == pytest.approx(math.sqrt(0.3 * 0.7 / 10))
-    assert 0.0 <= row["rejection_cp_lower"] < row["rejection_rate"] < row["rejection_cp_upper"] <= 1.0
+    assert row["mc_se"] == pytest.approx(math.sqrt(0.3 * 0.7 / 10))
+    assert 0.0 <= row["binomial_ci_low"] < row["rejection_rate"] < row["binomial_ci_high"] <= 1.0
+    assert row["ci_confidence"] == pytest.approx(0.95)
+    # D.1 的实测列与解析列必须分开：achieved_effect 是逐 rep 估计的均值。
+    assert row["achieved_effect"] == pytest.approx(float(np.mean(effects)))
+    assert row["achieved_effect_mc_se"] == pytest.approx(float(np.std(effects, ddof=1) / math.sqrt(10)))
+    assert row["achieved_effect_analytic"] == pytest.approx(calibration.achieved_effect)
     expected_nominal = profit_power(calibration.target_effect, 10.0, 9.5, 500, 500, alpha=0.05)
     assert row["nominal_power"] == pytest.approx(expected_nominal, rel=1e-12)
     counts = split_counts(200000, (0.5, 0.5))
     expected_registered = profit_power(calibration.target_effect, 10.0, 9.5, counts[0], counts[1], alpha=0.05)
     assert row["nominal_power_registered_n"] == pytest.approx(expected_registered, rel=1e-12)
     assert row["measured_minus_nominal"] == pytest.approx(0.3 - expected_nominal, rel=1e-12)
-    assert "calibrated" in row["interpretation"] or row["interpretation"].startswith("power_at")
+    assert row["power_cell_class"] == "boundary_zero_margin"
+    assert row["interpretation"] == "power_at_design_mde_boundary_zero_margin"
+
+
+def test_summary_requires_two_repetitions(protocol, panels) -> None:
+    """R=1 时 MC_SE 无定义：D.1 的入口会抛，本模块不得悄悄给出 0。"""
+    calibration = _calibrate(protocol, panels, "L1_power_mde100", 0.130262)
+    frame = pd.DataFrame({
+        "cell_id": [calibration.cell_id], "rep_id": [0], "effect_estimate": [0.1], "reject": [True],
+        "itt_p_value": [0.01], "purchase_diff": [0.04], "purchase_p_value": [0.01],
+        "n_total": [1000], "n_treatment": [500], "n_control": [500],
+        "sd_profit_treated": [10.0], "sd_profit_control": [9.5], "config_hash": ["x"],
+        "dgp_cpu_s": [0.1], "pipeline_cpu_s": [1.0], "itt_cpu_s": [0.01], "audit_cpu_s": [0.0],
+        "total_cpu_s": [1.11], "total_wall_s": [1.2], "realized_effect": [np.nan],
+    })
+    with pytest.raises(ValueError, match="MC_SE"):
+        summarize_local_power(frame, [calibration], alpha=0.05)
 
 
 # --------------------------------------------------------------------------- #
