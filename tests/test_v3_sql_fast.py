@@ -410,6 +410,9 @@ def test_default_chunk_size_loads_everything_and_rejects_non_positive(clean_tabl
 # --------------------------------------------------------------------------- #
 # 5. PRAGMA：装载期间生效、结束后恢复、异常路径也恢复
 # --------------------------------------------------------------------------- #
+# 2026-10-25 主控裁决：LOAD_PRAGMAS 置空（实测零收益、崩溃风险真实）。
+# 置空时"生效"断言无意义故跳过；同时补一条"置空时不触碰任何 PRAGMA"的断言。
+@pytest.mark.skipif(not LOAD_PRAGMAS, reason="主控裁决置空 PRAGMA：零收益不承担崩溃风险")
 def test_pragmas_take_effect_during_loading_and_are_restored_afterwards(tmp_path):
     database = tmp_path / "pragma.sqlite"
     connection = sqlite3.connect(database)
@@ -422,6 +425,19 @@ def test_pragmas_take_effect_during_loading_and_are_restored_afterwards(tmp_path
         assert during["temp_store"] == 2
         assert during["cache_size"] == -131072
         assert set(applied) == {name for name, _ in LOAD_PRAGMAS}
+    assert read_pragmas(connection) == before
+    connection.close()
+
+
+def test_empty_pragma_tuple_touches_nothing(tmp_path):
+    """LOAD_PRAGMAS 为空时，装载前后连接状态必须逐项相同（置空的正确性凭据）。"""
+    database = tmp_path / "no_pragma.sqlite"
+    connection = sqlite3.connect(database)
+    connection.executescript(SCHEMA_SQL)
+    before = read_pragmas(connection)
+    with relaxed_pragmas(connection) as applied:
+        assert applied == {}
+        assert read_pragmas(connection) == before
     assert read_pragmas(connection) == before
     connection.close()
     # And through the public loader, which opens the write transaction itself.

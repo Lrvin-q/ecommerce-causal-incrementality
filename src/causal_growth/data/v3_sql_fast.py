@@ -59,12 +59,13 @@ LOADED_TABLES: tuple[str, ...] = tuple(name for name in BUSINESS_TABLES if name 
 DEFAULT_CHUNK_SIZE = 50_000
 
 #: 装载期间使用的批量 PRAGMA（顺序即应用顺序）。装载后逐项恢复原值。
-LOAD_PRAGMAS: tuple[tuple[str, object], ...] = (
-    ("journal_mode", "OFF"),
-    ("synchronous", 0),          # 0 = OFF, 2 = FULL (SQLite default)
-    ("temp_store", 2),           # 2 = MEMORY, 0 = DEFAULT
-    ("cache_size", -131072),     # negative = KiB, so 128 MiB of page cache
-)
+#:
+#: **2026-10-25 主控裁决：置空。** D.4 实测这批 PRAGMA 的收益 ≈0（文件库 227 MiB：
+#: 旧 26.28→25.36 s、新 12.51→12.39 s，均落在噪声内），原因是整批装载本就在一个
+#: 大事务里、回滚日志页数很少、只发生一次 fsync。而它们的风险是真的：`journal_mode=OFF`
+#: 期间若进程崩溃，可能留下不可回滚的库。**零收益的风险不承担**，故关闭。
+#: 恢复办法：把下面元组改回四项；恢复机制（读原值→登记→try/finally→读回校验）保持不变。
+LOAD_PRAGMAS: tuple[tuple[str, object], ...] = ()
 _PRAGMA_NAMES: tuple[str, ...] = tuple(name for name, _ in LOAD_PRAGMAS)
 
 

@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 
 from causal_growth.config import Config
+from causal_growth.data.v3_sql_fast import load_facts_fast
 from causal_growth.data.v3_storage import dataframe_sha256, validate_artifact_path
 from causal_growth.v3_data_config import load_v3_data_config
 
@@ -198,7 +199,9 @@ def run_sql_pipeline(
     connection = sqlite3.connect(":memory:" if target is None else str(target), timeout=float(data_cfg.require("sql.busy_timeout_seconds")))
     try:
         connection.executescript((root / "sql" / "v3_schema.sql").read_text(encoding="utf-8"))
-        _load_facts(connection, tables, int(data_cfg.require("sql.insert_chunk_size")))
+        # Phase D.4：批量装载快路径（等价性见 tests/test_v3_sql_fast.py 六维度证明）。
+        # 旧实现 _load_facts 保留在下方，供 test_frozen_reference 做漂移守护。
+        load_facts_fast(connection, tables, int(data_cfg.require("sql.insert_chunk_size")))
         projection = ",".join(f'{_sql_literal(value)} AS "{name}"' for name, value in parameters.items())
         connection.execute(f"CREATE VIEW v3_parameters AS SELECT {projection}")
         policy_rows = " UNION ALL ".join(
