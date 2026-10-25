@@ -1,0 +1,90 @@
+﻿source_label,phase,item,value,unit,note
+合成数据 / 已知 DGP,meta,pandas_version,3.1.0,,本机 .venv
+合成数据 / 已知 DGP,meta,sqlite_version,3.50.4,,本机 .venv
+合成数据 / 已知 DGP,meta,n,200000,rows,五表用户数
+合成数据 / 已知 DGP,meta,config_insert_chunk_size,10000,rows,configs/v3_data.yaml sql.insert_chunk_size
+合成数据 / 已知 DGP,meta,fast_chunk_size,100000,rows,本次基准给新路径用的 chunk_size
+合成数据 / 已知 DGP,tables,build_raw_tables_wall,5.52,s,pilot 中 dgp 之后的第一段
+合成数据 / 已知 DGP,tables,users_rows,200000,rows,
+合成数据 / 已知 DGP,tables,coupon_assignment_rows,200000,rows,
+合成数据 / 已知 DGP,tables,user_events_rows,1398380,rows,
+合成数据 / 已知 DGP,tables,orders_rows,26289,rows,
+合成数据 / 已知 DGP,tables,user_outcomes_rows,0,rows,派生输入，从不装载
+合成数据 / 已知 DGP,tables,peak_mb_after_tables,972.0,MB,进程级峰值
+合成数据 / 已知 DGP,tables,loaded_cells,13568638,cells,旧实现逐格 _scalar 的次数上限
+合成数据 / 已知 DGP,A_load_memory,load_facts_legacy,21.4,s,五表装入 :memory:，chunk=10000
+合成数据 / 已知 DGP,A_load_memory,load_facts_fast,9.17,s,五表装入 :memory:，chunk=100000
+合成数据 / 已知 DGP,B_sql_clean,pipeline_wall_legacy,41.72,s,run_sql_pipeline(clean) 墙钟
+合成数据 / 已知 DGP,B_sql_clean,pipeline_cpu_legacy,40.84,s,run_sql_pipeline(clean) CPU
+合成数据 / 已知 DGP,B_sql_clean,load_facts_legacy,21.12,s,其中装载，chunk=10000
+合成数据 / 已知 DGP,B_sql_clean,analysis_sha256_legacy,e6e5e6b23e2f19321f4b9c1175f269059adc6c19896e3803bef6d5c03df98f31,,SQL 产物内容哈希
+合成数据 / 已知 DGP,B_sql_clean,sql_sha256_legacy,18fe196809535533c6380e3cc4f9ea2b538126507b52495399ff687cea598c80,,DDL+SQL+glue 源码哈希（未改动）
+合成数据 / 已知 DGP,B_sql_clean,peak_mb_legacy,1507.0,MB,
+合成数据 / 已知 DGP,B_sql_clean,pipeline_wall_fast,29.12,s,run_sql_pipeline(clean) 墙钟
+合成数据 / 已知 DGP,B_sql_clean,pipeline_cpu_fast,28.56,s,run_sql_pipeline(clean) CPU
+合成数据 / 已知 DGP,B_sql_clean,load_facts_fast,9.35,s,其中装载，chunk=100000
+合成数据 / 已知 DGP,B_sql_clean,analysis_sha256_fast,e6e5e6b23e2f19321f4b9c1175f269059adc6c19896e3803bef6d5c03df98f31,,SQL 产物内容哈希
+合成数据 / 已知 DGP,B_sql_clean,sql_sha256_fast,18fe196809535533c6380e3cc4f9ea2b538126507b52495399ff687cea598c80,,DDL+SQL+glue 源码哈希（未改动）
+合成数据 / 已知 DGP,B_sql_clean,peak_mb_fast,1689.0,MB,
+合成数据 / 已知 DGP,B_sql_clean,analysis_identical,1,bool,1 = 两条装载路径产出同一观测表
+合成数据 / 已知 DGP,C_pragma_file,load_legacy_pragmas_0,26.28,s,"文件库 227 MiB；装载后 PRAGMA={'journal_mode': 'delete', 'synchronous': 2, 'temp_store': 0, 'cache_size': -2000}"
+合成数据 / 已知 DGP,C_pragma_file,load_fast_pragmas_0,12.51,s,"文件库 227 MiB；装载后 PRAGMA={'journal_mode': 'delete', 'synchronous': 2, 'temp_store': 0, 'cache_size': -2000}"
+合成数据 / 已知 DGP,C_pragma_file,load_legacy_pragmas_1,25.36,s,"文件库 227 MiB；装载后 PRAGMA={'journal_mode': 'delete', 'synchronous': 2, 'temp_store': 0, 'cache_size': -2000}"
+合成数据 / 已知 DGP,C_pragma_file,load_fast_pragmas_1,12.39,s,"文件库 227 MiB；装载后 PRAGMA={'journal_mode': 'delete', 'synchronous': 2, 'temp_store': 0, 'cache_size': -2000}"
+合成数据 / 已知 DGP,D_chunk,chunk_2000,11.77,s,fast 装载五表 :memory:
+合成数据 / 已知 DGP,D_chunk,chunk_10000,10.79,s,fast 装载五表 :memory:
+合成数据 / 已知 DGP,D_chunk,chunk_50000,10.54,s,fast 装载五表 :memory:
+合成数据 / 已知 DGP,D_chunk,chunk_100000,10.69,s,fast 装载五表 :memory:
+合成数据 / 已知 DGP,D_chunk,chunk_200000,10.48,s,fast 装载五表 :memory:
+合成数据 / 已知 DGP,D_chunk,chunk_1398381,10.21,s,fast 装载五表 :memory:
+合成数据 / 已知 DGP,E_pipeline,pipeline_wall_legacy,193.67,s,build_observed_pipeline 墙钟
+合成数据 / 已知 DGP,E_pipeline,pipeline_cpu_legacy,187.7,s,build_observed_pipeline CPU
+合成数据 / 已知 DGP,E_pipeline,load_facts_legacy,61.91,s,其中 _load_facts 合计（2 次），chunk=10000
+合成数据 / 已知 DGP,E_pipeline,observations_sha256_legacy,c2fafcdce20737e10a6e8e750d645c4e78091f0cc41a84b1bf98a45af9f8a777,,最终观测表内容哈希
+合成数据 / 已知 DGP,E_pipeline,n_observations_legacy,200000,rows,
+合成数据 / 已知 DGP,E_pipeline,peak_mb_legacy,2566.0,MB,
+合成数据 / 已知 DGP,E_pipeline,pipeline_wall_fast,166.56,s,build_observed_pipeline 墙钟
+合成数据 / 已知 DGP,E_pipeline,pipeline_cpu_fast,162.3,s,build_observed_pipeline CPU
+合成数据 / 已知 DGP,E_pipeline,load_facts_fast,28.0,s,其中 _load_facts 合计（2 次），chunk=100000
+合成数据 / 已知 DGP,E_pipeline,observations_sha256_fast,c2fafcdce20737e10a6e8e750d645c4e78091f0cc41a84b1bf98a45af9f8a777,,最终观测表内容哈希
+合成数据 / 已知 DGP,E_pipeline,n_observations_fast,200000,rows,
+合成数据 / 已知 DGP,E_pipeline,peak_mb_fast,2918.0,MB,
+合成数据 / 已知 DGP,E_pipeline,observations_identical,1,bool,1 = 完整链路两条装载路径产出同一观测表
+合成数据 / 已知 DGP,meta,peak_mb_final,2918.0,MB,进程级峰值（全部阶段累计）
+合成数据 / 已知 DGP,I_decomposition,load_facts_legacy_s,21.4,s,同 A 段
+合成数据 / 已知 DGP,I_decomposition,load_facts_fast_s,9.17,s,同 A 段
+合成数据 / 已知 DGP,I_decomposition,speedup_load_facts,2.33,x,≈2.3x，不是 3x
+合成数据 / 已知 DGP,I_decomposition,pipeline_cpu_delta_s,25.4,s,完整链路省下的 CPU 秒 = 两次 _load_facts 的差值
+合成数据 / 已知 DGP,I_decomposition,pipeline_speedup,1.16,x,完整链路总加速比
+合成数据 / 已知 DGP,I_decomposition,load_facts_share_of_pipeline_legacy,0.33,share,旧路径：装载占完整链路 CPU 的比例（profile 里的 43% 是插桩放大后的份额）
+合成数据 / 已知 DGP,I_decomposition,extraction_legacy_s,14.0,s,"微基准：13,568,638 单元格逐格 _scalar 拆箱（空载机器）"
+合成数据 / 已知 DGP,I_decomposition,extraction_fast_s,1.5,s,微基准：分块 to_numpy+zip 拆箱（空载机器）
+合成数据 / 已知 DGP,I_decomposition,extraction_speedup,9.3,x,纯 Python 拆箱部分 ~9x
+合成数据 / 已知 DGP,I_decomposition,sqlite_engine_floor_s,7.4–8.3,s,装载总秒数减去拆箱秒数：executemany 绑定 + B 树 + 两个索引 + FK 检查，任何 Python 侧技巧都去不掉
+合成数据 / 已知 DGP,F_chunk_probe,probe_legacy_chunk_10000,31.9,s,独立进程装载 clean 五表（n=200k）
+合成数据 / 已知 DGP,F_chunk_probe,probe_legacy_chunk_10000_peak_mb,623,MB,该进程峰值工作集（含 ~374 MB 基础占用）
+合成数据 / 已知 DGP,F_chunk_probe,probe_fast_chunk_10000,14.83,s,独立进程装载 clean 五表（n=200k）
+合成数据 / 已知 DGP,F_chunk_probe,probe_fast_chunk_10000_peak_mb,629,MB,该进程峰值工作集（含 ~374 MB 基础占用）
+合成数据 / 已知 DGP,F_chunk_probe,probe_fast_chunk_50000,12.98,s,独立进程装载 clean 五表（n=200k）
+合成数据 / 已知 DGP,F_chunk_probe,probe_fast_chunk_50000_peak_mb,637,MB,该进程峰值工作集（含 ~374 MB 基础占用）
+合成数据 / 已知 DGP,F_chunk_probe,probe_fast_chunk_100000,13.04,s,独立进程装载 clean 五表（n=200k）
+合成数据 / 已知 DGP,F_chunk_probe,probe_fast_chunk_100000_peak_mb,648,MB,该进程峰值工作集（含 ~374 MB 基础占用）
+合成数据 / 已知 DGP,G_rejected_variants,rejected_foreign_keys_off,11.11,s,否决：关 FK 会绕过外键完整性检查，属语义变更
+合成数据 / 已知 DGP,G_rejected_variants,rejected_drop_and_recreate_indexes,11.91,s,否决：改变 DDL 执行次序，等价钱换 ~1.1 s 不值得
+合成数据 / 已知 DGP,G_rejected_variants,rejected_multirow_values_insert,8.38,s,否决：INSERT 语句形态改变，超出'不改 SQL'授权；报给主控定夺
+合成数据 / 已知 DGP,H_evidence_tables,users_rows,200000,rows,"n=200,000 clean 五表"
+合成数据 / 已知 DGP,H_evidence_tables,users_content_sha256,a63e5ee3ae6270925e75d3a037b324d32b66818b351b4d703a0449ec0728cf87,,按主键排序的整表规范哈希；旧路径与新路径相同
+合成数据 / 已知 DGP,H_evidence_tables,users_identical,1,bool,1 = 新旧路径逐表相同
+合成数据 / 已知 DGP,H_evidence_tables,coupon_assignment_rows,200000,rows,"n=200,000 clean 五表"
+合成数据 / 已知 DGP,H_evidence_tables,coupon_assignment_content_sha256,8c2bf1e55655dfee1965ed74c45e27b5ca9a39990d24d9272cf7342efc09bd64,,按主键排序的整表规范哈希；旧路径与新路径相同
+合成数据 / 已知 DGP,H_evidence_tables,coupon_assignment_identical,1,bool,1 = 新旧路径逐表相同
+合成数据 / 已知 DGP,H_evidence_tables,user_events_rows,1398380,rows,"n=200,000 clean 五表"
+合成数据 / 已知 DGP,H_evidence_tables,user_events_content_sha256,bc166914261c9367e8284cb4de782fdb9d71f1a113e5910098abb20a275e3f66,,按主键排序的整表规范哈希；旧路径与新路径相同
+合成数据 / 已知 DGP,H_evidence_tables,user_events_identical,1,bool,1 = 新旧路径逐表相同
+合成数据 / 已知 DGP,H_evidence_tables,orders_rows,26289,rows,"n=200,000 clean 五表"
+合成数据 / 已知 DGP,H_evidence_tables,orders_content_sha256,d138b65f200f245e581b2da9097053d7ba4bd049ce27f36c88c2b1f4828727da,,按主键排序的整表规范哈希；旧路径与新路径相同
+合成数据 / 已知 DGP,H_evidence_tables,orders_identical,1,bool,1 = 新旧路径逐表相同
+合成数据 / 已知 DGP,H_evidence_tables,user_outcomes_rows,0,rows,"n=200,000 clean 五表"
+合成数据 / 已知 DGP,H_evidence_tables,user_outcomes_content_sha256,e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,,按主键排序的整表规范哈希；旧路径与新路径相同
+合成数据 / 已知 DGP,H_evidence_tables,user_outcomes_identical,1,bool,1 = 新旧路径逐表相同
+合成数据 / 已知 DGP,H_evidence_tables,sqlite_master_identical,1,bool,DDL/索引的定义文本完全一致
