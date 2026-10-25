@@ -529,3 +529,40 @@ p=0.1 时 raw e 低至 0.0018、68–147 个观测被截断，点估计被推到
 
 **仍未完成**：① 全量串行 pytest（等 AA 停）；② 池化 1000 次的 AA 结论；③ C8 三处文档小修；
 ④ `propensity.primary: logistic` 的实际实现（已披露，属 A 阶段变更）。
+
+### 十、正式 AA 的运行纪律（2026-10-25 15:54，任何接手的人必读）
+
+**当前状态**：L0/L1/L2 在 `out/v3_phase_d_aa_formal_r2/<层>/` 跑，L3 停在 39 次排队。
+逐 rep 表在 `out/v3_phase_d_aa_formal_r2/<层>/aa_repetitions.csv`，**不在**旧目录。
+
+**并行度：3，不是 4。** 实测（同机同时段）：
+
+| 并行度 | 单进程 RSS | 可用内存 | 占空比 | 观测 |
+|---|---|---|---|---|
+| 4 路 | 2.0–2.2 GB | 3.5 GB | **17–27%** | 13 分钟零推进 |
+| **3 路** | 0.9→2.2 GB 后平台 | 6.6 GB | 接近满速 | 2.5 分钟/rep |
+
+本机标称 30.8 GB，但会话开始时只有约 8.4 GB 可用。**并行度必须由内存实测决定，不能按核数拍。**
+
+**内存行为**：进程 RSS 会随 rep 增长到约 **2.2 GB 后平台化**，不是无界泄漏。
+但若四进程同时到平台（8.8 GB），就会越过可用红线，表现为**持续换页而不是报错**——
+即"跑得慢"，极易被误判为正常。判据是**占空比**：采样两次 `Get-Process` 的 CPU 增量，
+若远低于墙钟（如 17%），就是换页，立刻处理。
+
+**复位办法**（已验证，零丢失）：
+```powershell
+# 1) kill 该层进程；2) 用新 run-root + --resume-from 续跑
+& .\.venv\Scripts\python.exe -m causal_growth.evaluation.v3_aa --reps 250 --n 200000 `
+    --layers L2 --no-negative-control --quiet `
+    --run-root   "$PWD\out\v3_phase_d_aa_formal_r3\L2" `
+    --resume-from "$PWD\out\v3_phase_d_aa_formal_r2\L2\aa_repetitions.csv" `
+    --summary-csv "$PWD\outputs\tables\v3_phase_D_aa_formal_L2.csv"
+```
+`PYTHONPATH` 必须指向 `out/aa_snapshot/src`。复位后 RSS 立刻回到约 1.26 GB。
+
+**合并时必须多根**：`scripts/17_merge_aa_layers.py` 的 `--root` 接受多个目录并按 `(层, rep)` 去重，
+默认已覆盖 `_formal`/`_r2`/`_r3`。**只读单一目录会静默漏掉复位前已完成的重复**，池化 FPR 就错了。
+
+**L3 排队说明**：L3 的 39 次在 `out/v3_phase_d_aa_formal/L3/aa_repetitions.csv`；
+续跑时 `--resume-from` 指那里，新 run-root 用 `_r3`，合并脚本会自动带上。
+**L3 的 5 个功效格不跑**（未调整 ITT 不是 ATE，选择偏差 10.9–11.0 倍 MDE）。
