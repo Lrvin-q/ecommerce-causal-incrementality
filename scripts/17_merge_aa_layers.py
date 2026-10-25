@@ -86,7 +86,7 @@ def main() -> int:
             continue
         layer_data = pd.concat(parts, ignore_index=True)
         read_rows = len(layer_data)
-        layer_data = layer_data.drop_duplicates(subset=["rep"], keep="last")
+        layer_data = layer_data.drop_duplicates(subset=["block", "rep"], keep="last")
         layer_data["_layer_dir"] = layer
         frames.append(layer_data)
         print(f"  {layer}: 读入 {read_rows} 行，去重后 {len(layer_data)} 行"
