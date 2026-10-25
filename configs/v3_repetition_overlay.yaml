@@ -1,0 +1,71 @@
+# 合成数据 / 已知 DGP。
+# v3 重复预算的「覆盖声明」——不修改 configs/v3/ 下七份冻结配置。
+# 依据：用户 2026-10-25 指示「放宽要求，可以砍批数并做优化，不把大量时间花在重复跑数据和学习上」。
+# 说明与精度推导见 docs/v3_repetition_budget_revision.md。
+schema_version: 1
+maintained_at_beijing: "2026-10-25 11:12"
+supersedes: configs/v3/scenarios.yaml#planned_counts
+rationale: >
+  单批 20 万人的实测成本中，DGP 只占 0.3%（0.85s），数据工程占 54%（144s）、
+  Causal Forest 占 44%（117s）。因此缩减从不进摘要的外围格批数入手，
+  不削减样本量 N、不削减模型规格，并逐格报告该 R 下的蒙特卡洛精度。
+
+budget:
+  # —— 广度：每个场景至少跑一次完整链路，证明该格存在、方向明确 ——
+  all_scenarios_single_pass: 73
+
+  # —— 深度：只对会进入摘要与结论的核心格做高 R ——
+  tier1_core_cells: 4
+  tier1_reps_per_cell: 200
+  tier1_total_jobs: 800
+
+  # —— 边界：只判方向的外围格，R 降到 30 并逐格标注精度 ——
+  tier2_boundary_cells: 12
+  tier2_boundary_reps_per_cell: 30
+  tier2_boundary_total_jobs: 360
+  tier2_remaining_cells_reps: 0
+  tier2_remaining_note: 由 all_scenarios_single_pass 覆盖，正文只写方向，不写区间
+
+  # —— 随机化有效性与策略复制性：降 R 但不取消 ——
+  complete_aa_levels: 4
+  complete_aa_reps_per_level: 200
+  complete_aa_total_jobs: 800
+  independent_validation_tier1_cells: 4
+  independent_validation_reps_per_cell: 50
+  independent_validation_total_jobs: 200
+
+  # —— 功效与再训练方差 ——
+  design_power_cells: 20
+  design_power_reps_per_cell: 10
+  design_power_total_jobs: 200
+  retraining_bootstrap_levels: 4
+  retraining_bootstrap_reps_per_level: 20
+  retraining_bootstrap_total_jobs: 80
+
+  # —— 先导：只需估方差 ——
+  historical_pilot_dgp_jobs: 2000
+
+  total_jobs: 4513
+
+monte_carlo_precision:
+  # 该 R 下可报告的精度；正文引用必须同时给出 R 与此值
+  coverage_se_at_R200: 0.0154
+  coverage_se_at_R30: 0.0401
+  fpr_se_at_R200_p005: 0.0154
+  bias_se_formula: "sd(estimate)/sqrt(R)"
+
+cost_estimate:
+  measured_cpu_hours_original: 1186
+  revised_cpu_hours_before_optimization: 151
+  revised_cpu_hours_after_optimization: 92
+  parallel_workers_max: 4
+  parallel_limit_reason: "单 rep 峰值 1.88 GB，可用内存 8.4 GB"
+  wallclock_days_before_optimization: 1.6
+  wallclock_days_after_optimization: 1.0
+
+disclosures:
+  - "外围格 R=30：覆盖率 SE≈0.040，只能判大偏差，判不了 0.88 与 0.90 的差别"
+  - "Tier2 多数格只有单次观测：正文必须写「N=1，无区间」"
+  - "再训练 bootstrap 仅 20 次：只够看方向，不够给分位数"
+  - "AA 的 FPR 有 MC 误差（合并四层 SE≈0.008），不得声称精确等于 0.05"
+  - "上述四条必须写入论文局限，并逐格在结果表标注 R"
