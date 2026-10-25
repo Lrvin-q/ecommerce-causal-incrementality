@@ -1,4 +1,4 @@
-﻿"""Phase D D.2：**完整 DGP 链路**的 AA（随机化有效性）校验。
+"""Phase D D.2：**完整 DGP 链路**的 AA（随机化有效性）校验。
 
 回答哪个问题
 ------------
@@ -811,6 +811,20 @@ def run_full_chain_aa(
     if not cells:
         raise ValueError("没有可运行的 AA 格")
 
+    # 负对照先验：必须在跑任何 rep 之前就确认它不是 AA、也没被写成 AA。
+    control_cell: AACell | None = None
+    control_reps = 0
+    if include_negative_control:
+        control_reps = reps if negative_control_reps is None else int(negative_control_reps)
+        if control_reps < 1:
+            raise ValueError("negative_control_reps 必须 >= 1")
+        control_cfg = protocol.scenario(negative_control_scenario)
+        if bool(control_cfg.require("dgp.virtual_aa_labels")):
+            raise AAChainError("负对照格不能是虚拟标签 AA；两者必须分开")
+        if negative_control_scenario in {cell.scenario_id for cell in cells}:
+            raise AAChainError("负对照格不能同时是 AA 格")
+        control_cell = _scenario_cell(protocol, negative_control_scenario)
+
     if run_root is None:
         run_root = PROJECT_ROOT / "out" / "v3_phase_d_aa" / f"run_{_utc_stamp()}_pid{os.getpid()}"
     run_root = Path(run_root)
@@ -836,15 +850,7 @@ def run_full_chain_aa(
             repeated.append(row)
             log(f"[aa]   p(net_profit/full)={row['full_net_profit_p_value']:.4f} cpu={row['total_cpu_s']:.2f}s")
 
-    control_reps = 0
-    if include_negative_control:
-        control_reps = reps if negative_control_reps is None else int(negative_control_reps)
-        if control_reps < 1:
-            raise ValueError("negative_control_reps 必须 >= 1")
-        control_cfg = protocol.scenario(negative_control_scenario)
-        if bool(control_cfg.require("dgp.virtual_aa_labels")):
-            raise AAChainError("负对照格不能是虚拟标签 AA；两者必须分开")
-        control_cell = _scenario_cell(protocol, negative_control_scenario)
+    if control_cell is not None:
         for rep in range(rep_start, rep_start + control_reps):
             keep = keep_representative and rep == 0
             log(f"[nc] {negative_control_scenario} rep={rep} n={n} keep={keep}")
