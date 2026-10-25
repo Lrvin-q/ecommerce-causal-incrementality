@@ -1,17 +1,60 @@
 {
   "scope": "tests",
-  "command": "python -m pytest tests -q",
-  "start": "2026-10-25T14:59:55+0800",
-  "end": "2026-10-25T15:08:03+0800",
-  "exitcode": 0,
-  "note": "safe-delete bulk quota disabled for test tmp cleanup; single process, no concurrent writers",
-  "collected": 1114,
-  "collected_method": "pytest tests --collect-only (same tree, same session)",
-  "passed": 1114,
-  "failed": 0,
-  "log": "outputs/v3/pytest_handoff/pytest_clean.log",
-  "log_sha256": "b4670fccd02e4a30902384b1b73c4be01210d18d1d6a1e5cb97af5ffc01ab3d5",
-  "host_note": "safe-delete bulk quota disabled only for pytest tmp cleanup; production code untouched; single process, no concurrent writers at run time",
   "head_commit": "c3a78ef",
-  "tree_dirty": "src/causal_growth/estimate/v3_models.py (C7 agent work, not included in this gate)"
+  "collected": 1123,
+  "collected_method": "pytest tests --collect-only (same session)",
+  "verdict": "NOT A VALID GREEN GATE — 2/1123 fail only under concurrent writes; rerun required after AA finishes",
+  "runs": [
+    {
+      "id": "run1",
+      "start": "2026-10-25T16:33+0800",
+      "end": "2026-10-25T16:41+0800",
+      "exitcode": 1,
+      "failed": [
+        "test_two_real_processes_race_only_one_registers_and_enters_job"
+      ],
+      "junit": "junit_head.xml",
+      "log": "pytest_head_log.txt"
+    },
+    {
+      "id": "run2",
+      "start": "2026-10-25T16:42+0800",
+      "end": "2026-10-25T16:51+0800",
+      "exitcode": 1,
+      "failed": [
+        "test_flush_is_incremental_and_resume_skips_completed_reps",
+        "test_two_real_processes_race_only_one_registers_and_enters_job"
+      ],
+      "junit": "junit_head_r2.xml",
+      "log": "pytest_head_r2_log.txt"
+    }
+  ],
+  "isolated_reruns": {
+    "test_two_real_processes_race_only_one_registers_and_enters_job": "passed (2026-10-25 16:44)",
+    "test_flush_is_incremental_and_resume_skips_completed_reps": "passed (2026-10-25 16:53)"
+  },
+  "root_cause": "Windows file-lock contention while 4 formal AA workers were writing under out/; the gate was run without the single-process / no-concurrent-writer precondition of AGENTS §11.4",
+  "known_defect": "_output_registry_lock opens .registry.lock without catching OSError, so a sharing violation surfaces as PermissionError instead of ActiveValidationError (fix deferred until AA ends)",
+  "artifacts": [
+    "junit_head.xml",
+    "junit_head_r2.xml",
+    "pytest_head_log.txt",
+    "pytest_head_r2_log.txt",
+    "pytest_baseline_1114_log.txt"
+  ],
+  "artifact_sha256": {
+    "junit_head.xml": "70dd9fe87ef499af0b6750ca34758adcd1074f75cb1e039b39bce6becc1ad1ac",
+    "junit_head_r2.xml": "4ccb429a892da1d0894d1a4fe1181726092280bacfe100823b36392983dc412a",
+    "pytest_head_log.txt": "8ffb23d861d4811739c21281e16ee202470512ba5cccda8892164980bb830b85",
+    "pytest_head_r2_log.txt": "2dfc981bd3996faf4822b1444b1186cdeae8e5873f9f241c45c73bd494dbc20e",
+    "pytest_baseline_1114_log.txt": "b4670fccd02e4a30902384b1b73c4be01210d18d1d6a1e5cb97af5ffc01ab3d5"
+  },
+  "host_note": "CODEBUDDY_SAFE_DELETE_ENABLED=0 only to bypass the host bulk-delete quota on pytest tmp cleanup; production code untouched",
+  "baseline_before_c7": {
+    "log": "pytest_baseline_1114_log.txt",
+    "collected": 1114,
+    "exitcode": 0,
+    "when": "2026-10-25T14:59–15:08",
+    "note": "C7 (+9 tests) 之前的基线；也不能当作当前 HEAD 的绿灯"
+  }
 }

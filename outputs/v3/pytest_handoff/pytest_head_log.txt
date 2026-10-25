@@ -1,0 +1,141 @@
+........................................................................ [  6%]
+........................................................................ [ 12%]
+........................................................................ [ 19%]
+........................................................................ [ 25%]
+........................................................................ [ 32%]
+........................................................................ [ 38%]
+....................................................................F... [ 44%]
+........................................................................ [ 51%]
+........................................................................ [ 57%]
+........................................................................ [ 64%]
+........................................................................ [ 70%]
+........................................................................ [ 76%]
+........................................................................ [ 83%]
+........................................................................ [ 89%]
+........................................................................ [ 96%]
+...........................................                              [100%]
+================================== FAILURES ===================================
+_______ test_two_real_processes_race_only_one_registers_and_enters_job ________
+
+tmp_path = WindowsPath('D:/L/practice_project/营销数分项目/out/pytest/run_37u2ds8k/temp/test_two_real_processes_race_o0')
+
+    def test_two_real_processes_race_only_one_registers_and_enters_job(tmp_path: Path) -> None:
+        source = """import os, sys
+    from pathlib import Path
+    from causal_growth.evaluation import v3_data_checks as checks
+    root = Path(sys.argv[1])
+    original = checks._power_contract
+    paused = False
+    def held_contract(*args, **kwargs):
+        global paused
+        if not paused:
+            paused = True
+            (root / ('entered_' + str(os.getpid()))).write_text('entered', encoding='utf-8')
+            sys.stdin.readline()
+        return original(*args, **kwargs)
+    checks._power_contract = held_contract
+    print('READY', flush=True)
+    sys.stdin.readline()
+    try:
+        checks.run_data_validation(root, workspace_root=root.parent, scope='power', scenario_ids=['L0_P_main'])
+    except checks.ActiveValidationError as exc:
+        (root / ('blocked_' + str(os.getpid()))).write_text(str(exc), encoding='utf-8')
+    """
+        output_root = tmp_path / "reports"
+        output_root.mkdir()
+        children = [subprocess.Popen([sys.executable, "-c", source, str(output_root)], stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", env=child_environment())
+                    for _ in range(2)]
+        try:
+            for child in children:
+                assert child.stdout.readline().strip() == "READY"
+            for child in children:
+                child.stdin.write("start\n")
+                child.stdin.flush()
+            deadline = time.monotonic() + timeout_seconds()
+            while time.monotonic() < deadline:
+                if len(list(output_root.glob("entered_*"))) == 1 and len(list(output_root.glob("blocked_*"))) == 1:
+                    break
+                time.sleep(1)
+            assert len(list(output_root.glob("entered_*"))) == 1
+>           assert len(list(output_root.glob("blocked_*"))) == 1
+E           AssertionError: assert 0 == 1
+E            +  where 0 = len([])
+E            +    where [] = list(<map object at 0x000001C5F8DCA200>)
+E            +      where <map object at 0x000001C5F8DCA200> = glob('blocked_*')
+E            +        where glob = WindowsPath('D:/L/practice_project/营销数分项目/out/pytest/run_37u2ds8k/temp/test_two_real_processes_race_o0/reports').glob
+
+tests\test_v3_data_checks.py:350: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('D:/L/practice_project/营销数分项目/out/pytest/run_37u2ds8k/temp/test_two_real_processes_race_o0')
+
+    def test_two_real_processes_race_only_one_registers_and_enters_job(tmp_path: Path) -> None:
+        source = """import os, sys
+    from pathlib import Path
+    from causal_growth.evaluation import v3_data_checks as checks
+    root = Path(sys.argv[1])
+    original = checks._power_contract
+    paused = False
+    def held_contract(*args, **kwargs):
+        global paused
+        if not paused:
+            paused = True
+            (root / ('entered_' + str(os.getpid()))).write_text('entered', encoding='utf-8')
+            sys.stdin.readline()
+        return original(*args, **kwargs)
+    checks._power_contract = held_contract
+    print('READY', flush=True)
+    sys.stdin.readline()
+    try:
+        checks.run_data_validation(root, workspace_root=root.parent, scope='power', scenario_ids=['L0_P_main'])
+    except checks.ActiveValidationError as exc:
+        (root / ('blocked_' + str(os.getpid()))).write_text(str(exc), encoding='utf-8')
+    """
+        output_root = tmp_path / "reports"
+        output_root.mkdir()
+        children = [subprocess.Popen([sys.executable, "-c", source, str(output_root)], stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", env=child_environment())
+                    for _ in range(2)]
+        try:
+            for child in children:
+                assert child.stdout.readline().strip() == "READY"
+            for child in children:
+                child.stdin.write("start\n")
+                child.stdin.flush()
+            deadline = time.monotonic() + timeout_seconds()
+            while time.monotonic() < deadline:
+                if len(list(output_root.glob("entered_*"))) == 1 and len(list(output_root.glob("blocked_*"))) == 1:
+                    break
+                time.sleep(1)
+            assert len(list(output_root.glob("entered_*"))) == 1
+            assert len(list(output_root.glob("blocked_*"))) == 1
+            manifests = list(output_root.glob("*/manifest.json"))
+            assert len(manifests) == 1
+            manifest = read_json(manifests[0])
+            assert manifest["status"] == "running" and manifest["process_identity"] == checks.process_identity(manifest["pid"])
+            assert set(manifest["planned_job_ids"]) == {job.job_id for job in checks.plan_data_checks(
+                load_v3_protocol(), scope="power", scenario_ids=["L0_P_main"])}
+        finally:
+            for child in children:
+                stdout, stderr = child.communicate("finish\n", timeout=timeout_seconds())
+>               assert child.returncode == 0, (stdout, stderr)
+E               AssertionError: ('', 'Traceback (most recent call last):
+E                   File "<string>", line 18, in <module>
+E                     checks.run_data_validation(root...\\营销数分项目\\\\out\\\\pytest\\\\run_37u2ds8k\\\\temp\\\\test_two_real_processes_race_o0\\\\reports\\\\.registry.lock\'
+E                 ')
+E               assert 1 == 0
+E                +  where 1 = <Popen: returncode: 1 args: ['D:\\L\\practice_project\\营销数分项目\\.venv\\Script...>.returncode
+
+tests\test_v3_data_checks.py:360: AssertionError
+============================== warnings summary ===============================
+tests/test_v3_timing.py::test_timing_quadrature_tolerance_convergence
+  D:\L\practice_project\营销数分项目\src\causal_growth\dgp\v3_timing.py:89: IntegrationWarning: The occurrence of roundoff error is detected, which prevents 
+    the requested tolerance from being achieved.  The error may be 
+    underestimated.
+    value, error = quad(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_v3_data_checks.py::test_two_real_processes_race_only_one_registers_and_enters_job
