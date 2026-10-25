@@ -146,7 +146,16 @@ def main() -> int:
     summary = pd.DataFrame(rows)
     tables = ROOT / "outputs" / "tables"
     tables.mkdir(parents=True, exist_ok=True)
-    csv_path = tables / "v3_phase_D_aa_formal_merged.csv"
+    # 每层目标 250 次；未跑满时**不得**写进正式证据路径，
+    # 否则半成品会被后续的人当成最终结果引用（数字对、但样本量不够）。
+    target_reps = 250
+    reps_by_layer = {layer: int((data["_layer_dir"] == layer).sum()) for layer in LAYERS}
+    incomplete = {k: v for k, v in reps_by_layer.items() if v < target_reps}
+    suffix = "_provisional" if incomplete else ""
+    if incomplete:
+        print(f"  ⚠ 未跑满：{incomplete}（目标 {target_reps}/层）；"
+              f"本次写入 {suffix} 副本，不得作为验收凭据")
+    csv_path = tables / f"v3_phase_D_aa_formal_merged{suffix}.csv"
     summary.to_csv(csv_path, index=False, encoding="utf-8-sig")
 
     # SE 校准：经验 SD / 平均估计 SE
@@ -172,13 +181,16 @@ def main() -> int:
         "layers_found": [x for x in LAYERS if x not in missing],
         "layers_missing": missing,
         "rows_excluded_non_true_aa": int(excluded),
+        "target_reps_per_layer": target_reps,
+        "reps_by_layer": reps_by_layer,
+        "provisional": bool(incomplete),
         "alpha": alpha,
         "summary_csv": csv_path.relative_to(ROOT).as_posix(),
         "se_calibration": calibration,
         "note": "只汇总 block=true_aa；负对照（purchase_null_negative_control）不计入 AA。"
                 "覆盖率与 FPR 在 Welch t 下机械互补，SE 校准是另一个独立维度。",
     }
-    json_path = tables / "v3_phase_D_aa_formal_merged.json"
+    json_path = tables / f"v3_phase_D_aa_formal_merged{suffix}.json"
     json_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(summary.to_string(index=False))

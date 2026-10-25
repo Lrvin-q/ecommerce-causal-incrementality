@@ -13,8 +13,16 @@
   ],
   "layers_missing": [],
   "rows_excluded_non_true_aa": 0,
+  "target_reps_per_layer": 250,
+  "reps_by_layer": {
+    "L0": 46,
+    "L1": 46,
+    "L2": 46,
+    "L3": 41
+  },
+  "provisional": true,
   "alpha": 0.05,
-  "summary_csv": "outputs/tables/v3_phase_D_aa_formal_merged.csv",
+  "summary_csv": "outputs/tables/v3_phase_D_aa_formal_merged_provisional.csv",
   "se_calibration": [
     {
       "layer": "L0",
