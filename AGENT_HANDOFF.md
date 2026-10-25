@@ -105,6 +105,22 @@
 - AA 作业**不按 rep 累积**（只有 `representative` 与 `tmp` 两个子目录），不用担心跑出几十 GB。
 - 单 rep 峰值内存约 1.88 GB，4 路并行约占 5–7 GB（可用 8.4 GB），**并行上限 4**。
 
+### 八、AA 产物与源码快照的绑定（2026-10-25 15:06 补充，必读）
+
+正式 AA 跑在 `out/aa_snapshot/`（13:54 建立），其 `v3_observed.py` 为 `0059ba16…`；
+仓库当前是 `849d50ec…`（D.4 整改时加了读取守卫）。**因此用当前源码读 AA 的 manifest 会被守卫拒绝**——
+这是正确语义，不是回退。
+
+读取 AA 产物时：
+```powershell
+$env:PYTHONPATH = "$PWD\out\aa_snapshot\src"
+```
+或给重放/校验脚本传 `--source-root out\aa_snapshot`。**不要**为了能读而削弱守卫。
+
+同理，C 阶段 3015 个产物绑定的是旧指纹 `18fe1968…`；已用字节级重放证明与当前源码等效
+（248 产物 0 不一致，4 个代表库 `observed.sqlite` 逐字节相同），新凭据在
+`outputs/v3/phase_d_c_replay/summary.json`。
+
 ---
 
 ## 历史交接（下方内容写于 2026-10-25 10:09，D 阶段之前）

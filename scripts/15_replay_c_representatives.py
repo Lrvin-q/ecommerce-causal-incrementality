@@ -1,6 +1,6 @@
 """Phase D 整改第 4 项：按 C 清单重放四代表库与跨层 matrix 作业（第三种做法）。
 
-合成数据 / 已知 DGP。维护时间：2026-10-25 14:31（北京时间）。
+合成数据 / 已知 DGP。维护时间：2026-10-25 14:33（北京时间）。
 
 这个脚本回答什么问题
 --------------------
@@ -32,10 +32,19 @@ parquet 的 ``dataframe_sha256`` 相同，并把重放结果绑定到新指纹�
     # 2) 串行重放（最多一个进程，避免与 4 个正式 AA 作业抢 CPU）
     python scripts/15_replay_c_representatives.py --source-root out/d4_replay_snapshot/<stamp>
 
+    # 工作树被切走（或与快照不同）时，把快照钉在某个提交上做溯源比对
+    python scripts/15_replay_c_representatives.py --source-root out/<snap> --expect-source-commit <rev>
+
     # 只跑 4 个代表库 / 只跑某个作业 / 只列清单不重放
     python scripts/15_replay_c_representatives.py --categories representative
     python scripts/15_replay_c_representatives.py --jobs representative__L0_P_main
     python scripts/15_replay_c_representatives.py --dry-run
+
+    # 单个作业因 Windows 文件锁失败后：只重放它，并把它并回既有 CSV/summary
+    python scripts/15_replay_c_representatives.py --jobs representative__L1_main --merge-existing
+
+    # 判定逻辑变了但重放产物没变：只重算比对（秒级，不重跑流水线）
+    python scripts/15_replay_c_representatives.py --compare-only
 
 输出
 ----
@@ -63,6 +72,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import time
 from typing import Any, Iterable, Sequence
@@ -163,14 +173,53 @@ def _bound_sources(root: Path) -> dict[str, str]:
     return {path.relative_to(root).as_posix(): _sha256(path) for path in files}
 
 
-def _verify_source_root() -> dict[str, Any]:
-    """Refuse a snapshot that is not byte-identical to the repository right now."""
-    repo_hashes = _bound_sources(REPO_ROOT)
+def _is_bound_name(name: str) -> bool:
+    """Match the same globs as ``pipeline_source_hashes()`` against a repository path."""
+    parts = name.split("/")
+    if name.startswith("src/causal_growth/") and name.endswith(".py"):
+        return parts[-1].startswith("v3")
+    if name.startswith("sql/") and name.endswith(".sql"):
+        return parts[-1].startswith("v3")
+    if name.startswith("configs/") and name.endswith(".yaml"):
+        return parts[-1].startswith("v3") or (len(parts) == 3 and parts[1] == "v3")
+    return False
+
+
+def _commit_bound_sources(commit: str) -> dict[str, str]:
+    """Hash the bound files exactly as a git commit records them.
+
+    The working tree cannot always be the reference: a branch switch (or a parallel agent)
+    can move it away from the sources that produced a snapshot. Pinning the snapshot to a
+    commit keeps the same strength of evidence — every bound file's sha256 must equal the
+    blob in that commit — while staying independent of the current checkout.
+    """
+    listing = subprocess.run(["git", "-C", str(REPO_ROOT), "ls-tree", "-r", "-z", "--name-only", "--full-tree", commit],
+                             capture_output=True, check=True).stdout.decode("utf-8")
+    hashes: dict[str, str] = {}
+    for name in (entry for entry in listing.split("\0") if entry):
+        if not _is_bound_name(name):
+            continue
+        blob = subprocess.run(["git", "-C", str(REPO_ROOT), "cat-file", "blob", f"{commit}:{name}"],
+                              capture_output=True, check=True).stdout
+        hashes[name] = hashlib.sha256(blob).hexdigest()
+    return hashes
+
+
+def _verify_source_root(expect_commit: str | None = None) -> dict[str, Any]:
+    """Refuse a snapshot that is not byte-identical to its declared source state."""
     snapshot_hashes = _bound_sources(SOURCE_ROOT)
     imported = pipeline_source_hashes()
-    if SOURCE_ROOT == REPO_ROOT:
+    if expect_commit:
+        recorded = _commit_bound_sources(expect_commit)
+        drift = sorted(name for name in set(recorded) | set(snapshot_hashes)
+                       if recorded.get(name) != snapshot_hashes.get(name))
+        if drift:
+            raise SystemExit(f"source snapshot differs from commit {expect_commit}: {drift}")
+        mode = f"snapshot_vs_commit:{expect_commit}"
+    elif SOURCE_ROOT == REPO_ROOT:
         mode = "repo"
     else:
+        repo_hashes = _bound_sources(REPO_ROOT)
         drift = sorted(name for name in set(repo_hashes) | set(snapshot_hashes)
                        if repo_hashes.get(name) != snapshot_hashes.get(name))
         if drift:
@@ -279,8 +328,33 @@ def _replay_one(plan_entry: dict[str, Any], attempt: Path, replay_root: Path, st
             "stream_prefix": stream_prefix, "rep_id": rep_id, "n": n, "population_kind": population_kind}
 
 
+def _pandas_metadata_without_path(raw: bytes) -> dict[str, Any]:
+    """Pandas footer metadata with the recorded run path dropped."""
+    parsed = json.loads(raw.decode("utf-8"))
+    parsed["attributes"] = {name: value for name, value in (parsed.get("attributes") or {}).items()
+                            if name != PATH_ATTRIBUTE}
+    return parsed
+
+
+def _schema_signature(path: Path) -> tuple[Any, ...]:
+    """Parsed Arrow schema signature: fields, field metadata and pandas metadata.
+
+    ``pyarrow`` stores the pandas metadata twice — as the file-level ``pandas`` key and
+    inside the serialised ``ARROW:schema`` blob. Comparing that blob byte for byte would
+    therefore flag the recorded run path twice; parsing it and normalising the pandas
+    ``attributes`` compares what actually matters: field names, types, nullability and
+    every other attribute.
+    """
+    schema = pq.read_schema(path)
+    metadata = dict(schema.metadata or {})
+    pandas_raw = metadata.pop(b"pandas", None)
+    fields = tuple((field.name, str(field.type), bool(field.nullable)) for field in schema)
+    extra = {key.decode("utf-8", "replace"): value for key, value in metadata.items()}
+    return fields, extra, _pandas_metadata_without_path(pandas_raw) if pandas_raw else None
+
+
 def _parquet_metadata_difference(c_path: Path, r_path: Path) -> list[str]:
-    """Footer metadata keys that differ, ignoring only the recorded ``source_path``.
+    """Metadata differences that are *not* the recorded run path.
 
     The pandas metadata of an observed frame embeds ``attrs`` (pandas 3 writes them into
     the parquet footer through ``pyarrow``). ``attrs["source_path"]`` is the absolute path
@@ -293,16 +367,15 @@ def _parquet_metadata_difference(c_path: Path, r_path: Path) -> list[str]:
     right = dict(pq.read_metadata(r_path).metadata or {})
     differences: list[str] = []
     for key in sorted(set(left) | set(right)):
-        a, b = left.get(key), right.get(key)
-        if a == b:
-            continue
-        if key == b"pandas":
-            a_object, b_object = json.loads(a.decode("utf-8")), json.loads(b.decode("utf-8"))
-            for attributes in (a_object.get("attributes", {}), b_object.get("attributes", {})):
-                attributes.pop(PATH_ATTRIBUTE, None)
-            if a_object == b_object:
-                continue
-        differences.append(key.decode("utf-8", "replace"))
+        if key in (b"pandas", b"ARROW:schema"):
+            continue  # compared semantically below
+        if left.get(key) != right.get(key):
+            differences.append(key.decode("utf-8", "replace"))
+    if left.get(b"pandas") and right.get(b"pandas"):
+        if _pandas_metadata_without_path(left[b"pandas"]) != _pandas_metadata_without_path(right[b"pandas"]):
+            differences.append("pandas")
+    if _schema_signature(c_path) != _schema_signature(r_path):
+        differences.append("ARROW:schema")
     return differences
 
 
@@ -359,6 +432,136 @@ def _write_csv(rows: Sequence[dict[str, Any]], path: Path) -> None:
     frame.to_csv(path, index=False, encoding="utf-8-sig")
 
 
+def _counts(rows: Sequence[dict[str, Any]]) -> dict[str, int]:
+    """Count verdicts; ``identical_content`` is a pass, ``DIFFERS``/``MISSING`` are not."""
+    return {verdict: sum(row["verdict"] == verdict for row in rows)
+            for verdict in ("identical", "identical_content", "expected_drift", "DIFFERS", "MISSING")}
+
+
+def _job_verdict(record: dict[str, Any], counts: dict[str, int]) -> str:
+    passed = (record.get("status") == "passed" and record.get("c_files_intact")
+              and not counts["DIFFERS"] and not counts["MISSING"])
+    return "passed" if passed else "failed"
+
+
+def _load_previous(csv_path: Path, summary_path: Path) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Read the existing evidence *before* this invocation overwrites it.
+
+    Values are read back as strings so a re-write does not reformat numbers.
+    """
+    rows: list[dict[str, Any]] = []
+    jobs: list[dict[str, Any]] = []
+    if csv_path.is_file():
+        rows = pd.read_csv(csv_path, encoding="utf-8-sig", dtype=str, keep_default_na=False).to_dict("records")
+    if summary_path.is_file():
+        jobs = list(_read_json(summary_path).get("jobs", []))
+    return rows, jobs
+
+
+def _merge_previous(previous_rows: Sequence[dict[str, Any]], previous_jobs: Sequence[dict[str, Any]],
+                    rows: list[dict[str, Any]], jobs: list[dict[str, Any]], plan_ids: set[str],
+                    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Keep the evidence of jobs that this invocation did not re-run."""
+    kept_rows = [row for row in previous_rows if row["job_id"] not in plan_ids]
+    kept_jobs = [job for job in previous_jobs if job["job_id"] not in plan_ids]
+    return [*kept_rows, *rows], [*kept_jobs, *jobs]
+
+
+def _finalize(rows: list[dict[str, Any]], jobs: list[dict[str, Any]], summary: dict[str, Any],
+              args: argparse.Namespace) -> None:
+    """Recompute the totals from the rows and write the two deliverables."""
+    summary["jobs"] = jobs
+    summary["artifact_rows"] = len(rows)
+    counts = _counts(rows)
+    summary["identical"] = counts["identical"]
+    summary["identical_content"] = counts["identical_content"]
+    summary["expected_drift"] = counts["expected_drift"]
+    summary["mismatched"] = counts["DIFFERS"] + counts["MISSING"]
+    summary["verdict"] = ("passed" if summary["mismatched"] == 0 and jobs
+                          and all(job["verdict"] == "passed" for job in jobs) else "failed")
+    summary["ended_at_utc"] = datetime.now(timezone.utc).isoformat()
+    _write_csv(rows, args.csv)
+    _write_json(args.summary, summary)
+    print(f"verdict: {summary['verdict']} | identical={summary['identical']} "
+          f"identical_content={summary['identical_content']} expected_drift={summary['expected_drift']} "
+          f"mismatched={summary['mismatched']}", flush=True)
+    print(f"csv    : {args.csv}", flush=True)
+    print(f"summary: {args.summary}", flush=True)
+
+
+def _resolve_replay_manifest(entry: dict[str, Any], replay_root: Path,
+                             recorded: dict[str, dict[str, Any]]) -> tuple[Path, str]:
+    """Find the replay manifest for one job: summary record first, then on disk.
+
+    Disk discovery exists because a job can fail *after* writing its artifacts (a Windows
+    file lock on ``manifest.json`` aborted one 200 s replay). A later re-run of that single
+    job leaves a fresh passed manifest next to the failed one; matching ``run_id`` and
+    ``status == passed`` makes the choice unambiguous and it is recorded either way.
+    """
+    record = recorded.get(entry["job_id"])
+    if record and record.get("replay_manifest") and Path(record["replay_manifest"]).is_file():
+        return Path(record["replay_manifest"]), "summary_record"
+    expected = str(entry["c_manifest"]["run_id"])
+    candidates = []
+    for manifest_path in sorted((replay_root / entry["job_id"]).glob("*/manifest.json")):
+        try:
+            manifest = _read_json(manifest_path)
+        except (OSError, ValueError):
+            continue
+        if manifest.get("status") == "passed" and manifest.get("run_id") == expected:
+            candidates.append(manifest_path)
+    if not candidates:
+        raise SystemExit(f"{entry['job_id']}: no passed replay manifest found under {replay_root / entry['job_id']}")
+    return max(candidates, key=lambda path: path.stat().st_mtime), "discovered_on_disk"
+
+
+def _compare_only(plan: list[dict[str, Any]], args: argparse.Namespace, summary: dict[str, Any]) -> int:
+    """Re-run the comparison against replay artifacts already on disk (no replay).
+
+    Used after the verdict logic itself changes: the replay artifacts are immutable and
+    each job's manifest hash is recorded, so re-deriving the comparison is honest and
+    costs seconds instead of another twenty minutes of competing CPU.
+    """
+    previous = _read_json(args.summary)
+    if previous.get("source_root", {}).get("set_sha256") != summary["source_root"]["set_sha256"]:
+        raise SystemExit("existing summary was produced from a different source set")
+    if previous.get("new_sql_sha256") != summary["new_sql_sha256"]:
+        raise SystemExit("existing summary was produced under a different sql_source_hash")
+    recorded = {job["job_id"]: job for job in previous.get("jobs", [])}
+    rows: list[dict[str, Any]] = []
+    jobs: list[dict[str, Any]] = []
+    for entry in plan:
+        manifest_path, source = _resolve_replay_manifest(entry, args.replay_root, recorded)
+        if not manifest_path.is_file():
+            raise SystemExit(f"{entry['job_id']}: replay manifest missing: {manifest_path}")
+        artifact_rows = _compare(entry, {"manifest_path": manifest_path})
+        counts = _counts(artifact_rows)
+        record = {**recorded.get(entry["job_id"], {}), "job_id": entry["job_id"],
+                  "category": entry["job"]["category"], "status": "passed",
+                  "run_id": str(entry["c_manifest"]["run_id"]),
+                  "stream_prefix": str(entry["c_manifest"]["stream_prefix"]),
+                  "rep_id": int(entry["c_manifest"]["rep_id"]),
+                  "n": int(entry["c_manifest"]["n_actual"]),
+                  "population_kind": str(entry["c_manifest"]["population_kind"]),
+                  "replay_manifest": str(manifest_path), "replay_source": source,
+                  "replay_manifest_sha256": _sha256(manifest_path),
+                  "artifacts": len(artifact_rows), **counts,
+                  "c_files_intact": bool(artifact_rows) and all(row["c_file_intact"] is True for row in artifact_rows)}
+        record["verdict"] = _job_verdict(record, counts)
+        rows.extend(artifact_rows)
+        jobs.append(record)
+        print(f"[{entry['job_id']}] {record['verdict']} ({source}) identical={counts['identical']} "
+              f"identical_content={counts['identical_content']} expected_drift={counts['expected_drift']} "
+              f"differs={counts['DIFFERS']} missing={counts['MISSING']}", flush=True)
+    merged = {**previous,
+              "compare": {"mode": "compare_only", "script_sha256": _sha256(Path(__file__).resolve()),
+                          "at_utc": datetime.now(timezone.utc).isoformat(),
+                          "note": "比对重算；重放产物未改动，manifest 哈希见各 job 记录"},
+              "source_root": summary["source_root"], "new_sql_sha256": summary["new_sql_sha256"]}
+    _finalize(rows, jobs, merged, args)
+    return 0 if merged["verdict"] == "passed" else 1
+
+
 def main() -> int:
     """Replay the requested C jobs and write the comparison evidence."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -369,13 +572,19 @@ def main() -> int:
     parser.add_argument("--skip-validation", action="store_true", help="Skip the independent-validation matrix job")
     parser.add_argument("--source-root", type=Path, default=REPO_ROOT,
                         help="Byte-identical source snapshot to run from (default: this repository)")
+    parser.add_argument("--expect-source-commit",
+                        help="Verify the snapshot against this git commit instead of the working tree")
     parser.add_argument("--replay-root", type=Path, default=REPO_ROOT / "data/v3/phase_d_replay")
     parser.add_argument("--csv", type=Path, default=REPO_ROOT / "outputs/tables/v3_phase_D_c_replay.csv")
     parser.add_argument("--summary", type=Path, default=REPO_ROOT / "outputs/v3/phase_d_c_replay/summary.json")
     parser.add_argument("--dry-run", action="store_true", help="List the plan without replaying")
+    parser.add_argument("--compare-only", action="store_true",
+                        help="Re-derive the comparison from recorded replay manifests; does not replay")
+    parser.add_argument("--merge-existing", action="store_true",
+                        help="Keep other jobs' rows when replaying a subset into the same CSV/summary")
     args = parser.parse_args()
 
-    sources = _verify_source_root()
+    sources = _verify_source_root(args.expect_source_commit)
     attempt = _resolve_c_attempt(args.c_attempt)
     sql_hash = sql_source_hash()
     if not sql_hash.startswith(NEW_SQL_SHA256_PREFIX):
@@ -420,12 +629,17 @@ def main() -> int:
             manifest = entry["c_manifest"]
             print(f"  {entry['job_id']:44s} n={manifest['n_actual']:>7d} rep={manifest['rep_id']} "
                   f"db={manifest['database_persisted']} run_id={manifest['run_id']}", flush=True)
-        _write_json(args.summary, {**summary, "dry_run": True,
-                                   "planned_jobs": [entry["job_id"] for entry in plan]})
-        print(args.summary, flush=True)
+        # No file is written: a dry run must never overwrite the recorded evidence.
+        print("dry run: nothing written", flush=True)
         return 0
 
     rows: list[dict[str, Any]] = []
+    jobs: list[dict[str, Any]] = []
+    plan_ids = {entry["job_id"] for entry in plan}
+    if args.compare_only:
+        return _compare_only(plan, args, summary)
+    previous_rows, previous_jobs = _load_previous(args.csv, args.summary) if args.merge_existing else ([], [])
+
     for entry in plan:
         print(f"[{entry['job_id']}] replaying …", flush=True)
         job_record: dict[str, Any] = {"job_id": entry["job_id"], "category": entry["job"]["category"]}
@@ -442,37 +656,28 @@ def main() -> int:
             job_record.update({"status": "failed", "error": f"{type(exc).__name__}: {exc}"})
             artifact_rows = []
             print(f"[{entry['job_id']}] FAILED: {type(exc).__name__}: {exc}", flush=True)
-        counts = {verdict: sum(row["verdict"] == verdict for row in artifact_rows)
-                  for verdict in ("identical", "identical_content", "expected_drift", "DIFFERS", "MISSING")}
+        counts = _counts(artifact_rows)
         job_record.update({"artifacts": len(artifact_rows), **counts})
         job_record["c_files_intact"] = bool(artifact_rows) and all(row["c_file_intact"] is True for row in artifact_rows)
-        job_record["verdict"] = ("passed" if job_record["status"] == "passed" and job_record["c_files_intact"]
-                                 and not counts["DIFFERS"] and not counts["MISSING"] else "failed")
-        summary["jobs"].append(job_record)
-        summary["artifact_rows"] += len(artifact_rows)
-        summary["identical"] += counts["identical"]
-        summary["identical_content"] += counts["identical_content"]
-        summary["expected_drift"] += counts["expected_drift"]
-        summary["mismatched"] += counts["DIFFERS"] + counts["MISSING"]
+        job_record["verdict"] = _job_verdict(job_record, counts)
+        jobs.append(job_record)
         rows.extend(artifact_rows)
         print(f"[{entry['job_id']}] {job_record['verdict']} in {job_record.get('elapsed_seconds')}s "
               f"identical={counts['identical']} identical_content={counts['identical_content']} "
               f"expected_drift={counts['expected_drift']} differs={counts['DIFFERS']} missing={counts['MISSING']}",
               flush=True)
+        summary["jobs"] = list(jobs)
         _write_csv(rows, args.csv)
         _write_json(args.summary, summary)
 
-    summary["ended_at_utc"] = datetime.now(timezone.utc).isoformat()
-    summary["verdict"] = ("passed" if summary["mismatched"] == 0
-                          and all(job["verdict"] == "passed" for job in summary["jobs"]) else "failed")
+    if args.merge_existing:
+        rows, jobs = _merge_previous(previous_rows, previous_jobs, rows, jobs, plan_ids)
+        if len(jobs) > len(plan):
+            summary["merged_previous_jobs"] = sorted({job["job_id"] for job in jobs} - plan_ids)
+            summary["merged_note"] = ("部分作业的重放产物来自更早的 stamp；每个作业的实际产出自 "
+                                      "jobs[].replay_manifest 路径可见")
     summary["pipeline_source_hashes"] = pipeline_source_hashes()
-    _write_csv(rows, args.csv)
-    _write_json(args.summary, summary)
-    print(f"verdict: {summary['verdict']} | identical={summary['identical']} "
-          f"identical_content={summary['identical_content']} expected_drift={summary['expected_drift']} "
-          f"mismatched={summary['mismatched']}", flush=True)
-    print(f"csv    : {args.csv}", flush=True)
-    print(f"summary: {args.summary}", flush=True)
+    _finalize(rows, jobs, summary, args)
     return 0 if summary["verdict"] == "passed" else 1
 
 
