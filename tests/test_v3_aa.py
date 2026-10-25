@@ -21,11 +21,14 @@ import pytest
 from causal_growth.dgp.v3_engine import generate_v3_population
 from causal_growth.evaluation import v3_aa
 from causal_growth.evaluation.v3_aa import (
+    find_windows_file_lock,
     AA_METRICS,
+    SOURCE_CHANGED_MARKER,
     SUMMARY_COLUMNS,
     AAChainError,
     aa_cells,
     clopper_pearson,
+    is_source_changed_error,
     run_aa_rep,
     run_full_chain_aa,
     summarize_repetitions,
@@ -33,6 +36,22 @@ from causal_growth.evaluation.v3_aa import (
 from causal_growth.v3_config import load_v3_protocol
 
 _CHAIN_N = 4000
+
+
+def _run_or_skip(*args, **kwargs):
+    """跑完整链路；**只**跳过"并发写盘触发源码绑定门禁"这一环境故障。
+
+    项目有多个代理并行写 ``src/causal_growth/**/v3*.py``，而 C 阶段门禁会在
+    ``build_observed_pipeline`` 前后哈希源码，期间任何写盘都会让本次 attempt 失败。
+    这不是 AA 逻辑失败，也不是本模块能修复的问题（门禁不能放宽）；按主控要求
+    只跳过这一类异常并在测试报告里显式列出，其余失败一律原样抛出。
+    """
+    try:
+        return run_aa_rep(*args, **kwargs)
+    except RuntimeError as exc:
+        if is_source_changed_error(exc):
+            pytest.skip(f"并发写盘：{SOURCE_CHANGED_MARKER}（源码绑定门禁，需串行复跑）")
+        raise
 
 
 @pytest.fixture(scope="module")
@@ -50,8 +69,7 @@ def chain_run(tmp_path_factory, protocol, chain_cell):
     """跑一次完整链路并保留产物；后面的用例复用，避免重复几秒级的流水线。"""
     root = Path(tmp_path_factory.mktemp("v3_aa_chain"))
     run_dir = root / "true_aa_L0_AA_rep0"
-    row = run_aa_rep(chain_cell, protocol, rep=0, n=_CHAIN_N, run_dir=run_dir,
-                     keep_artifacts=True)
+    row = _run_or_skip(chain_cell, protocol, rep=0, n=_CHAIN_N, run_dir=run_dir, keep_artifacts=True)
     return row, run_dir
 
 
@@ -131,9 +149,10 @@ def test_summary_reports_cp_interval_mc_precision_and_coverage():
     """汇总行必须同时给出假阳性率、CP 区间、二项 MC 标准误与经验覆盖率。"""
     p_values = [0.01, 0.2, 0.6, 0.9]
     covered = [False, True, True, True]
+    # 每层 active_scenario 不同 → 配置哈希本就不同（曾因误设"整块唯一"而炸过）
     frame = pd.concat([
-        _fake_repetitions("true_aa", "L0_AA", "L0", p_values, covered),
-        _fake_repetitions("true_aa", "L1_AA", "L1", p_values, covered),
+        _fake_repetitions("true_aa", "L0_AA", "L0", p_values, covered, tag="a"),
+        _fake_repetitions("true_aa", "L1_AA", "L1", p_values, covered, tag="b"),
     ], ignore_index=True)
     summary = summarize_repetitions(frame)
     assert list(summary.columns) == list(SUMMARY_COLUMNS)
@@ -266,8 +285,7 @@ def test_full_chain_rep_runs_five_tables_sql_and_keeps_artifacts(chain_run):
 def test_same_rep_is_bitwise_reproducible(tmp_path, protocol, chain_cell, chain_run):
     """同一 ``(master_seed, stream, rep)`` 必须逐位复现（AGENTS §3.3）。"""
     first, _ = chain_run
-    second = run_aa_rep(chain_cell, protocol, rep=0, n=_CHAIN_N,
-                        run_dir=tmp_path / "repeat_rep0", keep_artifacts=False)
+    second = _run_or_skip(chain_cell, protocol, rep=0, n=_CHAIN_N, run_dir=tmp_path / "repeat_rep0", keep_artifacts=False)
     for field in ("full_net_profit_diff", "full_net_profit_p_value", "full_net_profit_se",
                   "n_label1", "coupon_cost_total", "full_paid_purchase_7d_p_value"):
         assert second[field] == first[field], field
@@ -355,11 +373,16 @@ def test_cli_writes_traceable_summary_csv(tmp_path):
     """命令行入口必须落一份带来源标记的汇总表，且不推进正式重复数。"""
     run_root = tmp_path / "cli_run"
     summary_csv = tmp_path / "summary.csv"
-    code = v3_aa.main([
-        "--reps", "1", "--n", str(_CHAIN_N), "--layers", "L0",
-        "--no-negative-control", "--cost-anchor-reps", "0",
-        "--run-root", str(run_root), "--summary-csv", str(summary_csv), "--quiet",
-    ])
+    try:
+        code = v3_aa.main([
+            "--reps", "1", "--n", str(_CHAIN_N), "--layers", "L0",
+            "--no-negative-control", "--cost-anchor-reps", "0",
+            "--run-root", str(run_root), "--summary-csv", str(summary_csv), "--quiet",
+        ])
+    except RuntimeError as exc:
+        if is_source_changed_error(exc):
+            pytest.skip(f"并发写盘：{SOURCE_CHANGED_MARKER}（源码绑定门禁，需串行复跑）")
+        raise
     assert code == 0
     frame = pd.read_csv(summary_csv, encoding="utf-8-sig")
     assert list(frame.columns) == list(SUMMARY_COLUMNS)
@@ -373,6 +396,118 @@ def test_cli_writes_traceable_summary_csv(tmp_path):
     assert (run_root / "aa_repetitions.csv").exists()
 
 
+def test_source_change_detector_matches_only_the_gate_message():
+    """只有"源码在 rep 执行期间被改写"这一条异常允许重试/跳过。"""
+    assert is_source_changed_error(RuntimeError(SOURCE_CHANGED_MARKER + "；保留本次尝试"))
+    assert not is_source_changed_error(RuntimeError("source files changed unnecessarily"))
+    assert not is_source_changed_error(RuntimeError("some other runtime failure"))
+    assert not is_source_changed_error(ValueError(SOURCE_CHANGED_MARKER))
+    assert not is_source_changed_error(AAChainError(SOURCE_CHANGED_MARKER))
+
+
+def test_source_change_is_retried_within_the_budget_only(monkeypatch, tmp_path, protocol):
+    """并发写盘的门禁异常可以重试，但重试次数有上限，超限后必须抛。"""
+    calls: list[int] = []
+
+    def gate(*_args, **_kwargs):
+        calls.append(1)
+        raise RuntimeError("source files changed during the data run; retain this attempt as failed")
+
+    monkeypatch.setattr(v3_aa, "run_aa_rep", gate)
+    with pytest.raises(RuntimeError, match="source files changed"):
+        run_full_chain_aa(protocol, reps=1, n=1000, layers=["L0"], cost_anchor_reps=0,
+                          include_negative_control=False, run_root=tmp_path / "retry",
+                          max_source_retries=2)
+    assert len(calls) == 3
+
+
+def test_other_runtime_errors_are_not_retried(monkeypatch, tmp_path, protocol):
+    """其它运行期异常一律立即抛，不得被当成并发写盘而重试。"""
+    calls: list[int] = []
+
+    def boom(*_args, **_kwargs):
+        calls.append(1)
+        raise RuntimeError("pipeline exploded for a real reason")
+
+    monkeypatch.setattr(v3_aa, "run_aa_rep", boom)
+    with pytest.raises(RuntimeError, match="pipeline exploded"):
+        run_full_chain_aa(protocol, reps=3, n=1000, layers=["L0"], cost_anchor_reps=0,
+                          include_negative_control=False, run_root=tmp_path / "noretry",
+                          max_source_retries=3)
+    assert len(calls) == 1
+
+
+def test_windows_file_lock_detector_walks_the_exception_chain():
+    """原子落盘的 WinError 5/32/33 属于可重试环境故障，且必须能穿过包装层。"""
+    denied = PermissionError(13, "拒绝访问")
+    denied.winerror = 5
+    wrapped = ValueError("run is already terminal")
+    wrapped.__context__ = denied
+    assert find_windows_file_lock(wrapped) is denied
+    sharing = OSError(32, "共享冲突")
+    sharing.winerror = 32
+    assert find_windows_file_lock(sharing) is sharing
+    assert find_windows_file_lock(RuntimeError("real bug")) is None
+    real = OSError(2, "file not found")
+    real.winerror = 2
+    assert find_windows_file_lock(real) is None
+
+
+def _batch_or_skip(**kwargs):
+    """批量入口；只跳过并发写盘的门禁异常（其余一律抛出）。"""
+    try:
+        return run_full_chain_aa(**kwargs)
+    except RuntimeError as exc:
+        if is_source_changed_error(exc):
+            pytest.skip(f"并发写盘：{SOURCE_CHANGED_MARKER}（源码绑定门禁，需串行复跑）")
+        raise
+
+
+def test_flush_is_incremental_and_resume_skips_completed_reps(tmp_path, protocol, monkeypatch):
+    """每完成一个 rep 就落盘；续跑只补缺口，不重复执行。"""
+    flush = tmp_path / "reps.csv"
+    bundle = _batch_or_skip(protocol=protocol, reps=1, n=_CHAIN_N, layers=["L0"],
+                            cost_anchor_reps=0, include_negative_control=False, max_source_retries=3,
+                            run_root=tmp_path / "first", flush_path=flush)
+    assert len(bundle.repetitions) == 1
+    stored = pd.read_csv(flush, encoding="utf-8-sig")
+    assert len(stored) == 1 and stored.scenario_id.iloc[0] == "L0_AA"
+    assert stored.file_lock_retries.eq(0).all() and stored.source_retries.eq(0).all()
+
+    def must_not_run(*_args, **_kwargs):
+        raise AssertionError("续跑时不应重复执行已完成的 rep")
+
+    monkeypatch.setattr(v3_aa, "run_aa_rep", must_not_run)
+    resumed = run_full_chain_aa(protocol, reps=1, n=_CHAIN_N, layers=["L0"],
+                                cost_anchor_reps=0, include_negative_control=False,
+                                run_root=tmp_path / "second", resume_from=flush)
+    assert len(resumed.repetitions) == 1
+    metrics = resumed.summary.loc[resumed.summary.row_kind == "metric_aa"]
+    assert metrics.R.eq(1).all()
+
+
+def test_resume_rejects_mismatched_batch_parameters(tmp_path, protocol, chain_run):
+    """续跑文件与当前请求的 n/alpha 不一致时必须拒绝，不能混批。"""
+    row, _ = chain_run
+    frame = pd.DataFrame([row])
+    wrong_n = frame.copy()
+    wrong_n.loc[:, "n_total"] = 123
+    path = tmp_path / "wrong_n.csv"
+    wrong_n.to_csv(path, index=False, encoding="utf-8-sig")
+    with pytest.raises(ValueError, match="n 与当前请求不一致"):
+        run_full_chain_aa(protocol, reps=1, n=_CHAIN_N, layers=["L0"], cost_anchor_reps=0,
+                          include_negative_control=False, run_root=tmp_path / "r1",
+                          resume_from=path)
+    wrong_alpha = frame.copy()
+    wrong_alpha.loc[:, "alpha"] = 0.1
+    path2 = tmp_path / "wrong_alpha.csv"
+    wrong_alpha.to_csv(path2, index=False, encoding="utf-8-sig")
+    with pytest.raises(ValueError, match="alpha 与当前协议不一致"):
+        run_full_chain_aa(protocol, reps=1, n=_CHAIN_N, layers=["L0"], cost_anchor_reps=0,
+                          include_negative_control=False, run_root=tmp_path / "r2",
+                          resume_from=path2)
+
+
 def test_module_reads_no_truth_state():
     """静态纪律：不得 import 封存真值模块，也不得读 population 的 audit 字段。"""
     source = Path(v3_aa.__file__).read_text(encoding="utf-8")
@@ -382,3 +517,5 @@ def test_module_reads_no_truth_state():
     assert ".audit_" not in source
     assert "cate_profit" not in source
     assert "true_propensity" not in source
+
+

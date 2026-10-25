@@ -114,9 +114,11 @@ __all__ = [
     "AAChainError",
     "AAMetric",
     "PROJECT_ROOT",
+    "SOURCE_CHANGED_MARKER",
     "SUMMARY_COLUMNS",
     "aa_cells",
     "clopper_pearson",
+    "is_source_changed_error",
     "main",
     "run_aa_rep",
     "run_full_chain_aa",
@@ -166,6 +168,41 @@ _POPULATIONS: tuple[str, ...] = ("full", "test")
 
 class AAChainError(RuntimeError):
     """完整链路违反 AA 不变量：标签与结果机制不再等价，必须立即停。"""
+
+
+#: C 阶段源码绑定门禁在"rep 执行期间有源码被改写"时抛出的固定消息片段。
+#: 多代理并行写 ``src/causal_growth/**/v3*.py`` 时会出现；它是**环境故障**，
+#: 不是链路/口径异常——同一 rep 序号重跑得到逐位相同的数据。
+SOURCE_CHANGED_MARKER = "source files changed during the data run"
+
+
+def is_source_changed_error(exc: BaseException) -> bool:
+    """是否属于"并发写盘触发源码绑定门禁"这一**唯一**允许重试/跳过的异常。"""
+    return (isinstance(exc, RuntimeError) and not isinstance(exc, AAChainError)
+            and SOURCE_CHANGED_MARKER in str(exc))
+
+
+#: Windows 上"文件被短暂占用"的 winerror：5=拒绝访问，32=共享冲突，33=锁冲突。
+_WINDOWS_LOCK_WINERRORS = frozenset({5, 32, 33})
+
+
+def find_windows_file_lock(exc: BaseException) -> OSError | None:
+    """在异常链里找出 Windows 文件占用错误（``os.replace`` 的原子替换会撞上）。
+
+    ``RunArtifactWriter`` 每次落盘都用 ``.tmp → replace``；Windows 上扫描器/索引器
+    短暂持有文件时 ``os.replace`` 抛 ``PermissionError [WinError 5]``。该错误还会被
+    流水线的兜底 ``writer.finish(passed=False)`` 二次包装成
+    ``ValueError: run is already terminal``，所以必须沿 ``__context__/__cause__`` 链找。
+    它属于**环境故障**（同一 rep 重跑逐位相同），不是链路/口径异常。
+    """
+    seen: set[int] = set()
+    current: BaseException | None = exc
+    while current is not None and id(current) not in seen:
+        seen.add(id(current))
+        if isinstance(current, OSError) and getattr(current, "winerror", None) in _WINDOWS_LOCK_WINERRORS:
+            return current
+        current = current.__context__ or current.__cause__
+    return None
 
 
 # --------------------------------------------------------------------------- #
@@ -680,15 +717,22 @@ def summarize_repetitions(
         frame = repetitions.loc[repetitions.block == block].reset_index(drop=True)
         if frame.empty:
             raise ValueError(f"block={block} 为空，无法汇总")
-        hashes = sorted(set(frame["config_hash"].tolist()))
-        if len(hashes) != 1:
-            raise AAChainError(f"同一 block 内配置哈希不唯一：{hashes}")
-        config_hash = hashes[0]
-        scenarios = sorted(set(frame["scenario_id"].tolist()))
+        # 配置哈希按**场景**唯一（每层 `active_scenario` 不同，哈希本就不同）；
+        # 同一场景内不一致才是漂移，必须抛。
+        hashes_by_scenario: dict[str, str] = {}
+        for scenario_id, subset in frame.groupby("scenario_id", sort=True):
+            hashes = sorted(set(subset["config_hash"].tolist()))
+            if len(hashes) != 1:
+                raise AAChainError(f"{block}/{scenario_id} 内配置哈希不唯一：{hashes}")
+            hashes_by_scenario[str(scenario_id)] = hashes[0]
+        pooled_hash = ("multiple_scenarios(%d)" % len(hashes_by_scenario)
+                       if len(hashes_by_scenario) > 1 else next(iter(hashes_by_scenario.values())))
+        scenarios = sorted(hashes_by_scenario)
         for scenario_id in scenarios:
             subset = frame.loc[frame.scenario_id == scenario_id].reset_index(drop=True)
             level = str(subset["level"].iloc[0])
             n_registered = int(subset["registered_n"].iloc[0])
+            config_hash = hashes_by_scenario[scenario_id]
             for population in _POPULATIONS:
                 for metric in AA_METRICS:
                     rows.append(_summarize_metric_cell(
@@ -708,12 +752,12 @@ def summarize_repetitions(
                     rows.append(_summarize_metric_cell(
                         frame, block=block, scenario_id=_POOLED, level="ALL", metric=metric,
                         population=population, alpha=level_alpha,
-                        n_registered=int(frame["registered_n"].iloc[0]), config_hash=config_hash,
+                        n_registered=int(frame["registered_n"].iloc[0]), config_hash=pooled_hash,
                         note="四层独立 rep 合并；层间异质性仍以分层行为准",
                     ))
             rows.append(_summarize_cost_cell(
                 frame, block=block, scenario_id=_POOLED, level="ALL",
-                n_registered=int(frame["registered_n"].iloc[0]), config_hash=config_hash,
+                n_registered=int(frame["registered_n"].iloc[0]), config_hash=pooled_hash,
                 note="四层独立 rep 合并",
             ))
     summary = pd.DataFrame(rows)
@@ -766,6 +810,9 @@ def run_full_chain_aa(
     negative_control_scenario: str = "L0_zero_purchase_effect",
     cost_anchor_reps: int = 1,
     cost_anchor_n: int | None = None,
+    max_source_retries: int = 3,
+    resume_from: str | Path | None = None,
+    flush_path: str | Path | None = None,
     progress: Callable[[str], None] | None = None,
 ) -> AABundle:
     """对每层各一个无效应 AA 格跑 ``reps`` 次完整链路，并汇总。
@@ -792,13 +839,19 @@ def run_full_chain_aa(
     cost_anchor_reps, cost_anchor_n:
         在注册规模（默认取格的注册 n）上补测 CPU 的 rep 数。锚点只用于资源外推，
         其 p 值不进入任何假阳性率汇总。
+    max_source_retries:
+        单个 rep 允许因"并发写盘触发源码绑定门禁"重试的次数（**仅**这一类异常；
+        其余异常一律原样抛出）。失败 attempt 的目录保留，不覆盖、不丢弃。
     """
     protocol = load_v3_protocol() if protocol is None else protocol
     if isinstance(reps, bool) or not isinstance(reps, (int, np.integer)) or int(reps) < 1:
         raise ValueError(f"reps 必须是 >= 1 的整数，收到 {reps!r}")
     if isinstance(rep_start, bool) or not isinstance(rep_start, (int, np.integer)) or int(rep_start) < 0:
         raise ValueError(f"rep_start 必须是 >= 0 的整数，收到 {rep_start!r}")
-    reps, rep_start = int(reps), int(rep_start)
+    if (isinstance(max_source_retries, bool) or not isinstance(max_source_retries, (int, np.integer))
+            or int(max_source_retries) < 0):
+        raise ValueError(f"max_source_retries 必须是 >= 0 的整数，收到 {max_source_retries!r}")
+    reps, rep_start, max_source_retries = int(reps), int(rep_start), int(max_source_retries)
     alpha = float(protocol.config.require("design.alpha_two_sided"))
     cells = list(aa_cells(protocol))
     if layers is not None:
@@ -831,6 +884,10 @@ def run_full_chain_aa(
     run_root.mkdir(parents=True, exist_ok=False)
     (run_root / "tmp").mkdir()
     (run_root / "representative").mkdir()
+    if flush_path is None:
+        flush_path = run_root / "aa_repetitions.csv"
+    flush_path = Path(flush_path)
+    flush_path.parent.mkdir(parents=True, exist_ok=True)
 
     def log(message: str) -> None:
         if progress is not None:
@@ -839,28 +896,113 @@ def run_full_chain_aa(
     def attempt_dir(block: str, scenario_id: str, rep: int, size: int, keep: bool) -> Path:
         return run_root / ("representative" if keep else "tmp") / f"{block}_{scenario_id}_rep{rep}_n{size}"
 
-    repeated: list[dict[str, Any]] = []
+    def run_with_retry(
+        cell: AACell, *, rep: int, size: int, block: str, keep: bool,
+    ) -> dict[str, Any]:
+        """跑一个 rep，只对两类**环境故障**重试，且逐次记录原因。
+
+        1. ``source_changed``：``build_observed_pipeline`` 跑前跑后各哈希一次
+           ``src/causal_growth/**/v3*.py``，期间有人写盘就抛
+           ``RuntimeError: source files changed during the data run``
+           （C 阶段评审过的源码绑定门禁，不能放宽）；
+        2. ``windows_file_lock``：观测流水线用 ``.tmp → os.replace`` 原子落盘，
+           Windows 上文件被扫描器/索引器短暂占用时抛 ``PermissionError [WinError 5]``
+           （常被兜底 ``finish()`` 再包装成 ``ValueError: run is already terminal``）。
+
+        两者都是**环境故障**而非链路/口径异常：同一 ``rep`` 序号重跑得到逐位相同的
+        数据，所以重试不改变任何结果；失败的 attempt 目录原样保留（协议要求失败
+        重试全部保留）。**其他任何异常一律原样抛出，绝不重试、不吞掉。**
+        """
+        base = attempt_dir(block, cell.scenario_id, rep, size, keep)
+        source_retries = 0
+        lock_retries = 0
+        for attempt in range(int(max_source_retries) + 1):
+            directory = base if attempt == 0 else base.with_name(f"{base.name}_attempt{attempt}")
+            try:
+                row = run_aa_rep(cell, protocol, rep=rep, n=size, run_dir=directory,
+                                 block=block, alpha=alpha, keep_artifacts=keep)
+            except Exception as exc:  # noqa: BLE001 - 先分类，不是所有异常都可重试
+                lock = find_windows_file_lock(exc)
+                source_changed = is_source_changed_error(exc)
+                if not (lock is not None or source_changed):
+                    raise
+                if attempt >= int(max_source_retries):
+                    raise
+                if source_changed:
+                    source_retries += 1
+                    log(f"   [retry] 源码在 {cell.scenario_id} rep={rep} 执行期间被改写"
+                        f"（并发写盘，门禁按设计拒绝本次 attempt）；"
+                        f"重试 {attempt + 1}/{max_source_retries}")
+                else:
+                    lock_retries += 1
+                    log(f"   [retry] {cell.scenario_id} rep={rep} 落盘时文件被短暂占用"
+                        f"（WinError {getattr(lock, 'winerror', '?')}）；重试 {attempt + 1}/{max_source_retries}")
+                continue
+            row["source_retries"] = source_retries
+            row["file_lock_retries"] = lock_retries
+            row["retry_attempt_dirs"] = "|".join(
+                str(base if index == 0 else base.with_name(f"{base.name}_attempt{index}"))
+                for index in range(attempt)
+            )
+            return row
+        raise AssertionError("unreachable retry state")
+
+    # ---- 续跑：只接受同一批参数产出的逐 rep 表，参数不一致立即抛 ----
+    resumed = pd.DataFrame()
+    completed: set[tuple[str, str, int]] = set()
+    if resume_from is not None:
+        resume_path = Path(resume_from)
+        if not resume_path.exists():
+            raise FileNotFoundError(f"续跑文件不存在：{resume_path}")
+        resumed = pd.read_csv(resume_path, encoding="utf-8-sig")
+        missing = {"block", "scenario_id", "rep", "n_total", "alpha", "config_hash"} - set(resumed.columns)
+        if missing:
+            raise ValueError(f"续跑文件缺少列：{sorted(missing)}")
+        if not resumed.empty:
+            if set(resumed["block"].unique().tolist()) - {_BLOCK_TRUE_AA, _BLOCK_NEGATIVE_CONTROL}:
+                raise ValueError("续跑文件含非 AA/负对照块，拒绝续跑")
+            if not resumed["alpha"].eq(alpha).all():
+                raise ValueError("续跑文件的 alpha 与当前协议不一致")
+            if not resumed["n_total"].eq(n).all():
+                raise ValueError("续跑文件的 n 与当前请求不一致")
+            completed = set(zip(resumed["block"], resumed["scenario_id"],
+                                resumed["rep"].astype(int), strict=True))
+            log(f"[resume] 已有 {len(resumed)} 个 rep，跳过重复项")
+
+    def flush(frame: pd.DataFrame) -> None:
+        """每完成一个 rep 就落盘：崩溃后不丢已完成结果（协议要求失败重试全部保留）。"""
+        frame.to_csv(flush_path, index=False, encoding="utf-8-sig")
+
+    new_rows: list[dict[str, Any]] = []
     for cell in cells:
         for rep in range(rep_start, rep_start + reps):
+            if (_BLOCK_TRUE_AA, cell.scenario_id, rep) in completed:
+                continue
             keep = keep_representative and rep == 0
             log(f"[aa] {cell.scenario_id} rep={rep} n={n} keep={keep}")
-            row = run_aa_rep(cell, protocol, rep=rep, n=n,
-                             run_dir=attempt_dir(_BLOCK_TRUE_AA, cell.scenario_id, rep, n, keep),
-                             block=_BLOCK_TRUE_AA, alpha=alpha, keep_artifacts=keep)
-            repeated.append(row)
+            row = run_with_retry(cell, rep=rep, size=n, block=_BLOCK_TRUE_AA, keep=keep)
+            new_rows.append(row)
+            flush(pd.concat([resumed, pd.DataFrame(new_rows)], ignore_index=True))
             log(f"[aa]   p(net_profit/full)={row['full_net_profit_p_value']:.4f} cpu={row['total_cpu_s']:.2f}s")
 
     if control_cell is not None:
         for rep in range(rep_start, rep_start + control_reps):
+            if (_BLOCK_NEGATIVE_CONTROL, negative_control_scenario, rep) in completed:
+                continue
             keep = keep_representative and rep == 0
             log(f"[nc] {negative_control_scenario} rep={rep} n={n} keep={keep}")
-            repeated.append(run_aa_rep(
-                control_cell, protocol, rep=rep, n=n,
-                run_dir=attempt_dir(_BLOCK_NEGATIVE_CONTROL, negative_control_scenario, rep, n, keep),
-                block=_BLOCK_NEGATIVE_CONTROL, alpha=alpha, keep_artifacts=keep,
+            new_rows.append(run_with_retry(
+                control_cell, rep=rep, size=n, block=_BLOCK_NEGATIVE_CONTROL, keep=keep,
             ))
+            flush(pd.concat([resumed, pd.DataFrame(new_rows)], ignore_index=True))
 
-    repetitions = pd.DataFrame(repeated)
+    repeated = pd.concat([resumed, pd.DataFrame(new_rows)], ignore_index=True) if new_rows or not resumed.empty \
+        else pd.DataFrame()
+    if repeated.empty:
+        raise ValueError("没有任何 rep 结果（续跑文件为空且本次未执行）")
+    flush(repeated)
+    repetitions = repeated
+
     anchor_rows: list[dict[str, Any]] = []
     if cost_anchor_reps > 0:
         if isinstance(cost_anchor_reps, bool) or not isinstance(cost_anchor_reps, (int, np.integer)):
@@ -869,10 +1011,8 @@ def run_full_chain_aa(
             anchor_n = int(cell.registered_n if cost_anchor_n is None else cost_anchor_n)
             for rep in range(rep_start, rep_start + int(cost_anchor_reps)):
                 log(f"[cost] {cell.scenario_id} rep={rep} n={anchor_n}（只计成本）")
-                anchor_rows.append(run_aa_rep(
-                    cell, protocol, rep=rep, n=anchor_n,
-                    run_dir=attempt_dir(_BLOCK_COST_ANCHOR, cell.scenario_id, rep, anchor_n, False),
-                    block=_BLOCK_COST_ANCHOR, alpha=alpha, keep_artifacts=False,
+                anchor_rows.append(run_with_retry(
+                    cell, rep=rep, size=anchor_n, block=_BLOCK_COST_ANCHOR, keep=False,
                 ))
     anchor = pd.DataFrame(anchor_rows)
 
@@ -910,6 +1050,13 @@ def run_full_chain_aa(
         "negative_control_reps": control_reps,
         "cost_anchor_reps": int(cost_anchor_reps),
         "cost_anchor_n": cost_anchor_n,
+        "max_source_retries": max_source_retries,
+        "resume_from": str(resume_from) if resume_from is not None else None,
+        "flush_path": str(flush_path),
+        "source_retries_total": int(repetitions.get("source_retries", pd.Series(dtype=int)).sum())
+        + (int(anchor.get("source_retries", pd.Series(dtype=int)).sum()) if not anchor.empty else 0),
+        "file_lock_retries_total": int(repetitions.get("file_lock_retries", pd.Series(dtype=int)).sum())
+        + (int(anchor.get("file_lock_retries", pd.Series(dtype=int)).sum()) if not anchor.empty else 0),
         "python_version": ".".join(str(part) for part in sys.version_info[:3]),
         "v3_aa_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "run_root": str(run_root),
@@ -981,6 +1128,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--negative-control-reps", type=int, default=None, help="负对照重复次数（默认同 --reps）")
     parser.add_argument("--cost-anchor-reps", type=int, default=1, help="注册规模成本锚 rep 数（0 = 不测）")
     parser.add_argument("--cost-anchor-n", type=int, default=None, help="成本锚人群规模（默认取注册 n）")
+    parser.add_argument("--max-source-retries", type=int, default=3,
+                        help="单 rep 因并发写盘/文件占用等环境故障时的重试次数（仅这两类异常）")
+    parser.add_argument("--resume-from", default=None,
+                        help="从已完成批次的逐 rep CSV 续跑（参数不一致会拒绝）")
     parser.add_argument("--run-root", default=None, help="本次尝试目录（必须不存在）")
     parser.add_argument("--summary-csv", default=None, help="汇总表路径（默认 outputs/tables/v3_phase_D_aa.csv）")
     parser.add_argument("--no-keep-representative", action="store_true", help="不保留 rep 0 的完整产物")
@@ -993,6 +1144,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         include_negative_control=not args.no_negative_control,
         negative_control_reps=args.negative_control_reps,
         cost_anchor_reps=args.cost_anchor_reps, cost_anchor_n=args.cost_anchor_n,
+        max_source_retries=args.max_source_retries,
+        resume_from=args.resume_from,
         progress=None if args.quiet else print,
     )
     paths = write_outputs(bundle, summary_csv=args.summary_csv)
