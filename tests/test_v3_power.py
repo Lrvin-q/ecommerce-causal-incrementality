@@ -51,6 +51,10 @@ def _profile(
     rep_id: int = 1000,
     n_treatment: int = 50000,
     n_control: int = 50000,
+    kurtosis_treatment: float = 22.0,
+    kurtosis_control: float = 21.0,
+    refund_treatment: float = 0.0077,
+    refund_control: float = 0.0075,
 ) -> vp.DesignSampleProfile:
     """构造一个只含观测汇总的设计样本画像（单测里替代完整五表 + SQL）。"""
     return vp.DesignSampleProfile(
@@ -69,19 +73,31 @@ def _profile(
         observed_dataset_hash="sha256:fixture",
         source_path="fixture://design_sample",
         config_hash="0" * 64,
+        profit_kurtosis_treatment=kurtosis_treatment,
+        profit_kurtosis_control=kurtosis_control,
+        refund_rate_treatment=refund_treatment,
+        refund_rate_control=refund_control,
         notes="unit-test fixture",
     )
 
 
 def _profiles(protocol: V3Protocol) -> dict[str, vp.DesignSampleProfile]:
-    """四个基础机制各一份画像（各层 σ 故意不同，用来验证方差确实按层取）。"""
+    """四个基础机制各一份画像（各层 σ 与峰度故意不同，用来验证按层取值）。"""
     return {
-        "L0_P_main": _profile("L0_P_main", sd_treatment=60.0, sd_control=52.0, purchase_control=0.115),
-        "L1_main": _profile("L1_main", sd_treatment=55.0, sd_control=52.0, purchase_control=0.120),
+        "L0_P_main": _profile("L0_P_main", sd_treatment=60.0, sd_control=52.0, purchase_control=0.115,
+                              kurtosis_treatment=20.0, kurtosis_control=19.0,
+                              refund_control=0.0072),
+        "L1_main": _profile("L1_main", sd_treatment=55.0, sd_control=52.0, purchase_control=0.120,
+                            kurtosis_treatment=22.0, kurtosis_control=21.0,
+                            refund_control=0.0075),
         "L2_n200000_p050": _profile("L2_n200000_p050", sd_treatment=58.0, sd_control=52.0,
-                                    purchase_control=0.118),
+                                    purchase_control=0.118,
+                                    kurtosis_treatment=24.0, kurtosis_control=23.0,
+                                    refund_control=0.0074),
         "L3_fixed_lt000": _profile("L3_fixed_lt000", sd_treatment=56.0, sd_control=53.0,
-                                   purchase_control=0.121),
+                                   purchase_control=0.121,
+                                   kurtosis_treatment=40.0, kurtosis_control=35.0,
+                                   refund_control=0.0068),
     }
 
 
@@ -92,16 +108,18 @@ def profiles(protocol) -> dict[str, vp.DesignSampleProfile]:
 
 
 def _frame(n: int = 400, *, treatment_share: float = 0.5, seed: int = 7) -> pd.DataFrame:
-    """观测列小表：只含本模块允许读取的四列。"""
+    """观测列小表：只含本模块允许读取的五列（含 C2 护栏列）。"""
     rng = child_rng(master_seed=20240101, stream="test.v3_power.frame", index=seed)
     treatment = np.zeros(n, dtype=int)
     treatment[: int(round(n * treatment_share))] = 1
     purchase = (rng.random(n) < np.where(treatment == 1, 0.13, 0.12)).astype(float)
     profit = np.where(purchase > 0, rng.gamma(2.0, 30.0, n) - 10.0, 0.0)
+    refund = (purchase > 0) & (rng.random(n) < 0.075)
     return pd.DataFrame({
         "treatment": treatment,
         "net_profit": profit,
         "paid_purchase_7d": purchase,
+        "any_refund_30d": refund.astype(float),
         "split": "train",
     })
 
@@ -349,7 +367,95 @@ def test_profit_mde_matches_monte_carlo_rejection_rate():
 
 
 # --------------------------------------------------------------------------- #
-# 6. 购买率：两比例数值反解
+# 6. σ 的抽样不确定性：峰度修正（C4）
+# --------------------------------------------------------------------------- #
+def test_sample_kurtosis_matches_bernoulli_closed_form():
+    """伯努利(p) 的 κ = [(1−p)^3 + p^3] / [p(1−p)]，用来钉住"非超额峰度"的定义。"""
+    p = 0.1
+    values = np.concatenate([np.ones(1000), np.zeros(9000)])
+    expected = ((1.0 - p) ** 3 + p**3) / (p * (1.0 - p))
+    assert vp.sample_kurtosis(values) == pytest.approx(expected, rel=1e-9)
+
+
+def test_sample_kurtosis_rejects_degenerate_samples():
+    with pytest.raises(ValueError):
+        vp.sample_kurtosis([1.0, 1.0, 1.0, 1.0])
+    with pytest.raises(ValueError):
+        vp.sample_kurtosis([1.0, 2.0, 3.0])
+    with pytest.raises(ValueError):
+        vp.sample_kurtosis([1.0, 2.0, float("nan"), 4.0])
+
+
+def test_sigma_relative_se_follows_the_kurtosis_formula_not_the_normal_one():
+    kappa, n_arm = 22.0, 50000
+    expected = math.sqrt((kappa - 1.0) / (4.0 * n_arm))
+    assert vp.sigma_relative_se(kappa, n_arm) == pytest.approx(expected)
+    # 正态公式 1/sqrt(2n) 会把误差低估 sqrt((κ−1)/2) 倍；L1 的 κ≈22 时约 3.2 倍。
+    ratio = expected / (1.0 / math.sqrt(2.0 * n_arm))
+    assert ratio == pytest.approx(math.sqrt((kappa - 1.0) / 2.0))
+    assert 3.0 < ratio < 5.0
+
+
+@pytest.mark.parametrize("kurtosis,n_arm", [(0.5, 1000), (22.0, 1), (22.0, 0)])
+def test_sigma_relative_se_rejects_illegal_inputs(kurtosis, n_arm):
+    with pytest.raises(ValueError):
+        vp.sigma_relative_se(kurtosis, n_arm)
+
+
+def test_sigma_relative_se_reproduces_the_sampling_error_by_simulation():
+    """用零膨胀重尾分布做一次轻量 MC：实测 sd(σ̂)/σ 必须贴近峰度公式。"""
+    rng = child_rng(master_seed=20240101, stream="test.v3_power.kurtosis_mc", index=0)
+    n_arm, reps = 5000, 400
+    pays = rng.random((reps, n_arm)) < 0.10
+    amounts = rng.gamma(2.0, 30.0, size=(reps, n_arm))
+    sample = np.where(pays, amounts, 0.0)
+    sd = sample.std(axis=1, ddof=1)
+    kurtosis = vp.sample_kurtosis(sample.ravel())
+    predicted = vp.sigma_relative_se(kurtosis, n_arm)
+    measured = float(sd.std(ddof=1) / sd.mean())
+    assert measured == pytest.approx(predicted, rel=0.10)
+
+
+def test_mde_relative_se_is_the_weighted_combination_of_arm_errors(protocol):
+    profile = _profile("L1_main", sd_treatment=55.0, sd_control=55.0,
+                       kurtosis_treatment=22.0, kurtosis_control=22.0)
+    r = vp.sigma_relative_se(22.0, 50000)
+    expected = math.sqrt(0.25 * r * r + 0.25 * r * r)
+    assert vp.mde_relative_se(profile, 100000, 100000) == pytest.approx(expected)
+    assert expected < r
+
+
+def test_mde_relative_se_refuses_a_profile_without_kurtosis():
+    profile = _profile("L1_main", kurtosis_treatment=None)
+    with pytest.raises(ValueError, match="峰度"):
+        vp.mde_relative_se(profile, 100000, 100000)
+    with pytest.raises(ValueError, match="峰度"):
+        vp.sigma_stress_relative_se(profile)
+
+
+def test_sigma_stress_power_matches_the_closed_form():
+    sigma, n, target = 20.0, 100000, 0.05
+    mde = vp.profit_mde(sigma, sigma, n, n, alpha=target, power=0.80)
+    stress = 0.012
+    expected = float(norm.cdf((vp.z_alpha(target) + vp.z_power(0.80)) / (1.0 + stress)
+                              - vp.z_alpha(target)))
+    assert vp.profit_power_sigma_stress(mde, sigma, sigma, n, n, alpha=target,
+                                        relative_inflation=stress) == pytest.approx(expected)
+
+
+def test_unit_multiplier_true_power_under_sigma_stress_is_about_079(calibrations):
+    """C4：mde100 的"解析 0.8000"在 σ 上行 1 个抽样 SE 后只有约 0.79。"""
+    for cell in calibrations:
+        if cell.configured_multiplier != pytest.approx(1.0):
+            continue
+        assert cell.power_at_sigma_plus_1se < cell.analytic_power
+        assert 0.780 < cell.power_at_sigma_plus_1se < 0.800
+        assert 0.005 < cell.sigma_stress_relative_se < 0.02
+        assert 0.005 < cell.mde_relative_se < cell.sigma_stress_relative_se
+
+
+# --------------------------------------------------------------------------- #
+# 7. 购买率：两比例数值反解
 # --------------------------------------------------------------------------- #
 def test_purchase_power_at_zero_delta_equals_half_alpha():
     assert vp.purchase_power(0.12, 0.0, 100000, 100000, alpha=0.05) == pytest.approx(0.025)
@@ -461,7 +567,111 @@ def test_purchase_mde_matches_monte_carlo_rejection_rate():
 
 
 # --------------------------------------------------------------------------- #
-# 7. 倍数校准
+# 8. 护栏非劣效 MDE（C2）
+# --------------------------------------------------------------------------- #
+def test_guardrail_config_comes_from_the_register(protocol):
+    config = vp.guardrail_config(protocol)
+    assert config["metric"] == "any_refund_30d_per_assigned_user"
+    assert config["margin"] == pytest.approx(0.005)
+    assert config["alpha_one_sided"] == pytest.approx(0.05)
+    assert config["power_targets"] == (pytest.approx(0.80), pytest.approx(0.90))
+
+
+def test_noninferiority_power_at_the_margin_equals_alpha():
+    # H1 与 H0 的二项方差在同一点略有差异（p1=0.0125 vs 合并 0.01），故留有 1e-4 级偏差。
+    assert vp.noninferiority_power(0.0075, 0.005, 100000, 100000,
+                                   margin=0.005, alpha=0.05) == pytest.approx(0.05, abs=5e-4)
+
+
+def test_noninferiority_power_is_one_when_there_is_no_worsening():
+    power = vp.noninferiority_power(0.0075, 0.0, 100000, 100000,
+                                    margin=0.005, alpha=0.05)
+    assert power > 0.9999
+
+
+def test_noninferiority_mde_round_trips_to_the_target_power():
+    p0, margin = 0.0075, 0.005
+    for power in (0.80, 0.90):
+        effect = vp.noninferiority_mde(p0, 100000, 100000, margin=margin,
+                                       alpha=0.05, power=power)
+        assert vp.noninferiority_power(p0, margin - effect, 100000, 100000,
+                                       margin=margin, alpha=0.05) == pytest.approx(power, abs=1e-7)
+
+
+def test_noninferiority_mde_shrinks_with_more_users():
+    small = vp.noninferiority_mde(0.0075, 10000, 10000, margin=0.005, alpha=0.05, power=0.80)
+    large = vp.noninferiority_mde(0.0075, 100000, 100000, margin=0.005, alpha=0.05, power=0.80)
+    assert large < small
+    assert small / large == pytest.approx(math.sqrt(10.0), rel=0.05)
+
+
+@pytest.mark.parametrize("p0,margin", [(0.0, 0.005), (1.0, 0.005), (0.997, 0.005),
+                                       (0.0075, 0.0), (0.0075, -0.5)])
+def test_noninferiority_mde_rejects_illegal_inputs(p0, margin):
+    with pytest.raises(ValueError):
+        vp.noninferiority_mde(p0, 1000, 1000, margin=margin, alpha=0.05, power=0.8)
+
+
+def test_guardrail_mde_follows_the_register(protocol, mde_rows):
+    """把界值改大必须让 MDE（到界值的距离）变大：零硬编码。"""
+    data = protocol.config.to_dict()
+    data["design"]["guardrail"]["noninferiority_margin_probability_points"] = 0.01
+    patched = V3Protocol(Config(data, name="patched"), protocol.source_hashes, protocol.config_hash)
+    patched_rows = vp.build_mde_rows(patched, _profiles(protocol))
+    base = [row for row in mde_rows
+            if row["record_type"] == "guardrail_mde" and row["scenario_id"] == "L1_main"
+            and row["power_target"] == pytest.approx(0.80)][0]
+    wider = [row for row in patched_rows
+             if row["record_type"] == "guardrail_mde" and row["scenario_id"] == "L1_main"
+             and row["power_target"] == pytest.approx(0.80)][0]
+    assert vp.guardrail_config(patched)["margin"] == pytest.approx(0.01)
+    assert wider["noninferiority_margin"] == pytest.approx(0.01)
+    assert wider["mde"] > base["mde"]
+
+
+def test_guardrail_rows_cover_four_layers_and_two_powers(mde_rows, protocol):
+    guardrail = [row for row in mde_rows if row["record_type"] == "guardrail_mde"]
+    assert len(guardrail) == 8
+    assert {row["level"] for row in guardrail} == {"L0", "L1", "L2", "L3"}
+    assert sorted(row["power_target"] for row in guardrail) == pytest.approx(
+        [0.80, 0.80, 0.80, 0.80, 0.90, 0.90, 0.90, 0.90])
+    metric = protocol.config.require("design.guardrail.primary_metric")
+    for row in guardrail:
+        assert row["metric"] == metric
+        assert row["sides"] == vp.ONE_SIDED
+        assert row["alpha_per_test"] == pytest.approx(0.05)
+        assert row["alpha_one_sided"] == pytest.approx(0.05)
+        assert row["noninferiority_margin"] == pytest.approx(0.005)
+        assert row["n_total"] == 200000
+        assert row["n_treatment"] == row["n_control"] == 100000
+        assert row["p0_baseline"] == pytest.approx(row["control_mean"])
+        assert row["p1_at_mde"] == pytest.approx(
+            row["p0_baseline"] + row["noninferiority_margin"] - row["mde"])
+        assert row["mde_pp"] == pytest.approx(row["mde"] * 100.0)
+        assert row["mde_relative_to_margin_pct"] == pytest.approx(row["mde"] / 0.005 * 100.0)
+        assert row["power_at_zero_effect"] > 0.9999
+        assert row["analytic_power"] == pytest.approx(row["power_target"])
+
+
+def test_guardrail_mde_is_a_small_fraction_of_the_margin(mde_rows):
+    """20 万/50-50 下护栏很灵敏：到界值的可检测距离约 0.1pp，是 0.5pp 界值的 1/5。"""
+    guardrail = [row for row in mde_rows if row["record_type"] == "guardrail_mde"]
+    for row in guardrail:
+        assert 0.08 < row["mde_pp"] < 0.15
+        assert 0.15 < row["mde"] / 0.005 < 0.30
+
+
+def test_guardrail_rows_leave_empirics_pending(mde_rows):
+    guardrail = [row for row in mde_rows if row["record_type"] == "guardrail_mde"]
+    for row in guardrail:
+        assert row["achieved_effect"] is None
+        assert row["rejection_rate"] is None
+        assert row["mc_se"] is None
+        assert vp.PENDING_LOCAL_POWER in row["notes"]
+
+
+# --------------------------------------------------------------------------- #
+# 9. 倍数校准
 # --------------------------------------------------------------------------- #
 def test_multiplier_round_trips_with_target_effect():
     mde = 0.72
@@ -523,6 +733,14 @@ def test_profile_from_frame_computes_sample_statistics():
     assert profile.profit_sd_control == pytest.approx(control.std(ddof=1))
     assert profile.purchase_rate_treatment == pytest.approx(
         frame.loc[frame.treatment == 1, "paid_purchase_7d"].mean())
+    assert profile.refund_rate_control == pytest.approx(
+        frame.loc[frame.treatment == 0, "any_refund_30d"].mean())
+    assert profile.refund_rate_treatment == pytest.approx(
+        frame.loc[frame.treatment == 1, "any_refund_30d"].mean())
+    for arm, values in (("treatment", treated), ("control", control)):
+        centered = values - values.mean()
+        expected = float(np.mean(centered**4) / np.mean(centered**2) ** 2)
+        assert getattr(profile, f"profit_kurtosis_{arm}") == pytest.approx(expected)
     assert profile.split == "train"
 
 
@@ -733,6 +951,57 @@ def test_high_multiplier_cells_clear_both_targets(calibrations):
             assert cell.analytic_power > 0.98
 
 
+def test_power_cell_boundary_flag_separates_the_zero_margin_cells(mde_rows):
+    """C5：mde100 必须被编码为边界格，不能只靠散文；下游只看 detectable_at_80 会误判。"""
+    cells = [row for row in mde_rows if row["record_type"] == "power_cell"]
+    assert len(cells) == 20
+    boundary = [row for row in cells if row["boundary_flag"]]
+    assert len(boundary) == 4
+    assert sorted(row["configured_multiplier"] for row in boundary) == pytest.approx(
+        [1.0, 1.0, 1.0, 1.0])
+    for row in boundary:
+        assert row["power_cell_class"] == "boundary_zero_margin"
+        assert row["margin_ratio"] == pytest.approx(1.0)
+        assert row["effect_margin"] == pytest.approx(0.0, abs=1e-12)
+        assert row["power_margin"] == pytest.approx(0.0, abs=1e-12)
+        assert "边界格" in row["boundary_note"]
+        assert row["power_at_sigma_plus_1se"] < row["analytic_power"]
+    below = [row for row in cells if row["power_cell_class"] == "below_design_mde"]
+    above = [row for row in cells if row["power_cell_class"] == "above_design_mde"]
+    assert len(below) == 8 and len(above) == 8
+    for row in below:
+        assert row["margin_ratio"] < 1.0
+        assert row["detectable_at_80"] is False
+    for row in above:
+        assert row["margin_ratio"] > 1.0
+        assert row["detectable_at_80"] is True
+        assert row["power_margin"] > 0.0
+
+
+def test_downstream_gate_that_ignores_boundary_flag_would_overcount(mde_rows):
+    cells = [row for row in mde_rows if row["record_type"] == "power_cell"]
+    naive_pass = [row for row in cells if row["detectable_at_80"]]
+    safe_pass = [row for row in naive_pass if not row["boundary_flag"]]
+    assert len(naive_pass) == 12
+    assert len(safe_pass) == 8
+    assert sorted(row["configured_multiplier"] for row in safe_pass) == pytest.approx(
+        [1.5, 1.5, 1.5, 1.5, 2.0, 2.0, 2.0, 2.0])
+
+
+def test_one_sided_rows_annotate_the_alpha_caliber_gap(mde_rows):
+    """C5：主检验单侧行沿用双侧 α=0.05（不是 0.025），必须在表里可识别。"""
+    design = [row for row in mde_rows if row["record_type"] == "design_mde"]
+    one_sided = [row for row in design if row["sides"] == vp.ONE_SIDED]
+    two_sided = [row for row in design if row["sides"] == vp.TWO_SIDED]
+    assert one_sided and two_sided
+    for row in one_sided:
+        assert row["alpha_one_sided"] == pytest.approx(0.05)
+        assert "one_sided_uses_alpha_two_sided_value" in row["sides_note"]
+    for row in two_sided:
+        assert row["alpha_one_sided"] is None
+        assert row["sides_note"] is None
+
+
 def test_calibration_entry_accepts_an_explicit_target_effect(protocol):
     profile = _profiles(protocol)["L1_main"]
     reference = vp.calibrate_power_cell(
@@ -793,8 +1062,9 @@ def mde_rows(protocol, profiles):
 
 def test_rows_cover_design_and_power_cells(mde_rows, protocol):
     base_scenarios = [str(name) for name in protocol.config.require("design.local_power.base_scenarios")]
-    assert len(mde_rows) == 176 * len(base_scenarios) + 20
+    assert len(mde_rows) == 176 * len(base_scenarios) + 2 * len(base_scenarios) + 20
     assert sum(1 for row in mde_rows if row["record_type"] == "design_mde") == 176 * len(base_scenarios)
+    assert sum(1 for row in mde_rows if row["record_type"] == "guardrail_mde") == 2 * len(base_scenarios)
     assert sum(1 for row in mde_rows if row["record_type"] == "power_cell") == 20
     assert all(row["data_source"] == protocol.config.require("project.data_source_label")
                for row in mde_rows)
@@ -908,13 +1178,101 @@ def test_committed_table_matches_its_schema(protocol):
         pytest.skip("尚未生成 v3_phase_D_mde.csv")
     frame = vp.read_mde_csv(path)
     dataset_cells = len(protocol.config.require("design.local_power.base_scenarios"))
-    assert len(frame) == 176 * dataset_cells + 20
-    assert set(frame["record_type"]) == {"design_mde", "power_cell"}
+    assert len(frame) == 176 * dataset_cells + 2 * dataset_cells + 20
+    assert set(frame["record_type"]) == {"design_mde", "guardrail_mde", "power_cell"}
     assert frame["data_source"].str.startswith("合成数据").all()
 
 
 # --------------------------------------------------------------------------- #
-# 12. 不读真值：导入期与 AST 双重证据
+# 12. 实测功效汇总入口（C3）：只汇总真实逐 rep 结果，不伪造
+# --------------------------------------------------------------------------- #
+def _rep_rows(cell_id: str = "L1_power_mde100", reps: int = 100, hits: int = 80,
+              effect: float = 0.1303) -> list[dict[str, object]]:
+    """构造 R 次重复的逐 rep 结果（含达成效应与是否拒绝）。"""
+    return [
+        {"cell_id": cell_id, "rep_id": rep, "effect_estimate": effect + 0.0001 * rep,
+         "reject": rep < hits}
+        for rep in range(reps)
+    ]
+
+
+def test_summarize_power_cells_recomputes_rate_and_binomial_interval():
+    rows = _rep_rows(reps=100, hits=80)
+    summary = vp.summarize_power_cells(rows)
+    assert tuple(summary.columns) == vp.POWER_CELL_SUMMARY_COLUMNS
+    row = summary.iloc[0]
+    assert row["n_reps"] == 100
+    assert row["rejection_rate"] == pytest.approx(0.80)
+    assert row["mc_se"] == pytest.approx(math.sqrt(0.8 * 0.2 / 100))
+    assert row["binomial_ci_low"] < 0.80 < row["binomial_ci_high"]
+    assert row["binomial_ci_low"] == pytest.approx(0.708, abs=0.01)
+    assert row["binomial_ci_high"] == pytest.approx(0.874, abs=0.01)
+    assert row["achieved_effect"] == pytest.approx(
+        np.mean([row_["effect_estimate"] for row_ in rows]))
+    assert row["achieved_effect_mc_se"] == pytest.approx(
+        np.std([row_["effect_estimate"] for row_ in rows], ddof=1) / math.sqrt(100))
+
+
+def test_summarize_power_cells_accepts_a_dataframe_and_multiple_cells():
+    rows = _rep_rows("L1_power_mde100", reps=50, hits=40) + _rep_rows(
+        "L3_power_mde050", reps=50, hits=5, effect=0.05)
+    summary = vp.summarize_power_cells(pd.DataFrame(rows))
+    assert list(summary["cell_id"]) == ["L1_power_mde100", "L3_power_mde050"]
+    assert summary.iloc[1]["rejection_rate"] == pytest.approx(0.10)
+
+
+@pytest.mark.parametrize("mutation,message", [
+    (lambda rows: [{"cell_id": "x", "rep_id": 0, "effect_estimate": 1.0} for _ in range(2)], "缺少列"),
+    (lambda rows: [], "为空"),
+])
+def test_summarize_power_cells_rejects_missing_payload(mutation, message):
+    with pytest.raises(ValueError, match=message):
+        vp.summarize_power_cells(mutation(_rep_rows()))
+
+
+def test_summarize_power_cells_rejects_duplicate_reps():
+    rows = _rep_rows(reps=4)
+    rows.append(dict(rows[0]))
+    with pytest.raises(ValueError, match="重复"):
+        vp.summarize_power_cells(rows)
+
+
+def test_summarize_power_cells_rejects_single_rep():
+    with pytest.raises(ValueError, match="MC_SE"):
+        vp.summarize_power_cells(_rep_rows(reps=1))
+
+
+@pytest.mark.parametrize("reject,effect", [(2, 0.1), (True, float("nan")), (False, float("inf"))])
+def test_summarize_power_cells_rejects_bad_values(reject, effect):
+    rows = _rep_rows(reps=4)
+    rows[0] = {"cell_id": "x", "rep_id": 0, "effect_estimate": effect, "reject": reject}
+    with pytest.raises(ValueError):
+        vp.summarize_power_cells(rows)
+
+
+def test_power_cell_rows_leave_empirics_empty_and_pending(mde_rows):
+    """C3：没有真实重复时，实测列必须为空并写 pending，绝不能用解析功效冒充。"""
+    cells = [row for row in mde_rows if row["record_type"] == "power_cell"]
+    for row in cells:
+        for column in ("achieved_effect", "rejection_rate", "mc_se",
+                       "binomial_ci_low", "binomial_ci_high", "empirical_n_reps"):
+            assert row[column] is None
+        assert vp.PENDING_LOCAL_POWER in row["notes"]
+
+
+def test_committed_table_leaves_empirics_empty_and_marks_pending():
+    path = ROOT / "outputs" / "tables" / "v3_phase_D_mde.csv"
+    if not path.exists():  # pragma: no cover - 表由 --table 生成后才会存在
+        pytest.skip("尚未生成 v3_phase_D_mde.csv")
+    frame = vp.read_mde_csv(path)
+    for column in ("achieved_effect", "rejection_rate", "mc_se",
+                   "binomial_ci_low", "binomial_ci_high", "empirical_n_reps"):
+        assert frame[column].isna().all()
+    assert frame["notes"].str.contains(vp.PENDING_LOCAL_POWER, regex=False).all()
+
+
+# --------------------------------------------------------------------------- #
+# 13. 不读真值：导入期与 AST 双重证据
 # --------------------------------------------------------------------------- #
 def test_module_does_not_import_dgp_at_import_time():
     code = ("import sys; import causal_growth.design.v3_power; "
@@ -944,10 +1302,13 @@ def test_dgp_import_is_confined_to_the_pilot_generator():
     assert offenders == []
 
 
-def test_module_only_reads_the_four_observable_columns():
+def test_module_only_reads_the_registered_observable_columns():
+    """观测列白名单是**五列**：四个原列 + C2 的护栏退款列；真值/审计列仍在禁止名单。"""
     source = MODULE_PATH.read_text(encoding="utf-8")
     assert "OBSERVED_COLUMNS" in source
-    assert set(vp.OBSERVED_COLUMNS) == {"treatment", "net_profit", "paid_purchase_7d", "split"}
+    assert set(vp.OBSERVED_COLUMNS) == {"treatment", "net_profit", "paid_purchase_7d",
+                                        "any_refund_30d", "split"}
+    assert vp.GUARDRAIL_COLUMN == "any_refund_30d"
     for forbidden in ("audit_u", "potential_outcome", "true_propensity", "l0.control"):
         assert forbidden not in source
 

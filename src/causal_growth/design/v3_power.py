@@ -1,29 +1,39 @@
-"""固定 N 反算 MDE 与 20 个功效格校准（v3 Phase D.1）。
+"""固定 N 反算 MDE、护栏非劣效 MDE 与 20 个功效格校准（v3 Phase D.1）。
 
 回答方案里的哪个问题
 --------------------
 v3 的样本量逻辑**不是**"先算需要多少人"，而是**固定 20 万人，反算能检测多小的效应**
-（HITL §7.1、``design.mde_direction = fixed_n_inverse_power``）。本模块回答三类问题：
+（HITL §7.1、``design.mde_direction = fixed_n_inverse_power``）。本模块回答四类问题：
 
 | 问题 | 入口 |
 |---|---|
 | 固定 n 与分流下，利润/购买率能检测多小的增量？ | :func:`profit_mde` / :func:`purchase_mde` |
 | 给定效应量到底有多少功效？ | :func:`profit_power` / :func:`purchase_power` |
+| 护栏退款率对 0.5pp 非劣效界值的检测下限是多少？ | :func:`noninferiority_mde` |
 | ``design_power_jobs`` 的 20 个格要什么 ``active_mde_multiplier`` 才够？ | :func:`calibrate_power_cell` |
 
 口径（红线）
 ------------
 1. **只读可观测列**：本模块只读 ``treatment`` / ``net_profit`` / ``paid_purchase_7d`` /
-   ``split`` 四列（:data:`OBSERVED_COLUMNS`）。方差只能来自 ``ObservedDataset`` 的
-   **train split**（:func:`design_sample_profile`）或独立先导模拟；**禁止**读测试集
-   真值、潜在结果或 ``audit/`` 下的任何内容来定检测目标。模块导入期不会加载
-   ``causal_growth.dgp``——只有独立先导入口 :func:`run_design_pilot` 内部才延迟导入。
+   ``any_refund_30d`` / ``split`` 五列（:data:`OBSERVED_COLUMNS`）。第五列是 C2
+   护栏非劣效 MDE 的基线来源，仍是**可观测结果**而非真值。方差/峰度/退款率只能来自
+   ``ObservedDataset`` 的 **train split**（:func:`design_sample_profile`）或独立先导
+   模拟；**禁止**读测试集真值、潜在结果或 ``audit/`` 下的任何内容来定检测目标。
+   模块导入期不会加载 ``causal_growth.dgp``——只有独立先导入口
+   :func:`run_design_pilot` 内部才延迟导入。
 2. **n 的符号不混用**：``n_total`` 是全样本，``n_treatment`` / ``n_control`` 是每臂；
    :func:`split_counts` 是唯一把总样本拆成各臂的地方，且保证各臂之和 == ``n_total``。
-3. **参数零硬编码**：α、目标功效、分流网格、检验族大小、根容差、队列人数全部从
-   ``configs/v3/*.yaml`` 读；配置里没有的（例如单侧 α 的独立取值）作为函数参数，
-   在 ``docs/v3_phase_D_mde.md`` 里逐条说明来源与默认值。
-4. **失败要响**：``n=0``、``sigma=0``、负效应、概率越界一律抛 ``ValueError``，
+3. **参数零硬编码**：α、目标功效、分流网格、检验族大小、根容差、队列人数、护栏
+   非劣效界值全部从 ``configs/v3/*.yaml`` 读；配置里没有的（例如主检验单侧 α 的独立
+   取值）作为函数参数，在 ``docs/v3_phase_D_mde.md`` 里逐条说明来源与默认值。
+4. **σ 的抽样不确定度按峰度计**：利润是零膨胀重尾变量，``SE(σ̂)/σ = sqrt((κ−1)/(4·n_arm))``，
+   κ 为**实测**非超额峰度（四阶中心矩/方差²），n_arm 是提供 σ 的 **train split 每臂
+   人数**。正态公式 ``1/sqrt(2n)`` 会把该误差低估 3–5 倍，禁止再用它写结论。
+5. **功效格实测列不得伪造**：``achieved_effect`` / ``rejection_rate`` / ``MC_SE`` /
+   二项区间只能由 :func:`summarize_power_cells` 从**真实重复的逐 rep 结果**汇总。
+   本模块**不生成任何正式重复**（``R = 0``）；汇总表里这些列留空，并在 ``notes`` 写
+   ``pending_local_power_entry_point``。**禁止**用解析功效冒充实测拒绝率。
+6. **失败要响**：``n=0``、``sigma=0``、负效应、概率越界一律抛 ``ValueError``，
    不返回 ``nan``。
 
 公式与近似
@@ -35,20 +45,28 @@ v3 的样本量逻辑**不是**"先算需要多少人"，而是**固定 20 万�
   单侧时把 ``z_{1-α/2}`` 换成 ``z_{1-α}``。该式对零膨胀/偏态的利润是**近似**：
   它只给大样本下的检验功效，不给覆盖率保证；正式功效必须用完整 DGP 复跑
   （HITL §7.2，属 Phase D 其它子任务与 Phase G）。
+* **σ̂ 的抽样误差**（C4）：``SE(σ̂)/σ ≈ sqrt((κ−1)/(4n_arm))``，κ 为非超额峰度。
+  本模块据此给每一行 ``mde_relative_se``，并给 ``power_at_sigma_plus_1se``：把两臂 σ
+  同时按较大的单臂相对 SE 上浮后，同一目标效应下的解析功效（**压力口径，不是实测拒绝率**）。
 * 购买率用**两比例功效关系数值反解**（:func:`purchase_mde` → ``brentq``）：基线率
   ``p0``、两臂人数、单/双侧、是否多重校正全部落盘。检验标准误在 H0 下用合并比例
   ``p̄``、H1 下用各自比例，因此 ``Δ→0`` 时功效收敛到 ``α/2``（双侧）/ ``α``（单侧），
   反解区间始终有根。
+* **护栏非劣效**（C2）：H0 为 ``p_1 − p_0 >= margin``，H0 标准误用 ``p_0+margin`` 与
+  ``p_0`` 的合并比例，H1 标准误用真实比例；单侧 α 与功效目标取
+  ``design.guardrail``。反解出的 ``mde`` 是"**到界值的可检测距离**"
+  ``e = margin − Δ``；``p1_at_mde = p0 + margin − e`` 是该功效下仍能被判为非劣效的
+  最大真实处理组退款率。
 * **多重校正**：Holm 要求 ``p_(k) ≤ α/(m-k+1)``，其充分条件是每项 ``p_i ≤ α/m``。
   设计期用 ``α/m`` 得到的是 Holm **联合检测能力**的保守下界（不对效应排序作假设），
   见 :func:`holm_per_test_alpha`。
 
 不做什么
 --------
-本模块**不生成任何正式重复**（``R = 0``），不产出 ``achieved_effect`` /
-``rejection_rate`` / ``MC_SE``——那三列属 ``design.local_power.report`` 的实证部分，
-必须由完整五表 + SQL + 估计流程在 D 的其它子任务与 Phase G 里跑出来。本模块只给
-设计期可算的量：设计 MDE、目标效应、所需倍数、解析功效。
+本模块**不生成任何正式重复**（``R = 0``）。它只给设计期可算的量：设计 MDE、目标效应、
+所需倍数、解析功效、σ 抽样压力功效、护栏非劣效 MDE。``achieved_effect`` /
+``rejection_rate`` / ``MC_SE`` / 二项区间由 D 的 local-power 入口产出逐 rep 结果后，
+再交给 :func:`summarize_power_cells` 汇总；本模块只提供这个**可执行入口**，不提供数据。
 
 合成数据 / 已知 DGP。正式重复次数仍为 0。
 """
@@ -66,9 +84,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
+import numpy as np
 import pandas as pd
 from scipy.optimize import brentq
-from scipy.stats import norm
+from scipy.stats import beta, norm
 
 from causal_growth.config import Config
 from causal_growth.data.v3_observed import ObservedDataset
@@ -76,9 +95,12 @@ from causal_growth.v3_config import V3Protocol, load_v3_protocol
 from causal_growth.v3_data_config import load_v3_data_config
 
 __all__ = [
+    "GUARDRAIL_COLUMN",
     "MDE_TABLE_COLUMNS",
     "OBSERVED_COLUMNS",
     "ONE_SIDED",
+    "PENDING_LOCAL_POWER",
+    "POWER_CELL_SUMMARY_COLUMNS",
     "TWO_SIDED",
     "Contrast",
     "DesignSampleProfile",
@@ -92,21 +114,30 @@ __all__ = [
     "design_pilot_rep_ids",
     "design_sample_profile",
     "design_scenario_id",
+    "guardrail_config",
     "holm_per_test_alpha",
+    "mde_relative_se",
     "multiplier_for_power",
     "multiplier_for_target_effect",
+    "noninferiority_mde",
+    "noninferiority_power",
     "power_targets_from_config",
     "profile_from_frame",
     "profile_from_record",
     "profile_to_record",
     "profit_mde",
     "profit_power",
+    "profit_power_sigma_stress",
     "purchase_mde",
     "purchase_power",
     "read_mde_csv",
     "read_profiles_json",
     "run_design_pilot",
+    "sample_kurtosis",
+    "sigma_relative_se",
+    "sigma_stress_relative_se",
     "split_counts",
+    "summarize_power_cells",
     "target_effect_for_multiplier",
     "write_mde_csv",
     "write_profiles_json",
@@ -121,7 +152,40 @@ ONE_SIDED = "one_sided"
 _SIDES = (TWO_SIDED, ONE_SIDED)
 
 #: 本模块**唯一**读取的观测列。多一列都不读，越界即抛错。
-OBSERVED_COLUMNS: tuple[str, ...] = ("treatment", "net_profit", "paid_purchase_7d", "split")
+#: 第五列 ``any_refund_30d`` 是护栏非劣效 MDE 的基线（C2），仍是可观测结果列。
+OBSERVED_COLUMNS: tuple[str, ...] = (
+    "treatment",
+    "net_profit",
+    "paid_purchase_7d",
+    "any_refund_30d",
+    "split",
+)
+
+#: 护栏指标在观测表里的逐用户列名（``design.guardrail.primary_metric`` 的逐用户形态）。
+GUARDRAIL_COLUMN = "any_refund_30d"
+
+#: 功效格实测列的待补标记（C3）：没有真实重复时只允许写这个字符串，不允许填解析值。
+PENDING_LOCAL_POWER = "pending_local_power_entry_point"
+
+#: :func:`summarize_power_cells` 的输出列（逐格一行）。
+POWER_CELL_SUMMARY_COLUMNS: tuple[str, ...] = (
+    "cell_id",
+    "n_reps",
+    "achieved_effect",
+    "achieved_effect_mc_se",
+    "rejection_rate",
+    "mc_se",
+    "binomial_ci_low",
+    "binomial_ci_high",
+    "ci_confidence",
+)
+
+#: 功效格的判定类别（C5）：低于设计 MDE / 边界零余量 / 高于设计 MDE。
+POWER_CELL_CLASSES: tuple[str, ...] = (
+    "below_design_mde",
+    "boundary_zero_margin",
+    "above_design_mde",
+)
 
 #: 汇总表列名（顺序即落盘顺序，报告按名对齐）。
 MDE_TABLE_COLUMNS: tuple[str, ...] = (
@@ -130,6 +194,7 @@ MDE_TABLE_COLUMNS: tuple[str, ...] = (
     "scenario_id",
     "level",
     "base_scenario_id",
+    "cell_id",
     "cohort_id",
     "cohort_provenance",
     "contrast",
@@ -140,26 +205,49 @@ MDE_TABLE_COLUMNS: tuple[str, ...] = (
     "treatment_share",
     "alpha",
     "alpha_per_test",
+    "alpha_one_sided",
     "sides",
+    "sides_note",
     "power_target",
     "multiplicity",
     "family_size",
     "mde",
     "mde_unit",
     "mde_pp",
-    "control_mean",
     "mde_relative_pct",
+    "mde_relative_to_margin_pct",
+    "noninferiority_margin",
+    "control_mean",
     "sigma_treatment",
     "sigma_control",
+    "profit_kurtosis_treatment",
+    "profit_kurtosis_control",
+    "sigma_relative_se_treatment",
+    "sigma_relative_se_control",
+    "mde_relative_se",
     "p0_baseline",
     "p1_at_mde",
     "target_effect",
     "analytic_power",
+    "power_at_sigma_plus_1se",
+    "power_at_zero_effect",
     "required_multiplier",
     "configured_multiplier",
     "required_multiplier_90",
+    "margin_ratio",
+    "effect_margin",
+    "power_margin",
+    "power_cell_class",
+    "boundary_flag",
+    "boundary_note",
     "detectable_at_80",
     "detectable_at_90",
+    "achieved_effect",
+    "rejection_rate",
+    "mc_se",
+    "binomial_ci_low",
+    "binomial_ci_high",
+    "empirical_n_reps",
     "primary_row",
     "variance_source",
     "observed_dataset_hash",
@@ -221,6 +309,14 @@ def _unit_interval(name: str, value: Any) -> float:
     return out
 
 
+def _closed_unit_interval(name: str, value: Any) -> float:
+    """落在 [0,1] 内的实数（退款率等允许恰好为 0 的概率）。"""
+    out = _as_float(name, value)
+    if not 0.0 <= out <= 1.0:
+        raise ValueError(f"{name} 必须在 [0,1] 内，收到 {out}")
+    return out
+
+
 def _validate_alpha_power(alpha: Any, power: Any) -> tuple[float, float]:
     """α 与功效 ``1-β`` 都必须严格落在 (0,1) 内。"""
     return _unit_interval("alpha", alpha), _unit_interval("power", power)
@@ -239,6 +335,67 @@ def _validate_base_rate(p0: Any, delta: float = 0.0) -> float:
     if base + delta > 1.0:
         raise ValueError(f"p0 + delta = {base} + {delta} = {base + delta} > 1，概率尺度越界")
     return base
+
+
+# --------------------------------------------------------------------------- #
+# σ 的抽样不确定性：峰度修正（C4）
+# --------------------------------------------------------------------------- #
+def sample_kurtosis(values: Iterable[float]) -> float:
+    """实测**非超额峰度** ``κ = E[(X−μ)^4] / Var(X)^2``（四阶中心矩/方差²）。
+
+    为什么不用正态假设：利润是零膨胀重尾变量，正态下 ``Var(s²)=2σ⁴/n`` 会把 σ̂ 的
+    抽样误差低估数倍。峰度修正后 ``Var(s²)=σ⁴(κ−1)/n``，于是
+    ``SE(σ̂)/σ ≈ sqrt((κ−1)/(4n))``（见 :func:`sigma_relative_se`）。
+
+    Parameters
+    ----------
+    values:
+        一维个体级观测值（本模块只用 train split 的 ``net_profit``）。
+
+    Returns
+    -------
+    float
+        ``κ >= 1``。伯努利、两点分布等退化分布也能给出有限值。
+
+    Raises
+    ------
+    ValueError
+        样本 < 4、非有限值、方差为 0（此时 κ 无定义）。
+    """
+    array = np.asarray(list(values), dtype=float)
+    if array.ndim != 1:
+        raise ValueError("sample_kurtosis 只接受一维序列")
+    if array.size < 4:
+        raise ValueError(f"峰度至少需要 4 个观测，收到 {array.size}")
+    if not np.all(np.isfinite(array)):
+        raise ValueError("峰度输入必须是有限实数")
+    centered = array - array.mean()
+    second = float(np.mean(centered**2))
+    if second <= 0.0:
+        raise ValueError("方差为 0，峰度无定义")
+    fourth = float(np.mean(centered**4))
+    return fourth / (second * second)
+
+
+def sigma_relative_se(kurtosis: float, n_arm: int) -> float:
+    """``SE(σ̂)/σ ≈ sqrt((κ−1)/(4·n_arm))``：σ 估计的相对标准误。
+
+    ``n_arm`` 必须是**提供 σ 的那份样本的每臂人数**（本模块是 train split 的每臂
+    人数，约 5 万），不是设计队列的每臂人数。正态公式 ``1/sqrt(2n)`` 只在 κ=3 时成立；
+    零膨胀重尾利润的 κ 约为 20–50，真实误差是它的 3–5 倍。
+
+    Raises
+    ------
+    ValueError
+        ``κ < 1``（任何分布的峰度都不小于 1）或 ``n_arm < 2``。
+    """
+    kappa = _as_float("kurtosis", kurtosis)
+    if kappa < 1.0:
+        raise ValueError(f"峰度必须 >= 1（收到 {kappa}）；κ=1+ 是两点分布的极限")
+    n = _positive_int("n_arm", n_arm)
+    if n < 2:
+        raise ValueError(f"n_arm 至少为 2 才能估计 σ，收到 {n}")
+    return math.sqrt(max(kappa - 1.0, 0.0) / (4.0 * n))
 
 
 # --------------------------------------------------------------------------- #
@@ -383,6 +540,41 @@ def profit_power(
     return float(norm.cdf(delta / standard_error - z_alpha(a, label)))
 
 
+def profit_power_sigma_stress(
+    effect: float,
+    sigma_treatment: float,
+    sigma_control: float,
+    n_treatment: int,
+    n_control: int,
+    *,
+    alpha: float,
+    sides: str = TWO_SIDED,
+    relative_inflation: float,
+) -> float:
+    """把两臂 σ 同时上浮 ``relative_inflation`` 后的解析功效（C4 压力口径）。
+
+    ``relative_inflation = r`` 表示"真实 σ 比设计估计高 100r%"。因为 MDE 与 σ 成正比，
+    同一**绝对**目标效应在真实 σ 更高时更难检出：
+
+        power = Φ( (z_α + z_β) / (1 + r) − z_α )     （目标效应恰为设计 MDE 时）
+
+    ``r = 1.02%`` 时该值约为 **0.792**，``r = 1.40%`` 时约为 **0.789**——这就是
+    ``mde100`` 的"零余量"在 σ 抽样不确定性下的真实含义。**它不是实测拒绝率**，
+    只是解析压力值；实测拒绝率必须由 :func:`summarize_power_cells` 汇总真实重复。
+
+    Raises
+    ------
+    ValueError
+        ``relative_inflation < 0`` 或其它入参非法（沿用 :func:`profit_power` 的校验）。
+    """
+    inflation = _non_negative_float("relative_inflation", relative_inflation)
+    scale = 1.0 + inflation
+    return profit_power(
+        effect, sigma_treatment * scale, sigma_control * scale, n_treatment, n_control,
+        alpha=alpha, sides=sides,
+    )
+
+
 # --------------------------------------------------------------------------- #
 # 购买率：两比例功效关系数值反解
 # --------------------------------------------------------------------------- #
@@ -499,6 +691,156 @@ def purchase_mde(
 
 
 # --------------------------------------------------------------------------- #
+# 护栏非劣效（C2）
+# --------------------------------------------------------------------------- #
+def guardrail_config(protocol: V3Protocol | None = None) -> dict[str, Any]:
+    """读 ``design.guardrail``：指标名、非劣效界值、单侧 α、功效目标。
+
+    界值的单位陷阱：配置键名是 ``noninferiority_margin_probability_points``，但值是
+    **概率单位** ``0.005``（即 0.5 个百分点），不是"5 个百分点"。本函数统一转成概率
+    单位返回，并在 ``docs/v3_phase_D_mde.md`` 说明来源。
+    """
+    proto = protocol or load_v3_protocol()
+    section = proto.config.section("design")["guardrail"]
+    margin = _positive_float(
+        "design.guardrail.noninferiority_margin_probability_points",
+        section["noninferiority_margin_probability_points"],
+    )
+    if margin >= 1.0:
+        raise ValueError(f"非劣效界值必须 < 1（概率单位），收到 {margin}")
+    powers = tuple(_unit_interval("design.guardrail.power_targets", value)
+                   for value in section["power_targets"])
+    if not powers:
+        raise ValueError("design.guardrail.power_targets 为空")
+    return {
+        "metric": str(section["primary_metric"]),
+        "margin": margin,
+        "alpha_one_sided": _unit_interval("design.guardrail.alpha_one_sided",
+                                          section["alpha_one_sided"]),
+        "power_targets": tuple(sorted(set(powers))),
+    }
+
+
+def noninferiority_power(
+    p0: float,
+    delta: float,
+    n_treatment: int,
+    n_control: int,
+    *,
+    margin: float,
+    alpha: float,
+    sides: str = ONE_SIDED,
+) -> float:
+    """二分护栏的非劣效检验功效（H0: ``p1 − p0 >= margin``）。
+
+    检验统计量 ``Z = (p̂1 − p̂0 − margin) / se0``，H0 下 ``se0`` 用
+    ``p1 = p0 + margin`` 与 ``p0`` 的合并比例；H1 真实差为 ``delta`` 时用各自比例
+    ``se1``。拒绝 H0（判非劣效）当 ``Z < −z_{1−α}``，于是::
+
+        power(delta) = Φ( (margin − delta − z_{1−α}·se0) / se1 )
+
+    ``delta = margin`` 时功效恰为 α；``delta = 0``（真实无恶化）时功效接近 1。
+    本模块把"到界值的可检测距离" ``e = margin − delta`` 作为 MDE 报告量。
+
+    Raises
+    ------
+    ValueError
+        ``p0`` 不在 (0,1)、``margin`` 非正或 ``p0 + margin > 1``、真实比例越界、n < 1。
+    """
+    base = _unit_interval("p0", p0)
+    gap = _positive_float("margin", margin)
+    if base + gap > 1.0:
+        raise ValueError(f"p0 + margin = {base + gap} > 1，非劣效界值越界")
+    shift = _as_float("delta", delta)
+    treated = base + shift
+    if treated < 0.0:
+        if treated < -_PROBABILITY_TOLERANCE:
+            raise ValueError(f"p0 + delta = {treated} 越出 [0,1]")
+        treated = 0.0
+    elif treated > 1.0:
+        if treated > 1.0 + _PROBABILITY_TOLERANCE:
+            raise ValueError(f"p0 + delta = {treated} 越出 [0,1]")
+        treated = 1.0
+    n1 = _positive_int("n_treatment", n_treatment)
+    n0 = _positive_int("n_control", n_control)
+    a = _unit_interval("alpha", alpha)
+    label = _validate_sides(sides)
+    null_treated = base + gap
+    pooled = (n1 * null_treated + n0 * base) / (n1 + n0)
+    se_null = math.sqrt(pooled * (1.0 - pooled) * (1.0 / n1 + 1.0 / n0))
+    se_alt = math.sqrt(treated * (1.0 - treated) / n1 + base * (1.0 - base) / n0)
+    if se_alt <= 0.0:
+        raise ValueError("非劣效检验的 H1 标准误为 0，检查 p0/delta/n")
+    return float(norm.cdf((gap - shift - z_alpha(a, label) * se_null) / se_alt))
+
+
+def noninferiority_mde(
+    p0: float,
+    n_treatment: int,
+    n_control: int,
+    *,
+    margin: float,
+    alpha: float,
+    power: float,
+    sides: str = ONE_SIDED,
+    tolerance: float = _DEFAULT_ROOT_TOLERANCE,
+) -> float:
+    """护栏非劣效 MDE：给定功效，反解"到界值的可检测距离" ``e = margin − Δ``。
+
+    ``e`` 越小，护栏越灵敏：真实处理组退款率只要不超过 ``p0 + margin − e``，就有
+    ``power`` 的把握判为非劣效。``e`` 是**概率单位**，×100 为百分点。
+
+    区间 ``e ∈ [0, margin + p0]``：``e = 0`` 时真实差恰在界值上，功效 = α；
+    ``e = margin + p0`` 时 ``p1 = 0``，功效 → 0。两端必须跨过目标功效，否则抛错。
+
+    Returns
+    -------
+    float
+        ``e``（概率单位）。反解后回代误差超过容差容许值即抛 ``RuntimeError``。
+
+    Raises
+    ------
+    ValueError
+        ``p0``/``margin``/n/α/功效非法，或目标功效不高于 α。
+    RuntimeError
+        反解根回代误差超限。
+    """
+    base = _unit_interval("p0", p0)
+    gap = _positive_float("margin", margin)
+    if base + gap > 1.0:
+        raise ValueError(f"p0 + margin = {base + gap} > 1，非劣效界值越界")
+    n1 = _positive_int("n_treatment", n_treatment)
+    n0 = _positive_int("n_control", n_control)
+    a, pw = _validate_alpha_power(alpha, power)
+    label = _validate_sides(sides)
+    tol = _positive_float("tolerance", tolerance)
+    if pw <= a:
+        raise ValueError(
+            f"目标功效 {pw} 不高于非劣效检验在界值上的拒绝率 α={a}；没有正的 MDE 可反解"
+        )
+
+    def _gap(effect: float) -> float:
+        return noninferiority_power(
+            base, gap - effect, n1, n0, margin=gap, alpha=a, sides=label) - pw
+
+    lower, upper = 0.0, gap + base
+    if _gap(lower) >= 0.0 or _gap(upper) <= 0.0:
+        raise ValueError(
+            f"在 e ∈ [0, margin+p0] 内达不到目标功效（p0={base}, margin={gap}, "
+            f"n1={n1}, n0={n0}, power={pw}）"
+        )
+    root = float(brentq(_gap, lower, upper, xtol=tol, rtol=4.0 * math.ulp(1.0), maxiter=200))
+    step = max(tol, 1e-12)
+    slope = abs(_gap(min(root + step, upper)) - _gap(max(root - step, lower))) / (2.0 * step)
+    allowed = max(_POWER_ROUND_TRIP_TOLERANCE, 10.0 * slope * tol)
+    if abs(_gap(root)) > allowed:
+        raise RuntimeError(
+            f"护栏非劣效 MDE 反解不可信：回代功效误差 {abs(_gap(root)):.3e} 超过允许值 {allowed:.3e}"
+        )
+    return root
+
+
+# --------------------------------------------------------------------------- #
 # 功效格的倍数校准
 # --------------------------------------------------------------------------- #
 def multiplier_for_target_effect(target_effect: float, design_mde: float) -> float:
@@ -568,8 +910,13 @@ class DesignSampleProfile:
         总人数与各臂人数（禁止把 ``n_total`` 当每臂用）。
     profit_mean_*, profit_sd_*:
         各臂 ``net_profit`` 的均值与样本标准差（``ddof=1``，元/合格用户）。
+    profit_kurtosis_*:
+        各臂 ``net_profit`` 的实测非超额峰度（四阶中心矩/方差²）。σ 的抽样相对
+        标准误由它决定（C4）；旧画像没有该字段时必须重跑先导，不允许静默用正态值。
     purchase_rate_*:
         各臂 ``paid_purchase_7d`` 的均值（0–1）。
+    refund_rate_*:
+        各臂 ``any_refund_30d`` 的均值（0–1），护栏非劣效 MDE 的基线（C2）。
     rep_id:
         先导模拟的 rep 编号（落在正式重复网格之外，见 :func:`design_pilot_rep_ids`）。
     observed_dataset_hash / source_path / config_hash:
@@ -591,6 +938,10 @@ class DesignSampleProfile:
     observed_dataset_hash: str
     source_path: str
     config_hash: str
+    profit_kurtosis_treatment: float | None = None
+    profit_kurtosis_control: float | None = None
+    refund_rate_treatment: float | None = None
+    refund_rate_control: float | None = None
     notes: str = ""
 
     def __post_init__(self) -> None:
@@ -608,6 +959,14 @@ class DesignSampleProfile:
         _validate_base_rate(self.purchase_rate_control)
         _as_float("profit_mean_treatment", self.profit_mean_treatment)
         _as_float("profit_mean_control", self.profit_mean_control)
+        for name in ("profit_kurtosis_treatment", "profit_kurtosis_control"):
+            value = getattr(self, name)
+            if value is not None and _as_float(name, value) < 1.0:
+                raise ValueError(f"{name} 必须 >= 1（任何分布的峰度下界），收到 {value}")
+        for name in ("refund_rate_treatment", "refund_rate_control"):
+            value = getattr(self, name)
+            if value is not None:
+                _closed_unit_interval(name, value)
         if int(self.rep_id) < 0:
             raise ValueError(f"rep_id 不能为负，收到 {self.rep_id}")
 
@@ -689,6 +1048,10 @@ def profile_from_frame(
     purchase_treated, purchase_control = purchase[treatment == 1], purchase[treatment == 0]
     if treated.size < 2 or control.size < 2:
         raise ValueError(f"每臂至少 2 个用户，实际 {treated.size}/{control.size}")
+    refund = frame[GUARDRAIL_COLUMN].to_numpy(dtype=float)
+    if not set(pd.unique(refund)) <= {0.0, 1.0}:
+        raise ValueError(f"{GUARDRAIL_COLUMN} 必须是 0/1")
+    refund_treated, refund_control = refund[treatment == 1], refund[treatment == 0]
 
     return DesignSampleProfile(
         scenario_id=scenario_id,
@@ -706,6 +1069,10 @@ def profile_from_frame(
         observed_dataset_hash=observed_dataset_hash,
         source_path=source_path,
         config_hash=config_hash,
+        profit_kurtosis_treatment=sample_kurtosis(treated),
+        profit_kurtosis_control=sample_kurtosis(control),
+        refund_rate_treatment=float(refund_treated.mean()),
+        refund_rate_control=float(refund_control.mean()),
         notes=notes,
     )
 
@@ -739,13 +1106,77 @@ def design_sample_profile(dataset: ObservedDataset, *, scenario_id: str, rep_id:
     )
 
 
+def mde_relative_se(
+    profile: DesignSampleProfile,
+    n_treatment: int,
+    n_control: int,
+) -> float:
+    """设计 MDE 的相对标准误：由两臂 σ̂ 的相对 SE 按方差权重合成。
+
+    推导：``MDE ∝ sqrt(σ_1²/n_1 + σ_0²/n_0)``，对两臂 σ 求导得::
+
+        SE(MDE)/MDE = sqrt(w_1²·r_1² + w_0²·r_0²)
+        w_i = (σ_i²/n_i) / (σ_1²/n_1 + σ_0²/n_0)
+        r_i = sqrt((κ_i−1)/(4·n_i_train))
+
+    这里 ``r_i`` 用 **train split 每臂人数**（提供 σ 的样本），``w_i`` 用**设计队列**
+    每臂人数。两臂误差独立时这是 MDE 的相对 SE；若担心机制层面的同向 σ 漂移，用
+    :func:`sigma_stress_relative_se` 的保守口径。
+
+    Raises
+    ------
+    ValueError
+        画像缺峰度（旧画像）或 n 非法。
+    """
+    if profile.profit_kurtosis_treatment is None or profile.profit_kurtosis_control is None:
+        raise ValueError(
+            "设计样本画像缺少 profit_kurtosis_*；σ 的抽样不确定度不能用正态公式顶替，"
+            "必须用同一 train split 重跑先导并落盘峰度"
+        )
+    n1 = _positive_int("n_treatment", n_treatment)
+    n0 = _positive_int("n_control", n_control)
+    r1 = sigma_relative_se(profile.profit_kurtosis_treatment, profile.n_treatment)
+    r0 = sigma_relative_se(profile.profit_kurtosis_control, profile.n_control)
+    term1 = profile.profit_sd_treatment**2 / n1
+    term0 = profile.profit_sd_control**2 / n0
+    total = term1 + term0
+    if total <= 0.0:  # pragma: no cover - σ 已保证严格为正
+        raise ValueError("两臂方差项之和为 0")
+    w1, w0 = term1 / total, term0 / total
+    return math.sqrt(w1 * w1 * r1 * r1 + w0 * w0 * r0 * r0)
+
+
+def sigma_stress_relative_se(profile: DesignSampleProfile) -> float:
+    """σ 压力的保守相对幅度：两臂 σ̂ 相对 SE 的**较大者**。
+
+    为什么取较大者而不是合成：若真实机制的整体尺度比先导高出一个抽样误差，两臂 σ
+    会同向偏高，MDE 与 σ 同比例偏高；用单臂较大 SE 作为压力幅度是保守且可复现的
+    口径。按两臂独立误差合成会得到更小的数（约 0.7 倍），本模块把它落在
+    ``mde_relative_se`` 列里，两个口径都可追溯。
+
+    Raises
+    ------
+    ValueError
+        画像缺峰度（旧画像）。
+    """
+    if profile.profit_kurtosis_treatment is None or profile.profit_kurtosis_control is None:
+        raise ValueError(
+            "设计样本画像缺少 profit_kurtosis_*；σ 的抽样不确定度不能用正态公式顶替，"
+            "必须用同一 train split 重跑先导并落盘峰度"
+        )
+    return max(
+        sigma_relative_se(profile.profit_kurtosis_treatment, profile.n_treatment),
+        sigma_relative_se(profile.profit_kurtosis_control, profile.n_control),
+    )
+
+
 def write_profiles_json(profiles: Iterable[DesignSampleProfile], path: str | Path) -> Path:
     """把若干画像写成 UTF-8 JSON（含来源标签与"非正式重复"声明）。"""
     payload = {
         "source_label": "合成数据 / 已知 DGP（非真实企业数据）",
         "record_type": "design_sample_profiles",
         "formal_repetitions_completed": 0,
-        "purpose": "独立先导模拟：只提供 MDE 所需方差与基准购买率，不构成任何科学结果",
+        "purpose": "独立先导模拟：只提供 MDE 所需方差、峰度与基准购买率/退款率，不构成任何科学结果",
         "profiles": [profile_to_record(profile) for profile in profiles],
     }
     target = Path(path)
@@ -974,6 +1405,8 @@ class PowerCellCalibration:
         目标效应下的解析功效（正态近似），**不是**模拟拒绝率。
     required_multiplier_90:
         要拿到 ``target_power_for_90`` 所需的最小倍数（纯 z 比值，与机制无关）。
+    alpha / sides:
+        校准时使用的显著性水平与单/双侧口径（σ 压力功效必须沿用同一口径）。
     """
 
     cell_id: str
@@ -989,6 +1422,8 @@ class PowerCellCalibration:
     analytic_power: float
     required_multiplier_90: float
     reference_power: float
+    alpha: float
+    sides: str
     profile: DesignSampleProfile = field(repr=False, compare=False)
 
     @property
@@ -1000,6 +1435,82 @@ class PowerCellCalibration:
     def detectable_at_90(self) -> bool:
         """目标效应是否足以拿到 90% 功效。"""
         return self.required_multiplier >= self.required_multiplier_90
+
+    @property
+    def power_cell_class(self) -> str:
+        """C5 判定类别：低于设计 MDE / 边界零余量 / 高于设计 MDE。
+
+        边界格的判据是 ``required_multiplier == 1``（目标效应恰好等于设计 MDE），
+        此时 ``analytic_power == reference_power`` 但**零余量**：σ 只要比设计估计高
+        一个抽样误差，真实功效就掉到 0.79 左右。下游 gate 若只看
+        ``detectable_at_80=True`` 会把它当通过格，必须同时读
+        :attr:`boundary_flag` 或 :attr:`power_cell_class`。
+        """
+        if abs(self.required_multiplier - 1.0) <= _PROBABILITY_TOLERANCE:
+            return "boundary_zero_margin"
+        if self.required_multiplier < 1.0:
+            return "below_design_mde"
+        return "above_design_mde"
+
+    @property
+    def boundary_flag(self) -> bool:
+        """是否为"边界格"（目标效应恰等于设计 MDE、零余量）。"""
+        return self.power_cell_class == "boundary_zero_margin"
+
+    @property
+    def margin_ratio(self) -> float:
+        """``target_effect / design_mde``（= ``required_multiplier``）；等于 1 即零余量。"""
+        return self.required_multiplier
+
+    @property
+    def effect_margin(self) -> float:
+        """绝对余量 ``target_effect − design_mde``（元/人）；边界格为 0。"""
+        return self.target_effect - self.design_mde
+
+    @property
+    def power_margin(self) -> float:
+        """功效余量 ``analytic_power − reference_power``；边界格为 0。"""
+        return self.analytic_power - self.reference_power
+
+    @property
+    def sigma_relative_se_treatment(self) -> float:
+        """处理臂 ``SE(σ̂)/σ``（C4，峰度修正）。"""
+        if self.profile.profit_kurtosis_treatment is None:
+            raise ValueError(f"{self.cell_id}: 画像缺处理臂峰度，无法计算 σ 相对 SE")
+        return sigma_relative_se(self.profile.profit_kurtosis_treatment,
+                                 self.profile.n_treatment)
+
+    @property
+    def sigma_relative_se_control(self) -> float:
+        """对照臂 ``SE(σ̂)/σ``（C4，峰度修正）。"""
+        if self.profile.profit_kurtosis_control is None:
+            raise ValueError(f"{self.cell_id}: 画像缺对照臂峰度，无法计算 σ 相对 SE")
+        return sigma_relative_se(self.profile.profit_kurtosis_control,
+                                 self.profile.n_control)
+
+    @property
+    def mde_relative_se(self) -> float:
+        """设计 MDE 的相对标准误（两臂独立误差合成）。"""
+        return mde_relative_se(self.profile, self.n_treatment, self.n_control)
+
+    @property
+    def sigma_stress_relative_se(self) -> float:
+        """σ 压力的保守幅度（两臂相对 SE 的较大者）。"""
+        return sigma_stress_relative_se(self.profile)
+
+    @property
+    def power_at_sigma_plus_1se(self) -> float:
+        """σ 上行 1 个保守相对 SE 后、目标效应处的解析功效（压力口径，非实测）。"""
+        return profit_power_sigma_stress(
+            self.target_effect,
+            self.profile.profit_sd_treatment,
+            self.profile.profit_sd_control,
+            self.n_treatment,
+            self.n_control,
+            alpha=self.alpha,
+            sides=self.sides,
+            relative_inflation=self.sigma_stress_relative_se,
+        )
 
 
 def calibrate_power_cell(
@@ -1071,6 +1582,8 @@ def calibrate_power_cell(
         required_multiplier_90=multiplier_for_power(
             target_power_for_90, alpha=alpha, sides=sides, reference_power=reference_power),
         reference_power=reference_power,
+        alpha=alpha,
+        sides=sides,
         profile=profile,
     )
 
@@ -1121,6 +1634,113 @@ def calibrate_power_cells(
 
 
 # --------------------------------------------------------------------------- #
+# 功效格实测汇总入口（C3）
+# --------------------------------------------------------------------------- #
+def summarize_power_cells(rows_or_df: Any, *, confidence: float = 0.95) -> pd.DataFrame:
+    """把"每格 R 次重复的逐 rep 结果"汇总成实测功效表（C3 的可执行入口）。
+
+    本函数**不生成数据**：它只消费 local-power 入口产出的逐 rep 结果。输入至少四列：
+
+    ==================  ==========================================================
+    列                  含义
+    ==================  ==========================================================
+    ``cell_id``         ``design_power_jobs`` 的格 ID（如 ``L1_power_mde100``）
+    ``rep_id``          重复编号；同一格内必须唯一
+    ``effect_estimate`` 该 rep 的达成效应估计（元/人，已实现效应）
+    ``reject``          该 rep 是否拒绝原假设（bool 或 0/1）
+    ==================  ==========================================================
+
+    输出列见 :data:`POWER_CELL_SUMMARY_COLUMNS`：
+
+    * ``achieved_effect``：逐 rep 达成效应的均值；``achieved_effect_mc_se`` 是其
+      ``sd/√R``；
+    * ``rejection_rate``：实测拒绝率；``mc_se = sqrt(p(1−p)/R)``；
+    * ``binomial_ci_low/high``：Clopper–Pearson 精确二项区间（默认 95%）；
+    * ``n_reps``：该格实际重复数。
+
+    **禁止**把解析功效填进 ``rejection_rate``：两者口径不同，解析功效是设计期近似，
+    实测拒绝率必须来自本函数的输入。汇总表在真实重复跑出来之前，这些列只能是空值
+    加 ``pending_local_power_entry_point``。
+
+    Parameters
+    ----------
+    rows_or_df:
+        逐 rep 结果的 ``DataFrame`` 或行字典序列。
+    confidence:
+        Clopper–Pearson 区间的置信水平，默认 0.95。
+
+    Returns
+    -------
+    pandas.DataFrame
+        每格一行，按 ``cell_id`` 升序。
+
+    Raises
+    ------
+    TypeError
+        输入无法转成 DataFrame。
+    ValueError
+        缺列、空表、重复 ``(cell_id, rep_id)``、非有限效应、非 0/1 拒绝标记、
+        某格重复数 < 2（此时 MC_SE 无定义）。
+    """
+    level = _unit_interval("confidence", confidence)
+    if isinstance(rows_or_df, pd.DataFrame):
+        frame = rows_or_df.copy()
+    else:
+        try:
+            frame = pd.DataFrame(list(rows_or_df))
+        except TypeError as exc:  # pragma: no cover - 非可迭代输入
+            raise TypeError("summarize_power_cells 需要 DataFrame 或行字典序列") from exc
+    required = {"cell_id", "rep_id", "effect_estimate", "reject"}
+    if frame.empty:
+        raise ValueError("逐 rep 结果为空；没有真实重复就不能汇总实测功效")
+    missing = sorted(required - set(frame.columns))
+    if missing:
+        raise ValueError(f"逐 rep 结果缺少列：{missing}")
+    frame = frame[["cell_id", "rep_id", "effect_estimate", "reject"]].copy()
+    if frame[["cell_id", "rep_id"]].isna().any().any():
+        raise ValueError("cell_id / rep_id 不能为空")
+    duplicated = frame.duplicated(["cell_id", "rep_id"])
+    if duplicated.any():
+        raise ValueError("同一 (cell_id, rep_id) 出现多次；重复结果不能重复计入")
+    effect = pd.to_numeric(frame["effect_estimate"], errors="coerce")
+    if effect.isna().any() or not np.isfinite(effect.to_numpy(dtype=float)).all():
+        raise ValueError("effect_estimate 必须是有限实数")
+    reject = frame["reject"]
+    if not reject.isin([True, False, 0, 1]).all():
+        raise ValueError("reject 必须是 bool 或 0/1")
+    reject = reject.astype(bool)
+    frame["effect_estimate"] = effect.astype(float)
+    frame["reject"] = reject
+
+    tail = (1.0 - level) / 2.0
+    records: list[dict[str, Any]] = []
+    for cell_id, group in frame.groupby("cell_id", sort=True):
+        n_reps = int(len(group))
+        if n_reps < 2:
+            raise ValueError(f"{cell_id}: 重复数 {n_reps} < 2，MC_SE 无定义")
+        successes = int(group["reject"].sum())
+        rate = successes / n_reps
+        mc_se = math.sqrt(rate * (1.0 - rate) / n_reps)
+        low = 0.0 if successes == 0 else float(beta.ppf(tail, successes, n_reps - successes + 1))
+        high = 1.0 if successes == n_reps else float(
+            beta.ppf(1.0 - tail, successes + 1, n_reps - successes))
+        achieved = float(group["effect_estimate"].mean())
+        achieved_se = float(group["effect_estimate"].std(ddof=1) / math.sqrt(n_reps))
+        records.append({
+            "cell_id": str(cell_id),
+            "n_reps": n_reps,
+            "achieved_effect": achieved,
+            "achieved_effect_mc_se": achieved_se,
+            "rejection_rate": rate,
+            "mc_se": mc_se,
+            "binomial_ci_low": low,
+            "binomial_ci_high": high,
+            "ci_confidence": level,
+        })
+    return pd.DataFrame(records, columns=list(POWER_CELL_SUMMARY_COLUMNS))
+
+
+# --------------------------------------------------------------------------- #
 # 汇总表
 # --------------------------------------------------------------------------- #
 def _base_row(protocol: V3Protocol) -> dict[str, Any]:
@@ -1137,6 +1757,84 @@ def _relative_percent(value: float, base: float) -> float | None:
     return value / base * 100.0
 
 
+def _guardrail_rows(
+    protocol: V3Protocol,
+    profile: DesignSampleProfile,
+    scenario: str,
+    level: str,
+    variance_source: str,
+    alpha: float,
+) -> list[dict[str, Any]]:
+    """生成护栏退款率的非劣效 MDE 行（C2）：四层 × 80%/90%，单侧 α。
+
+    队列取 ``design.n_total`` + ``design.treatment_probability``（与主实验同一 20 万、
+    50/50），基线 p0 取**同一 train split** 的对照臂退款率。界值、单侧 α、功效目标
+    全部来自 ``design.guardrail``，不在代码里写 0.005。
+    """
+    guardrail = guardrail_config(protocol)
+    design = protocol.config.section("design")
+    n_total = _positive_int("design.n_total", design["n_total"])
+    share = _unit_interval("design.treatment_probability", design["treatment_probability"])
+    n_treatment, n_control = split_counts(n_total, (share, 1.0 - share))
+    p0 = profile.refund_rate_control
+    if p0 is None:
+        raise ValueError(f"{scenario}: 画像缺 refund_rate_control，无法计算护栏非劣效 MDE")
+    margin = guardrail["margin"]
+    alpha_one = guardrail["alpha_one_sided"]
+    metric = guardrail["metric"]
+    records: list[dict[str, Any]] = []
+    for power in guardrail["power_targets"]:
+        effect = noninferiority_mde(
+            p0, n_treatment, n_control, margin=margin, alpha=alpha_one,
+            power=power, sides=ONE_SIDED,
+        )
+        power_at_zero = noninferiority_power(
+            p0, 0.0, n_treatment, n_control, margin=margin, alpha=alpha_one, sides=ONE_SIDED)
+        row = _base_row(protocol)
+        row.update({
+            "record_type": "guardrail_mde",
+            "scenario_id": scenario,
+            "level": level,
+            "base_scenario_id": scenario,
+            "cohort_id": "full_history",
+            "cohort_provenance": "design.guardrail",
+            "contrast": "treatment_vs_control",
+            "metric": metric,
+            "n_total": n_total,
+            "n_treatment": n_treatment,
+            "n_control": n_control,
+            "treatment_share": n_treatment / (n_treatment + n_control),
+            "alpha": alpha,
+            "alpha_per_test": alpha_one,
+            "alpha_one_sided": alpha_one,
+            "sides": ONE_SIDED,
+            "sides_note": "guardrail_alpha_one_sided_from_config",
+            "power_target": power,
+            "multiplicity": "none",
+            "family_size": 1,
+            "mde": effect,
+            "mde_unit": "probability",
+            "mde_pp": effect * 100.0,
+            "mde_relative_to_margin_pct": effect / margin * 100.0,
+            "noninferiority_margin": margin,
+            "control_mean": p0,
+            "p0_baseline": p0,
+            "p1_at_mde": p0 + margin - effect,
+            "analytic_power": power,
+            "power_at_zero_effect": power_at_zero,
+            "primary_row": False,
+            "variance_source": variance_source,
+            "observed_dataset_hash": profile.observed_dataset_hash,
+            "notes": ("noninferiority; margin=design.guardrail."
+                      "noninferiority_margin_probability_points (probability units: 0.005 = 0.5pp); "
+                      "one_sided_alpha=design.guardrail.alpha_one_sided; "
+                      f"guardrail_column={GUARDRAIL_COLUMN}; train_split_refund_rate; R=0; "
+                      f"local_power_empirics={PENDING_LOCAL_POWER}"),
+        })
+        records.append(row)
+    return records
+
+
 def build_mde_rows(
     protocol: V3Protocol | None = None,
     profiles: Mapping[str, DesignSampleProfile] | None = None,
@@ -1148,12 +1846,18 @@ def build_mde_rows(
     """生成 ``outputs/tables/v3_phase_D_mde.csv`` 的全部行。
 
     ``record_type = design_mde`` 的行覆盖"设计场景 × 队列 × 分流 × 功效 × 单/双侧 ×
-    指标 × 是否多重校正"；``record_type = power_cell`` 的行覆盖 20 个功效格。
-    所有参数（α、目标功效、分流网格、族大小、根容差、队列人数）都从注册表读。
+    指标 × 是否多重校正"；``record_type = guardrail_mde`` 的行覆盖四层 × 80%/90% 的
+    护栏非劣效 MDE（C2）；``record_type = power_cell`` 的行覆盖 20 个功效格，并带
+    C4 的 σ 抽样不确定度与 C5 的边界格编码。所有参数（α、目标功效、分流网格、族大小、
+    根容差、队列人数、护栏界值）都从注册表读。
 
     ``design_scenarios`` 默认取 ``design.local_power.base_scenarios``（四层的参考机制）。
     之所以逐层各出一份 design_mde 行，是因为 **σ 与 p0 随机制变化**，同一个 20 万人
     队列在不同层能检测到的最小效应并不相同；只报 L1 会把"利潤 MDE"说成层级无关。
+
+    行数 = ``176 × 场景数 + 2 × 场景数（护栏）+ 20（功效格）``；四层即 732 行。
+    功效格的 ``achieved_effect`` / ``rejection_rate`` / ``mc_se`` / 二项区间一律为空，
+    ``notes`` 写 ``pending_local_power_entry_point``——**本函数不生成也不伪造实测重复**。
     """
     proto = protocol or load_v3_protocol()
     provided = dict(profiles or {})
@@ -1246,7 +1950,10 @@ def build_mde_rows(
                                     "treatment_share": share_label,
                                     "alpha": alpha,
                                     "alpha_per_test": alpha_per_test,
+                                    "alpha_one_sided": alpha if sides == ONE_SIDED else None,
                                     "sides": sides,
+                                    "sides_note": ("one_sided_uses_alpha_two_sided_value"
+                                                   if sides == ONE_SIDED else None),
                                     "power_target": power,
                                     "multiplicity": adjustment,
                                     "family_size": family_size,
@@ -1264,8 +1971,29 @@ def build_mde_rows(
                                     "variance_source": variance_source,
                                     "observed_dataset_hash": profile.observed_dataset_hash,
                                     "notes": (f"normal_approximation; root_tolerance={tolerance:g}; "
-                                              "cohort_split=user_id_within_run; R=0"),
+                                              "cohort_split=user_id_within_run; R=0; "
+                                              f"local_power_empirics={PENDING_LOCAL_POWER}"),
                                 })
+                                if not is_proportion:
+                                    stress = sigma_stress_relative_se(profile)
+                                    row.update({
+                                        "profit_kurtosis_treatment": profile.profit_kurtosis_treatment,
+                                        "profit_kurtosis_control": profile.profit_kurtosis_control,
+                                        "sigma_relative_se_treatment": sigma_relative_se(
+                                            profile.profit_kurtosis_treatment, profile.n_treatment),
+                                        "sigma_relative_se_control": sigma_relative_se(
+                                            profile.profit_kurtosis_control, profile.n_control),
+                                        "mde_relative_se": mde_relative_se(
+                                            profile, n_treatment, n_control),
+                                        "power_at_sigma_plus_1se": profit_power_sigma_stress(
+                                            mde, profile.profit_sd_treatment,
+                                            profile.profit_sd_control, n_treatment, n_control,
+                                            alpha=alpha_per_test, sides=sides,
+                                            relative_inflation=stress,
+                                        ),
+                                    })
+                                    row["notes"] += (
+                                        "; sigma_relative_se=sqrt((kurtosis-1)/(4*n_train_arm))")
                                 row["primary_row"] = bool(
                                     scenario == primary_scenario
                                     and sides == TWO_SIDED
@@ -1279,14 +2007,29 @@ def build_mde_rows(
                                     )
                                 )
                                 rows.append(row)
+        rows.extend(_guardrail_rows(proto, profile, scenario, level, variance_source, alpha))
 
     for cell in calibrate_power_cells(proto, provided):
         row = _base_row(proto)
+        stress = cell.sigma_stress_relative_se
+        if cell.boundary_flag:
+            boundary_note = (
+                "边界格(boundary_zero_margin)：target_effect 恰等于设计 MDE，解析功效="
+                f"{cell.analytic_power:.4f} 但零余量；σ 上行 {stress:.4%} 后解析功效约 "
+                f"{cell.power_at_sigma_plus_1se:.4f}（压力口径，非实测拒绝率）；"
+                "下游 gate 不得只看 detectable_at_80=True")
+        elif cell.power_cell_class == "below_design_mde":
+            boundary_note = (f"验不出格(below_design_mde)：目标效应="
+                             f"{cell.required_multiplier:g}×设计 MDE")
+        else:
+            boundary_note = (f"通过格且有余量(above_design_mde)：目标效应="
+                             f"{cell.required_multiplier:g}×设计 MDE")
         row.update({
             "record_type": "power_cell",
             "scenario_id": cell.base_scenario_id,
             "level": cell.level,
             "base_scenario_id": cell.base_scenario_id,
+            "cell_id": cell.cell_id,
             "cohort_id": "power_cell",
             "cohort_provenance": "scenarios.design_power_jobs",
             "contrast": "treatment_vs_control",
@@ -1295,9 +2038,9 @@ def build_mde_rows(
             "n_treatment": cell.n_treatment,
             "n_control": cell.n_control,
             "treatment_share": cell.n_treatment / cell.n_total,
-            "alpha": alpha,
-            "alpha_per_test": alpha,
-            "sides": TWO_SIDED,
+            "alpha": cell.alpha,
+            "alpha_per_test": cell.alpha,
+            "sides": cell.sides,
             "power_target": cell.reference_power,
             "multiplicity": "none",
             "family_size": 1,
@@ -1307,17 +2050,30 @@ def build_mde_rows(
             "mde_relative_pct": _relative_percent(cell.design_mde, cell.profile.profit_mean_control),
             "sigma_treatment": cell.profile.profit_sd_treatment,
             "sigma_control": cell.profile.profit_sd_control,
+            "profit_kurtosis_treatment": cell.profile.profit_kurtosis_treatment,
+            "profit_kurtosis_control": cell.profile.profit_kurtosis_control,
+            "sigma_relative_se_treatment": cell.sigma_relative_se_treatment,
+            "sigma_relative_se_control": cell.sigma_relative_se_control,
+            "mde_relative_se": cell.mde_relative_se,
             "target_effect": cell.target_effect,
             "analytic_power": cell.analytic_power,
+            "power_at_sigma_plus_1se": cell.power_at_sigma_plus_1se,
             "required_multiplier": cell.required_multiplier,
             "configured_multiplier": cell.configured_multiplier,
             "required_multiplier_90": cell.required_multiplier_90,
+            "margin_ratio": cell.margin_ratio,
+            "effect_margin": cell.effect_margin,
+            "power_margin": cell.power_margin,
+            "power_cell_class": cell.power_cell_class,
+            "boundary_flag": cell.boundary_flag,
+            "boundary_note": boundary_note,
             "detectable_at_80": cell.detectable_at_reference,
             "detectable_at_90": cell.detectable_at_90,
             "primary_row": True,
             "variance_source": f"design_pilot_train_split:{cell.base_scenario_id}:rep{cell.profile.rep_id}",
             "observed_dataset_hash": cell.profile.observed_dataset_hash,
-            "notes": ("power_job_design_only; achieved_effect/rejection_rate/MC_SE pending D & G; "
+            "notes": ("power_job_design_only; "
+                      f"achieved_effect/rejection_rate/MC_SE/binomial_interval={PENDING_LOCAL_POWER}; "
                       "constant_profit_shift_forbidden"),
         })
         rows.append(row)
@@ -1455,7 +2211,11 @@ def run_design_pilot(
         timings.append(timing)
         print(f"[design-pilot] {name} rep={rep} n={profile.n_total} "
               f"sd=({profile.profit_sd_treatment:.4f}, {profile.profit_sd_control:.4f}) "
-              f"p0={profile.purchase_rate_control:.6f} wall={timing['total_wall_s']:.1f}s", flush=True)
+              f"kurt=({profile.profit_kurtosis_treatment:.2f}, "
+              f"{profile.profit_kurtosis_control:.2f}) "
+              f"p0={profile.purchase_rate_control:.6f} "
+              f"refund0={profile.refund_rate_control:.6f} "
+              f"wall={timing['total_wall_s']:.1f}s", flush=True)
     (root / "design_pilot_timings.json").write_text(json.dumps({
         "source_label": "合成数据 / 已知 DGP（非真实企业数据）",
         "record_type": "design_pilot_timings",

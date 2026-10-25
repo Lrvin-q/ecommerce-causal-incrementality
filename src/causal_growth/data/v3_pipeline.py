@@ -45,12 +45,45 @@ def pipeline_source_hashes() -> dict[str, str]:
     return {path.relative_to(root).as_posix(): file_sha256(path) for path in files}
 
 
+def _authorize_local_power(authorization: object | None, cfg: Config, multiplier: float) -> dict[str, Any]:
+    """Validate the calibrated local-power effect authorization; default is refusal.
+
+    A local-power cell is the only cell whose target profit effect is *constructed*
+    rather than registered, so its data run must present the object returned by
+    :func:`causal_growth.dgp.v3_local_power.calibrate_local_power_cell`: the object
+    binds the inverted purchase-increment scale, the achieved-vs-target self-check
+    and the exact scaled configuration this run consumes. Anything else stays
+    refused, so the historical behaviour is unchanged when the parameter is absent.
+    """
+    if authorization is None:
+        raise ValueError("local-power cells require the Phase D calibrated mechanism entry point")
+    required = (
+        "cell_id", "multiplier", "increment_scale", "target_effect", "achieved_effect",
+        "effect_construction", "consistent", "scaled_config_hash", "authorization_record",
+    )
+    missing = [name for name in required if not hasattr(authorization, name)]
+    if missing:
+        raise ValueError(f"local-power authorization lacks required fields: {missing}")
+    if not bool(authorization.consistent):
+        raise ValueError("local-power authorization failed its achieved-vs-target self-check")
+    if str(authorization.effect_construction) != str(cfg.require("design.local_power.effect_construction")):
+        raise ValueError("local-power authorization uses a different effect construction than the frozen design")
+    if str(authorization.cell_id) != str(cfg.require("active_scenario.id")):
+        raise ValueError("local-power authorization belongs to a different cell")
+    if float(authorization.multiplier) != float(multiplier):
+        raise ValueError("local-power authorization belongs to a different active_mde_multiplier")
+    if str(authorization.scaled_config_hash) != cfg.hash(64):
+        raise ValueError("local-power authorization was calibrated for a different scaled configuration")
+    return dict(authorization.authorization_record())
+
+
 def build_observed_pipeline(
     users: pd.DataFrame, assignments: pd.DataFrame, factual_orders: pd.DataFrame, cfg: Config, *,
     directory: str | Path, run_id: str, rep_id: int, stream_prefix: str,
     population_kind: str = "history", persist_database: bool = False,
     frozen_preprocessor: FrozenPreprocessor | None = None,
     retention_scope: str = "engineering_full",
+    local_power_authorization: object | None = None,
 ) -> DataPipelineResult:
     """Execute raw→dirty→deduplicated five tables→SQL→observed training split.
 
@@ -63,14 +96,18 @@ def build_observed_pipeline(
     Independent validation receives no split or fit operation. Its optional
     transformer must already have been frozen on historical training users.
     Local-power mechanism cells require Phase D calibration and are refused here
-    until a dedicated, reviewed calibration entry point is implemented.
+    unless ``local_power_authorization`` is the calibrated effect object; the
+    authorization is recorded in the manifest and binds this exact scaled config.
     """
     if population_kind not in {"history", "validation"}:
         raise ValueError("population_kind must be history or validation")
     if retention_scope not in {"engineering_full", "representative_full"}:
         raise ValueError("this full-table entry point cannot save formal nonrepresentative validation runs")
-    if cfg.require("design.local_power.active_mde_multiplier") is not None:
-        raise ValueError("local-power cells require the Phase D calibrated mechanism entry point")
+    multiplier = cfg.require("design.local_power.active_mde_multiplier")
+    local_power_record = None
+    if multiplier is not None:
+        local_power_record = _authorize_local_power(local_power_authorization, cfg, float(multiplier))
+
     if population_kind == "history" and frozen_preprocessor is not None:
         raise ValueError("historical preprocessing must be fitted on this run's training users")
     data_cfg = load_v3_data_config()
@@ -78,7 +115,7 @@ def build_observed_pipeline(
             and rep_id != data_cfg.require("validation.representative_rep")):
         raise ValueError("full representative validation is restricted to the registered representative rep")
     source_before = pipeline_source_hashes()
-    writer = RunArtifactWriter(Path(directory), {
+    writer_metadata: dict[str, Any] = {
         "run_id": run_id, "scenario_id": cfg.require("active_scenario.id"), "rep_id": rep_id,
         "population_kind": population_kind, "purpose": "engineering_or_downstream_input_not_formal_completion",
         "retention_scope": retention_scope,
@@ -93,7 +130,10 @@ def build_observed_pipeline(
         "split_stream": f"{stream_prefix}.split", "database_persisted": persist_database,
         "analysis_lineage": {"producer": "v3_sql", "source_stage": "clean",
                              "split_source": "sql_observations_history_only"},
-    })
+    }
+    if local_power_record is not None:
+        writer_metadata["local_power_authorization"] = local_power_record
+    writer = RunArtifactWriter(Path(directory), writer_metadata)
     try:
         raw = build_raw_tables(users, assignments, factual_orders, cfg, run_id=run_id,
                                rep_id=rep_id, stream_prefix=stream_prefix)
