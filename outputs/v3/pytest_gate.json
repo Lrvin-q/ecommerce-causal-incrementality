@@ -1,47 +1,16 @@
 {
   "source_label": "合成数据 / 已知 DGP",
-  "verified_at_beijing": "2026-10-25 13:04",
-  "scope": "full test suite, serial, no concurrent writes",
+  "verified_at_beijing": "2026-10-26 01:44",
+  "scope": "full test suite, single process, serial, AA jobs stopped (0 python processes above 200MB at start)",
   "command": ".venv/Scripts/python.exe -m pytest tests --basetemp=.pytest_basetemp",
-  "result": {
-    "passed": 1033,
-    "skipped": 1,
-    "failed": 0,
-    "warnings": 1,
-    "duration_seconds": 325.56
+  "result": {"passed": 1123, "skipped": 0, "failed": 0, "warnings": 1, "duration_seconds": 322.76},
+  "exitcode": 0,
+  "log_path": "out/v3_phase_d_final/pytest_final.log",
+  "log_sha256": "d65babde89e6095039f468db5de7535ddc935be1f43b28c3ced4a20e73f4a9a6",
+  "retained_warning": "tests/test_v3_timing.py B 阶段 IntegrationWarning（roundoff），如实保留不隐去",
+  "formal_aa": {
+    "pooled_reps": 1000, "pooled_fpr": 0.046, "cp95": [0.033871, 0.060884],
+    "se_calibration_pooled": 0.995, "provisional": false
   },
-  "skipped_detail": [
-    "tests/test_v3_sql_fast.py::test_pragmas_take_effect_during_loading_and_are_restored_afterwards - 主控裁决置空 LOAD_PRAGMAS（零收益不承担崩溃风险），由 test_empty_pragma_tuple_touches_nothing 顶替"
-  ],
-  "retained_warning": {
-    "where": "tests/test_v3_timing.py::test_timing_quadrature_tolerance_convergence",
-    "message": "IntegrationWarning: roundoff error prevents requested tolerance (B 阶段已知，如实保留不隐去)"
-  },
-  "source_binding": {
-    "sql_source_hash_before": "18fe196809535533c6380e3cc4f9ea2b538126507b52495399ff687cea598c80",
-    "sql_source_hash_after": "4cbf830621ac7ed4728e92cee1dbadf41698d0b871c83dd3af2846870a931795",
-    "config_hash_unchanged": "30511a32bcee9db55e8f5ec1bbc2b9d63eb63dc2a13aa5c720f948c781eccdbe",
-    "equivalence_ab_same_run_id": {
-      "run_id": "ab_equivalence_same_run_id",
-      "n": 200000,
-      "analysis_sha256_prefix": "0eb2bf04ea82829d23",
-      "observed_dataframe_sha256_prefix": "0eb2bf04ea82829d23",
-      "identical": true
-    }
-  },
-  "new_performance_baseline": {
-    "measured_at_beijing": "2026-10-25 13:14",
-    "reps": 2,
-    "n": 200000,
-    "scenario": "L1_main",
-    "pipeline_cpu_seconds": 117.2,
-    "pipeline_cpu_seconds_before": 143.7,
-    "speedup": 1.23,
-    "causal_forest_cpu_seconds": 112.0,
-    "G3_full_cpu_seconds": 235.4,
-    "G3_full_cpu_seconds_before": 265.8,
-    "peak_working_set_mb": 2439
-  },
-  "formal_repetitions_R": 0,
-  "note": "本次绿灯凭据产出时无任何并发写盘；此前各代理报告的 1026/1029 等数字含并发假红，不作凭据。"
+  "note": "本次绿灯在 AA 全部结束后取得，机器无并发写盘；此前各代理报的 1026/1029/1008 等数字含并发假红，不作凭据。"
 }

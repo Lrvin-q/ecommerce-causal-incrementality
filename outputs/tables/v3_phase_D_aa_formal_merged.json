@@ -1,0 +1,71 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "roots": [
+    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal",
+    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal_r2",
+    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal_r3",
+    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal_r2_det",
+    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal_r3_det"
+  ],
+  "layers_found": [
+    "L0",
+    "L1",
+    "L2",
+    "L3"
+  ],
+  "layers_missing": [],
+  "rows_excluded_non_true_aa": 0,
+  "target_reps_per_layer": 250,
+  "reps_by_layer": {
+    "L0": 250,
+    "L1": 250,
+    "L2": 250,
+    "L3": 250
+  },
+  "provisional": false,
+  "alpha": 0.05,
+  "summary_csv": "outputs/tables/v3_phase_D_aa_formal_merged.csv",
+  "se_calibration": [
+    {
+      "layer": "L0",
+      "reps": 250,
+      "empirical_sd": 0.037895316323747735,
+      "mean_estimated_se": 0.03838608061640908,
+      "ratio": 0.9872150455378464,
+      "mean_effect": -0.0018710436210059615
+    },
+    {
+      "layer": "L1",
+      "reps": 250,
+      "empirical_sd": 0.04481539854696776,
+      "mean_estimated_se": 0.04510203548658839,
+      "ratio": 0.9936447005877181,
+      "mean_effect": 0.0008371462068036148
+    },
+    {
+      "layer": "L2",
+      "reps": 250,
+      "empirical_sd": 0.04453801350146682,
+      "mean_estimated_se": 0.045098490378098335,
+      "ratio": 0.9875721588032644,
+      "mean_effect": -0.0038423902988036023
+    },
+    {
+      "layer": "L3",
+      "reps": 250,
+      "empirical_sd": 0.04617100662275234,
+      "mean_estimated_se": 0.04639332715563089,
+      "ratio": 0.9952079200499514,
+      "mean_effect": 0.004390317951916014
+    },
+    {
+      "layer": "POOLED",
+      "reps": 1000,
+      "empirical_sd": 0.043518354689980894,
+      "mean_estimated_se": 0.04374498340918167,
+      "ratio": 0.9948193209474802,
+      "mean_effect": -0.00012149244027248373
+    }
+  ],
+  "note": "只汇总 block=true_aa；负对照（purchase_null_negative_control）不计入 AA。覆盖率与 FPR 在 Welch t 下机械互补，SE 校准是另一个独立维度。"
+}
