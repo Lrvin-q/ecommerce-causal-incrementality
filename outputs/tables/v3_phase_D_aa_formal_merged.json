@@ -1,6 +1,10 @@
 {
   "source_label": "合成数据 / 已知 DGP",
-  "root": "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal",
+  "roots": [
+    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal",
+    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal_r2",
+    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal_r3"
+  ],
   "layers_found": [
     "L0",
     "L1",
@@ -14,43 +18,43 @@
   "se_calibration": [
     {
       "layer": "L0",
-      "reps": 27,
-      "empirical_sd": 0.041879686387342616,
-      "mean_estimated_se": 0.03838472024780709,
-      "ratio": 1.0910509733292948,
-      "mean_effect": -0.008766958840428095
+      "reps": 42,
+      "empirical_sd": 0.04082844964435321,
+      "mean_estimated_se": 0.038369583704191294,
+      "ratio": 1.0640837273377381,
+      "mean_effect": -0.003773578985760145
     },
     {
       "layer": "L1",
-      "reps": 26,
-      "empirical_sd": 0.04154762832605716,
-      "mean_estimated_se": 0.04511961395198323,
-      "ratio": 0.9208329745523217,
-      "mean_effect": 0.012035663845736297
+      "reps": 42,
+      "empirical_sd": 0.04605579852377359,
+      "mean_estimated_se": 0.04509736753794849,
+      "ratio": 1.0212524818664548,
+      "mean_effect": 0.005366367626911085
     },
     {
       "layer": "L2",
-      "reps": 27,
-      "empirical_sd": 0.047669198672871026,
-      "mean_estimated_se": 0.04502064612518173,
-      "ratio": 1.0588297320372722,
-      "mean_effect": 0.003955574748426248
+      "reps": 42,
+      "empirical_sd": 0.04202603796458536,
+      "mean_estimated_se": 0.045093128540010255,
+      "ratio": 0.931983194009182,
+      "mean_effect": 0.0052566986656643715
     },
     {
       "layer": "L3",
-      "reps": 25,
-      "empirical_sd": 0.04091205272025813,
-      "mean_estimated_se": 0.046327484179170264,
-      "ratio": 0.8831054274830011,
-      "mean_effect": 0.004045456415006576
+      "reps": 39,
+      "empirical_sd": 0.050643779621061286,
+      "mean_estimated_se": 0.04635373959954638,
+      "ratio": 1.0925500306680087,
+      "mean_effect": 0.00866498683886229
     },
     {
       "layer": "POOLED",
-      "reps": 105,
-      "empirical_sd": 0.043180425947141624,
-      "mean_estimated_se": 0.04364992342191923,
-      "ratio": 0.9892440252359792,
-      "mean_effect": 0.0027062504750500786
+      "reps": 165,
+      "empirical_sd": 0.04476988348650199,
+      "mean_estimated_se": 0.043680722395349154,
+      "ratio": 1.0249345942884132,
+      "mean_effect": 0.003791593658193166
     }
   ],
   "note": "只汇总 block=true_aa；负对照（purchase_null_negative_control）不计入 AA。覆盖率与 FPR 在 Welch t 下机械互补，SE 校准是另一个独立维度。"

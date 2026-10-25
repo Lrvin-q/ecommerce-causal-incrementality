@@ -59,21 +59,38 @@ def detect_power(true_rate: float, reps: int, alpha: float, band: tuple[float, f
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--root", default=str(ROOT / "out" / "v3_phase_d_aa_formal_r2"))
+    parser.add_argument("--root", nargs="+",
+                        default=[str(ROOT / "out" / "v3_phase_d_aa_formal"),
+                                 str(ROOT / "out" / "v3_phase_d_aa_formal_r2"),
+                                 str(ROOT / "out" / "v3_phase_d_aa_formal_r3")],
+                        help="可给多个运行根；同名层会合并并按 (层, rep) 去重")
     parser.add_argument("--band-low", type=float, default=0.035)
     parser.add_argument("--band-high", type=float, default=0.065)
     args = parser.parse_args()
 
     frames = []
     missing = []
+    # 一次正式跑会因内存复位而分成多个 run-root（_r2、_r3 …）。
+    # 必须读入所有根目录里同名的逐 rep 表并按 rep 去重，
+    # 否则会漏掉复位前已完成的 rep，得出错误的池化 FPR。
     for layer in LAYERS:
-        path = Path(args.root) / layer / "aa_repetitions.csv"
-        if not path.exists():
+        parts = []
+        for root in args.root:
+            path = Path(root) / layer / "aa_repetitions.csv"
+            if path.exists():
+                frame = pd.read_csv(path)
+                frame["_source_root"] = Path(root).name
+                parts.append(frame)
+        if not parts:
             missing.append(layer)
             continue
-        frame = pd.read_csv(path)
-        frame["_layer_dir"] = layer
-        frames.append(frame)
+        layer_data = pd.concat(parts, ignore_index=True)
+        read_rows = len(layer_data)
+        layer_data = layer_data.drop_duplicates(subset=["rep"], keep="last")
+        layer_data["_layer_dir"] = layer
+        frames.append(layer_data)
+        print(f"  {layer}: 读入 {read_rows} 行，去重后 {len(layer_data)} 行"
+              f"（重复 {read_rows - len(layer_data)}）")
     if not frames:
         print("没有任何层的逐 rep 表；AA 可能还没落盘")
         return 1
@@ -139,7 +156,7 @@ def main() -> int:
 
     result = {
         "source_label": "合成数据 / 已知 DGP",
-        "root": str(Path(args.root)),
+        "roots": [str(path) for path in args.root],
         "layers_found": [x for x in LAYERS if x not in missing],
         "layers_missing": missing,
         "rows_excluded_non_true_aa": int(excluded),
