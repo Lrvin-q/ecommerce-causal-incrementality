@@ -1,10 +1,13 @@
-"""v3 Phase D.1 的 MDE / 功效格校准口径测试。
+"""v3 Phase D.1 的 MDE / 护栏非劣效 / 功效格校准口径测试。
 
-覆盖四类断言：
-1. **公式正确性**：闭式利润 MDE 与两比例数值反解，含蒙特卡洛功效复现；
-2. **口径红线**：n 的符号不混用、方差只取 train split、失败要响（不返回 nan）；
-3. **零硬编码**：α/功效/分流/族大小/队列人数改注册表后结果跟着变；
-4. **不读真值**：模块导入期不加载 DGP，隔离列出现即抛错。
+覆盖七类断言：
+1. **公式正确性**：闭式利润 MDE、两比例数值反解、护栏非劣效 MDE，含蒙特卡洛功效复现；
+2. **口径红线**：n 的符号不混用、方差/峰度/退款率只取 train split、失败要响（不返回 nan）；
+3. **零硬编码**：α/功效/分流/族大小/队列人数/护栏界值改注册表后结果跟着变；
+4. **不读真值**：模块导入期不加载 DGP，隔离列出现即抛错；
+5. **C4**：σ 的抽样相对 SE 按实测峰度 `sqrt((κ−1)/(4n))`，不是正态公式；mde100 压力功效约 0.79；
+6. **C5**：mde100 边界格编码进表（boundary_flag / margin_ratio / power_cell_class），单侧 α 缺口可查；
+7. **C2/C3**：护栏非劣效 MDE 的四层数字；`summarize_power_cells` 只汇总真实逐 rep 结果，CSV 实测列 pending。
 
 合成数据 / 已知 DGP。全部为设计期断言，不构成任何正式重复（R = 0）。
 """
@@ -647,6 +650,10 @@ def test_guardrail_rows_cover_four_layers_and_two_powers(mde_rows, protocol):
         assert row["p0_baseline"] == pytest.approx(row["control_mean"])
         assert row["p1_at_mde"] == pytest.approx(
             row["p0_baseline"] + row["noninferiority_margin"] - row["mde"])
+        assert row["treatment_control_delta_at_mde"] == pytest.approx(
+            row["noninferiority_margin"] - row["mde"])
+        assert row["p1_at_mde"] == pytest.approx(
+            row["p0_baseline"] + row["treatment_control_delta_at_mde"])
         assert row["mde_pp"] == pytest.approx(row["mde"] * 100.0)
         assert row["mde_relative_to_margin_pct"] == pytest.approx(row["mde"] / 0.005 * 100.0)
         assert row["power_at_zero_effect"] > 0.9999
@@ -717,7 +724,7 @@ def test_multiplier_power_round_trip_through_reference_mde():
 
 
 # --------------------------------------------------------------------------- #
-# 8. 设计样本画像：只读四列、只取 train
+# 10. 设计样本画像：只读五列、只取 train
 # --------------------------------------------------------------------------- #
 def test_profile_from_frame_computes_sample_statistics():
     frame = _frame(400, treatment_share=0.5)
@@ -833,7 +840,7 @@ def test_profile_rejects_zero_variance():
 
 
 # --------------------------------------------------------------------------- #
-# 9. 队列与对比
+# 11. 队列与对比
 # --------------------------------------------------------------------------- #
 def test_contrasts_follow_the_registered_cohorts(protocol):
     contrasts = {contrast.cohort_id: contrast for contrast in vp.contrasts_from_config(protocol)}
@@ -876,7 +883,7 @@ def test_derived_validation_cohort_tracks_the_split_config(protocol):
 
 
 # --------------------------------------------------------------------------- #
-# 10. 20 个功效格
+# 12. 20 个功效格
 # --------------------------------------------------------------------------- #
 @pytest.fixture(scope="module")
 def calibrations(protocol, profiles):
@@ -1053,7 +1060,7 @@ def test_power_cell_without_frozen_multiplier_is_refused(protocol):
 
 
 # --------------------------------------------------------------------------- #
-# 11. 汇总表
+# 13. 汇总表
 # --------------------------------------------------------------------------- #
 @pytest.fixture(scope="module")
 def mde_rows(protocol, profiles):
@@ -1184,7 +1191,7 @@ def test_committed_table_matches_its_schema(protocol):
 
 
 # --------------------------------------------------------------------------- #
-# 12. 实测功效汇总入口（C3）：只汇总真实逐 rep 结果，不伪造
+# 14. 实测功效汇总入口（C3）：只汇总真实逐 rep 结果，不伪造
 # --------------------------------------------------------------------------- #
 def _rep_rows(cell_id: str = "L1_power_mde100", reps: int = 100, hits: int = 80,
               effect: float = 0.1303) -> list[dict[str, object]]:
@@ -1272,7 +1279,7 @@ def test_committed_table_leaves_empirics_empty_and_marks_pending():
 
 
 # --------------------------------------------------------------------------- #
-# 13. 不读真值：导入期与 AST 双重证据
+# 15. 不读真值：导入期与 AST 双重证据
 # --------------------------------------------------------------------------- #
 def test_module_does_not_import_dgp_at_import_time():
     code = ("import sys; import causal_growth.design.v3_power; "
@@ -1314,7 +1321,7 @@ def test_module_only_reads_the_registered_observable_columns():
 
 
 # --------------------------------------------------------------------------- #
-# 13. 先导模拟的编号纪律
+# 16. 先导模拟的编号纪律
 # --------------------------------------------------------------------------- #
 def test_pilot_rep_ids_start_after_the_formal_grid(protocol):
     data = protocol.config.to_dict()

@@ -217,6 +217,7 @@ MDE_TABLE_COLUMNS: tuple[str, ...] = (
     "mde_relative_pct",
     "mde_relative_to_margin_pct",
     "noninferiority_margin",
+    "treatment_control_delta_at_mde",
     "control_mean",
     "sigma_treatment",
     "sigma_control",
@@ -231,6 +232,8 @@ MDE_TABLE_COLUMNS: tuple[str, ...] = (
     "analytic_power",
     "power_at_sigma_plus_1se",
     "power_at_zero_effect",
+    "observed_treatment_control_delta",
+    "power_at_observed_delta",
     "required_multiplier",
     "configured_multiplier",
     "required_multiplier_90",
@@ -1779,6 +1782,10 @@ def _guardrail_rows(
     p0 = profile.refund_rate_control
     if p0 is None:
         raise ValueError(f"{scenario}: 画像缺 refund_rate_control，无法计算护栏非劣效 MDE")
+    p1_observed = profile.refund_rate_treatment
+    if p1_observed is None:
+        raise ValueError(f"{scenario}: 画像缺 refund_rate_treatment，无法计算护栏观测差")
+    observed_delta = p1_observed - p0
     margin = guardrail["margin"]
     alpha_one = guardrail["alpha_one_sided"]
     metric = guardrail["metric"]
@@ -1790,6 +1797,9 @@ def _guardrail_rows(
         )
         power_at_zero = noninferiority_power(
             p0, 0.0, n_treatment, n_control, margin=margin, alpha=alpha_one, sides=ONE_SIDED)
+        power_at_observed = noninferiority_power(
+            p0, observed_delta, n_treatment, n_control, margin=margin,
+            alpha=alpha_one, sides=ONE_SIDED)
         row = _base_row(protocol)
         row.update({
             "record_type": "guardrail_mde",
@@ -1817,11 +1827,14 @@ def _guardrail_rows(
             "mde_pp": effect * 100.0,
             "mde_relative_to_margin_pct": effect / margin * 100.0,
             "noninferiority_margin": margin,
+            "treatment_control_delta_at_mde": margin - effect,
             "control_mean": p0,
             "p0_baseline": p0,
             "p1_at_mde": p0 + margin - effect,
             "analytic_power": power,
             "power_at_zero_effect": power_at_zero,
+            "observed_treatment_control_delta": observed_delta,
+            "power_at_observed_delta": power_at_observed,
             "primary_row": False,
             "variance_source": variance_source,
             "observed_dataset_hash": profile.observed_dataset_hash,
@@ -2255,8 +2268,9 @@ def _main(argv: Sequence[str] | None = None) -> int:
         rows = build_mde_rows(protocol, read_profiles_json(payload))
         target = write_mde_csv(rows, args.table_path)
         design_rows = sum(1 for row in rows if row["record_type"] == "design_mde")
+        guardrail_rows = sum(1 for row in rows if row["record_type"] == "guardrail_mde")
         print(f"[design-mde] 已写 {target}：design_mde={design_rows}, "
-              f"power_cell={len(rows) - design_rows}")
+              f"guardrail_mde={guardrail_rows}, power_cell={len(rows) - design_rows - guardrail_rows}")
     return 0
 
 
