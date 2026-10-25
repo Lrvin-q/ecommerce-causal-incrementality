@@ -1,0 +1,57 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "root": "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal",
+  "layers_found": [
+    "L0",
+    "L1",
+    "L2",
+    "L3"
+  ],
+  "layers_missing": [],
+  "rows_excluded_non_true_aa": 0,
+  "alpha": 0.05,
+  "summary_csv": "outputs/tables/v3_phase_D_aa_formal_merged.csv",
+  "se_calibration": [
+    {
+      "layer": "L0",
+      "reps": 27,
+      "empirical_sd": 0.041879686387342616,
+      "mean_estimated_se": 0.03838472024780709,
+      "ratio": 1.0910509733292948,
+      "mean_effect": -0.008766958840428095
+    },
+    {
+      "layer": "L1",
+      "reps": 26,
+      "empirical_sd": 0.04154762832605716,
+      "mean_estimated_se": 0.04511961395198323,
+      "ratio": 0.9208329745523217,
+      "mean_effect": 0.012035663845736297
+    },
+    {
+      "layer": "L2",
+      "reps": 27,
+      "empirical_sd": 0.047669198672871026,
+      "mean_estimated_se": 0.04502064612518173,
+      "ratio": 1.0588297320372722,
+      "mean_effect": 0.003955574748426248
+    },
+    {
+      "layer": "L3",
+      "reps": 25,
+      "empirical_sd": 0.04091205272025813,
+      "mean_estimated_se": 0.046327484179170264,
+      "ratio": 0.8831054274830011,
+      "mean_effect": 0.004045456415006576
+    },
+    {
+      "layer": "POOLED",
+      "reps": 105,
+      "empirical_sd": 0.043180425947141624,
+      "mean_estimated_se": 0.04364992342191923,
+      "ratio": 0.9892440252359792,
+      "mean_effect": 0.0027062504750500786
+    }
+  ],
+  "note": "只汇总 block=true_aa；负对照（purchase_null_negative_control）不计入 AA。覆盖率与 FPR 在 Welch t 下机械互补，SE 校准是另一个独立维度。"
+}
