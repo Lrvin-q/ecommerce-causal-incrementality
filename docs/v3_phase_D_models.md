@@ -110,7 +110,7 @@ colsample 0.8 / `n_jobs=1` / `verbosity=-1`）。装配方式与已跑通的 `sc
 
 ### 2.1 Causal Forest 冻结口径
 
-`causal_forest_estimator` 从 `models.causal_forest` 读取并**逐项校验**，任何漂移直接 `ConfigError`：
+**注意口径**：`causal_forest_estimator` 只对五项显式抛 `ConfigError`——`n_jobs` / `inference` / `discrete_treatment` / `cv` / `treatment_nuisance_model`；`n_estimators` / `min_samples_leaf` / `max_depth` 是**直接读配置传入**，改动它们不会在运行时抛错，而是由 `config_hash` 在产物绑定层面保护。因此「任何漂移都会立刻报错」的说法不准确：前者是运行时断言，后者是事后溯源。
 `n_estimators=300`、`min_samples_leaf=60`、`max_depth=null`、`cv=3`、`discrete_treatment=true`、
 `treatment_nuisance_model=classifier`、`n_jobs=1`、`inference=false`。
 测试 `test_causal_forest_estimator_uses_frozen_hyperparameters` 直接检查装配后的估计器属性，
@@ -139,6 +139,8 @@ colsample 0.8 / `n_jobs=1` / `verbosity=-1`）。装配方式与已跑通的 `sc
 折内种子，因此观察性常数模型的 ATE 与 DR-learner 的 `dr_ate_training` 逐位相同。
 测试 `test_constant_observational_shares_nuisance_with_dr_learner` 断言 `|差| < 1e-9`。
 
+> **口径更正**：`|差| < 1e-9` 只是**自洽性检查**——观察性常数模型与 DR-learner 共用同一套折外 nuisance、同一 seed，所以两者必然相等，这是**自同义反复，不是正确性证据**。真正的正确性证据是：AIPW 伪结局按折外预测构造（每折只在其余折拟合 m1/m0/e），以及 `ψ.mean()` 与 `crossfit_dr_ate.ate` 的**精确恒等**——即「ATE 确实是 ψ 的均值」这一定义关系被实现满足。
+
 **随机化层的 DR 默认用估计倾向，报告的是效率保守下界（不是一致性问题）**：随机化层的设计概率
 已知（L0/L1 为 0.5；L2 按场景 `treatment_probability` 取 0.1/0.3/0.5），理论上直接用设计概率
 的 DR 更有效（少一层估计误差）。D.3 默认按 `models.dr_learner.propensity_model:
@@ -154,7 +156,7 @@ lightgbm_classifier` 估计倾向，**因此默认报告的 DR 效率是保守�
 
 ### 2.3 识别模式与层级适用性
 
-- `identification_mode` 复刻 `data/v3_sql.py:184` 的 `observational_history` 规则：
+- `identification_mode` 复刻 `data/v3_sql.py:185` 的 `observational_history` 规则：
   `dgp.profile == "l3" and not dgp.virtual_aa_labels` → `observational`，否则 `randomized`。
   观察性模式出现在非 L3 会直接 `ConfigError`。
 - `require_model_applicable` 读 `models.common + additional_by_level[level]`：
@@ -565,3 +567,5 @@ ATE 差（均值行）：`L1` estimated **+0.1298**、known **+0.1058**（ITT SE
   才有；真实观察性数据没有这个量，本对照只回答"如果 e 已知，DR 能好多少"。
 - **不含 L3**：观察性层没有已知设计概率，传 `known_design` 会抛
   `PropensitySourceError`（§2.4 规则 2），所以这里没有也不该有 L3 的 known_design 对照。
+
+> 增补时间：2026-10-25 15:42（北京时间）：按独立科学评审 C8 修正三处表述。
