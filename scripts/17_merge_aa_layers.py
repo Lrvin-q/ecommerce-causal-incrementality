@@ -96,6 +96,18 @@ def main() -> int:
         return 1
     data = pd.concat(frames, ignore_index=True)
 
+    # 跨 run-root 合并前必须确认协议一致：不同协议版本的 rep 不能混进同一个池化 FPR。
+    # 这条不会自己暴露——混进来的 rep 行看起来完全正常，只会让池化结果悄悄失效。
+    if "protocol_config_hash" in data.columns:
+        protocol_hashes = sorted(data["protocol_config_hash"].dropna().unique())
+        if len(protocol_hashes) > 1:
+            raise SystemExit(
+                "拒绝合并：不同 run-root 的 protocol_config_hash 不一致 "
+                f"{protocol_hashes}；这些 rep 不属同一协议，池化结果无效"
+            )
+        if protocol_hashes:
+            print(f"  协议指纹一致：{protocol_hashes[0][:16]}…")
+
     total_rows = len(data)
     data = data[data["block"] == "true_aa"].copy()
     excluded = total_rows - len(data)
