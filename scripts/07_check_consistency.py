@@ -17,7 +17,14 @@
    例外只有一处：论文附录 D 的 v1→v2 映射表，用 ``<!-- old-values-ok:start/end -->`` 显式豁免。
 3. **版本说明**：每份文档顶部必须有一行统一的"数据版本：v2"说明。
 
-退出码：0 = 通过；1 = 发现旧值 / 缺关键数字 / 缺版本说明。
+第四类（2026-10-25 17:35 新增，v3 专用）
+--------------------------------------
+4. **v3 文档的结果表来源**：``outputs/tables/`` 里同时躺着 52 张 v2 表（``r1_``/``r2_``/``r3_``
+   前缀）与 11 张 v3 表（``v3_`` 前缀）。v3 文档若引用 ``r*_`` 表，等于把 v2 数字搬进 v3 叙述，
+   而文字上完全看不出错。本检查要求：**v3 文档里带 ``outputs/tables/`` 前缀的 CSV 引用必须
+   以 ``v3_`` 开头**。裸文件名（如 ``r3_robustness.csv``）不计入，避免误伤"与 v2 对照"的讨论。
+
+退出码：0 = 通过；1 = 发现旧值 / 缺关键数字 / 缺版本说明 / v3 文档引用了 v2 表。
 """
 
 from __future__ import annotations
@@ -484,6 +491,39 @@ def check_abstract_sync(problems: list[str]) -> None:
         )
 
 
+# ---------------------------------------------------------------------------
+# 第 4 类：v3 文档引用的结果表必须带 v3_ 前缀
+# ---------------------------------------------------------------------------
+#: 需要受此约束的 v3 文档：docs/v3_*.md 与四份状态文件。
+V3_DOCS: list[Path] = sorted((ROOT / "docs").glob("v3_*.md")) + [
+    ROOT / "AGENT_HANDOFF.md",
+    ROOT / "GOAL.md",
+    ROOT / "TODO.md",
+    ROOT / "README.md",
+]
+
+#: 带目录前缀的表引用；裸文件名不匹配（见模块文档字符串的说明）。
+TABLE_REF = re.compile(r"outputs[/\\]tables[/\\]([A-Za-z0-9_.\-]+\.csv)")
+
+
+def check_v3_table_provenance(problems: list[str]) -> int:
+    """v3 文档引用的 ``outputs/tables/*.csv`` 必须以 ``v3_`` 开头；返回检查到的引用数。"""
+    hits = 0
+    for doc in V3_DOCS:
+        if not doc.is_file():
+            continue
+        for lineno, line in read_without_exempt(doc):
+            for match in TABLE_REF.finditer(line):
+                hits += 1
+                name = match.group(1)
+                if not name.startswith("v3_"):
+                    problems.append(
+                        f"{doc.name}:{lineno} 引用非 v3 结果表 outputs/tables/{name}"
+                        f"（v2 表前缀 r1_/r2_/r3_；确需引用请加 old-values-ok 豁免标记）"
+                    )
+    return hits
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="文档数字一致性检查（事实源：outputs/tables/*.csv）")
     parser.add_argument("-v", "--verbose", action="store_true", help="打印关键数字的命中位置")
@@ -495,9 +535,11 @@ def main(argv: list[str] | None = None) -> int:
     check_internal_consistency(problems)
     check_abstract_sync(problems)
     n_stale = check_stale(problems)
+    n_v3_refs = check_v3_table_provenance(problems)
 
     print(f"\n扫描文档 {len(DOCS)} 份：{', '.join(d.name for d in DOCS)}")
     print(f"关键数字 {len(key_numbers())} 个；旧值黑名单 {len(BLACKLIST)} 条；命中旧值 {n_stale} 处")
+    print(f"v3 文档结果表引用 {n_v3_refs} 处（必须 v3_ 前缀，覆盖 {len(V3_DOCS)} 份文档）")
 
     if problems:
         print(f"\n[未通过] 共 {len(problems)} 处问题：")
