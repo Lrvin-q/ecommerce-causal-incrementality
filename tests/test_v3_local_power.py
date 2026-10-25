@@ -14,10 +14,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from causal_growth.data import v3_local_power_pipeline as local_power_pipeline
 from causal_growth.data.v3_local_power_pipeline import (
+    SOURCE_CHANGED_MARKER,
     audit_population_effect,
     design_mde_table,
     design_sigma_table,
+    environment_fault,
     feasibility_table,
     local_power_plan,
     run_local_power_rep,
@@ -501,3 +504,112 @@ def test_audit_population_effect_uses_the_generated_truth(protocol, panels) -> N
         float(population.audit_probabilities.p1_conditional.mean()),
     )
     assert 0.0 < audit["realized_mean_purchase_control"] < audit["realized_mean_purchase_treated"] < 1.0
+
+
+# --------------------------------------------------------------------------- #
+# 估计目标诊断：未调整 ITT 在协变量依赖随机化下不是 ATE
+# --------------------------------------------------------------------------- #
+def test_selection_bias_diagnostic_flags_l3_only(protocol, panels) -> None:
+    """L0/L1/L2 的 50/50 随机化偏差为 0；L3 的协变量依赖随机化必须被标出。"""
+    l1 = _calibrate(protocol, panels, "L1_power_mde000", 0.130262)
+    cfg1 = l1.scaled_config()
+    population1 = generate_v3_population(cfg1, rep_id=0, n=2000)
+    audit1 = audit_population_effect(population1, cfg1)
+    assert audit1["propensity_min"] == pytest.approx(0.5)
+    assert audit1["propensity_max"] == pytest.approx(0.5)
+    assert abs(audit1["selection_bias"]) < 1e-9
+
+    l3 = _calibrate(protocol, panels, "L3_power_mde000", 0.130823)
+    cfg3 = l3.scaled_config()
+    population3 = generate_v3_population(cfg3, rep_id=0, n=2000)
+    audit3 = audit_population_effect(population3, cfg3)
+    assert audit3["propensity_max"] - audit3["propensity_min"] > 0.5
+    # 校准到零效应的 L3 人群：真 ATE ≈ 0，但未调整均值差被选择效应推向 +1 元/人量级。
+    assert abs(audit3["realized_effect"]) < 0.3
+    assert audit3["selection_bias"] > 0.5
+    assert audit3["selection_bias"] > 3.0 * 0.130823
+
+
+def test_summary_flags_biased_estimand(protocol, panels) -> None:
+    """汇总层必须把 L3 型的估计目标偏差写进 estimator_warning。"""
+    calibration = _calibrate(protocol, panels, "L3_power_mde100", 0.130823)
+    frame = pd.DataFrame({
+        "cell_id": [calibration.cell_id] * 2, "rep_id": [0, 1],
+        "effect_estimate": [1.3, 1.5], "reject": [True, True],
+        "itt_p_value": [1e-4, 2e-5], "purchase_diff": [0.06, 0.07], "purchase_p_value": [1e-3, 1e-3],
+        "n_total": [3000, 3000], "n_treatment": [1500, 1500], "n_control": [1500, 1500],
+        "sd_profit_treated": [10.0, 10.0], "sd_profit_control": [9.5, 9.5], "config_hash": ["x", "x"],
+        "dgp_cpu_s": [0.3, 0.3], "pipeline_cpu_s": [3.0, 3.0], "itt_cpu_s": [0.01, 0.01],
+        "audit_cpu_s": [0.5, 0.0], "total_cpu_s": [3.81, 3.31], "total_wall_s": [4.0, 3.5],
+        "realized_effect": [0.13, np.nan], "selection_bias": [1.35, np.nan],
+        "propensity_min": [0.16, np.nan], "propensity_max": [0.96, np.nan],
+    })
+    summary = summarize_local_power(frame, [calibration], alpha=0.05)
+    row = summary.iloc[0]
+    assert row["selection_bias"] == pytest.approx(1.35)
+    assert row["selection_bias_ratio_to_mde"] > 5.0
+    assert row["propensity_min"] == pytest.approx(0.16)
+    assert "propensity_weighted_contrast" in row["estimator_warning"]
+    assert row["rejection_rate"] == pytest.approx(1.0)
+
+    frame["selection_bias"] = [0.0, np.nan]
+    clean = summarize_local_power(frame, [calibration], alpha=0.05)
+    assert clean.iloc[0]["estimator_warning"] == ""
+
+
+# --------------------------------------------------------------------------- #
+# 环境故障：只重试源码绑定门禁与 Windows 落盘占用
+# --------------------------------------------------------------------------- #
+class _FakeLock(OSError):
+    """带 ``winerror`` 的 OSError，模拟 Windows 落盘短暂占用（跨平台可构造）。"""
+
+    winerror = 32
+
+
+def test_environment_fault_classification() -> None:
+    """只有两类环境故障可重试，其余真 bug 必须冒出。"""
+    assert environment_fault(RuntimeError(f"{SOURCE_CHANGED_MARKER}; retain this attempt as failed")) \
+        == "source_changed"
+    assert environment_fault(_FakeLock("busy")) == "windows_file_lock"
+    assert environment_fault(ValueError("a real bug")) is None
+    try:
+        try:
+            raise _FakeLock("busy")
+        except OSError as exc:
+            raise ValueError("run is already terminal") from exc
+    except ValueError as wrapped:
+        assert environment_fault(wrapped) == "windows_file_lock"
+
+
+def test_cell_retries_environment_faults_only(monkeypatch, protocol, panels, tmp_path: Path) -> None:
+    """源码被并发改写时用新目录重试；真异常不重试也不吞。"""
+    calibration = _calibrate(protocol, panels, "L1_power_mde050", 0.130262)
+    real = local_power_pipeline.run_local_power_rep
+    calls = {"count": 0}
+
+    def flaky(*args, **kwargs):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise RuntimeError(f"{SOURCE_CHANGED_MARKER}; retain this attempt as failed")
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(local_power_pipeline, "run_local_power_rep", flaky)
+    frame = local_power_pipeline.run_local_power_cell(
+        calibration, reps=1, n=120, run_root=tmp_path / "retry", max_environment_retries=2,
+    )
+    assert calls["count"] == 2
+    assert int(frame.iloc[0]["environment_retries"]) == 1
+    assert frame.iloc[0]["n_total"] == 120
+
+    calls["count"] = 0
+
+    def broken(*args, **kwargs):
+        calls["count"] += 1
+        raise ValueError("a real bug")
+
+    monkeypatch.setattr(local_power_pipeline, "run_local_power_rep", broken)
+    with pytest.raises(ValueError, match="real bug"):
+        local_power_pipeline.run_local_power_cell(
+            calibration, reps=1, n=120, run_root=tmp_path / "broken", max_environment_retries=3,
+        )
+    assert calls["count"] == 1

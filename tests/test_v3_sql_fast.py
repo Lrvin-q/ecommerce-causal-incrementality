@@ -1,6 +1,6 @@
 """D.4 等价性测试：``load_facts_fast`` 必须与 ``v3_sql._load_facts`` 逐表同内容。
 
-合成数据 / 已知 DGP。维护时间：2026-10-25 11:20（北京时间）。
+合成数据 / 已知 DGP。维护时间：2026-10-25 14:20（北京时间）。
 
 证明方式不是"看起来一样"，而是把同一份输入分别喂给两条装载路径，然后逐表比对：
 
@@ -16,6 +16,16 @@
 ``v3_sql.py`` 的调用点切到 ``load_facts_fast`` 之后，``v3_sql._load_facts`` 可能
 被删除，但本文件的等价性证明不依赖它的存续。``test_frozen_reference_matches_v3_sql``
 在旧实现仍然存在时逐字校验冻结副本没有漂移，切换后自动 skip。
+
+**2026-10-25 14:20（北京时间）独立评审的四处整改**（详见 ``docs/v3_phase_D_c_replay.md``）：
+
+- §6 的两条全链路测试原先 monkeypatch 的是切换后**已无调用方**的
+  ``v3_sql._load_facts``，实际变成 fast-vs-fast 的空洞断言。现在显式替换**活调用点**
+  ``v3_sql.load_facts_fast``，并用调用记录反证"两条路径各真跑了一次"。
+- §5 的 PRAGMA 恢复机制在 ``LOAD_PRAGMAS=()`` 下退化为"断言空集合"。现在用
+  monkeypatch 注入 ``journal_mode=WAL`` / ``temp_store=2``（刻意不用 ``journal_mode=OFF``），
+  在不改生产配置的前提下重新覆盖：装载期间生效、装载后逐项恢复、异常路径也恢复、跨连接复查。
+- §9 新增 ``ObservedDataset.from_manifest`` 的 ``source_hashes_before`` 溯源守卫测试。
 """
 
 from __future__ import annotations
@@ -32,7 +42,10 @@ import pytest
 
 from causal_growth.config import Config
 from causal_growth.data import v3_sql
+from causal_growth.data import v3_sql_fast
 from causal_growth.data.v3_dirt import deduplicate_events, inject_dirt
+from causal_growth.data.v3_observed import ObservedDataset
+from causal_growth.data.v3_pipeline import pipeline_source_hashes
 from causal_growth.data.v3_sql import BUSINESS_TABLES, run_sql_pipeline
 from causal_growth.data.v3_sql_fast import (
     DEFAULT_CHUNK_SIZE,
@@ -43,7 +56,7 @@ from causal_growth.data.v3_sql_fast import (
     read_pragmas,
     relaxed_pragmas,
 )
-from causal_growth.data.v3_storage import dataframe_sha256
+from causal_growth.data.v3_storage import RunArtifactWriter, dataframe_sha256, file_sha256
 from causal_growth.data.v3_tables import build_raw_tables
 from causal_growth.dgp.v3_engine import generate_v3_population
 from causal_growth.v3_config import load_v3_protocol
@@ -408,102 +421,236 @@ def test_default_chunk_size_loads_everything_and_rejects_non_positive(clean_tabl
 
 
 # --------------------------------------------------------------------------- #
-# 5. PRAGMA：装载期间生效、结束后恢复、异常路径也恢复
+# 5. PRAGMA：装载期间生效、结束后恢复、异常路径也恢复、跨连接复查
 # --------------------------------------------------------------------------- #
-# 2026-10-25 主控裁决：LOAD_PRAGMAS 置空（实测零收益、崩溃风险真实）。
-# 置空时"生效"断言无意义故跳过；同时补一条"置空时不触碰任何 PRAGMA"的断言。
-@pytest.mark.skipif(not LOAD_PRAGMAS, reason="主控裁决置空 PRAGMA：零收益不承担崩溃风险")
-def test_pragmas_take_effect_during_loading_and_are_restored_afterwards(tmp_path):
-    database = tmp_path / "pragma.sqlite"
+# 2026-10-25 主控裁决：生产配置 LOAD_PRAGMAS 置空（实测零收益、崩溃风险真实）。
+# 但"置空"不等于"恢复机制可以不测"：置空后 read_pragmas() 恒为 {}，任何围绕空集合
+# 的断言都是空洞的。这里用 monkeypatch 注入一组非空 PRAGMA——journal_mode=WAL 与
+# temp_store=2，**刻意不用 journal_mode=OFF**（评审已确认 OFF 期间崩溃可能留下不可回滚
+# 的库）——在不改生产配置的前提下把恢复机制重新纳入覆盖。
+PRAGMA_PROBE: tuple[tuple[str, object], ...] = (("journal_mode", "WAL"), ("temp_store", 2))
+PRAGMA_PROBE_NAMES: tuple[str, ...] = tuple(name for name, _ in PRAGMA_PROBE)
+
+
+@pytest.fixture
+def probe_pragmas(monkeypatch) -> tuple[str, ...]:
+    """Temporarily install a non-empty PRAGMA set; production config stays untouched."""
+    monkeypatch.setattr(v3_sql_fast, "LOAD_PRAGMAS", PRAGMA_PROBE)
+    monkeypatch.setattr(v3_sql_fast, "_PRAGMA_NAMES", PRAGMA_PROBE_NAMES)
+    assert v3_sql_fast.LOAD_PRAGMAS is PRAGMA_PROBE
+    return PRAGMA_PROBE_NAMES
+
+
+def _prepared_connection(database: Path) -> sqlite3.Connection:
+    """Open ``database``, apply the schema and park ``temp_store`` at 1.
+
+    ``temp_store`` is per-connection (it is not stored in the file), so the "prior
+    value" used to prove restoration must be set on the very connection that runs the
+    load. 1 differs from both the probe value (2) and the default (0), so a restore
+    step that writes back a default instead of the recorded value is still caught.
+    """
     connection = sqlite3.connect(database)
     connection.executescript(SCHEMA_SQL)
-    before = read_pragmas(connection)
-    with relaxed_pragmas(connection) as applied:
-        during = read_pragmas(connection)
-        assert during["journal_mode"].casefold() == "off"
-        assert during["synchronous"] == 0
-        assert during["temp_store"] == 2
-        assert during["cache_size"] == -131072
-        assert set(applied) == {name for name, _ in LOAD_PRAGMAS}
-    assert read_pragmas(connection) == before
-    connection.close()
+    connection.execute("PRAGMA temp_store=1")
+    connection.commit()
+    return connection
+
+
+def test_probe_pragmas_take_effect_and_are_restored_item_by_item(probe_pragmas, tmp_path):
+    """Injected PRAGMAs must be live inside the context and restored key by key."""
+    database = tmp_path / "probe_pragmas.sqlite"
+    connection = _prepared_connection(database)
+    try:
+        before = read_pragmas(connection, probe_pragmas)
+        assert before == {"journal_mode": "delete", "temp_store": 1}
+        with relaxed_pragmas(connection) as applied:
+            during = read_pragmas(connection, probe_pragmas)
+            assert during["journal_mode"].casefold() == "wal"
+            assert during["temp_store"] == 2
+            # Both switches were registered, so both are restored below.
+            assert set(applied) == set(probe_pragmas)
+            assert applied["journal_mode"].casefold() == "wal"
+            assert applied["temp_store"] == 2
+        assert read_pragmas(connection, probe_pragmas) == before
+    finally:
+        connection.close()
+    # Cross-connection recheck: journal_mode is a property of the database file, so a
+    # fresh connection must see the restored value. temp_store is per-connection and
+    # therefore *cannot* be compared across connections (it reports the new default).
+    probe = sqlite3.connect(database)
+    try:
+        assert probe.execute("PRAGMA journal_mode").fetchone()[0].casefold() == before["journal_mode"]
+        assert probe.execute("PRAGMA temp_store").fetchone()[0] != 2
+    finally:
+        probe.close()
+
+
+def test_probe_pragmas_are_restored_when_the_load_raises(probe_pragmas, tmp_path):
+    """The failure path must restore every PRAGMA *and* leave no half-committed table."""
+    database = tmp_path / "probe_pragma_failure.sqlite"
+    connection = _prepared_connection(database)
+    try:
+        before = read_pragmas(connection, probe_pragmas)
+        assert before == {"journal_mode": "delete", "temp_store": 1}
+        broken = _synthetic_tables(50, 1)
+        broken["users"] = broken["users"].copy()
+        broken["users"].loc[0, "hist_gmv"] = -1.0  # CHECK(hist_gmv>=0) violation
+        with pytest.raises(sqlite3.IntegrityError):
+            load_facts_fast(connection, broken, 8)
+        assert read_pragmas(connection, probe_pragmas) == before
+        assert connection.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0
+    finally:
+        connection.close()
+    probe = sqlite3.connect(database)
+    try:
+        assert probe.execute("PRAGMA journal_mode").fetchone()[0].casefold() == before["journal_mode"]
+    finally:
+        probe.close()
+
+
+def test_the_loader_applies_the_probe_pragmas_around_the_inserts(probe_pragmas, monkeypatch, tmp_path):
+    """Prove the PRAGMAs are live **while rows are being inserted**, not only at the edges."""
+    database = tmp_path / "loader_probe_pragmas.sqlite"
+    connection = _prepared_connection(database)
+    before = read_pragmas(connection, probe_pragmas)
+    assert before == {"journal_mode": "delete", "temp_store": 1}
+    observed: list[dict[str, object]] = []
+    real_iter_fact_rows = v3_sql_fast.iter_fact_rows
+
+    def spy(frame, columns, chunk_size):
+        observed.append(read_pragmas(connection, probe_pragmas))
+        yield from real_iter_fact_rows(frame, columns, chunk_size)
+
+    monkeypatch.setattr(v3_sql_fast, "iter_fact_rows", spy)
+    try:
+        load_facts_fast(connection, _synthetic_tables(200, 2), 64)
+        assert observed, "装载器没有调用 iter_fact_rows，装载期间状态未被观测到"
+        assert all(state["journal_mode"].casefold() == "wal" and state["temp_store"] == 2 for state in observed)
+        assert read_pragmas(connection, probe_pragmas) == before
+        assert connection.execute("SELECT COUNT(*) FROM user_events").fetchone()[0] == 400
+    finally:
+        connection.close()
 
 
 def test_empty_pragma_tuple_touches_nothing(tmp_path):
-    """LOAD_PRAGMAS 为空时，装载前后连接状态必须逐项相同（置空的正确性凭据）。"""
+    """Production config ``LOAD_PRAGMAS=()`` 的正确性凭据（配置裁决，不是恢复机制）。
+
+    ``read_pragmas()`` 的默认参数在函数定义时就绑定成空元组，所以这里必须显式传
+    探测名，否则 ``before`` 与 ``after`` 都是 ``{}``，断言又会退化成空集合比较。
+    """
+    assert LOAD_PRAGMAS == v3_sql_fast.LOAD_PRAGMAS == ()
+    assert v3_sql_fast._PRAGMA_NAMES == ()
+    assert read_pragmas(sqlite3.connect(":memory:")) == {}
+    names = ("journal_mode", "temp_store", "synchronous", "cache_size")
     database = tmp_path / "no_pragma.sqlite"
     connection = sqlite3.connect(database)
     connection.executescript(SCHEMA_SQL)
-    before = read_pragmas(connection)
-    with relaxed_pragmas(connection) as applied:
-        assert applied == {}
-        assert read_pragmas(connection) == before
-    assert read_pragmas(connection) == before
-    connection.close()
+    try:
+        before = read_pragmas(connection, names)
+        with relaxed_pragmas(connection) as applied:
+            assert applied == {}
+            assert read_pragmas(connection, names) == before
+        assert read_pragmas(connection, names) == before
+    finally:
+        connection.close()
     # And through the public loader, which opens the write transaction itself.
     connection = sqlite3.connect(database)
-    before = read_pragmas(connection)
-    load_facts_fast(connection, _synthetic_tables(200, 2), 64)
-    assert read_pragmas(connection) == before
-    assert connection.execute("SELECT COUNT(*) FROM user_events").fetchone()[0] == 400
-    connection.close()
+    try:
+        before = read_pragmas(connection, names)
+        load_facts_fast(connection, _synthetic_tables(200, 2), 64)
+        assert read_pragmas(connection, names) == before
+        assert connection.execute("SELECT COUNT(*) FROM user_events").fetchone()[0] == 400
+    finally:
+        connection.close()
     probe = sqlite3.connect(database)
-    assert read_pragmas(probe) == before
-    probe.close()
-
-
-def test_pragmas_are_restored_when_the_load_raises(tmp_path):
-    database = tmp_path / "pragma_failure.sqlite"
-    connection = sqlite3.connect(database)
-    connection.executescript(SCHEMA_SQL)
-    before = read_pragmas(connection)
-    broken = _synthetic_tables(50, 1)
-    broken["users"] = broken["users"].copy()
-    broken["users"].loc[0, "hist_gmv"] = -1.0  # CHECK(hist_gmv>=0) violation
-    with pytest.raises(sqlite3.IntegrityError):
-        load_facts_fast(connection, broken, 8)
-    assert read_pragmas(connection) == before
-    # A failed load must not leave half a table committed behind a relaxed journal.
-    assert connection.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0
-    connection.close()
+    try:
+        assert probe.execute("PRAGMA journal_mode").fetchone()[0].casefold() == "delete"
+    finally:
+        probe.close()
 
 
 # --------------------------------------------------------------------------- #
 # 6. 整条 SQL 链路：新旧装载产出的观测表逐字节同一
 # --------------------------------------------------------------------------- #
 def test_sql_pipeline_output_is_identical_under_both_loaders(clean_tables, monkeypatch):
+    """Swap the **live** call site (``v3_sql.load_facts_fast``), not the dead hook.
+
+    主控把 ``run_sql_pipeline`` 的调用点切到 ``load_facts_fast`` 之后，如果本测试继续
+    monkeypatch ``v3_sql._load_facts``（已无任何调用方），两路都会走快路径，测试就退化成
+    fast-vs-fast 的空洞断言。这里显式替换活调用点，并用 ``calls`` 记录反证"两条路径各
+    真跑了一次"——这才是这条测试唯一的价值所在。
+    """
     cfg, tables = clean_tables
-    if getattr(v3_sql, "_load_facts", None) is None:
-        pytest.skip("v3_sql._load_facts 已移除，钩子不可注入；逐表等价性仍由其它测试覆盖")
-    monkeypatch.setattr(v3_sql, "_load_facts", _legacy_load_facts)
+    legacy_loader = getattr(v3_sql, "_load_facts", None)
+    assert legacy_loader is not None, "旧逐行实现必须仍留在 v3_sql 内，否则本测试没有对照物"
+    calls: list[str] = []
+
+    def slow(connection, payload, chunk_size):
+        calls.append("legacy")
+        return legacy_loader(connection, payload, chunk_size)
+
+    def fast(connection, payload, chunk_size):
+        calls.append("fast")
+        return load_facts_fast(connection, payload, chunk_size)
+
+    monkeypatch.setattr(v3_sql, "load_facts_fast", slow)
     legacy = run_sql_pipeline(tables, cfg)
-    monkeypatch.setattr(v3_sql, "_load_facts", load_facts_fast)
-    fast = run_sql_pipeline(tables, cfg)
-    assert fast.analysis_sha256 == legacy.analysis_sha256
-    assert dataframe_sha256(fast.analysis) == dataframe_sha256(legacy.analysis)
-    assert dataframe_sha256(fast.user_outcomes) == dataframe_sha256(legacy.user_outcomes)
-    assert dataframe_sha256(fast.quality) == dataframe_sha256(legacy.quality)
-    pd.testing.assert_frame_equal(fast.analysis, legacy.analysis)
-    pd.testing.assert_frame_equal(fast.user_outcomes, legacy.user_outcomes)
+    monkeypatch.setattr(v3_sql, "load_facts_fast", fast)
+    fast_result = run_sql_pipeline(tables, cfg)
+    assert calls == ["legacy", "fast"], f"两条装载路径没有各被调用一次，比对无效：{calls}"
+    assert fast_result.analysis_sha256 == legacy.analysis_sha256
+    assert dataframe_sha256(fast_result.analysis) == dataframe_sha256(legacy.analysis)
+    assert dataframe_sha256(fast_result.user_outcomes) == dataframe_sha256(legacy.user_outcomes)
+    assert dataframe_sha256(fast_result.quality) == dataframe_sha256(legacy.quality)
+    pd.testing.assert_frame_equal(fast_result.analysis, legacy.analysis)
+    pd.testing.assert_frame_equal(fast_result.user_outcomes, legacy.user_outcomes)
     for name in legacy.summaries:
-        pd.testing.assert_frame_equal(fast.summaries[name], legacy.summaries[name], obj=name)
-    assert fast.sql_sha256 == legacy.sql_sha256
-    assert fast.input_users_n == legacy.input_users_n == len(tables["users"])
-    assert fast.visible_assigned_n == legacy.visible_assigned_n
-    assert len(fast.user_outcomes) == 2 * len(tables["users"])
+        pd.testing.assert_frame_equal(fast_result.summaries[name], legacy.summaries[name], obj=name)
+    assert fast_result.sql_sha256 == legacy.sql_sha256
+    assert fast_result.input_users_n == legacy.input_users_n == len(tables["users"])
+    assert fast_result.visible_assigned_n == legacy.visible_assigned_n
+    assert len(fast_result.user_outcomes) == 2 * len(tables["users"])
 
 
-def test_fast_fact_loading_context_manager_only_swaps_the_hook(clean_tables):
+def test_the_two_loaders_write_byte_identical_sqlite_files(clean_tables, monkeypatch, tmp_path):
+    """Same ``run_id``, same inputs: the persistent database bytes must match exactly.
+
+    这是 D.4 承诺的**最强形式**：不是"帧相等"，而是落盘文件逐字节相等（C 代表库
+    614,727,680 字节的重放证据即建立在这一性质上）。
+    """
+    cfg, tables = clean_tables
+    legacy_loader = getattr(v3_sql, "_load_facts", None)
+    assert legacy_loader is not None
+    monkeypatch.setattr(v3_sql, "load_facts_fast", legacy_loader)
+    legacy = run_sql_pipeline(tables, cfg, database_path=tmp_path / "legacy.sqlite")
+    monkeypatch.setattr(v3_sql, "load_facts_fast", load_facts_fast)
+    fast = run_sql_pipeline(tables, cfg, database_path=tmp_path / "fast.sqlite")
+    assert fast.analysis_sha256 == legacy.analysis_sha256
+    assert file_sha256(tmp_path / "legacy.sqlite") == file_sha256(tmp_path / "fast.sqlite")
+    assert (tmp_path / "legacy.sqlite").stat().st_size == (tmp_path / "fast.sqlite").stat().st_size
+
+
+def test_fast_fact_loading_context_manager_only_swaps_the_dead_hook(clean_tables, monkeypatch):
+    """``fast_fact_loading()`` 只交换已无调用方的 ``_load_facts``，对活调用点无影响。
+
+    这条断言是"反静默降级"的第二道锁：谁把上下文管理器当成 A/B 开关（或反过来把
+    活调用点换回 ``_load_facts`` 而以为受它控制），都会在这里被拦住。真正的 A/B 手段
+    是替换 ``v3_sql.load_facts_fast`` 本身，本测试同时验证那条路径确实走得通。
+    """
     cfg, tables = clean_tables
     installed = getattr(v3_sql, "_load_facts", None)
-    if installed is None:
-        pytest.skip("v3_sql._load_facts 已移除，钩子不可注入")
+    assert installed is not None
     with fast_fact_loading():
-        assert v3_sql._load_facts is load_facts_fast
-        swapped = run_sql_pipeline(tables, cfg)
+        assert v3_sql._load_facts is load_facts_fast  # 死钩子被换
+        assert v3_sql.load_facts_fast is load_facts_fast  # 活调用点未被上下文管理器改写
+        during = run_sql_pipeline(tables, cfg)
     assert v3_sql._load_facts is installed
-    reference = run_sql_pipeline(tables, cfg)
-    assert swapped.analysis_sha256 == reference.analysis_sha256
+    assert v3_sql.load_facts_fast is load_facts_fast
+    monkeypatch.setattr(v3_sql, "load_facts_fast", installed)
+    assert v3_sql.load_facts_fast is installed
+    swapped = run_sql_pipeline(tables, cfg)
+    assert swapped.analysis_sha256 == during.analysis_sha256
+    assert dataframe_sha256(swapped.user_outcomes) == dataframe_sha256(during.user_outcomes)
 
 
 # --------------------------------------------------------------------------- #
@@ -545,3 +692,112 @@ def test_million_row_event_table_is_identical():
     finally:
         legacy.close()
         fast.close()
+
+
+# --------------------------------------------------------------------------- #
+# 9. 读取守卫：manifest 的 source_hashes_before 必须逐项校验（装载器溯源缺口）
+# --------------------------------------------------------------------------- #
+# 独立评审的篡改实验：把 manifest 里 v3_sql_fast.py 的哈希改成假值，from_manifest
+# 照样 ACCEPTED。原因是它只比对 sql_sha256，而 sql_source_hash() 只覆盖
+# sql/v3_schema.sql、sql/v3_analytics.sql 与 v3_sql.py（语义指纹），装载器由
+# pipeline_source_hashes() 的 src/causal_growth/**/v3*.py glob 覆盖——写时绑定、
+# 读时不校验。下面把"读时也校验"钉住。
+LOADER_KEY = "src/causal_growth/data/v3_sql_fast.py"
+OBSERVED_KEY = "src/causal_growth/data/v3_observed.py"
+
+
+def _persist_manifest(directory: Path, result, cfg, *, source_hashes: dict[str, str] | None,
+                      pipeline_provenance: bool = False) -> Path:
+    """Write a minimal but genuine observed run directory around ``result.analysis``."""
+    metadata = {"config_hash": cfg.hash(64), "data_config_hash": result.data_config_hash,
+                "sql_sha256": result.sql_sha256, "analysis_producer": "v3_sql",
+                "analysis_lineage": {"producer": "v3_sql"}}
+    if source_hashes is not None:
+        metadata["source_hashes_before"] = source_hashes
+    if pipeline_provenance:
+        metadata["source_observation_hashes"] = {"users": "0" * 64, "assignments": "0" * 64,
+                                                 "factual_orders": "0" * 64}
+    writer = RunArtifactWriter(directory, metadata)
+    writer.write_frame("sql/analysis.parquet", result.analysis, role="observed_sql")
+    return writer.finish(passed=True, checks={"test": True})
+
+
+def test_pipeline_source_hashes_cover_the_loader_and_the_observed_guard_module():
+    """The binding set must contain both files this guard depends on."""
+    recorded = pipeline_source_hashes()
+    assert LOADER_KEY in recorded
+    assert OBSERVED_KEY in recorded
+
+
+def test_untampered_source_binding_is_accepted(clean_tables, tmp_path):
+    cfg, tables = clean_tables
+    result = run_sql_pipeline(tables, cfg)
+    recorded = pipeline_source_hashes()
+    manifest = _persist_manifest(tmp_path / "bound", result, cfg, source_hashes=recorded,
+                                 pipeline_provenance=True)
+    restored = ObservedDataset.from_manifest(manifest, cfg)
+    assert restored.content_hash == result.analysis_sha256
+
+
+@pytest.mark.parametrize("key", [LOADER_KEY, OBSERVED_KEY, "sql/v3_analytics.sql", "requirements.txt"])
+def test_tampered_source_hash_is_rejected_and_names_the_file(clean_tables, tmp_path, key):
+    """Tampering **any** recorded key must fail and say which file drifted.
+
+    ``requirements.txt`` is deliberately outside the ``v3*.py`` glob: the guard must
+    still verify every key the manifest actually records, by hashing the file itself.
+    """
+    cfg, tables = clean_tables
+    result = run_sql_pipeline(tables, cfg)
+    recorded = dict(pipeline_source_hashes())
+    recorded[key] = "0" * 64
+    manifest = _persist_manifest(tmp_path / f"tampered_{key.replace('/', '_')}", result, cfg,
+                                 source_hashes=recorded, pipeline_provenance=True)
+    with pytest.raises(ValueError, match=key):
+        ObservedDataset.from_manifest(manifest, cfg)
+
+
+def test_missing_recorded_file_counts_as_drift(clean_tables, tmp_path):
+    """A recorded key whose file no longer exists is drift, not silence."""
+    cfg, tables = clean_tables
+    result = run_sql_pipeline(tables, cfg)
+    recorded = dict(pipeline_source_hashes())
+    recorded["src/causal_growth/data/v3_loader_that_never_existed.py"] = "0" * 64
+    manifest = _persist_manifest(tmp_path / "missing_file", result, cfg, source_hashes=recorded,
+                                 pipeline_provenance=True)
+    with pytest.raises(ValueError, match="v3_loader_that_never_existed"):
+        ObservedDataset.from_manifest(manifest, cfg)
+
+
+def test_path_escape_in_a_recorded_key_is_refused(clean_tables, tmp_path):
+    """A manifest cannot talk the guard into hashing files outside the repository."""
+    cfg, tables = clean_tables
+    result = run_sql_pipeline(tables, cfg)
+    recorded = dict(pipeline_source_hashes())
+    recorded["../outside.py"] = "0" * 64
+    manifest = _persist_manifest(tmp_path / "escape", result, cfg, source_hashes=recorded,
+                                 pipeline_provenance=True)
+    with pytest.raises(ValueError, match="outside"):
+        ObservedDataset.from_manifest(manifest, cfg)
+
+
+def test_pipeline_manifest_without_source_binding_is_rejected(clean_tables, tmp_path):
+    """A machine-produced manifest must not drop the binding to become unverifiable."""
+    cfg, tables = clean_tables
+    result = run_sql_pipeline(tables, cfg)
+    manifest = _persist_manifest(tmp_path / "unbound", result, cfg, source_hashes=None,
+                                 pipeline_provenance=True)
+    with pytest.raises(ValueError, match="source binding"):
+        ObservedDataset.from_manifest(manifest, cfg)
+
+
+def test_hand_built_manifest_without_binding_stays_readable_but_marked_unbound(clean_tables, tmp_path):
+    """Legacy/unit-test manifests carry no binding; the dataset records that fact."""
+    cfg, tables = clean_tables
+    result = run_sql_pipeline(tables, cfg)
+    manifest = _persist_manifest(tmp_path / "legacy", result, cfg, source_hashes=None)
+    restored = ObservedDataset.from_manifest(manifest, cfg)
+    assert restored.lineage["source_binding"] == "absent"
+    bound = _persist_manifest(tmp_path / "legacy_bound", result, cfg, source_hashes=pipeline_source_hashes(),
+                              pipeline_provenance=True)
+    assert ObservedDataset.from_manifest(bound, cfg).lineage["source_binding"] == "verified"
+

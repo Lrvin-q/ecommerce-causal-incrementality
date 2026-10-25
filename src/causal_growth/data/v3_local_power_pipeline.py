@@ -107,6 +107,7 @@ __all__ = [
     "calibrate_plans",
     "design_mde_table",
     "design_sigma_table",
+    "environment_fault",
     "feasibility_table",
     "local_power_plan",
     "main",
@@ -140,9 +141,11 @@ SUMMARY_COLUMNS: tuple[str, ...] = (
     "achieved_effect", "achieved_effect_mc_se",
     "mean_p_value", "median_p_value",
     "realized_effect_mean", "realized_effect_se", "realized_effect_reps",
+    "selection_bias", "selection_bias_ratio_to_mde", "propensity_min", "propensity_max",
+    "estimator_warning",
     "purchase_increment_mean", "purchase_rejection_rate",
     "dgp_cpu_s_mean", "pipeline_cpu_s_mean", "itt_cpu_s_mean", "audit_cpu_s_mean",
-    "total_cpu_s_mean", "wall_s_mean",
+    "total_cpu_s_mean", "wall_s_mean", "environment_retries_total",
     "config_hash", "scaled_config_hash", "effect_construction", "interpretation", "note",
 )
 
@@ -150,6 +153,35 @@ _SOURCE_LABEL = "合成数据 / 已知 DGP"
 
 #: 逐 rep 表里供给 D.1 :func:`summarize_power_cells` 的四列（顺序即契约）。
 POWER_CELL_INPUT_COLUMNS: tuple[str, ...] = ("cell_id", "rep_id", "effect_estimate", "reject")
+
+#: C 阶段源码绑定门禁在 "rep 执行期间有 ``src/**/v3*.py`` 被改写" 时抛出的固定片段。
+#: 与 :data:`causal_growth.evaluation.v3_aa.SOURCE_CHANGED_MARKER` 同一消息；多代理并发
+#: 写盘时会出现。它是**环境故障**：同一 rep 序号重跑得到逐位相同的数据。
+SOURCE_CHANGED_MARKER = "source files changed during the data run"
+
+#: Windows 上"文件被短暂占用"的 winerror：5=拒绝访问，32=共享冲突，33=锁冲突。
+_WINDOWS_LOCK_WINERRORS = frozenset({5, 32, 33})
+
+
+def environment_fault(exc: BaseException) -> str | None:
+    """判断异常是否为**唯一**允许重试的两类环境故障；其余一律原样抛出。
+
+    Returns
+    -------
+    str | None
+        ``"source_changed"``（rep 执行期间有源码被改写）、``"windows_file_lock"``
+        （落盘 `.tmp → os.replace` 撞上扫描器/索引器的短暂占用），或 ``None``。
+    """
+    seen: set[int] = set()
+    current: BaseException | None = exc
+    while current is not None and id(current) not in seen:
+        seen.add(id(current))
+        if isinstance(current, OSError) and getattr(current, "winerror", None) in _WINDOWS_LOCK_WINERRORS:
+            return "windows_file_lock"
+        if isinstance(current, RuntimeError) and SOURCE_CHANGED_MARKER in str(current):
+            return "source_changed"
+        current = current.__context__ or current.__cause__
+    return None
 
 
 # --------------------------------------------------------------------------- #
@@ -359,6 +391,12 @@ def audit_population_effect(population: V3Population, cfg: Config) -> dict[str, 
     正是购买抽样所用的概率），条件利润取 :func:`per_purchase_profit`。两者相乘再对
     人群求均值，得到该次生成人群的**有限总体**利润 ATE——它不参与效应构造，只在
     审计列里与目标效应对照，用来证明"放缩真的落到了这批数据上"。
+
+    同时给出**未调整 ITT 的估计目标偏差**（``selection_bias``）：随机化的真实倾向
+    ``e(x)`` 若不恒等于 0.5，则两臂简单均值差**不是** ATE，而是
+    ``Σ e·μ1/Σe − Σ(1−e)·μ0/Σ(1−e)``。当两者之差不可忽略时（L3 就是这种情况），
+    实测拒绝率测的是"倾向加权对照"，不能读成 ATE 的功效。该量由同一批数组即时算出，
+    不增加任何额外计算。
     """
     probabilities = population.audit_probabilities
     p0 = np.asarray(probabilities.p0_conditional, dtype=float)
@@ -366,11 +404,36 @@ def audit_population_effect(population: V3Population, cfg: Config) -> dict[str, 
     m0, m1 = per_purchase_profit(population.users, cfg)
     if not (len(p0) == len(p1) == len(m0) == len(m1) == len(population.users)):
         raise ValueError("audit arrays are not aligned with the generated population")
-    return {
-        "realized_effect": float(np.mean(p1 * m1 - p0 * m0)),
+    propensity = np.asarray(population.audit_true_propensity, dtype=float)
+    if propensity.shape != (len(population.users),):
+        raise ValueError("audit true propensity is not aligned with the generated population")
+    profit0, profit1 = p0 * m0, p1 * m1
+    ate = float(np.mean(profit1 - profit0))
+    result = {
+        "realized_effect": ate,
         "realized_mean_purchase_control": float(p0.mean()),
         "realized_mean_purchase_treated": float(p1.mean()),
     }
+    if np.all(np.isfinite(propensity)) and 0.0 < float(propensity.min()) and float(propensity.max()) < 1.0:
+        treated_weight = float(propensity.sum())
+        control_weight = float((1.0 - propensity).sum())
+        arm_treated = float(np.sum(propensity * profit1) / treated_weight)
+        arm_control = float(np.sum((1.0 - propensity) * profit0) / control_weight)
+        result.update({
+            "design_arm_treated": arm_treated,
+            "design_arm_control": arm_control,
+            "selection_bias": (arm_treated - arm_control) - ate,
+            "propensity_sd": float(propensity.std(ddof=0)),
+            "propensity_min": float(propensity.min()),
+            "propensity_max": float(propensity.max()),
+        })
+    else:  # pragma: no cover - 历史人群的 propensity 永远是有限常数或 logit
+        result.update({
+            "design_arm_treated": float("nan"), "design_arm_control": float("nan"),
+            "selection_bias": float("nan"), "propensity_sd": float("nan"),
+            "propensity_min": float("nan"), "propensity_max": float("nan"),
+        })
+    return result
 
 
 # --------------------------------------------------------------------------- #
@@ -548,11 +611,23 @@ def run_local_power_cell(
     rep_start: int = 0,
     keep_representative: bool = True,
     audit_rep0: bool = True,
+    audit_all: bool = False,
+    max_environment_retries: int = 3,
     progress: Callable[[str], None] | None = None,
 ) -> pd.DataFrame:
-    """跑一个功效格的 ``reps`` 次重复，返回逐 rep 表（失败即抛，不吞）。"""
+    """跑一个功效格的 ``reps`` 次重复，返回逐 rep 表（失败即抛，不吞）。
+
+    ``max_environment_retries`` 只覆盖 :func:`environment_fault` 认定的两类环境故障
+    （源码在 rep 执行期间被并发改写、Windows 落盘短暂占用）；它们不改变数据，所以
+    重试不改变结果，但**每次 attempt 的目录都保留**（失败证据）。其它任何异常一律
+    原样抛出，不重试、不吞掉。
+    """
     if isinstance(reps, bool) or not isinstance(reps, (int, np.integer)) or int(reps) < 1:
         raise ValueError(f"reps must be an integer >= 1, got {reps!r}")
+    if (isinstance(max_environment_retries, bool) or not isinstance(max_environment_retries, (int, np.integer))
+            or int(max_environment_retries) < 0):
+        raise ValueError(f"max_environment_retries must be an integer >= 0, got {max_environment_retries!r}")
+    retries = int(max_environment_retries)
     root = Path(run_root)
     root.mkdir(parents=True, exist_ok=True)
     tmp = root / "tmp"
@@ -562,19 +637,38 @@ def run_local_power_cell(
     rows: list[dict[str, Any]] = []
     for rep in range(int(rep_start), int(rep_start) + int(reps)):
         keep = keep_representative and rep == 0
-        directory = (keep_dir if keep else tmp) / f"{calibration.cell_id}_rep{rep}_n{n}"
-        if directory.exists():
-            raise FileExistsError(f"refusing to overwrite an existing attempt directory: {directory}")
-        if progress is not None:
-            progress(f"[rep] {calibration.cell_id} rep={rep} n={n}")
-        row = run_local_power_rep(
-            calibration, rep=rep, n=n, run_dir=directory, alpha=alpha,
-            keep_artifacts=keep, audit=bool(audit_rep0 and rep == 0),
-        )
+        base = (keep_dir if keep else tmp) / f"{calibration.cell_id}_rep{rep}_n{n}"
+        row: dict[str, Any] | None = None
+        for attempt in range(retries + 1):
+            directory = base if attempt == 0 else base.with_name(f"{base.name}_attempt{attempt}")
+            if directory.exists():
+                raise FileExistsError(f"refusing to overwrite an existing attempt directory: {directory}")
+            if progress is not None:
+                progress(f"[rep] {calibration.cell_id} rep={rep} n={n} attempt={attempt}")
+            try:
+                row = run_local_power_rep(
+                    calibration, rep=rep, n=n, run_dir=directory, alpha=alpha,
+                    keep_artifacts=keep, audit=bool(audit_all or (audit_rep0 and rep == 0)),
+                )
+            except Exception as exc:  # noqa: BLE001 - 先分类，不是所有异常都可重试
+                fault = environment_fault(exc)
+                if fault is None or attempt >= retries:
+                    raise
+                if progress is not None:
+                    progress(f"[rep]   retry after environment fault ({fault}); "
+                             f"attempt {attempt + 1}/{retries} uses a new directory")
+                continue
+            row["environment_retries"] = attempt
+            row["environment_faults"] = "|".join(
+                "retried" for _ in range(attempt)
+            )
+            if progress is not None:
+                progress(f"[rep]   p={row['itt_p_value']:.4f} effect={row['itt_diff']:+.4f} "
+                         f"cpu={row['total_cpu_s']:.2f}s")
+            break
+        if row is None:  # pragma: no cover - 循环内要么赋值要么抛出
+            raise AssertionError("unreachable local-power repetition state")
         rows.append(row)
-        if progress is not None:
-            progress(f"[rep]   p={row['itt_p_value']:.4f} effect={row['itt_diff']:+.4f} "
-                     f"cpu={row['total_cpu_s']:.2f}s")
     return pd.DataFrame(rows)
 
 
@@ -643,6 +737,14 @@ def summarize_local_power(
         realized_mean = float(realized.mean()) if realized_reps else float("nan")
         realized_se = (float(realized.std(ddof=1) / math.sqrt(realized_reps)) if realized_reps > 1
                        else float("nan"))
+        bias_series = frame.get("selection_bias")
+        bias_reps = 0 if bias_series is None else int(bias_series.notna().sum())
+        selection_bias = float(bias_series.mean()) if bias_reps else float("nan")
+        bias_ratio = (abs(selection_bias) / calibration.design_mde
+                      if bias_reps and math.isfinite(selection_bias) else float("nan"))
+        propensity_low = (float(frame["propensity_min"].min()) if bias_reps else float("nan"))
+        propensity_high = (float(frame["propensity_max"].max()) if bias_reps else float("nan"))
+        estimator_warning = _estimator_warning(selection_bias, bias_reps, calibration.design_mde)
         curve = calibration.curve
         rows.append({
             "source_label": _SOURCE_LABEL,
@@ -688,6 +790,11 @@ def summarize_local_power(
             "realized_effect_mean": realized_mean,
             "realized_effect_se": realized_se,
             "realized_effect_reps": realized_reps,
+            "selection_bias": selection_bias,
+            "selection_bias_ratio_to_mde": bias_ratio,
+            "propensity_min": propensity_low,
+            "propensity_max": propensity_high,
+            "estimator_warning": estimator_warning,
             "purchase_increment_mean": float(frame["purchase_diff"].mean()),
             "purchase_rejection_rate": float(
                 np.count_nonzero(frame["purchase_p_value"].to_numpy() < alpha) / len(frame)
@@ -698,6 +805,8 @@ def summarize_local_power(
             "audit_cpu_s_mean": float(frame["audit_cpu_s"].mean()),
             "total_cpu_s_mean": float(frame["total_cpu_s"].mean()),
             "wall_s_mean": float(frame["total_wall_s"].mean()),
+            "environment_retries_total": (int(frame["environment_retries"].sum())
+                                          if "environment_retries" in frame.columns else 0),
             "config_hash": str(frame["config_hash"].iloc[0]),
             "scaled_config_hash": calibration.scaled_config_hash,
             "effect_construction": LOCAL_POWER_EFFECT_CONSTRUCTION,
@@ -705,6 +814,23 @@ def summarize_local_power(
             "note": _note(calibration),
         })
     return pd.DataFrame(rows).loc[:, list(SUMMARY_COLUMNS)]
+
+
+def _estimator_warning(selection_bias: float, bias_reps: int, design_mde: float) -> str:
+    """未调整 ITT 的估计目标是否被真实倾向的选择效应污染（空串 = 未发现）。
+
+    判据：设计层面的选择偏差达到设计 MDE 的量级，就说明实测拒绝率测的不是 ATE。
+    L3 的真实倾向 ``e(x)`` 在 0.16–0.96 之间、与利润相关 ~0.65，偏差约 +1.4 元/人
+    （≈10 倍设计 MDE），因此 L3 的格只能用 IPW/DR 或改用倾向加权估计目标。
+    """
+    if not bias_reps or not math.isfinite(selection_bias):
+        return ""
+    if abs(selection_bias) < max(float(design_mde), 1e-12):
+        return ""
+    return ("unadjusted_itt_estimand_is_propensity_weighted_contrast; "
+            f"design selection bias {selection_bias:+.4f} yuan/person "
+            f"({abs(selection_bias) / max(float(design_mde), 1e-12):.1f}x design MDE); "
+            "use IPW/DR or restrict the estimand before reading this rejection rate as ATE power")
 
 
 def _power_cell_class(multiplier: float) -> str:

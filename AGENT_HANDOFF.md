@@ -1,5 +1,114 @@
 # AGENT 交接说明 —— v3 重建
 
+> **最新交接时间：2026-10-25 14:40（北京时间）。当前分支：`codex/v3-rebuild`。**
+> A/B/C 已通过独立评审；**D 的实现层通过两份独立评审，但 D02 证据层未完成**；正式重复 R=0。
+> 下文「最新交接」是当前事实；再往下的旧版交接保留施工约束与历史背景。
+
+## 最新交接：D 实现层已通过双评审，D02 未完成，正式 AA 在跑
+
+### 一、权威状态（不要从旧叙述推断）
+
+| 项 | 事实 | 证据位置 |
+|---|---|---|
+| A 协议冻结 | 通过 | `outputs/v3/protocol/approval.json`；七份配置 hash `30511a32…` |
+| B 机制与真值 | 通过 | `outputs/v3/validation/approval.json` |
+| C 五表/SQL/隔离 | 通过（3015 产物、3.67 GB、四代表库逐行核对） | `outputs/v3/data_validation/approval.json` |
+| D.1 MDE | **实现通过**，176 项测试；CSV 732×66 | `outputs/tables/v3_phase_D_mde.csv` |
+| D.2 AA | **实现通过**，24 项测试；但只跑了 R=50/n=1 万 pilot | `outputs/tables/v3_phase_D_aa.csv` |
+| D.3 模型+DR | **实现通过**，52 项测试 | `outputs/tables/v3_phase_D_models_smoke.csv` |
+| D.4 装载优化 | **实现通过**，17 项测试；已切换调用点 | `docs/v3_phase_D_loader_switch.md` |
+| **D02（GOAL）** | **未完成，不要标通过** | 见下方"未完成清单" |
+| 正式重复 R | **0**（AA 正在跑，跑完才有第一批） | `outputs/v3/pytest_gate.json` |
+
+### 二、正在跑的东西
+
+**正式 AA：4 层 × 250 次 × 20 万人**，四个后台进程，各层进度见
+`out/v3_phase_d_aa_formal/<L0|L1|L2|L3>/aa_repetitions.csv` 的行数。
+交接时约 14/250，单 rep 约 148 CPU 秒，预计剩余约 9 小时。
+
+- **它跑在源码快照上**（`out/aa_snapshot/`，绑定 40 文件，hash `0a087a1b…`），
+  所以**不会因仓库改动被打红**。这是刻意的：见下方"两次踩坑"。
+- 续跑：`--resume-from out/v3_phase_d_aa_formal/<层>/aa_repetitions.csv`。
+- 汇总表写到 `outputs/tables/v3_phase_D_aa_formal_<层>.csv`，四层跑完后需合并。
+- 命令行模板（`PYTHONPATH` 必须指向快照，否则绑定会指向实仓）：
+  ```powershell
+  $env:PYTHONUTF8='1'; $env:PYTHONIOENCODING='utf-8'
+  $env:PYTHONPATH = "$PWD\out\aa_snapshot\src"
+  .\.venv\Scripts\python.exe -m causal_growth.evaluation.v3_aa --reps 250 --n 200000 ^
+      --layers L2 --no-negative-control --quiet ^
+      --run-root "$PWD\out\v3_phase_d_aa_formal\L2" ^
+      --summary-csv "$PWD\outputs\tables\v3_phase_D_aa_formal_L2.csv"
+  ```
+
+### 三、未完成清单（按优先级）
+
+1. **D02 证据**：正式 AA 的 1000 次跑完后，要合并四层、算合并 FPR 与 CP，
+   并写进 `docs/v3_phase_D_aa.md`。**合并 1000 次的 CP 约 [0.037, 0.065]**，这是能支撑
+   "FPR≈0.05"的唯一口径；逐层 250 次半宽 ±0.03，**只能描述不能判定**。
+2. **C6 AA 报告补两项**：SE 校准（评审算过合并经验 SD/平均 SE=1.020，逐层 0.92–1.08，通过）
+   与本 R 下的实际功效（R=50/层对 0.08 只有 0.135）。
+3. **C7 DR 设计概率敏感性**：配置已有 `known_design_ipw`，需加一组"用记录设计概率"的 DR 对比，
+   否则"DR 不如谁"只是这个估计-e 实现的性质。另需解释 `models.propensity.primary: logistic`
+   与 DR 实际用 `lightgbm_classifier` 的关系，并把 `raw_probability_diagnostics_required` 落地。
+4. **C8 三处文档修正**：`docs/v3_phase_D_models.md:87`（CF 只对 5 项超参显式 ConfigError）、
+   `:114`（`<1e-9` 是自同义反复）、`:126`（行号 184→185）。
+5. **C3 功效格实测**：`achieved_effect/rejection_rate` 仍是 pending；
+   `src/causal_growth/dgp/v3_local_power.py` 与 `data/v3_local_power_pipeline.py` 已由代理交付，
+   **主控未复核**，需先跑测试再接线。
+6. **工程评审四项**（代理交付，**主控未复核**）：两个空测试的修复、PRAGMA 恢复机制重新纳入测试、
+   `from_manifest` 增加 `source_hashes_before` 校验、C 代表库重放（`scripts/15_replay_c_representatives.py`，
+   结果在 `outputs/tables/v3_phase_D_c_replay.csv`）。
+7. **可审计绿灯凭据**：现 `outputs/v3/pytest_gate.json` 只有汇总，无日志/exitcode/起止时间；
+   且评审在隔离 worktree 收集到 1008 项 vs 声称 1034，**这个差额尚未解释**。
+   需在干净树上重跑并产出 C 阶段那种级别的凭据（日志 + exitcode + SHA256）。
+8. **E/F/G/H/Z 全部未开始**。
+
+### 四、接手后建议的第一步
+
+不要先动代码。先做三件核对：
+
+1. 看 AA 是否跑完（`out/v3_phase_d_aa_formal/*/aa_repetitions.csv` 是否 250 行）。
+2. 跑 `python -m pytest tests -q` 看当前是否绿；**如果代理交付的文件未复核，这里会暴露**。
+3. 读 `docs/v3_决策与反思日志.md` 的最后五节——那里有全部裁决与已知问题。
+
+### 五、两次踩坑（务必不要第三次）
+
+**同一个坑踩了两次**：`pipeline_source_hashes()` 会哈希 `src/causal_growth/**/v3*.py` 全目录，
+**任何人写盘都会让正在跑的数据作业判伪**。
+
+- 第一次：四个开发代理互相踩，测试假红。
+- 第二次：正式 AA 启动即全灭，因为同时派了代理改 `v3_power.py`、新建 `v3_local_power.py`。
+
+**结论（写进纪律）**：正式重复必须满足"运行期间源码只读"——要么快照运行，要么冻结仓库。
+**绝不允许把正式跑与开发写盘并行。**
+
+**另一条**：跨运行比哈希前，先确认哈希输入里有没有运行标识列（观测表 `dataframe_sha256` 含 `run_id`，
+我因此误判过一次"装载器不等价"）。
+
+### 六、几条已经定死、不要重新讨论的裁决
+
+| 决策 | 内容 | 依据 |
+|---|---|---|
+| AA 正式 R | **250/层（合计 1000）**，不是每层 1000 | GOAL G01 已改写并附代价；四层 4000 次约 131 CPU·h 等于全部预算 |
+| 正文统计口径 | **只用双侧** | 配置无独立单侧 α；单侧沿用 0.05 属口径缺口，只在附录作敏感性 |
+| `mde100` | **边界格**，不得计入"可检出" | 解析功效 0.8000 但零余量，真实约 0.79 |
+| 护栏界值 | **0.5pp 不改** | 处理组退款率已比对照高 +0.41~+0.67pp，吃掉 83%–135% 界值——这是**结论**不是缺陷 |
+| `lightgbm.subsample` | **不改配置，只披露** | 缺 `subsample_freq` 故不生效；改它要重走 A 评审 |
+| 随机化层 DR | **保持估计倾向**，标为保守下界 | 改设计概率会让"报告的模型"与"配置"不一致 |
+| PRAGMA | **置空** | 实测零收益、崩溃风险真实 |
+| 装载器进 `sql_source_hash()` | **不进** | 它是 SQL 语义指纹；装载器由 `pipeline_source_hashes()` 覆盖（但**读取时校验已补**，见未完成第 6 项） |
+
+### 七、环境与磁盘
+
+- `$env:PYTHONUTF8='1'` 必设；`.venv\Scripts\python.exe`。
+- 磁盘可用约 296 GB。清理用 `scripts/16_cleanup_scratch.py`（默认预演，`--apply` 才删，带白名单与保护名单）。
+- AA 作业**不按 rep 累积**（只有 `representative` 与 `tmp` 两个子目录），不用担心跑出几十 GB。
+- 单 rep 峰值内存约 1.88 GB，4 路并行约占 5–7 GB（可用 8.4 GB），**并行上限 4**。
+
+---
+
+## 历史交接（下方内容写于 2026-10-25 10:09，D 阶段之前）
+
 > **最新交接时间：2026-10-25 10:09（北京时间，Asia/Shanghai）。当前分支：`codex/v3-rebuild`。A/B/C独立评审通过；正式实验R=0。** 用户要求完成当前C部分后先收尾，由另一个agent接替，本轮不启动D。以下最新节是当前事实；后文旧版交接保留施工约束与历史背景，其中“v3尚未动工”、旧测试数和资源数字不能当作当前进度。
 
 ## 最新交接：C已验收，下一阶段D未开始

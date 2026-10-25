@@ -6,18 +6,76 @@ from dataclasses import dataclass, field
 import json
 from pathlib import Path
 import re
-from typing import Any
+from typing import Any, Mapping
 
 import pandas as pd
 
 from causal_growth.config import Config
 from causal_growth.data.v3_split import assign_user_splits
 from causal_growth.data.v3_sql import ANALYSIS_COLUMNS, SqlAnalysisResult, sql_source_hash
-from causal_growth.data.v3_storage import dataframe_sha256, read_verified_frame, validate_artifact_path
+from causal_growth.data.v3_storage import (
+    dataframe_sha256,
+    file_sha256,
+    read_verified_frame,
+    validate_artifact_path,
+)
 from causal_growth.v3_data_config import load_v3_data_config
 
 
 _SQL_TOKEN = object()
+
+
+def _drifted_sources(recorded: Mapping[str, str]) -> list[str]:
+    """List every source file whose current bytes differ from the manifest record.
+
+    ``pipeline_source_hashes()`` binds ``src/causal_growth/**/v3*.py``, ``sql/v3*.sql``
+    and the v3 configs at write time; this function turns that write-time record into a
+    read-time check, so a manifest cannot claim provenance from a loader (or any other
+    bound file) that is no longer the one on disk.
+
+    Keys the current glob does not cover are verified by hashing the recorded path
+    itself, so **every** key a manifest records is checked. A recorded path that
+    escapes the repository, no longer exists, or has a malformed digest counts as
+    drift. The import is local because :mod:`v3_pipeline` imports this module.
+    """
+    from causal_growth.data.v3_pipeline import pipeline_source_hashes
+
+    root = Path(__file__).resolve().parents[3]
+    current = pipeline_source_hashes()
+    drifted: list[str] = []
+    for name, recorded_digest in recorded.items():
+        if not isinstance(name, str) or not isinstance(recorded_digest, str):
+            drifted.append(str(name))
+            continue
+        if name in current:
+            if current[name] != recorded_digest:
+                drifted.append(name)
+            continue
+        candidate = (root / name).resolve()
+        if not candidate.is_relative_to(root.resolve()) or not candidate.is_file():
+            drifted.append(name)
+        elif file_sha256(candidate) != recorded_digest:
+            drifted.append(name)
+    return sorted(drifted)
+
+
+def _check_source_binding(manifest: Mapping[str, Any]) -> str:
+    """Verify the manifest's ``source_hashes_before`` and return the binding status."""
+    recorded = manifest.get("source_hashes_before")
+    if recorded is None:
+        # Hand-built manifest (unit fixtures, pre-binding runs). The pipeline always
+        # writes the binding, so a manifest that claims pipeline provenance without
+        # one is refused rather than silently treated as verified.
+        if "source_observation_hashes" in manifest:
+            raise ValueError("persisted pipeline manifest lacks its source binding (source_hashes_before)")
+        return "absent"
+    if not isinstance(recorded, dict) or not recorded:
+        raise ValueError("persisted dataset records an empty or malformed source binding")
+    drifted = _drifted_sources(recorded)
+    if drifted:
+        raise ValueError(f"persisted dataset source files drifted since materialization: {drifted}")
+    return "verified"
+
 
 
 def _check_frame(frame: pd.DataFrame, *, diagnostic: bool) -> None:
@@ -92,7 +150,13 @@ class ObservedDataset:
     @classmethod
     def from_manifest(cls, manifest_path: str | Path, cfg: Config, *, relative_path: str = "sql/analysis.parquet",
                       allow_diagnostic: bool = False) -> ObservedDataset:
-        """Restore observation data after verifying its immutable run artifact record."""
+        """Restore observation data after verifying its immutable run artifact record.
+
+        Beyond the SQL semantic fingerprint (``sql_sha256``), the manifest's
+        ``source_hashes_before`` is re-verified against today's files, so the loader
+        (``v3_sql_fast.py``), the SQL sources, the configs and this module cannot drift
+        unnoticed between materialization and reading.
+        """
         path = validate_artifact_path(manifest_path, role="observed_sql")
         manifest = json.loads(path.read_text(encoding="utf-8"))
         frame = read_verified_frame(path, relative_path)
@@ -100,11 +164,16 @@ class ObservedDataset:
             raise ValueError("persisted dataset configuration mismatch")
         if manifest.get("sql_sha256") != sql_source_hash() or manifest.get("analysis_producer") != "v3_sql":
             raise ValueError("persisted dataset lacks current SQL provenance")
+        # The loader and every other bound file must be the ones the manifest recorded.
+        # Old manifests therefore stop being readable once a bound file changes; that is
+        # the guard working, and the remedy is to regenerate the run
+        # (``scripts/12_validate_v3_data.py --scope ...`` or the pipeline that wrote it).
+        source_binding = _check_source_binding(manifest)
         diagnostic = bool(frame.diagnostic_snapshot.any())
         if diagnostic and not allow_diagnostic:
             raise ValueError("diagnostic snapshots cannot enter the primary dataset")
         return cls(frame, cfg.hash(64), manifest["data_config_hash"], manifest["sql_sha256"], str(path),
-                   diagnostic, manifest.get("analysis_lineage", {}), _SQL_TOKEN)
+                   diagnostic, {**manifest.get("analysis_lineage", {}), "source_binding": source_binding}, _SQL_TOKEN)
 
     @property
     def content_hash(self) -> str:
