@@ -39,6 +39,22 @@ LightGBM / CausalForest 的 ``random_state`` 来自 :func:`child_seed`（后者�
 --------
 本模块不修改七份冻结配置。若某项在配置中缺失，就在这里给显式默认值并抛错说明，
 不做静默兜底；当前已确认 ``models.yaml`` 覆盖了本模块用到的全部超参。
+
+倾向得分来源与截断诊断（C7 增补）
+--------------------------------
+DR 的倾向得分有两个来源，由 ``propensity_source`` 显式选择：
+
+* ``"estimated"``（**默认，D.3 已验收口径**）：交叉拟合 ``models.dr_learner.propensity_model``
+  估计 e，并按 ``models.propensity.estimated_probability_clip`` 截断；
+* ``"known_design"``（**只能显式开启**）：随机化层直接用观测表的 ``design_probability``
+  真值作 e，**不截断**；观察性层（L3）没有已知设计概率，传它直接抛
+  :class:`PropensitySourceError`。该来源对应 ``models.ate.randomized`` 已注册的
+  ``known_design_ipw`` 口径，但**不得成为默认**——默认一改，52 项已验收契约就换了口径。
+
+:class:`NuisanceFit` 同时保存截断前的 raw 范围（``propensity_raw_min/max``）、被截断的
+样本数（``propensity_clipped_count``）与实际生效的截断边界（``propensity_clip_low/high``），
+这是 ``models.propensity.raw_probability_diagnostics_required`` 的落地：截断一旦触发，
+DR 的偏倚不可忽略，该 rep 必须单独标注。
 """
 
 from __future__ import annotations
@@ -66,12 +82,14 @@ from causal_growth.v3_data_config import load_v3_data_config
 
 __all__ = [
     "MODEL_NAMES",
+    "PROPENSITY_SOURCES",
     "CrossfitDrAte",
     "FeatureBoundaryError",
     "LearningData",
     "ModelNotApplicableError",
     "NuisanceFit",
     "Predictions",
+    "PropensitySourceError",
     "SplitBlock",
     "ValidationScorer",
     "aipw_pseudo_outcome",
@@ -84,6 +102,7 @@ __all__ = [
     "fit_predict",
     "fit_validation_scorer",
     "identification_mode",
+    "itt_estimate",
     "learning_curve",
     "prepare_learning_data",
     "rank_models",
@@ -91,6 +110,8 @@ __all__ = [
     "require_feature_boundary",
     "require_model_applicable",
     "require_whitelisted_feature_names",
+    "resolve_propensity_source",
+    "run_propensity_sensitivity",
     "run_smoke",
 ]
 
@@ -104,10 +125,34 @@ _CONSTANT_PATHS: dict[str, str] = {
     "observational": "training_crossfit_dr_ate",
 }
 
+#: DR 倾向得分的两个可注册来源。默认 ``estimated`` 是 D.3 已验收口径；
+#: ``known_design`` 只作显式敏感性对照，**不得成为默认**。
+PROPENSITY_SOURCES: tuple[str, ...] = ("estimated", "known_design")
+
+#: ``models.yaml → models.ate.randomized`` 里"已知设计概率 IPW"的注册名。
+#: ``known_design`` 路径必须确认该口径确实被冻结配置注册，否则抛 ``ConfigError``。
+_KNOWN_DESIGN_ATE_NAME = "known_design_ipw"
+
+#: 截断真的发生时写进 ``info`` 的告警原文（与文档同一句话，便于审计检索）。
+_CLIPPING_NOTE = (
+    "estimated propensity 触发截断：截断引入的偏倚不可忽略，该 rep 的 DR 结果必须单独标注"
+)
+
 _SCORING_NAME = "validation_crossfit_dr_policy_value_lower_confidence_bound"
 _DR_CROSSFIT_STREAM = "v3.models.dr.crossfit"
 _LEARNING_CURVE_STREAM = "v3.models.learning_curve.subsample"
 _POTENTIAL_PREFIX = "potential_"
+
+#: C7 敏感性对照的资源上限。机器上还有正式 AA 作业（每层 250 次 × 20 万人）在跑，
+#: 本对照一律 n≤20,000、R≤5；超限直接抛错，不静默降规模。
+_SENSITIVITY_MAX_N = 20_000
+_SENSITIVITY_MAX_REPS = 5
+#: 默认对照场景：L1_main（设计概率 0.5）与一个非 0.5 的随机化场景（设计概率 0.1）。
+_SENSITIVITY_SCENARIOS: tuple[str, ...] = ("L1_main", "L2_n30000_p010")
+
+
+class PropensitySourceError(ValueError):
+    """倾向得分来源非法：未知来源、观察性层要求 known_design、或设计概率不可用。"""
 
 
 class FeatureBoundaryError(ValueError):
@@ -298,6 +343,67 @@ def require_model_applicable(model_name: str, cfg: Config) -> None:
             f"{model_name} 不适用于 {level}：models.yaml additional_by_level[{level}]="
             f"{list(additional[level])}"
         )
+
+
+# --------------------------------------------------------------------------- #
+# 倾向得分来源：默认 estimated，known_design 只能显式开启
+# --------------------------------------------------------------------------- #
+def resolve_propensity_source(cfg: Config, source: str) -> str:
+    """校验 DR 倾向得分来源，返回规范化后的字符串。
+
+    ``"estimated"`` 是默认路径（估计 e + 截断）；``"known_design"`` 是显式敏感性开关：
+
+    * 只适用于随机化层——L3 观察性层没有已知设计概率，传它就抛
+      :class:`PropensitySourceError`（不是 warning，也不是悄悄退回估计）；
+    * 必须确认 ``models.ate.randomized`` 注册了 ``known_design_ipw``，否则抛
+      ``ConfigError``——配置没登记的估计量不允许在代码里悄悄可用。
+    """
+    text = str(source)
+    if text not in PROPENSITY_SOURCES:
+        raise PropensitySourceError(
+            f"未知倾向得分来源 {text!r}；可用：{PROPENSITY_SOURCES}"
+        )
+    if text == "estimated":
+        return text
+    mode = identification_mode(cfg)
+    if mode != "randomized":
+        raise PropensitySourceError(
+            f"known_design 倾向只适用于随机化层；当前识别模式为 {mode!r}"
+            "（观察性层没有已知设计概率，只能用 estimated）"
+        )
+    registered = [str(name) for name in cfg.require("models.ate.randomized")]
+    if _KNOWN_DESIGN_ATE_NAME not in registered:
+        raise ConfigError(
+            "known_design 倾向对应的 ATE 口径未在 models.ate.randomized 注册："
+            f"{registered}"
+        )
+    return text
+
+
+def _design_probability_vector(design: Any, n: int) -> NDArray[np.float64]:
+    """把观测表的 ``design_probability`` 列校验成逐人向量。
+
+    已知设计概率是**真值**，不参与截断；但必须逐人有限且严格落在 (0,1)，否则重叠
+    假设不成立，硬算伪结局只会得到一个看似正常的结果。
+    """
+    array = np.asarray(design, dtype=float).reshape(-1)
+    if array.shape != (n,):
+        raise PropensitySourceError(f"design_probability 长度应为 {n}，收到 {array.shape}")
+    if not np.isfinite(array).all():
+        raise PropensitySourceError(
+            "known_design 要求每个用户都有有限的 design_probability（观察性层没有该列）"
+        )
+    if not ((array > 0.0) & (array < 1.0)).all():
+        raise PropensitySourceError("design_probability 必须严格落在 (0,1)")
+    return array
+
+
+def _estimated_probability_clip(cfg: Config) -> tuple[float, float]:
+    """读取并校验 ``models.propensity.estimated_probability_clip``。"""
+    clip = cfg.require("models.propensity.estimated_probability_clip")
+    if len(clip) != 2 or not 0 < float(clip[0]) < float(clip[1]) < 1:
+        raise ConfigError("倾向得分截断边界非法")
+    return float(clip[0]), float(clip[1])
 
 
 # --------------------------------------------------------------------------- #
@@ -531,7 +637,14 @@ def causal_forest_estimator(cfg: Config, *, seed: int) -> Any:
 # --------------------------------------------------------------------------- #
 @dataclass(frozen=True)
 class NuisanceFit:
-    """交叉拟合得到的折外结果模型与倾向得分（行序与训练矩阵一致）。"""
+    """交叉拟合得到的折外结果模型与倾向得分（行序与训练矩阵一致）。
+
+    ``propensity`` 是**最终进入伪结局**的 e；``propensity_raw_min/max`` 是截断前的
+    原始范围，``propensity_clipped_count`` 是被截断的样本数。这是
+    ``models.propensity.raw_probability_diagnostics_required`` 的落地：截断一旦触发，
+    DR 的偏倚不可忽略，该 rep 必须单独标注。``known_design`` 路径不截断，因此
+    ``propensity_clip_low/high`` 为 NaN 且计数恒为 0。
+    """
 
     mu1: NDArray[np.float64]
     mu0: NDArray[np.float64]
@@ -540,11 +653,27 @@ class NuisanceFit:
     fold_sizes: tuple[int, ...]
     propensity_min: float
     propensity_max: float
+    propensity_raw_min: float = float("nan")
+    propensity_raw_max: float = float("nan")
+    propensity_clipped_count: int = 0
+    propensity_clip_low: float = float("nan")
+    propensity_clip_high: float = float("nan")
+    propensity_source: str = "estimated"
 
     @property
     def n(self) -> int:
         """样本量。"""
         return int(self.mu1.shape[0])
+
+    @property
+    def propensity_mean(self) -> float:
+        """最终 e 的均值（审计"估计的 e 是否整体偏离设计概率"）。"""
+        return float(np.mean(self.propensity))
+
+    @property
+    def clipping_triggered(self) -> bool:
+        """截断是否真的发生；True 时该 rep 的 DR 结果必须单独标注。"""
+        return self.propensity_clipped_count > 0
 
 
 @dataclass(frozen=True)
@@ -558,6 +687,18 @@ class CrossfitDrAte:
     propensity_max: float
     psi_sd: float
     n: int
+    propensity_source: str = "estimated"
+    propensity_mean: float = float("nan")
+    propensity_raw_min: float = float("nan")
+    propensity_raw_max: float = float("nan")
+    propensity_clipped_count: int = 0
+    propensity_clip_low: float = float("nan")
+    propensity_clip_high: float = float("nan")
+
+    @property
+    def clipping_triggered(self) -> bool:
+        """截断是否真的发生（与 :class:`NuisanceFit` 同一口径）。"""
+        return self.propensity_clipped_count > 0
 
 
 def _crossfit_indices(
@@ -620,10 +761,12 @@ def _crossfit_propensity(
     seed_index: int,
     seed_prefix: str,
 ) -> NDArray[np.float64]:
+    """交叉拟合估计 e(X)，返回**未截断**的原始概率。
+
+    截断放到 :func:`crossfit_nuisance`：只有拿到 raw 值才能同时记录截断前范围与被截断
+    的样本数（``raw_probability_diagnostics_required``）。
+    """
     n = int(X.shape[0])
-    clip = cfg.require("models.propensity.estimated_probability_clip")
-    if len(clip) != 2 or not 0 < float(clip[0]) < float(clip[1]) < 1:
-        raise ConfigError("倾向得分截断边界非法")
     propensity = np.empty(n, dtype=float)
     for fold, held in enumerate(folds_idx):
         train_idx = _fold_train_indices(held, n)
@@ -633,7 +776,7 @@ def _crossfit_propensity(
         model = _lightgbm_classifier(cfg, seed=seed)
         model.fit(X[train_idx], t[train_idx])
         propensity[held] = np.asarray(model.predict_proba(X[held])[:, 1], dtype=float)
-    return np.clip(propensity, float(clip[0]), float(clip[1]))
+    return propensity
 
 
 def crossfit_nuisance(
@@ -645,6 +788,8 @@ def crossfit_nuisance(
     seed_index: int = 0,
     folds: int | None = None,
     seed_prefix: str = "dr",
+    propensity_source: str = "estimated",
+    design_probability: Any | None = None,
 ) -> NuisanceFit:
     """3 折交叉拟合 ``m1(X)``、``m0(X)``、``e(X)``。
 
@@ -652,13 +797,33 @@ def crossfit_nuisance(
     残差会被系统性压小，DR 的残差修正项失效。折外预测让每一行的修正项都由"没见过它"
     的模型产生。
 
-    倾向得分按 ``models.propensity.estimated_probability_clip`` 截断并报告实际取值范围
-    （截断引入偏差，必须可审计）。
+    倾向得分来源由 ``propensity_source`` 决定：
+
+    * ``"estimated"``（默认）：交叉拟合 LightGBM 分类器估计 e，按
+      ``models.propensity.estimated_probability_clip`` 截断，并记录 raw 范围与截断计数
+      （截断引入偏差，必须可审计）；
+    * ``"known_design"``：用调用方传入的 ``design_probability`` 真值作 e，**不截断**。
+      此时 ``m1/m0`` 仍是折外拟合——只换 e，交叉拟合结构不变。观察性层传这个来源会抛
+      :class:`PropensitySourceError`（见 :func:`resolve_propensity_source`）。
     """
     X = _feature_matrix(X)
     n = int(X.shape[0])
     y = _outcome(y, n)
     t = _binary_treatment(t, n, require_both_arms=True)
+    source = resolve_propensity_source(cfg, propensity_source)
+    # 已知设计概率先校验：非法输入必须在开始拟合之前就报错，而不是算完九次 LightGBM 才报。
+    known_design: NDArray[np.float64] | None = None
+    if source == "known_design":
+        if design_probability is None:
+            raise PropensitySourceError(
+                "known_design 必须显式传入观测表的 design_probability 列（本函数不猜）"
+            )
+        known_design = _design_probability_vector(design_probability, n)
+    elif design_probability is not None:
+        raise PropensitySourceError(
+            "design_probability 只在 propensity_source='known_design' 时接受；"
+            "默认 estimated 路径不得偷偷换成已知设计概率"
+        )
     fold_count = int(cfg.require("models.dr_learner.crossfit_folds") if folds is None else folds)
     folds_idx = _crossfit_indices(
         n, fold_count, cfg, stream=_DR_CROSSFIT_STREAM, seed_index=seed_index
@@ -666,9 +831,19 @@ def crossfit_nuisance(
     mu1, mu0 = _crossfit_outcomes(
         X, y, t, cfg, folds_idx=folds_idx, seed_index=seed_index, seed_prefix=seed_prefix
     )
-    propensity = _crossfit_propensity(
-        X, t, cfg, folds_idx=folds_idx, seed_index=seed_index, seed_prefix=seed_prefix
-    )
+    if known_design is not None:
+        raw = known_design
+        propensity = raw.copy()
+        clip_low = float("nan")
+        clip_high = float("nan")
+        clipped_count = 0
+    else:
+        raw = _crossfit_propensity(
+            X, t, cfg, folds_idx=folds_idx, seed_index=seed_index, seed_prefix=seed_prefix
+        )
+        clip_low, clip_high = _estimated_probability_clip(cfg)
+        propensity = np.clip(raw, clip_low, clip_high)
+        clipped_count = int(np.count_nonzero(propensity != raw))
     return NuisanceFit(
         mu1=mu1,
         mu0=mu0,
@@ -677,6 +852,12 @@ def crossfit_nuisance(
         fold_sizes=tuple(int(len(idx)) for idx in folds_idx),
         propensity_min=float(propensity.min()),
         propensity_max=float(propensity.max()),
+        propensity_raw_min=float(raw.min()),
+        propensity_raw_max=float(raw.max()),
+        propensity_clipped_count=clipped_count,
+        propensity_clip_low=clip_low,
+        propensity_clip_high=clip_high,
+        propensity_source=source,
     )
 
 
@@ -707,17 +888,37 @@ def aipw_pseudo_outcome(
     return mu1 - mu0 + t * (y - mu1) / e - (1 - t) * (y - mu0) / (1.0 - e)
 
 
-def crossfit_dr_ate(X: Any, y: Any, t: Any, cfg: Config, *, seed_index: int = 0) -> CrossfitDrAte:
+def crossfit_dr_ate(
+    X: Any,
+    y: Any,
+    t: Any,
+    cfg: Config,
+    *,
+    seed_index: int = 0,
+    propensity_source: str = "estimated",
+    design_probability: Any | None = None,
+) -> CrossfitDrAte:
     """交叉拟合 AIPW 的总体 ATE（常数模型的观察性口径与 DR-learner 共享 nuisance）。
 
     ``se`` 用 ψ 的影响函数近似（``sd(ψ)/√n``），**不校正 nuisance 估计带来的二阶项**；
     正式的区间口径留给 Phase E 的 bootstrap / 影响函数评审。
+
+    ``propensity_source="known_design"`` 时用 ``design_probability`` 真值作 e（不截断），
+    只允许随机化层显式开启；默认 ``estimated`` 保持 D.3 已验收口径不变。
     """
     X = _feature_matrix(X)
     n = int(X.shape[0])
     y = _outcome(y, n)
     t = _binary_treatment(t, n, require_both_arms=True)
-    nuisance = crossfit_nuisance(X, y, t, cfg, seed_index=seed_index)
+    nuisance = crossfit_nuisance(
+        X,
+        y,
+        t,
+        cfg,
+        seed_index=seed_index,
+        propensity_source=propensity_source,
+        design_probability=design_probability,
+    )
     psi = aipw_pseudo_outcome(y, t, nuisance.mu1, nuisance.mu0, nuisance.propensity)
     return CrossfitDrAte(
         ate=float(psi.mean()),
@@ -727,6 +928,13 @@ def crossfit_dr_ate(X: Any, y: Any, t: Any, cfg: Config, *, seed_index: int = 0)
         propensity_max=nuisance.propensity_max,
         psi_sd=float(psi.std(ddof=1)),
         n=n,
+        propensity_source=nuisance.propensity_source,
+        propensity_mean=nuisance.propensity_mean,
+        propensity_raw_min=nuisance.propensity_raw_min,
+        propensity_raw_max=nuisance.propensity_raw_max,
+        propensity_clipped_count=nuisance.propensity_clipped_count,
+        propensity_clip_low=nuisance.propensity_clip_low,
+        propensity_clip_high=nuisance.propensity_clip_high,
     )
 
 
@@ -737,6 +945,8 @@ def _fit_dr_learner(
     cfg: Config,
     *,
     seed_index: int,
+    propensity_source: str = "estimated",
+    design_probability: Any | None = None,
 ) -> tuple[Any, NDArray[np.float64], dict[str, Any]]:
     spec = cfg.section("models.dr_learner")
     if str(spec["final_model"]) != "lightgbm_regressor":
@@ -745,7 +955,15 @@ def _fit_dr_learner(
         raise ConfigError(f"未注册的 DR 结果模型：{spec['outcome_model']}")
     if str(spec["propensity_model"]) != "lightgbm_classifier":
         raise ConfigError(f"未注册的 DR 倾向模型：{spec['propensity_model']}")
-    nuisance = crossfit_nuisance(X, y, t, cfg, seed_index=seed_index)
+    nuisance = crossfit_nuisance(
+        X,
+        y,
+        t,
+        cfg,
+        seed_index=seed_index,
+        propensity_source=propensity_source,
+        design_probability=design_probability,
+    )
     psi = aipw_pseudo_outcome(y, t, nuisance.mu1, nuisance.mu0, nuisance.propensity)
     final = _lightgbm_regressor(cfg, seed=_seed(cfg, "dr.final", seed_index))
     final.fit(X, psi)
@@ -757,25 +975,55 @@ def _fit_dr_learner(
         "n_train": int(X.shape[0]),
         "n_treated": int((t == 1).sum()),
         "n_control": int((t == 0).sum()),
+        "propensity_source": nuisance.propensity_source,
         "propensity_min": nuisance.propensity_min,
         "propensity_max": nuisance.propensity_max,
+        "propensity_mean": nuisance.propensity_mean,
+        "propensity_raw_min": nuisance.propensity_raw_min,
+        "propensity_raw_max": nuisance.propensity_raw_max,
+        "propensity_clipped_count": int(nuisance.propensity_clipped_count),
+        "propensity_clip_low": nuisance.propensity_clip_low,
+        "propensity_clip_high": nuisance.propensity_clip_high,
+        "propensity_clipping_detected": bool(nuisance.clipping_triggered),
         "pseudo_outcome_sd": float(psi.std(ddof=1)),
         "dr_ate_training": float(psi.mean()),
         "dr_ate_se_training": float(psi.std(ddof=1) / np.sqrt(psi.size)),
         "hyperparameters": {"lightgbm": _lightgbm_spec(cfg), "dr_learner": spec},
     }
+    if nuisance.clipping_triggered:
+        info["propensity_clipping_note"] = _CLIPPING_NOTE
     return final, psi, info
 
 
 def dr_learner_cate(
-    X: Any, y: Any, t: Any, X_eval: Any, cfg: Config, *, seed_index: int = 0
+    X: Any,
+    y: Any,
+    t: Any,
+    X_eval: Any,
+    cfg: Config,
+    *,
+    seed_index: int = 0,
+    propensity_source: str = "estimated",
+    design_probability: Any | None = None,
 ) -> tuple[NDArray[np.float64], dict[str, Any]]:
-    """DR-learner：交叉拟合 nuisance → AIPW 伪结局 → 在 ``(X, ψ)`` 上回归得 CATE。"""
+    """DR-learner：交叉拟合 nuisance → AIPW 伪结局 → 在 ``(X, ψ)`` 上回归得 CATE。
+
+    ``propensity_source`` 默认 ``"estimated"``（D.3 已验收口径）；
+    ``"known_design"`` 需同时传 ``design_probability``，只允许随机化层。
+    """
     X = _feature_matrix(X)
     n = int(X.shape[0])
     y = _outcome(y, n)
     t = _binary_treatment(t, n, require_both_arms=True)
-    final, _psi, info = _fit_dr_learner(X, y, t, cfg, seed_index=seed_index)
+    final, _psi, info = _fit_dr_learner(
+        X,
+        y,
+        t,
+        cfg,
+        seed_index=seed_index,
+        propensity_source=propensity_source,
+        design_probability=design_probability,
+    )
     matrix = _feature_matrix(X_eval, label="X_eval")
     tau = np.asarray(final.predict(matrix), dtype=float).reshape(-1)
     return tau, info
@@ -809,8 +1057,15 @@ def _fit_learner(
     cfg: Config,
     *,
     seed_index: int,
+    propensity_source: str = "estimated",
+    design_probability: Any | None = None,
 ) -> tuple[Callable[[NDArray[np.float64]], NDArray[np.float64]], dict[str, Any]]:
     mode = identification_mode(cfg)
+    source = resolve_propensity_source(cfg, propensity_source)
+    if source != "estimated" and model_name != "dr_learner":
+        raise PropensitySourceError(
+            f"{model_name} 不使用 DR 倾向得分，不能指定 propensity_source={source!r}"
+        )
     if model_name == "constant":
         path = _check_constant_path(cfg, mode)
         if path == "training_itt":
@@ -833,8 +1088,16 @@ def _fit_learner(
                 "crossfit_folds": estimate.folds,
                 "dr_ate_training": estimate.ate,
                 "dr_ate_se_training": estimate.se,
+                "propensity_source": estimate.propensity_source,
                 "propensity_min": estimate.propensity_min,
                 "propensity_max": estimate.propensity_max,
+                "propensity_mean": estimate.propensity_mean,
+                "propensity_raw_min": estimate.propensity_raw_min,
+                "propensity_raw_max": estimate.propensity_raw_max,
+                "propensity_clipped_count": int(estimate.propensity_clipped_count),
+                "propensity_clip_low": estimate.propensity_clip_low,
+                "propensity_clip_high": estimate.propensity_clip_high,
+                "propensity_clipping_detected": bool(estimate.clipping_triggered),
                 "pseudo_outcome_sd": estimate.psi_sd,
                 "hyperparameters": {
                     "constant": path,
@@ -842,6 +1105,8 @@ def _fit_learner(
                     "dr_learner": cfg.section("models.dr_learner"),
                 },
             }
+            if estimate.clipping_triggered:
+                info["propensity_clipping_note"] = _CLIPPING_NOTE
 
         def predict_constant(X_eval: NDArray[np.float64]) -> NDArray[np.float64]:
             rows = int(np.asarray(X_eval).shape[0])
@@ -907,7 +1172,15 @@ def _fit_learner(
         return predict_causal_forest, info
 
     if model_name == "dr_learner":
-        final, _psi, info = _fit_dr_learner(X, y, t, cfg, seed_index=seed_index)
+        final, _psi, info = _fit_dr_learner(
+            X,
+            y,
+            t,
+            cfg,
+            seed_index=seed_index,
+            propensity_source=source,
+            design_probability=design_probability,
+        )
 
         def predict_dr_learner(X_eval: NDArray[np.float64]) -> NDArray[np.float64]:
             return np.asarray(final.predict(X_eval), dtype=float).reshape(-1)
@@ -956,6 +1229,8 @@ def fit_predict(
     *,
     time_mode: str = "static",
     seed_index: int = 0,
+    propensity_source: str = "estimated",
+    design_probability: Any | None = None,
 ) -> Predictions:
     """拟合一个主模型并返回测试集个体 ``τ̂``、ATE 与元信息。
 
@@ -967,6 +1242,12 @@ def fit_predict(
     cfg        : 场景配置；必须与数据集的 ``config_hash`` 一致。
     time_mode  : 与 :func:`prepare_learning_data` 一致；已有 ``LearningData`` 时必须相同。
     seed_index : 重复编号，驱动 ``random_state`` 与交叉拟合折号。
+    propensity_source : DR 倾向来源，默认 ``"estimated"``（D.3 已验收口径）。
+                 ``"known_design"`` 是显式敏感性开关：随机化层用训练切分的
+                 ``design_probability`` 真值作 e、不截断；未传 ``design_probability``
+                 时自动取 ``data.train.design_probability``。观察性层传它直接抛
+                 :class:`PropensitySourceError`。
+    design_probability : 已知设计概率向量（仅 ``known_design`` 接受）。
 
     返回
     ----
@@ -976,6 +1257,11 @@ def fit_predict(
     if model_name not in MODEL_NAMES:
         raise ValueError(f"未知模型 {model_name!r}；可用：{MODEL_NAMES}")
     require_model_applicable(model_name, cfg)
+    if design_probability is not None and str(propensity_source) == "estimated":
+        raise PropensitySourceError(
+            "design_probability 只在 propensity_source='known_design' 时接受；"
+            "默认 estimated 路径不得偷偷换成已知设计概率"
+        )
     if isinstance(dataset, LearningData):
         data = dataset
         if data.time_mode != time_mode:
@@ -988,11 +1274,20 @@ def fit_predict(
         raise ValueError("学习数据与当前场景配置不一致，不能跨配置做配对比较")
     if data.level != str(cfg.require("active_scenario.level")):
         raise ValueError("学习数据的层级与当前场景配置不一致")
+    if str(propensity_source) == "known_design" and design_probability is None:
+        design_probability = data.train.design_probability
 
     cpu_start = time.process_time()
     wall_start = time.perf_counter()
     predict_fn, model_info = _fit_learner(
-        model_name, data.train.X, data.train.y, data.train.treatment, cfg, seed_index=seed_index
+        model_name,
+        data.train.X,
+        data.train.y,
+        data.train.treatment,
+        cfg,
+        seed_index=seed_index,
+        propensity_source=propensity_source,
+        design_probability=design_probability,
     )
     train_cpu = time.process_time() - cpu_start
     train_wall = time.perf_counter() - wall_start
@@ -1190,10 +1485,12 @@ def fit_validation_scorer(
         mechanism = str(cfg.require("evaluation.observational_propensity"))
         if mechanism != "estimated_from_observed_features_only":
             raise ConfigError("观察性验证集的倾向得分只能用已观测特征估计")
-        propensity = _crossfit_propensity(
+        raw_propensity = _crossfit_propensity(
             block.X, block.treatment, cfg,
             folds_idx=folds_idx, seed_index=seed_index, seed_prefix="scorer",
         )
+        clip_low, clip_high = _estimated_probability_clip(cfg)
+        propensity = np.clip(raw_propensity, clip_low, clip_high)
         source = "estimated_lightgbm_classifier"
     bounds = [
         float(value)
@@ -1387,7 +1684,7 @@ def _smoke_observed_dataset(
     from causal_growth.v3_config import load_v3_protocol
 
     cfg = load_v3_protocol().scenario(scenario)
-    population = generate_v3_population(cfg, n=n)
+    population = generate_v3_population(cfg, rep_id=rep_id, n=n)
     users, assignments, orders = population.observation_bundle()
     stream = f"v3.models.smoke.{scenario}"
     raw = build_raw_tables(
@@ -1480,6 +1777,201 @@ def run_smoke(
     return frame
 
 
+# --------------------------------------------------------------------------- #
+# C7 敏感性对照：未调整 ITT vs DR(估计倾向) vs DR(已知设计概率)
+# --------------------------------------------------------------------------- #
+def itt_estimate(y: Any, t: Any) -> tuple[float, float]:
+    """未调整 ITT：两组均值差 + 两组独立方差和的平方根标准误。
+
+    这是随机化层"不做任何调整"的基准估计量，也是 ``constant`` 在随机化层的口径
+    （``models.constant.randomized: training_itt``）。这里只做总体 ATE，不做协变量调整。
+    """
+    values = np.asarray(y, dtype=float).reshape(-1)
+    labels = _binary_treatment(t, values.size, require_both_arms=True)
+    treated = values[labels == 1]
+    control = values[labels == 0]
+    ate = float(treated.mean() - control.mean())
+    variance = treated.var(ddof=1) / treated.size + control.var(ddof=1) / control.size
+    return ate, float(np.sqrt(variance))
+
+
+def _sensitivity_row(
+    *,
+    scenario: str,
+    rep_id: int,
+    reps: int,
+    data: LearningData,
+    n_total: int,
+    itt: tuple[float, float],
+    estimated: CrossfitDrAte,
+    known: CrossfitDrAte,
+) -> dict[str, Any]:
+    """一行 = 一个 (场景, rep) 的三个估计量与两个效率比值。"""
+    itt_ate, itt_se = itt
+    design = np.asarray(data.train.design_probability, dtype=float)
+    if not np.isfinite(design).all():
+        raise ValueError("敏感性对照的随机化层必须有逐人设计概率")
+    return {
+        "source_label": "合成数据 / 已知 DGP",
+        "row_kind": "rep",
+        "scenario": scenario,
+        "level": data.level,
+        "identification_mode": data.identification_mode,
+        "rep_id": int(rep_id),
+        "n_reps": int(reps),
+        "n_total": int(n_total),
+        "n_train": data.train.n,
+        "n_treated": int((data.train.treatment == 1).sum()),
+        "n_control": int((data.train.treatment == 0).sum()),
+        "n_features": len(data.feature_names),
+        "design_probability_min": float(design.min()),
+        "design_probability_max": float(design.max()),
+        "estimated_probability_clip_low": float(estimated.propensity_clip_low),
+        "estimated_probability_clip_high": float(estimated.propensity_clip_high),
+        "itt_ate": float(itt_ate),
+        "itt_se": float(itt_se),
+        "dr_estimated_ate": float(estimated.ate),
+        "dr_estimated_se": float(estimated.se),
+        "dr_estimated_propensity_mean": float(estimated.propensity_mean),
+        "dr_estimated_propensity_min": float(estimated.propensity_min),
+        "dr_estimated_propensity_max": float(estimated.propensity_max),
+        "dr_estimated_propensity_raw_min": float(estimated.propensity_raw_min),
+        "dr_estimated_propensity_raw_max": float(estimated.propensity_raw_max),
+        "dr_estimated_propensity_clipped_count": int(estimated.propensity_clipped_count),
+        "dr_estimated_clipping_detected": bool(estimated.clipping_triggered),
+        "dr_known_ate": float(known.ate),
+        "dr_known_se": float(known.se),
+        "dr_known_propensity_mean": float(known.propensity_mean),
+        "dr_known_propensity_min": float(known.propensity_min),
+        "dr_known_propensity_max": float(known.propensity_max),
+        "dr_known_propensity_clipped_count": int(known.propensity_clipped_count),
+        "dr_known_clipping_detected": bool(known.clipping_triggered),
+        "se_ratio_dr_estimated_over_itt": float(estimated.se / itt_se),
+        "se_ratio_dr_known_over_itt": float(known.se / itt_se),
+        "ate_diff_dr_estimated_minus_itt": float(estimated.ate - itt_ate),
+        "ate_diff_dr_known_minus_itt": float(known.ate - itt_ate),
+        "ate_diff_dr_known_minus_estimated": float(known.ate - estimated.ate),
+        "config_hash": data.config_hash,
+        "preprocessor_hash": data.preprocessor_hash,
+        "observed_hash": data.observed_hash,
+        "train_user_key_hash": data.train.key_hash,
+        "split_fingerprint": data.split_fingerprint,
+    }
+
+
+def _sensitivity_mean_row(
+    scenario: str, rows: Sequence[Mapping[str, Any]], *, reps: int
+) -> dict[str, Any]:
+    """把一个场景的逐 rep 行压成一行均值。
+
+    比值取**逐 rep 比值的算术平均**（不是用均值 ATE/SE 重算的比值），与逐 rep 行同口径；
+    这样某个 ATE/SE 特别大的 rep 不会因为先平均分子分母而改变比值的含义。
+    """
+    if not rows:
+        raise ValueError("没有可汇总的敏感性行")
+    first = rows[0]
+    mean_row: dict[str, Any] = {}
+    for key, value in first.items():
+        if key in {"rep_id", "n_reps"}:
+            continue
+        if isinstance(value, bool):
+            mean_row[key] = any(bool(row[key]) for row in rows)
+        elif isinstance(value, (int, float)):
+            mean_row[key] = float(np.mean([float(row[key]) for row in rows]))
+        else:
+            mean_row[key] = value
+    for key in ("n_total", "n_train", "n_treated", "n_control", "n_features",
+                "dr_estimated_propensity_clipped_count", "dr_known_propensity_clipped_count"):
+        mean_row[key] = int(round(float(mean_row[key])))
+    mean_row.update(
+        row_kind="mean_over_reps",
+        scenario=scenario,
+        rep_id=-1,
+        n_reps=int(reps),
+        observed_hash="",
+        train_user_key_hash="",
+        split_fingerprint="",
+    )
+    return {key: mean_row[key] for key in first}
+
+
+def run_propensity_sensitivity(
+    *,
+    scenarios: Sequence[str] = _SENSITIVITY_SCENARIOS,
+    n: int = _SENSITIVITY_MAX_N,
+    reps: int = 3,
+    out_path: str | None = None,
+) -> pd.DataFrame:
+    """C7 效率对照：未调整 ITT vs DR(估计倾向) vs DR(已知设计概率)。
+
+    回答"随机化层用估计倾向而不是已知设计概率，代价是多少效率"。三个估计量消费
+    **同一个训练切分**；DR 的两个来源共享 ``m1/m0`` 的折外拟合（同一 ``seed_index``
+    下逐元素相同），只有 e 不同，所以两条 DR 路径的差异只可能来自 e。具体是 SE 还是 ATE
+    被推走、推走多少，由实测决定（本函数不预设结论，结果见文档 §13）。
+
+    **这是效率对照，不是正确性对照**：脚本不读任何真值列，也不落真值列。
+
+    资源纪律（机器上还有正式 AA 作业在跑）：``n`` 必须 ≤ ``_SENSITIVITY_MAX_N``，
+    ``reps`` 必须 ≤ ``_SENSITIVITY_MAX_REPS``，超限直接抛错，不静默缩规模。
+    每个场景除逐 rep 行外，额外落一行 ``row_kind="mean_over_reps"`` 的均值行。
+
+    产物：``outputs/tables/v3_phase_D_models_sensitivity.csv``（utf-8-sig）。
+    """
+    from pathlib import Path
+
+    if not scenarios:
+        raise ValueError("C7 敏感性对照至少需要一个随机化场景")
+    if not 0 < int(n) <= _SENSITIVITY_MAX_N:
+        raise ValueError(
+            f"C7 敏感性对照的 n 必须 ≤ {_SENSITIVITY_MAX_N}（当前机器有正式作业在跑）"
+        )
+    if not 0 < int(reps) <= _SENSITIVITY_MAX_REPS:
+        raise ValueError(f"C7 敏感性对照的 R 必须 ≤ {_SENSITIVITY_MAX_REPS}")
+    root = Path(__file__).resolve().parents[3]
+    target = Path(out_path) if out_path is not None else (
+        root / "outputs" / "tables" / "v3_phase_D_models_sensitivity.csv"
+    )
+    rows: list[dict[str, Any]] = []
+    for scenario in scenarios:
+        scenario_rows: list[dict[str, Any]] = []
+        for rep in range(int(reps)):
+            cfg, dataset = _smoke_observed_dataset(scenario, int(n), rep_id=rep)
+            data = prepare_learning_data(dataset, cfg)
+            if data.identification_mode != "randomized":
+                raise PropensitySourceError(
+                    f"{scenario} 是 {data.identification_mode} 层，已知设计概率对照只适用于随机化层"
+                )
+            X, y, t = data.train.X, data.train.y, data.train.treatment
+            itt = itt_estimate(y, t)
+            estimated = crossfit_dr_ate(X, y, t, cfg, seed_index=rep)
+            known = crossfit_dr_ate(
+                X,
+                y,
+                t,
+                cfg,
+                seed_index=rep,
+                propensity_source="known_design",
+                design_probability=data.train.design_probability,
+            )
+            row = _sensitivity_row(
+                scenario=scenario,
+                rep_id=rep,
+                reps=int(reps),
+                data=data,
+                n_total=int(len(dataset.observations)),
+                itt=itt,
+                estimated=estimated,
+                known=known,
+            )
+            scenario_rows.append(row)
+            rows.append(row)
+        rows.append(_sensitivity_mean_row(scenario, scenario_rows, reps=int(reps)))
+    frame = pd.DataFrame(rows)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    frame.to_csv(target, index=False, encoding="utf-8-sig")
+    return frame
+
+
 def _main(argv: Sequence[str] | None = None) -> int:
     import argparse
 
@@ -1488,7 +1980,46 @@ def _main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--n", type=int, default=20_000)
     parser.add_argument("--rep", type=int, default=0)
     parser.add_argument("--out", default=None)
+    parser.add_argument(
+        "--sensitivity",
+        action="store_true",
+        help="跑 C7 倾向来源效率对照（ITT / DR-estimated / DR-known_design），"
+             f"n≤{_SENSITIVITY_MAX_N}、R≤{_SENSITIVITY_MAX_REPS}",
+    )
+    parser.add_argument(
+        "--scenarios",
+        default=",".join(_SENSITIVITY_SCENARIOS),
+        help="敏感性对照的场景列表（逗号分隔，需为随机化层）",
+    )
+    parser.add_argument("--reps", type=int, default=3)
     args = parser.parse_args(argv)
+    if args.sensitivity:
+        frame = run_propensity_sensitivity(
+            scenarios=[piece.strip() for piece in args.scenarios.split(",") if piece.strip()],
+            n=args.n,
+            reps=args.reps,
+            out_path=args.out,
+        )
+        with pd.option_context("display.width", 220, "display.max_columns", 60):
+            print(
+                frame[
+                    [
+                        "scenario",
+                        "row_kind",
+                        "rep_id",
+                        "n_train",
+                        "itt_ate",
+                        "itt_se",
+                        "dr_estimated_ate",
+                        "dr_estimated_se",
+                        "dr_known_ate",
+                        "dr_known_se",
+                        "se_ratio_dr_estimated_over_itt",
+                        "se_ratio_dr_known_over_itt",
+                    ]
+                ].to_string(index=False)
+            )
+        return 0
     frame = run_smoke(scenario=args.scenario, n=args.n, rep_id=args.rep, out_path=args.out)
     with pd.option_context("display.width", 200, "display.max_columns", 50):
         print(

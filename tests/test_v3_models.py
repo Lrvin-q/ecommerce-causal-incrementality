@@ -670,3 +670,257 @@ def test_smoke_table_has_no_truth_columns_and_paired_hashes(protocol: V3Protocol
     assert (frame["total_cpu_seconds"] >= 0.0).all()
     assert frame["tau_sd_test"].ge(0.0).all()
     assert frame["validation_policy_value_lcb"].notna().all()
+
+
+# --------------------------------------------------------------------------- #
+# C7：倾向得分来源（estimated / known_design）与 raw 截断诊断
+# --------------------------------------------------------------------------- #
+EXTREME_STREAM = "test.v3_models.extreme_propensity"
+SENSITIVITY_CSV = ROOT / "outputs" / "tables" / "v3_phase_D_models_sensitivity.csv"
+NUISANCE_DIAGNOSTIC_FIELDS = {
+    "propensity_raw_min",
+    "propensity_raw_max",
+    "propensity_clipped_count",
+    "propensity_clip_low",
+    "propensity_clip_high",
+    "propensity_source",
+}
+SENSITIVITY_REQUIRED_COLUMNS = {
+    "source_label",
+    "row_kind",
+    "scenario",
+    "level",
+    "identification_mode",
+    "rep_id",
+    "n_reps",
+    "n_total",
+    "n_train",
+    "n_treated",
+    "n_control",
+    "design_probability_min",
+    "design_probability_max",
+    "estimated_probability_clip_low",
+    "estimated_probability_clip_high",
+    "itt_ate",
+    "itt_se",
+    "dr_estimated_ate",
+    "dr_estimated_se",
+    "dr_estimated_propensity_raw_min",
+    "dr_estimated_propensity_raw_max",
+    "dr_estimated_propensity_clipped_count",
+    "dr_estimated_clipping_detected",
+    "dr_known_ate",
+    "dr_known_se",
+    "dr_known_propensity_min",
+    "dr_known_propensity_max",
+    "dr_known_propensity_clipped_count",
+    "dr_known_clipping_detected",
+    "se_ratio_dr_estimated_over_itt",
+    "se_ratio_dr_known_over_itt",
+    "ate_diff_dr_estimated_minus_itt",
+    "ate_diff_dr_known_minus_itt",
+}
+
+
+def _extreme_propensity_sample(n: int = 1600) -> dict[str, np.ndarray]:
+    """处理几乎由 X 完全决定 → 折外 e 极接近 0/1，必然触发 [0.01, 0.99] 截断。"""
+    rng = child_rng(20240101, EXTREME_STREAM, 0)
+    x = rng.normal(size=n)
+    treatment = (x + 0.2 * rng.normal(size=n) > 0.0).astype(int)
+    y = 1.0 + 2.0 * x + treatment + rng.normal(scale=1.0, size=n)
+    return {"X": x.reshape(-1, 1), "y": y, "t": treatment}
+
+
+def test_nuisance_fit_exposes_raw_probability_diagnostics() -> None:
+    field_names = {item.name for item in dataclasses.fields(models.NuisanceFit)}
+    assert NUISANCE_DIAGNOSTIC_FIELDS <= field_names
+    ate_fields = {item.name for item in dataclasses.fields(models.CrossfitDrAte)}
+    assert {"propensity_raw_min", "propensity_clipped_count", "propensity_clip_low",
+            "propensity_clip_high"} <= ate_fields
+
+
+def test_known_design_swaps_only_propensity(l1) -> None:
+    cfg, _dataset, data, _manifest = l1
+    X, y, t = data.train.X, data.train.y, data.train.treatment
+    estimated = models.crossfit_nuisance(X, y, t, cfg)
+    known = models.crossfit_nuisance(
+        X,
+        y,
+        t,
+        cfg,
+        propensity_source="known_design",
+        design_probability=data.train.design_probability,
+    )
+    # 只换 e：折外结果模型、折结构与随机种子完全一致
+    np.testing.assert_array_equal(known.mu1, estimated.mu1)
+    np.testing.assert_array_equal(known.mu0, estimated.mu0)
+    assert known.fold_sizes == estimated.fold_sizes
+    assert not np.array_equal(known.propensity, estimated.propensity)
+    # 已知设计概率是真值，不截断
+    assert known.propensity_source == "known_design"
+    assert known.propensity_min == known.propensity_max == 0.5
+    assert known.propensity_raw_min == known.propensity_raw_max == 0.5
+    assert known.propensity_clipped_count == 0
+    assert known.clipping_triggered is False
+    assert np.isnan(known.propensity_clip_low) and np.isnan(known.propensity_clip_high)
+    # 默认口径仍是 estimated + 冻结截断边界
+    clip = [float(value) for value in cfg.require("models.propensity.estimated_probability_clip")]
+    assert estimated.propensity_source == "estimated"
+    assert (estimated.propensity_clip_low, estimated.propensity_clip_high) == (clip[0], clip[1])
+    assert clip[0] <= estimated.propensity_min <= estimated.propensity_max <= clip[1]
+    if estimated.propensity_clipped_count:
+        assert estimated.propensity_raw_min < clip[0] or estimated.propensity_raw_max > clip[1]
+
+
+def test_known_design_is_rejected_on_observational_level(l3) -> None:
+    cfg, _dataset, data, _manifest = l3
+    with pytest.raises(models.PropensitySourceError, match="随机化"):
+        models.resolve_propensity_source(cfg, "known_design")
+    with pytest.raises(models.PropensitySourceError, match="随机化"):
+        models.fit_predict("dr_learner", data, cfg, propensity_source="known_design")
+
+
+def test_known_design_requires_valid_design_probability(protocol: V3Protocol) -> None:
+    cfg = protocol.scenario("L1_main")
+    X = np.zeros((20, 2))
+    y = np.zeros(20)
+    t = np.array([0, 1] * 10)
+    with pytest.raises(models.PropensitySourceError, match="必须显式"):
+        models.crossfit_nuisance(X, y, t, cfg, propensity_source="known_design")
+    missing = np.full(20, 0.5)
+    missing[0] = np.nan
+    with pytest.raises(models.PropensitySourceError, match="有限"):
+        models.crossfit_nuisance(
+            X, y, t, cfg,
+            propensity_source="known_design", design_probability=missing,
+        )
+    out_of_range = np.full(20, 0.5)
+    out_of_range[3] = 1.0
+    with pytest.raises(models.PropensitySourceError, match=r"\(0,1\)"):
+        models.crossfit_nuisance(
+            X, y, t, cfg,
+            propensity_source="known_design", design_probability=out_of_range,
+        )
+    with pytest.raises(models.PropensitySourceError, match="长度"):
+        models.crossfit_nuisance(
+            X, y, t, cfg,
+            propensity_source="known_design", design_probability=np.full(19, 0.5),
+        )
+
+
+def test_propensity_source_switch_is_strict(l1) -> None:
+    cfg, _dataset, data, _manifest = l1
+    with pytest.raises(models.PropensitySourceError, match="未知倾向"):
+        models.crossfit_nuisance(
+            data.train.X, data.train.y, data.train.treatment, cfg, propensity_source="oracle"
+        )
+    with pytest.raises(models.PropensitySourceError, match="known_design"):
+        models.crossfit_nuisance(
+            data.train.X,
+            data.train.y,
+            data.train.treatment,
+            cfg,
+            design_probability=data.train.design_probability,
+        )
+    with pytest.raises(models.PropensitySourceError, match="known_design"):
+        models.fit_predict(
+            "dr_learner", data, cfg, design_probability=data.train.design_probability
+        )
+    with pytest.raises(models.PropensitySourceError, match="不使用"):
+        models.fit_predict("constant", data, cfg, propensity_source="known_design")
+
+
+def test_fit_predict_known_design_records_source_and_diagnostics(l1) -> None:
+    cfg, _dataset, data, _manifest = l1
+    prediction = models.fit_predict("dr_learner", data, cfg, propensity_source="known_design")
+    info = prediction.info
+    assert info["propensity_source"] == "known_design"
+    assert info["propensity_min"] == info["propensity_max"] == info["propensity_mean"] == 0.5
+    assert info["propensity_clipped_count"] == 0
+    assert info["propensity_clipping_detected"] is False
+    assert "propensity_clipping_note" not in info
+    assert np.isnan(info["propensity_clip_low"]) and np.isnan(info["propensity_clip_high"])
+    assert info["n_train"] == data.train.n
+    assert prediction.tau_test.shape == (data.test.n,)
+    assert np.isfinite(prediction.tau_test).all()
+
+
+def test_extreme_propensity_triggers_clipping_and_info_marker(protocol: V3Protocol) -> None:
+    cfg = protocol.scenario("L1_main")
+    sample = _extreme_propensity_sample()
+    clip = [float(value) for value in cfg.require("models.propensity.estimated_probability_clip")]
+    tau, info = models.dr_learner_cate(sample["X"], sample["y"], sample["t"], sample["X"][:5], cfg)
+    assert info["propensity_source"] == "estimated"
+    assert info["propensity_clipped_count"] > 0
+    assert info["propensity_raw_min"] < clip[0] or info["propensity_raw_max"] > clip[1]
+    assert clip[0] <= info["propensity_min"] and info["propensity_max"] <= clip[1]
+    assert info["propensity_clipping_detected"] is True
+    assert info["propensity_clipping_note"] == models._CLIPPING_NOTE
+    assert np.isfinite(tau).all()
+    known = models.crossfit_nuisance(
+        sample["X"], sample["y"], sample["t"], cfg,
+        propensity_source="known_design",
+        design_probability=np.full(sample["y"].size, 0.5),
+    )
+    assert known.propensity_clipped_count == 0
+    assert known.clipping_triggered is False
+
+
+def test_sensitivity_experiment_enforces_resource_caps() -> None:
+    cap_n = models._SENSITIVITY_MAX_N
+    cap_reps = models._SENSITIVITY_MAX_REPS
+    with pytest.raises(ValueError, match="n 必须"):
+        models.run_propensity_sensitivity(n=cap_n + 1, reps=1)
+    with pytest.raises(ValueError, match="R 必须"):
+        models.run_propensity_sensitivity(reps=cap_reps + 1)
+    with pytest.raises(ValueError, match="至少需要一个"):
+        models.run_propensity_sensitivity(scenarios=())
+
+
+def test_sensitivity_table_reports_efficiency_ratios_without_truth(protocol: V3Protocol) -> None:
+    assert SENSITIVITY_CSV.exists(), f"缺少敏感性对照表：{SENSITIVITY_CSV}"
+    frame = pd.read_csv(SENSITIVITY_CSV, encoding="utf-8-sig")
+    assert SENSITIVITY_REQUIRED_COLUMNS <= set(frame.columns)
+    cfg = protocol.scenario("L1_main")
+    forbidden = {str(name) for name in cfg.require("models.forbidden_features")}
+    assert not forbidden & set(frame.columns)
+    assert not any(str(column).startswith("potential_") for column in frame.columns)
+    assert not any("truth" in str(column).lower() for column in frame.columns)
+    assert frame["source_label"].eq("合成数据 / 已知 DGP").all()
+    assert set(frame["scenario"]) == {"L1_main", "L2_n30000_p010"}
+    assert frame["identification_mode"].eq("randomized").all()
+    assert frame["n_total"].le(models._SENSITIVITY_MAX_N).all()
+    assert frame["n_reps"].between(1, models._SENSITIVITY_MAX_REPS).all()
+    assert frame["n_train"].lt(frame["n_total"]).all()
+    assert frame["n_treated"].add(frame["n_control"]).eq(frame["n_train"]).all()
+    # 已知设计概率 = 记录的设计概率，且不截断
+    assert frame["design_probability_min"].eq(frame["design_probability_max"]).all()
+    np.testing.assert_allclose(frame["dr_known_propensity_min"], frame["design_probability_min"])
+    np.testing.assert_allclose(frame["dr_known_propensity_max"], frame["design_probability_max"])
+    assert frame["dr_known_propensity_clipped_count"].eq(0).all()
+    assert not frame["dr_known_clipping_detected"].any()
+    # raw 范围必包含最终范围；截断计数与标记一致
+    assert (frame["dr_estimated_propensity_raw_min"]
+            <= frame["dr_estimated_propensity_min"] + 1e-12).all()
+    assert (frame["dr_estimated_propensity_raw_max"]
+            >= frame["dr_estimated_propensity_max"] - 1e-12).all()
+    assert (frame["dr_estimated_propensity_clipped_count"] > 0).eq(
+        frame["dr_estimated_clipping_detected"]
+    ).all()
+    ratio_columns = ["se_ratio_dr_estimated_over_itt", "se_ratio_dr_known_over_itt"]
+    assert np.isfinite(frame[ratio_columns].to_numpy()).all()
+    assert (frame[ratio_columns] > 0.0).all().all()
+    # 每个场景：R 个逐 rep 行 + 1 个均值行
+    for _scenario, group in frame.groupby("scenario"):
+        kinds = list(group["row_kind"])
+        assert kinds == ["rep"] * (len(kinds) - 1) + ["mean_over_reps"]
+        assert group["rep_id"].iloc[:-1].tolist() == list(range(len(kinds) - 1))
+        assert int(group["rep_id"].iloc[-1]) == -1
+    # 效率对照：已知设计概率的 DR 应贴着 ITT（2 倍 ITT 标准误内），
+    # 估计倾向的 DR 在同样本上明显更差（C7 的方向性结论）。
+    mean_rows = frame.loc[frame.row_kind == "mean_over_reps"]
+    assert (mean_rows["ate_diff_dr_known_minus_itt"].abs() <= 2.0 * mean_rows["itt_se"]).all()
+    assert (
+        mean_rows["se_ratio_dr_estimated_over_itt"]
+        > mean_rows["se_ratio_dr_known_over_itt"]
+    ).all()

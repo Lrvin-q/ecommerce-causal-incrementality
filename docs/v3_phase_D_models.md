@@ -4,7 +4,10 @@
 > 维护时间：2026-10-25 11:18（北京时间，Asia/Shanghai）。
 > 增补时间：2026-10-25 11:38（北京时间）：§2.2 增加随机化层 DR 的保守性说明，
 > §7.1 增加"配置口径与实际行为的差异"。
+> 增补时间：2026-10-25 15:20（北京时间）：落地独立评审 C7——§1 接口、§2.4 倾向来源开关与
+> raw 截断诊断、§7.1.2 `propensity.primary` 披露、§9 未做到清单、§12 复现命令、§13 效率对照表。
 > 本文只记录**接口、冒烟量与实现口径**，不构成任何科学结果：正式重复 R 仍为 0，未做任何真值对比。
+> §13 的敏感性对照是 R=3 的小规模效率对照，也不是正式结果。
 
 ---
 
@@ -14,9 +17,12 @@
 `constant / t_learner / s_learner / causal_forest / dr_learner`；五个模型消费**同一个**
 `LearningData`（同一拆分、同一冻结预处理状态），于是"同批重复数据配对比较"不再依赖纪律，
 而是由 `preprocessor_hash + 三个切分用户键指纹 + observed_hash` 三个可核对指纹强制保证。
-`pytest tests/test_v3_models.py` = **52 passed**（23.9 s）；全量 `pytest tests` 在写盘安静时
-通过 **1026 passed, 2 skipped**（331.9 s），最终复跑出现 1 个并发写盘导致的 CLI 假红
-（单独复跑该测试 2 passed，详见 §10）。
+C7 增补后，DR 的倾向得分多了**显式**的 `known_design` 来源（默认仍是 `estimated`），并把
+截断前的 raw 概率范围与截断计数变成可审计字段（§2.4）；`known_design` 与 `estimated` 的
+效率差见 §13。
+`pytest tests/test_v3_models.py` = **61 passed**（机器有正式作业时单轮约 30–60 s）；
+全量 `pytest tests` 在写盘安静时通过 **1026 passed, 2 skipped**（331.9 s），最终复跑曾出现
+1 个并发写盘导致的 CLI 假红（单独复跑该测试 2 passed），详见 §10。
 
 ---
 
@@ -24,19 +30,25 @@
 
 ```python
 MODEL_NAMES = ("constant", "t_learner", "s_learner", "causal_forest", "dr_learner")
+PROPENSITY_SOURCES = ("estimated", "known_design")   # C7：默认必须是 estimated
 
 class FeatureBoundaryError(ValueError)      # 白名单/禁用特征越界 → 抛异常
 class ModelNotApplicableError(ValueError)   # 层不适用该模型（L0/L2 调 dr_learner）
+class PropensitySourceError(ValueError)     # C7：倾向来源非法/观察性层要 known_design
 
 prepare_learning_data(dataset: ObservedDataset, cfg, *, time_mode="static") -> LearningData
 fit_predict(model_name, dataset: LearningData | ObservedDataset, cfg, *,
-            time_mode="static", seed_index=0) -> Predictions
+            time_mode="static", seed_index=0,
+            propensity_source="estimated", design_probability=None) -> Predictions
 
 Predictions: .model_name .tau_test .tau_validation .ate .test_keys .info(dict)
     info 关键键：n_features / feature_names / preprocessor_hash / config_hash / observed_hash /
                  train_n,validation_n,test_n / train|validation|test_user_key_hash /
                  train_cpu_seconds / train_wall_seconds / predict_cpu_seconds / total_cpu_seconds /
-                 level / identification_mode / 模型专属诊断（crossfit_folds、propensity 范围、
+                 level / identification_mode / 模型专属诊断（crossfit_folds、
+                 propensity_source、propensity_min/max/mean、propensity_raw_min/max、
+                 propensity_clipped_count、propensity_clip_low/high、
+                 propensity_clipping_detected（+触发时 propensity_clipping_note）、
                  pseudo_outcome_sd、constant_source、hyperparameters …）
 
 fit_validation_scorer(data, cfg, *, seed_index=0) -> ValidationScorer
@@ -47,19 +59,33 @@ learning_curve(model_name, dataset, cfg, *, counts=None, time_mode="static", see
     -> list[dict]
 
 # 低层可复用（单测 / F 阶段复算）
-crossfit_nuisance(X, y, t, cfg, *, seed_index=0, folds=None, seed_prefix="dr") -> NuisanceFit
+crossfit_nuisance(X, y, t, cfg, *, seed_index=0, folds=None, seed_prefix="dr",
+                  propensity_source="estimated", design_probability=None) -> NuisanceFit
 aipw_pseudo_outcome(y, t, mu1, mu0, propensity) -> ndarray
-crossfit_dr_ate(X, y, t, cfg, *, seed_index=0) -> CrossfitDrAte(.ate .se .folds .psi_sd …)
-dr_learner_cate(X, y, t, X_eval, cfg, *, seed_index=0) -> (tau_eval, info)
+crossfit_dr_ate(X, y, t, cfg, *, seed_index=0,
+                propensity_source="estimated", design_probability=None)
+    -> CrossfitDrAte(.ate .se .folds .psi_sd .propensity_source .propensity_clipped_count …)
+dr_learner_cate(X, y, t, X_eval, cfg, *, seed_index=0,
+                propensity_source="estimated", design_probability=None) -> (tau_eval, info)
 causal_forest_estimator(cfg, *, seed) -> econml.CausalForestDML
 constant_source(cfg) -> "training_itt" | "training_crossfit_dr_ate"
 identification_mode(cfg) -> "randomized" | "observational"
+resolve_propensity_source(cfg, source) -> "estimated" | "known_design"   # C7
+itt_estimate(y, t) -> (ate, se)                                          # C7 基准估计量
+run_propensity_sensitivity(*, scenarios=..., n=20000, reps=3, out_path=None) -> DataFrame  # C7
 require_model_applicable(model_name, cfg) -> None
 require_feature_boundary(frame_or_feature_names, cfg, time_mode="static") -> None
 require_whitelisted_feature_names(names, cfg, time_mode="static") -> None
 reject_forbidden_frame_columns(frame, cfg) -> None
 allowed_feature_names(cfg, time_mode="static") -> frozenset[str]
 ```
+
+`NuisanceFit` 的字段（C7 后）：`mu1 / mu0 / propensity / folds / fold_sizes /
+propensity_min / propensity_max / propensity_raw_min / propensity_raw_max /
+propensity_clipped_count / propensity_clip_low / propensity_clip_high / propensity_source`，
+另有属性 `propensity_mean` 与 `clipping_triggered`。
+`known_design` 路径下 `propensity_clip_low/high` 为 `NaN`、`propensity_clipped_count` 恒为 0
+（表示"没有施加截断"，不是"截断边界为 0"）。
 
 **为什么把"准备数据"和"拟合模型"分开**：预处理器只能在训练切分上拟合（`FrozenPreprocessor`），
 一个 rep 只该拟合一次。`prepare_learning_data` 一次产出三个 `SplitBlock`，五个模型共享；
@@ -113,13 +139,18 @@ colsample 0.8 / `n_jobs=1` / `verbosity=-1`）。装配方式与已跑通的 `sc
 折内种子，因此观察性常数模型的 ATE 与 DR-learner 的 `dr_ate_training` 逐位相同。
 测试 `test_constant_observational_shares_nuisance_with_dr_learner` 断言 `|差| < 1e-9`。
 
-**随机化层的 DR 是保守口径（效率下界，不是一致性问题）**：在随机化层（L0/L1/L2）设计概率
-已知且为 0.5，理论上直接用设计概率的 DR 更有效（少一层估计误差）。当前实现按
-`models.dr_learner.propensity_model: lightgbm_classifier` 估计倾向，**因此报告的 DR 效率是保守
-下界**，不是该方法在已知设计概率下能达到的最好水平。这一差异属**效率而非一致性**：交叉拟合下
-估计倾向仍一致，不引入系统性偏倚。**不改成用设计概率**——那会让"报告的模型"与"配置声明的
-模型"不一致，是更严重的问题。该敏感性分析（设计概率 vs 估计倾向）列入 E 阶段议程，用证据
-回答，而不是现在替换实现。
+**随机化层的 DR 默认用估计倾向，报告的是效率保守下界（不是一致性问题）**：随机化层的设计概率
+已知（L0/L1 为 0.5；L2 按场景 `treatment_probability` 取 0.1/0.3/0.5），理论上直接用设计概率
+的 DR 更有效（少一层估计误差）。D.3 默认按 `models.dr_learner.propensity_model:
+lightgbm_classifier` 估计倾向，**因此默认报告的 DR 效率是保守下界**，不是该方法在已知设计
+概率下能达到的最好水平。该差异属**效率而非一致性**：交叉拟合下估计倾向仍一致，不引入系统性
+偏倚。
+
+**默认不换，只加显式开关（C7 增补）**：把默认改成设计概率会让"报告的模型"与"配置声明的模型"
+不一致，并直接改写 52 项已验收契约的数字，是更严重的问题。C7 因此新增
+`propensity_source="known_design"`（默认仍 `estimated`），把"设计概率 vs 估计倾向"从 E 阶段
+议程变成现在可复算的对照：口径见 §2.4，实测数字见 §13 与
+`outputs/tables/v3_phase_D_models_sensitivity.csv`。
 
 ### 2.3 识别模式与层级适用性
 
@@ -129,6 +160,53 @@ colsample 0.8 / `n_jobs=1` / `verbosity=-1`）。装配方式与已跑通的 `sc
 - `require_model_applicable` 读 `models.common + additional_by_level[level]`：
   L1/L3 允许 `dr_learner`，L0/L2 抛 `ModelNotApplicableError`。
   测试 `test_model_applicability_mirrors_frozen_config` 断言镜像关系与冻结配置一致。
+
+### 2.4 倾向得分来源开关与 raw 截断诊断（C7 增补）
+
+**开关**：`propensity_source` 取值 `"estimated"`（默认）或 `"known_design"`，贯穿
+`crossfit_nuisance / crossfit_dr_ate / dr_learner_cate / fit_predict`。
+
+| 来源 | e 从哪来 | 截断 | 允许的层 | 默认 |
+|---|---|---|---|---|
+| `estimated` | 3 折交叉拟合 LightGBM 分类器（`models.dr_learner.propensity_model`） | 按 `models.propensity.estimated_probability_clip` 截断 | 随机化 + 观察性 | ✅ |
+| `known_design` | 观测表 `design_probability` 列（逐人设计真值） | **不截断** | 只有随机化识别模式（`identification_mode == "randomized"`；L3 观察性历史全部拒绝） | ❌ 必须显式开启 |
+
+五条硬规则，全部是代码路径而不是注释：
+
+1. **默认不变**：不传 `propensity_source` 时保持 D.3 已验收口径（同一折号、同一组
+   `random_state`、同一截断边界）；52 项旧测试全绿是这一点的回归门禁。
+2. **观察性层必须报错**：L3 传 `known_design` → `PropensitySourceError`
+   （`test_known_design_is_rejected_on_observational_level`）。L3 的 `design_probability`
+   全为 NaN，没有"已知设计概率"可言。
+3. **配置须先注册**：`known_design` 要求 `models.ate.randomized` 含 `known_design_ipw`，
+   否则 `ConfigError`——配置没登记的估计量不允许在代码里悄悄可用。
+4. **只换 e，不换交叉拟合**：`known_design` 下 `m1/m0` 仍按同一 `seed_index` 与同一折号做
+   折外拟合，`mu1/mu0` 与 `estimated` 路径**逐元素相同**
+   （`test_known_design_swaps_only_propensity` 直接断言）。因此两条路径的差异只可能来自 e。
+5. **非 DR 模型不许借道**：`t_learner / s_learner / causal_forest / constant` 传
+   `known_design` 一律 `PropensitySourceError`；`estimated` 路径传 `design_probability`
+   同样报错，防止默认路径被偷换成设计概率。
+
+**raw 概率诊断（`models.propensity.raw_probability_diagnostics_required`）**：
+`NuisanceFit` 不再只存截断后的 min/max，而是存四组审计量：
+
+| 字段 | 含义 |
+|---|---|
+| `propensity_raw_min/max` | 截断**前**的 e 取值范围（估计倾向的真实极端程度） |
+| `propensity_clipped_count` | 被截断改写的样本数；`0` 表示截断未触发 |
+| `propensity_clip_low/high` | 实际生效的截断边界；`known_design` 不截断时为 NaN |
+| `propensity_source` | `estimated` / `known_design`，防止两种口径的产物混读 |
+
+`propensity_clipped_count > 0` 时，DR 的 `info` 里出现
+`propensity_clipping_detected: True` 与 `propensity_clipping_note`，固定文案：
+**"estimated propensity 触发截断：截断引入的偏倚不可忽略，该 rep 的 DR 结果必须单独标注"**。
+截断等价于对极端逆概率权重的硬 winsorize，其方向与大小都随样本变化；**触发截断的 rep，
+DR 点估计与 SE 都不能与未触发的 rep 直接合并**。
+
+触发实验（`test_extreme_propensity_triggers_clipping_and_info_marker`）：构造"处理几乎由 X
+完全决定"的极端样本（n=1,600，818 个处理；折外 e 的 raw 范围 2.13e-04 ~ 0.999981），
+`propensity_clipped_count = 1245/1600 > 0`、`propensity_clipping_detected is True`、note 出现；
+同一份数据改用 `known_design`（e 恒 0.5）时计数回到 0，证明"诊断跟着来源走"。
 
 ---
 
@@ -255,6 +333,8 @@ run_sql_pipeline → assign_user_splits`），只跳过全链路 manifest 写入
 
 ### 7.1 配置口径与实际行为的差异
 
+**7.1.1 LightGBM `subsample: 0.8` 未生效**
+
 **结论：`models.yaml → lightgbm.subsample: 0.8` 在当前 LightGBM 下不生效；实际生效的随机性
 来源只有 `colsample_bytree: 0.8`。**
 
@@ -271,13 +351,41 @@ run_sql_pipeline → assign_user_splits`），只跳过全链路 manifest 写入
   或机制参数：它是否生效不改变结论方向，只改变模型的方差特性；现在改还会让 D 的冒烟与后续 R
   结果建立在刚改过的模型上，反而增加"结果与配置不一致"的风险。
 
+**7.1.2 倾向模型：配置声明 `primary: logistic`，D.3 实现一律 LightGBM（必须披露）**
+
+`models.yaml → propensity` 同时声明了两套倾向设定：
+
+| 键 | 声明值 | D.3 是否使用 |
+|---|---|---|
+| `propensity.primary` | `logistic` | **否**——估计路径里没有任何 logistic 倾向 |
+| `propensity.sensitivity` | `lightgbm_classifier` | **是**——`dr_learner`、观察性常数模型、观察性验证集打分全部用它 |
+| `propensity.estimated_probability_clip` | `[0.01, 0.99]` | 是（`estimated` 路径；`known_design` 不截断） |
+| `propensity.raw_probability_diagnostics_required` | `true` | 是（C7 落地，见 §2.4） |
+
+**披露口径**：按配置语义，`primary` 是**声明的主口径**、`sensitivity` 是**敏感性备选**；
+而 D.3 的**全部已交付数字**（冒烟表、DR 的 `dr_ate_training`、验证集 DR 打分）都来自
+**`sensitivity` 那一档的 LightGBM**。这是一个**配置声明与实际实现的差距**，
+**必须披露，不能读成"D.3 按 primary 口径交付"**：
+
+- **不是 bug**：LightGBM 与 logistic 都是合法的倾向估计器；D.3 从 pilot 起就用 LightGBM
+  （`scripts/13_v3_pilot.py`），实现的是**一条固定路径**，没有按样本随机切换、没有静默回退；
+- **后果**：如果评审要求"主分析必须是 logistic 倾向"，D.3 的 DR 数字需要重跑一版 logistic
+  倾向才能对应 `primary`；当前数字只能声称是 **LightGBM 倾向口径**；
+- **处置**：本轮**不改配置**（七份 YAML 冻结，`config_hash` 必须保持 `30511a32…`），也
+  **不实现** logistic 分支——新增/切换倾向估计器属于 A 阶段配置变更，不能由 D 阶段代码
+  单方面决定。这里只把差距写清，并把"换 primary 口径要重跑哪些数字"列为 E 阶段待办：
+  `dr_ate_training`、DR-learner 的 τ̂ 与验证集 LCB、观察性常数模型的 ATE、
+  以及 §13 的 `dr_estimated_*` 三列。
+
 ### 7.2 其余口径选择
 
 1. **没有 early stopping。** `models.yaml` 只给固定 `n_estimators=300`，本模块不使用验证集早停
    （也避免把验证集用于拟合）。
-2. **DR 的倾向模型在随机化层也按配置估计**（`propensity_model: lightgbm_classifier`），
-   没有替换成已知设计概率——这是对冻结配置的忠实执行，其"效率保守下界"的含义见 §2.2；
-   设计概率只用在验证集 DR 打分（`evaluation.randomized_propensity`）。
+2. **DR 的倾向模型在随机化层默认也按配置估计**（`propensity_model: lightgbm_classifier`），
+   默认口径没有替换成已知设计概率——这是对冻结配置的忠实执行，其"效率保守下界"的含义见
+   §2.2；设计概率在默认路径只用于验证集 DR 打分（`evaluation.randomized_propensity`），
+   只有显式 `known_design` 敏感性路径才把它交给 DR 的 e（§2.4）。默认仍走 LightGBM，也意味着
+   §7.1.2 的 `primary: logistic` 差距依旧存在。
 3. **`models.causal_forest.treatment_nuisance_model: classifier`** 被显式校验：`model_t`
    必须是分类器，否则 `ConfigError`（二值处理用回归器拟合会让 DML 的残差正交化失准）。
 
@@ -291,7 +399,7 @@ run_sql_pipeline → assign_user_splits`），只跳过全链路 manifest 写入
 | 同一拆分、同批数据配对比较 | 一个 `LearningData` + 七个指纹写入每行预测/冒烟表 |
 | 训练/验证/测试按用户分离 | 拆分由 `assign_user_splits` 产生；本模块只消费 `split` 列，不重划 |
 | 不得读真值 | 估计路径不 import `causal_growth.dgp`、不 import `audit/`；测试 `test_estimation_module_does_not_import_truth_or_dgp` 用子进程验证 |
-| 失败要响 | 未知模型 / 层不适用 / 特征越界 / 配置口径漂移 / 预算为负 / 倾向得分越界 全部抛异常 |
+| 失败要响 | 未知模型 / 层不适用 / 特征越界 / 配置口径漂移 / 预算为负 / 倾向得分越界 / 倾向来源非法 全部抛异常 |
 
 ---
 
@@ -317,6 +425,20 @@ run_sql_pipeline → assign_user_splits`），只跳过全链路 manifest 写入
    L2 的时间切分与滚动重训在 D/F 的其他格，本模块测试只覆盖 `static`。
    全量回归曾在写盘安静时串行通过（1026 passed / 2 skipped），最终复跑出现 1 个并发写盘
    导致的 CLI 假红；两次都见 §10。
+8. **C7 的敏感性对照不是正式效率结论。** 受"机器上同时有 4 个正式 AA 作业、可用内存约 4 GB"
+   约束，只做了 2 个随机化场景 × R=3 × n=20,000（训练池 10,000）；没有跑正式 R（200–500），
+   也没有换 L0/L2 的其他分流比例。§13 的比值只能读成"这个规模下的点估计对照"。
+9. **C7 的比值没有区间。** `SE_DR/SE_ITT` 是点比值，未做 bootstrap 或 delta-method 置信区间；
+   `crossfit_dr_ate` 的 SE 本身仍是 `sd(ψ)/√n` 的影响函数近似、未校正 nuisance 二阶项，
+   因此 §13 的比值不应当作"效率差的显著与否"，只能当作方向与量级的证据。
+10. **`propensity.primary: logistic` 仍未实现**（§7.1.2）。这是配置声明与实现的差距：本轮
+    按边界只披露，不改冻结配置、不新增未注册的 logistic 分支；因此 D.3 的 DR 数字全部是
+    **LightGBM 倾向口径**。
+11. **L3 不存在 `known_design` 对照，也不该有。** 观察性层没有已知设计概率，任何"L3 用设计
+    概率"的对照都是错的；本模块用 `PropensitySourceError` 把它堵死，而不是造一个假对照。
+12. **C7 没有测"截断触发对 DR 偏倚的实际大小"。** 只落地了诊断字段 + 触发实验（证明计数与
+    标记会响），没有在同一份极端数据上量化"截断前后 ATE 差多少"——那需要一个专门的偏倚
+    蒙特卡洛，属 E 阶段。
 
 ---
 
@@ -350,7 +472,7 @@ run_sql_pipeline → assign_user_splits`），只跳过全链路 manifest 写入
 2. 用 `fit_validation_scorer(data, cfg)` 建一次打分器，`rank_models({model: pred}, scorer, cfg)`
    拿 LCB 排名；`learning_curve(..., scorer=scorer)` 复用同一打分器。
 3. L0/L2 不要传 `dr_learner`（会抛 `ModelNotApplicableError`）；`tests/test_v3_models.py` 的
-   52 项可独立作为本模块回归门禁。
+   61 项可独立作为本模块回归门禁。`known_design` 只能显式开启，且只在随机化层有效。
 
 ---
 
@@ -360,9 +482,86 @@ run_sql_pipeline → assign_user_splits`），只跳过全链路 manifest 写入
 $env:PYTHONUTF8='1'; $env:PYTHONIOENCODING='utf-8'
 cd 'D:\L\practice_project\营销数分项目'
 $env:OMP_NUM_THREADS='1'; $env:OPENBLAS_NUM_THREADS='1'; $env:MKL_NUM_THREADS='1'
-.\.venv\Scripts\python.exe -m pytest tests\test_v3_models.py --basetemp=.pytest_basetemp   # 52 passed
-.\.venv\Scripts\python.exe -m causal_growth.estimate.v3_models                              # 冒烟表
+.\.venv\Scripts\python.exe -m pytest tests\test_v3_models.py --basetemp=out\c7_tmp   # 61 passed
+.\.venv\Scripts\python.exe -m causal_growth.estimate.v3_models                       # 冒烟表（5 模型）
+.\.venv\Scripts\python.exe -m causal_growth.estimate.v3_models --sensitivity --n 20000 --reps 3
+# ↑ C7 效率对照；产物：outputs/tables/v3_phase_D_models_sensitivity.csv
 ```
 
 数据来源：合成数据 / 已知 DGP，`L1_main`，`project.master_seed = 20240101`，rep 0，
-**正式重复 R = 0**。所有数字见 `outputs/tables/v3_phase_D_models_smoke.csv`。
+**正式重复 R = 0**。冒烟数字见 `outputs/tables/v3_phase_D_models_smoke.csv`；
+C7 敏感性对照见 `outputs/tables/v3_phase_D_models_sensitivity.csv`（R=3，n=20,000，非正式重复）。
+
+---
+
+## 13. C7 敏感性对照：估计倾向 vs 已知设计概率（效率对照，不是正确性对照）
+
+**问题**：随机化层本来就知道设计概率，D.3 却用 LightGBM 估计 e。这个选择损失了多少效率？
+差的是 SE 还是 ATE？
+
+**口径**（`run_propensity_sensitivity`，命令见 §12）：
+
+- 两个**随机化**场景：`L1_main`（设计概率 0.5）与 `L2_n30000_p010`（设计概率 0.1，
+  故意选一个非 0.5 的分流比例）；
+- 每场景 R=3、n=20,000（OOF 拆分后训练池 10,000），单线程（`n_jobs=1` +
+  `OMP/OPENBLAS/MKL_NUM_THREADS=1`），折号与 `random_state` 由 `child_seed` 派生；
+- 三个估计量消费**同一训练切分**：① 未调整 ITT（`itt_estimate`：两组均值差，
+  `se = sqrt(s1²/n1+s0²/n0)`）；② DR（`estimated`，现状）；③ DR（`known_design`，新增）；
+- ②③ 在同一次 `seed_index` 下共享折号与折外 `m1/m0`（§2.4 规则 4），**只有 e 不同**；
+- **不读任何真值列**，表里也没有真值列；ITT 只作为随机化层的无偏基准，不是真值。
+
+产物 `outputs/tables/v3_phase_D_models_sensitivity.csv`：**8 行 × 44 列**（2 场景 ×［3 个
+逐 rep 行 + 1 个均值行］）；种子全部由 `child_seed` / `child_rng` 派生，本表不含 CPU 秒列。
+**确定性实测**：同一命令独立重跑两次，CSV 的 SHA-256 都是
+`2897ba589e8680ce5a9a7cf48430152a2a0e9b1b2f3e64309dce0ef6ddd02d63`（逐元素复现）。
+
+### 13.1 均值行（R=3 的算术平均；逐 rep 行见 CSV）
+
+| 场景 | 估计量 | ATE | SE | SE / SE_ITT | e 均值 | e raw 范围 | 截断数 |
+|---|---|---|---|---|---|---|---|
+| `L1_main`（p=0.5） | 未调整 ITT | 0.2836 | 0.2053 | 1.000 | — | — | — |
+| `L1_main` | DR（estimated） | 0.4134 | 0.2312 | **1.126** | 0.4975 | 0.0912–0.9002 | 0 |
+| `L1_main` | DR（known_design） | 0.3894 | 0.2012 | **0.980** | 0.5000 | 0.5000 | 0 |
+| `L2_n30000_p010`（p=0.1） | 未调整 ITT | 0.3190 | 0.3689 | 1.000 | — | — | — |
+| `L2_n30000_p010` | DR（estimated） | 1.2323 | 1.1371 | **3.083** | 0.0976 | 0.00185–0.6944 | 119（68–147/rep） |
+| `L2_n30000_p010` | DR（known_design） | 0.2540 | 0.3751 | **1.017** | 0.1000 | 0.1000 | 0 |
+
+ATE 差（均值行）：`L1` estimated **+0.1298**、known **+0.1058**（ITT SE 0.2053）；
+`L2` estimated **+0.9133**、known **−0.0650**（ITT SE 0.3689）。
+
+### 13.2 逐 rep 的 SE 比值（稳定性）
+
+| rep | L1 estimated | L1 known | L2 estimated | L2 known |
+|---|---|---|---|---|
+| 0 | 1.101 | 0.973 | 3.046 | 1.003 |
+| 1 | 1.138 | 0.989 | 3.195 | 1.048 |
+| 2 | 1.138 | 0.979 | 3.008 | 0.999 |
+| 3-rep 均值 | **1.126** | **0.980** | **3.083** | **1.017** |
+
+### 13.3 读法
+
+1. **known_design 贴着 ITT**：ATE 差 +0.106（L1，0.52 个 ITT SE）与 −0.065（L2，0.18 个
+   ITT SE），SE 比 0.980 与 1.017。用真 e 时 DR 既不丢效率也不产生可见偏移——这正是
+   "e 正确时 AIPW 是有效估计量"的预期表现，也说明本实现没有把设计概率用歪。
+2. **estimated 的代价随分流比例急剧放大**：p=0.5 时 SE 只贵 12.6%（逐 rep 1.10–1.14），
+   与独立评审报告"L1 的 DR ATE SE 是 ITT 的 1.10 倍"**同向、同量级**；p=0.1 时贵 3.08 倍。
+   机制清楚：p 越小，estimated e 的 raw 下界越接近 0（本对照最低 0.0018），68–147 个观测
+   被截断到 0.01，`1/e` 权重爆炸既放大方差，也让单 rep 的 ψ 重尾——L2 的 ATE 点估计被推到
+   1.23（比 ITT 高 0.91 ≈ 2.5 个 ITT SE），不是一个可用的效率点。
+3. **"两者都应接近 ITT"只在 known_design 上稳健成立**；estimated 在 p=0.5、训练池 10,000
+   时大致成立（差 0.63 个 ITT SE），小分流比例下点估计也会跑偏。这是**效率问题在有限样本
+   里的表现**，既不能读成"estimated DR 有系统偏倚"，也不能读成"known_design 更准"——本对照
+   没有真值，不回答正确性。
+4. **对默认口径的含义**：C7 没有改变任何默认行为；它把"随机化层报告 DR 效率是保守值"
+   从一句话变成可复算的两个比值。E 阶段若要用 known_design 作为主口径，必须先改配置
+   （注册与默认值）并同步处理 §7.1.2 的 `primary: logistic` 差距，否则就是第三次
+   "配置声明与实现不一致"。
+
+### 13.4 这张表不能回答什么
+
+- **不是效率结论的正式凭据**：R=3、单训练池规模（10,000）、SE 为影响函数近似、比值没有
+  置信区间（§9 第 8–9 条）；正式效率评估要在机器空闲时用正式 R 与 bootstrap 重跑。
+- **不能外推到真实数据**：`known_design` 需要逐人设计概率真值，只有合成数据/随机化实验
+  才有；真实观察性数据没有这个量，本对照只回答"如果 e 已知，DR 能好多少"。
+- **不含 L3**：观察性层没有已知设计概率，传 `known_design` 会抛
+  `PropensitySourceError`（§2.4 规则 2），所以这里没有也不该有 L3 的 known_design 对照。

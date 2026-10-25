@@ -1,0 +1,17 @@
+{
+  "scope": "tests",
+  "command": "python -m pytest tests -q",
+  "start": "2026-10-25T14:59:55+0800",
+  "end": "2026-10-25T15:08:03+0800",
+  "exitcode": 0,
+  "note": "safe-delete bulk quota disabled for test tmp cleanup; single process, no concurrent writers",
+  "collected": 1114,
+  "collected_method": "pytest tests --collect-only (same tree, same session)",
+  "passed": 1114,
+  "failed": 0,
+  "log": "outputs/v3/pytest_handoff/pytest_clean.log",
+  "log_sha256": "b4670fccd02e4a30902384b1b73c4be01210d18d1d6a1e5cb97af5ffc01ab3d5",
+  "host_note": "safe-delete bulk quota disabled only for pytest tmp cleanup; production code untouched; single process, no concurrent writers at run time",
+  "head_commit": "c3a78ef",
+  "tree_dirty": "src/causal_growth/estimate/v3_models.py (C7 agent work, not included in this gate)"
+}
