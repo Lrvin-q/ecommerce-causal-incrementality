@@ -1006,12 +1006,18 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--cells", type=str, default=None, help="comma-separated cell ids")
     parser.add_argument("--layers", type=str, default=None, help="comma-separated layers, e.g. L1,L2")
     parser.add_argument("--alpha", type=float, default=None)
+    parser.add_argument("--calibrate-only", action="store_true",
+                        help="only build the analytic curves / feasibility diagnosis (no data runs)")
     parser.add_argument("--out", type=str, default=None, help="run root (must not exist)")
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """命令行入口：小规模跑通并打印汇总（默认不触碰 20 万 × 100 的正式排期）。"""
+    """命令行入口：小规模跑通并打印汇总（默认不触碰 20 万 × 100 的正式排期）。
+
+    ``--calibrate-only`` 只做解析部分：20 格的 τ0/Δ/可行域/achieved-vs-target 诊断，
+    不生成任何数据、不产生任何 rep——这是 §2 那张可行域表的可复现入口。
+    """
     args = _parse_args(argv)
     protocol = load_v3_protocol()
     plans = local_power_plan(
@@ -1019,13 +1025,43 @@ def main(argv: Sequence[str] | None = None) -> int:
         cell_ids=None if args.cells is None else [item.strip() for item in args.cells.split(",") if item],
         layers=None if args.layers is None else [item.strip() for item in args.layers.split(",") if item],
     )
+    if args.calibrate_only:
+        root = (Path(args.out) if args.out is not None else
+                PROJECT_ROOT / "out" / "v3_phase_d_local_power" / time.strftime("calibrate_%Y%m%dT%H%M%S"))
+        root.mkdir(parents=True, exist_ok=False)
+        calibrations, curves, verifications = calibrate_plans(
+            plans, protocol, reference_n=args.reference_n, progress=print,
+        )
+        feasibility = feasibility_table(calibrations)
+        checks = pd.DataFrame([
+            {"cell_id": plan.cell_id, "target_effect": calibration.target_effect,
+             "achieved_effect_analytic": calibration.achieved_effect,
+             "absolute_deviation": calibration.absolute_deviation,
+             "relative_deviation": calibration.relative_deviation,
+             "dgp_path_relative_deviation": verification["relative_deviation"],
+             "p0_max_abs_change": verification["p0_max_abs_change"],
+             "consistent": calibration.consistent}
+            for plan, calibration, verification in zip(plans, calibrations, verifications)
+        ])
+        feasibility.to_csv(root / "local_power_feasibility.csv", index=False, encoding="utf-8-sig")
+        checks.to_csv(root / "local_power_consistency_checks.csv", index=False, encoding="utf-8-sig")
+        pd.DataFrame([curve.as_record() for curve in {c.base_scenario_id: c for c in curves}.values()])\
+            .to_csv(root / "local_power_curves.csv", index=False, encoding="utf-8-sig")
+        print(feasibility.loc[:, ["cell_id", "multiplier", "target_effect", "achieved_effect_analytic",
+                                  "relative_deviation", "effect_at_zero_increment", "effect_upper",
+                                  "increment_scale", "scale_upper", "binding_constraint"]]
+              .to_string(index=False))
+        print(checks.loc[:, ["cell_id", "relative_deviation", "dgp_path_relative_deviation",
+                             "p0_max_abs_change", "consistent"]].to_string(index=False))
+        print(f"artifacts: {root}")
+        return 0
     bundle = run_local_power_matrix(
         protocol, plans=plans, reps=args.reps, n=args.n, reference_n=args.reference_n,
         alpha=args.alpha, run_root=args.out, progress=print,
     )
     columns = ["cell_id", "multiplier", "target_effect", "achieved_effect_analytic",
                "nominal_power", "nominal_power_registered_n", "rejection_rate",
-               "binomial_ci_low", "binomial_ci_high", "achieved_effect"]
+               "binomial_ci_low", "binomial_ci_high", "achieved_effect", "estimator_warning"]
     print(bundle.summary.loc[:, columns].to_string(index=False))
     print(f"artifacts: {bundle.run_root}")
     return 0

@@ -1,6 +1,6 @@
 """Phase D 整改第 4 项：按 C 清单重放四代表库与跨层 matrix 作业（第三种做法）。
 
-合成数据 / 已知 DGP。维护时间：2026-10-25 14:35（北京时间）。
+合成数据 / 已知 DGP。维护时间：2026-10-25 14:31（北京时间）。
 
 这个脚本回答什么问题
 --------------------
@@ -42,6 +42,16 @@ parquet 的 ``dataframe_sha256`` 相同，并把重放结果绑定到新指纹�
 - ``outputs/tables/v3_phase_D_c_replay.csv``：逐文件比对明细（每行一个产物）；
 - ``outputs/v3/phase_d_c_replay/summary.json``：逐作业汇总 + 新指纹绑定 + 源码快照哈希表；
 - ``data/v3/phase_d_replay/<job_id>/<attempt>/``：重放产物本身（含新 manifest）。
+
+判定口径（三档，互不混淆）
+--------------------------
+- ``identical``：字节相同；
+- ``identical_content``：parquet 字节不同，但 ``dataframe_sha256`` 相同、且 footer 里除
+  ``pandas.attributes.source_path`` 外**没有任何元数据差异**（落库作业必然如此，因为路径变了）；
+- ``expected_drift``：``lineage/source_hashes_after.json``，它记录生产时源码表，按设计不同。
+
+只有 ``DIFFERS`` / ``MISSING`` 会判失败；``identical_content`` 与 ``expected_drift``
+都会在 CSV 的 ``verdict``/``note`` 列里显式标注，不做静默归类。
 """
 
 from __future__ import annotations
@@ -76,9 +86,14 @@ DEFAULT_JOBS: tuple[str, ...] = (
     "matrix_validation__L1_main",
 )
 
-#: 唯一允许的字节差异：这是"源码哈希表"产物，绑定的是**生产时的**源码快照。
-#: 重放绑定的是新指纹，所以它按设计不同；其余 32 个产物必须逐字节相同。
+#: 允许的字节差异之一：这是"源码哈希表"产物，绑定的是**生产时的**源码快照。
+#: 重放绑定的是新指纹，所以它按设计不同（C 34 个 key → D 40 个 key）。
 EXPECTED_DRIFT: frozenset[str] = frozenset({"lineage/source_hashes_after.json"})
+
+#: 允许的字节差异之二：**落库作业**的 parquet footer 里 pandas ``attrs["source_path"]``
+#: 记录本 run 的 ``observed.sqlite`` 绝对路径。重放写到另一个目录，因此该字段必然不同；
+#: 内容等价由 ``dataframe_sha256``（以及 footer 里其余全部元数据）证明。矩阵作业不落库时
+#: 该字段是常量 ``<cwd>/data/v3/in_memory_sql``，所以它们的 parquet 逐字节相同。
 
 #: 新绑定的 SQL 语义指纹（D.4 切换后）。C 阶段为 18fe1968…。
 NEW_SQL_SHA256_PREFIX = "4cbf830621ac7ed4"
@@ -88,8 +103,13 @@ C_SQL_SHA256_PREFIX = "18fe196809535533"
 CSV_COLUMNS: tuple[str, ...] = (
     "level", "job_id", "category", "artifact", "verdict", "note",
     "c_sha256", "replay_sha256", "bytes_equal", "c_bytes", "replay_bytes", "c_file_intact",
-    "c_dataframe_sha256", "replay_dataframe_sha256", "dataframe_equal",
+    "c_dataframe_sha256", "replay_dataframe_sha256", "dataframe_equal", "metadata_diff",
 )
+
+#: parquet footer 里唯一允许不同的字段：pandas ``attrs["source_path"]`` 记录**本 run 的**
+#: 观测库绝对路径。重放必然写到另一个目录，所以这个字段按设计不同；矩阵作业不落库时
+#: 它取常量 ``<cwd>/data/v3/in_memory_sql``，因此同一矩阵作业的 parquet 是逐字节相同的。
+PATH_ATTRIBUTE = "source_path"
 
 
 def _early_source_root() -> Path:
@@ -107,6 +127,7 @@ SOURCE_ROOT = _early_source_root()
 sys.path.insert(0, str(SOURCE_ROOT / "src"))
 
 import pandas as pd  # noqa: E402  (import order is intentional: source root first)
+import pyarrow.parquet as pq  # noqa: E402
 
 from causal_growth.data.v3_pipeline import build_observed_pipeline, pipeline_source_hashes  # noqa: E402
 from causal_growth.data.v3_preprocessing import FrozenPreprocessor  # noqa: E402
@@ -258,6 +279,33 @@ def _replay_one(plan_entry: dict[str, Any], attempt: Path, replay_root: Path, st
             "stream_prefix": stream_prefix, "rep_id": rep_id, "n": n, "population_kind": population_kind}
 
 
+def _parquet_metadata_difference(c_path: Path, r_path: Path) -> list[str]:
+    """Footer metadata keys that differ, ignoring only the recorded ``source_path``.
+
+    The pandas metadata of an observed frame embeds ``attrs`` (pandas 3 writes them into
+    the parquet footer through ``pyarrow``). ``attrs["source_path"]`` is the absolute path
+    of the run's own ``observed.sqlite``, so a replay into a different directory always
+    changes it. Everything else — column schema, dtypes, ``observed_dataset_hash``,
+    ``config_hash``, ``artifact_role`` — must match, and this function proves that rather
+    than assuming it.
+    """
+    left = dict(pq.read_metadata(c_path).metadata or {})
+    right = dict(pq.read_metadata(r_path).metadata or {})
+    differences: list[str] = []
+    for key in sorted(set(left) | set(right)):
+        a, b = left.get(key), right.get(key)
+        if a == b:
+            continue
+        if key == b"pandas":
+            a_object, b_object = json.loads(a.decode("utf-8")), json.loads(b.decode("utf-8"))
+            for attributes in (a_object.get("attributes", {}), b_object.get("attributes", {})):
+                attributes.pop(PATH_ATTRIBUTE, None)
+            if a_object == b_object:
+                continue
+        differences.append(key.decode("utf-8", "replace"))
+    return differences
+
+
 def _compare(plan_entry: dict[str, Any], replay: dict[str, Any]) -> list[dict[str, Any]]:
     """Compare every artifact the C manifest recorded against the replayed file."""
     c_manifest, c_directory = plan_entry["c_manifest"], plan_entry["c_directory"]
@@ -272,8 +320,8 @@ def _compare(plan_entry: dict[str, Any], replay: dict[str, Any]) -> list[dict[st
             "level": "artifact", "job_id": plan_entry["job_id"], "category": plan_entry["job"]["category"],
             "artifact": relative, "c_sha256": "", "replay_sha256": "", "bytes_equal": "",
             "c_dataframe_sha256": "", "replay_dataframe_sha256": "", "dataframe_equal": "",
-            "c_bytes": c_path.stat().st_size if c_path.is_file() else "", "replay_bytes": "",
-            "c_file_intact": "", "verdict": "", "note": "",
+            "metadata_diff": "", "c_bytes": c_path.stat().st_size if c_path.is_file() else "",
+            "replay_bytes": "", "c_file_intact": "", "verdict": "", "note": "",
         }
         if expected is None or actual is None:
             row.update(verdict="MISSING", note="产物只在一侧存在")
@@ -288,11 +336,17 @@ def _compare(plan_entry: dict[str, Any], replay: dict[str, Any]) -> list[dict[st
             row["c_dataframe_sha256"], row["replay_dataframe_sha256"] = recorded, actual["dataframe_sha256"]
             recomputed = dataframe_sha256(pd.read_parquet(r_path)) if r_path.is_file() else "missing"
             row["dataframe_equal"] = recomputed == recorded
+            metadata_diff = _parquet_metadata_difference(c_path, r_path) if c_path.is_file() and r_path.is_file() else ["missing"]
+            row["metadata_diff"] = ";".join(metadata_diff)
         if relative in EXPECTED_DRIFT:
             row["verdict"] = "expected_drift"
             row["note"] = "源码哈希表绑定生产时源码，重放必然绑定新指纹"
-        elif row["bytes_equal"] and row["dataframe_equal"] in ("", True):
+        elif row["bytes_equal"]:
             row["verdict"] = "identical"
+        elif (relative.endswith(".parquet") and row["dataframe_equal"] is True
+              and not row["metadata_diff"]):
+            row["verdict"] = "identical_content"
+            row["note"] = f"parquet footer 仅差 pandas attributes.{PATH_ATTRIBUTE}（本 run 观测库绝对路径）"
         else:
             row["verdict"] = "DIFFERS"
         rows.append(row)
@@ -352,6 +406,7 @@ def main() -> int:
         "jobs": [],
         "artifact_rows": 0,
         "identical": 0,
+        "identical_content": 0,
         "expected_drift": 0,
         "mismatched": 0,
         "formal_repetitions_completed": 0,
@@ -388,19 +443,22 @@ def main() -> int:
             artifact_rows = []
             print(f"[{entry['job_id']}] FAILED: {type(exc).__name__}: {exc}", flush=True)
         counts = {verdict: sum(row["verdict"] == verdict for row in artifact_rows)
-                  for verdict in ("identical", "expected_drift", "DIFFERS", "MISSING")}
+                  for verdict in ("identical", "identical_content", "expected_drift", "DIFFERS", "MISSING")}
         job_record.update({"artifacts": len(artifact_rows), **counts})
-        job_record["verdict"] = ("passed" if job_record["status"] == "passed"
+        job_record["c_files_intact"] = bool(artifact_rows) and all(row["c_file_intact"] is True for row in artifact_rows)
+        job_record["verdict"] = ("passed" if job_record["status"] == "passed" and job_record["c_files_intact"]
                                  and not counts["DIFFERS"] and not counts["MISSING"] else "failed")
         summary["jobs"].append(job_record)
         summary["artifact_rows"] += len(artifact_rows)
         summary["identical"] += counts["identical"]
+        summary["identical_content"] += counts["identical_content"]
         summary["expected_drift"] += counts["expected_drift"]
         summary["mismatched"] += counts["DIFFERS"] + counts["MISSING"]
         rows.extend(artifact_rows)
         print(f"[{entry['job_id']}] {job_record['verdict']} in {job_record.get('elapsed_seconds')}s "
-              f"identical={counts['identical']} expected_drift={counts['expected_drift']} "
-              f"differs={counts['DIFFERS']} missing={counts['MISSING']}", flush=True)
+              f"identical={counts['identical']} identical_content={counts['identical_content']} "
+              f"expected_drift={counts['expected_drift']} differs={counts['DIFFERS']} missing={counts['MISSING']}",
+              flush=True)
         _write_csv(rows, args.csv)
         _write_json(args.summary, summary)
 
@@ -411,7 +469,8 @@ def main() -> int:
     _write_csv(rows, args.csv)
     _write_json(args.summary, summary)
     print(f"verdict: {summary['verdict']} | identical={summary['identical']} "
-          f"expected_drift={summary['expected_drift']} mismatched={summary['mismatched']}", flush=True)
+          f"identical_content={summary['identical_content']} expected_drift={summary['expected_drift']} "
+          f"mismatched={summary['mismatched']}", flush=True)
     print(f"csv    : {args.csv}", flush=True)
     print(f"summary: {args.summary}", flush=True)
     return 0 if summary["verdict"] == "passed" else 1
