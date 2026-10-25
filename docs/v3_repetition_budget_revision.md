@@ -68,6 +68,9 @@
 
 ## 6. 生效方式
 
+> **放置位置说明**：放在 `configs/budget/` 而不是 `configs/` 根下，因为它匹配不上 `pipeline_source_hashes()` 的 `configs/v3*.yaml` 与 `configs/v3/*.yaml` 两个 glob。这是刻意的——它是**计划**，不是机制，不该进「产物绑定源码快照」的哈希集（否则改预算就等于改源码，要重走 A 评审）。G 阶段编排器仍在 manifest 里单独记录它的 hash。
+
+
 - 本文件是**覆盖声明**，不改 `configs/v3/scenarios.yaml`（冻结 hash 不变）。
 - G 阶段编排器读取本文件，按修订批数执行；每批产物写入自己的 manifest，标注 `planned_counts_source: revised_20261025`。
 - 若后续用户追加预算，只需改本文件的批数，无需重走 A 评审。
