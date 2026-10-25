@@ -50,18 +50,21 @@ def audit_window_ledger(users: pd.DataFrame, orders: pd.DataFrame, cfg: Config) 
         money = orders[money_columns].to_numpy()
         if not np.isfinite(money).all() or (money < 0).any() or (money != np.floor(money)).any():
             raise ValueError("posted components must be nonnegative integer cents")
-        elapsed_pay = orders["paid_day"] - orders["assignment_day"]
-        elapsed_refund = orders["refund_day"] - orders["assignment_day"]
-        if (elapsed_pay < 0).any():
+        if (orders["paid_day"] < orders["assignment_day"]).any():
             raise ValueError("payment predates assignment")
         refunded = orders["refunded"].astype(bool)
         if (orders.loc[refunded, "refund_day"] < orders.loc[refunded, "paid_day"]).any():
             raise ValueError("refund predates payment")
         if orders.loc[refunded, "refund_day"].isna().any():
             raise ValueError("refunded order lacks event time")
-        paid = elapsed_pay <= float(cfg.require("windows.profit_days"))
-        refund = refunded & (elapsed_refund <= float(cfg.require("windows.profit_days")))
-        purchase = elapsed_pay <= float(cfg.require("windows.convert_days"))
+        # Compare stored absolute event times with the declared closed endpoint.
+        # Subtracting a fractional assignment day can round an exact endpoint
+        # above the window length and incorrectly exclude a valid posting.
+        profit_end = orders["assignment_day"] + float(cfg.require("windows.profit_days"))
+        convert_end = orders["assignment_day"] + float(cfg.require("windows.convert_days"))
+        paid = orders["paid_day"] <= profit_end
+        refund = refunded & (orders["refund_day"] <= profit_end)
+        purchase = orders["paid_day"] <= convert_end
         posted = pd.DataFrame({"user_id": orders["user_id"].to_numpy()})
         for name in ("gross_order_amount_cent", "goods_cost_cent", "fulfill_cost_cent", "consumer_paid_cent"):
             posted[name] = np.where(paid, orders[name], 0).astype(np.int64)

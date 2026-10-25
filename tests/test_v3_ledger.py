@@ -62,6 +62,30 @@ def test_empty_orders_keep_all_assigned_users() -> None:
     assert out.net_profit_cent.sum() == 0
 
 
+@pytest.mark.parametrize(("days", "assignment_day"), [(7, 1.3), (30, 6.7928292744855945)])
+def test_fractional_assignment_closed_endpoints_and_one_ulp_outside(days: int, assignment_day: float) -> None:
+    users, orders = _case()
+    orders["assignment_day"] = assignment_day
+    endpoint = orders.assignment_day + days
+    orders["paid_day"] = endpoint
+    orders["refund_day"] = endpoint
+    cfg = load_v3_protocol().scenario("L1_main").with_overrides({
+        "windows.convert_days": days, "windows.profit_days": days,
+    })
+    assert ((orders.paid_day - orders.assignment_day) > days).any()
+    inside = audit_window_ledger(users, orders, cfg)
+    assert inside.paid_orders_30d.tolist() == [1, 2, 0]
+    assert inside.refunded_orders_30d.tolist() == [1, 2, 0]
+    assert inside.paid_purchase_7d.tolist() == [1, 1, 0]
+    orders["paid_day"] = np.nextafter(endpoint, np.inf)
+    orders["refund_day"] = orders.paid_day
+    outside = audit_window_ledger(users, orders, cfg)
+    assert outside.paid_orders_30d.sum() == 0
+    assert outside.refunded_orders_30d.sum() == 0
+    assert outside.paid_purchase_7d.sum() == 0
+    assert outside.net_profit_cent.sum() == 0
+
+
 @pytest.mark.parametrize("issue", ["duplicate", "unknown_user", "negative", "fractional", "missing_refund_time"])
 def test_invalid_ledger_fails_loudly(issue: str) -> None:
     users, orders = _case()

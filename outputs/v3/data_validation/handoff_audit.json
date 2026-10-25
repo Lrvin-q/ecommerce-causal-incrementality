@@ -1,0 +1,17 @@
+{
+  "source_label": "合成数据 / 已知 DGP；交接前锚点核验",
+  "status": "passed",
+  "checked_at_beijing": "2026-10-25 10:12",
+  "approval_sha256": "533d31cf72b89e6e974a7e9ff31ab5306bd842450ebffc66c54a2c189cfcbe97",
+  "checked_artifacts": 3015,
+  "maintained_file_sha256": {
+    "README.md": "f79b9eccdee4dfd2ec02250ccd97a938f5c941cd7e9f90333b12ce3fa9151c07",
+    "TODO.md": "7377a43bba9e3c4d233c5ef3360298581438b9914b1bae0a3bad8712f07c3058",
+    "GOAL.md": "d560e6f12f23e4378d190f47296cb89a7c34c900edc06b6b21186a148e73ac77",
+    "AGENT_HANDOFF.md": "d95676c412873278549921ee9845d561bdd62a2b08b533da5804a8d4941eba46"
+  },
+  "time_rule_sha256": "a32d62fd979601020741c59c6c0fb1e4af46c9997a2a684f082247e5903ea3de",
+  "formal_repetitions_completed": 0,
+  "next_phase": "D_not_started",
+  "user_requested_handoff_after_C": true
+}

@@ -1,0 +1,1071 @@
+{
+  "source_label": "合成数据 / 已知 DGP；C闭端点修复后的B独立复核",
+  "validation_manifest": "outputs/v3/validation/phase_b_20261024T185928994689Z_pid26204/manifest.json",
+  "validation_manifest_sha256": "4bdcc3ef8b0bebbe2ed272bf0170f000eb3f7e7969be0ae2241acc50671cf40b",
+  "checks": 750,
+  "failed": 0,
+  "verified_sources": 23,
+  "source_before_after_current_match": true,
+  "table_comparison": [
+    {
+      "file": "b01_conditional_mc.csv",
+      "rows": 135,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b01_fulfillment.csv",
+      "rows": 3,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b01_noise_conditional_targets.csv",
+      "rows": 27,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b01_rounding.csv",
+      "rows": 32,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_control_actual_cost_mc.csv",
+      "rows": 8,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_control_domains_L0_Pi_equal_cost.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_control_domains_L0_Pi_heterogeneous_cost.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_control_failure_reasons.csv",
+      "rows": 4,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_control_summary.csv",
+      "rows": 136,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_control_users_L0_Pi_equal_cost.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [
+        "elapsed_seconds"
+      ],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_control_users_L0_Pi_heterogeneous_cost.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [
+        "elapsed_seconds"
+      ],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_l2_cohorts.csv",
+      "rows": 190,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_l3_fixed_truth.csv",
+      "rows": 7,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_negative_controls.csv",
+      "rows": 3,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_representative_X.csv",
+      "rows": 3,
+      "excluded_timing_columns": [
+        "assignment_elapsed_days"
+      ],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_truth_precision_L0_Pi_equal_cost.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_truth_precision_L0_Pi_heterogeneous_cost.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_truth_precision_L3_fixed_lt000.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": false,
+      "machine_precision_differences": [
+        {
+          "column": "cate_profit",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.440892098500626e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_0",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 9.185570347602772e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_1",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 7.343363557113568e-16
+        },
+        {
+          "column": "cate_amount_time_error_estimate_cny",
+          "rows_zero_based": [
+            4380
+          ],
+          "maximum_absolute_difference": 2.524354896707238e-29
+        },
+        {
+          "column": "cate_time_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 6.941975965944904e-29
+        },
+        {
+          "column": "cate_fulfillment_tail_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.3140830754274083e-32
+        },
+        {
+          "column": "cate_fulfillment_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.944304526105059e-31
+        },
+        {
+          "column": "cate_discrete_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 5.048709793414476e-29
+        },
+        {
+          "column": "cate_assembly_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.1554436208840472e-30
+        },
+        {
+          "column": "cate_u_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.842206790502836e-16
+        },
+        {
+          "column": "cate_numerical_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.8422067905033408e-16
+        },
+        {
+          "column": "u_probability_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 2.7755575615628914e-17
+        },
+        {
+          "column": "mu0_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.1971871034848614e-16
+        },
+        {
+          "column": "mu1_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.0067100733767484e-16
+        },
+        {
+          "column": "cate_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.2433676154705154e-16
+        }
+      ]
+    },
+    {
+      "file": "b02_truth_precision_L3_fixed_lt025.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": false,
+      "machine_precision_differences": [
+        {
+          "column": "cate_profit",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.440892098500626e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_0",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 9.185570347602772e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_1",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 7.343363557113568e-16
+        },
+        {
+          "column": "cate_amount_time_error_estimate_cny",
+          "rows_zero_based": [
+            4380
+          ],
+          "maximum_absolute_difference": 2.524354896707238e-29
+        },
+        {
+          "column": "cate_time_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 6.941975965944904e-29
+        },
+        {
+          "column": "cate_fulfillment_tail_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.3140830754274083e-32
+        },
+        {
+          "column": "cate_fulfillment_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.944304526105059e-31
+        },
+        {
+          "column": "cate_discrete_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 5.048709793414476e-29
+        },
+        {
+          "column": "cate_assembly_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.1554436208840472e-30
+        },
+        {
+          "column": "cate_u_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.842206790502836e-16
+        },
+        {
+          "column": "cate_numerical_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.8422067905033408e-16
+        },
+        {
+          "column": "u_probability_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 2.7755575615628914e-17
+        },
+        {
+          "column": "mu0_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.1971871034848614e-16
+        },
+        {
+          "column": "mu1_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.0067100733767484e-16
+        },
+        {
+          "column": "cate_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.2433676154705154e-16
+        }
+      ]
+    },
+    {
+      "file": "b02_truth_precision_L3_fixed_lt050.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": false,
+      "machine_precision_differences": [
+        {
+          "column": "cate_profit",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.440892098500626e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_0",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 9.185570347602772e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_1",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 7.343363557113568e-16
+        },
+        {
+          "column": "cate_amount_time_error_estimate_cny",
+          "rows_zero_based": [
+            4380
+          ],
+          "maximum_absolute_difference": 2.524354896707238e-29
+        },
+        {
+          "column": "cate_time_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 6.941975965944904e-29
+        },
+        {
+          "column": "cate_fulfillment_tail_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.3140830754274083e-32
+        },
+        {
+          "column": "cate_fulfillment_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.944304526105059e-31
+        },
+        {
+          "column": "cate_discrete_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 5.048709793414476e-29
+        },
+        {
+          "column": "cate_assembly_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.1554436208840472e-30
+        },
+        {
+          "column": "cate_u_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.842206790502836e-16
+        },
+        {
+          "column": "cate_numerical_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.8422067905033408e-16
+        },
+        {
+          "column": "u_probability_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 2.7755575615628914e-17
+        },
+        {
+          "column": "mu0_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.1971871034848614e-16
+        },
+        {
+          "column": "mu1_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.0067100733767484e-16
+        },
+        {
+          "column": "cate_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.2433676154705154e-16
+        }
+      ]
+    },
+    {
+      "file": "b02_truth_precision_L3_fixed_lt075.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": false,
+      "machine_precision_differences": [
+        {
+          "column": "cate_profit",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.440892098500626e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_0",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 9.185570347602772e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_1",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 7.343363557113568e-16
+        },
+        {
+          "column": "cate_amount_time_error_estimate_cny",
+          "rows_zero_based": [
+            4380
+          ],
+          "maximum_absolute_difference": 2.524354896707238e-29
+        },
+        {
+          "column": "cate_time_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 6.941975965944904e-29
+        },
+        {
+          "column": "cate_fulfillment_tail_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.3140830754274083e-32
+        },
+        {
+          "column": "cate_fulfillment_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.944304526105059e-31
+        },
+        {
+          "column": "cate_discrete_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 5.048709793414476e-29
+        },
+        {
+          "column": "cate_assembly_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.1554436208840472e-30
+        },
+        {
+          "column": "cate_u_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.842206790502836e-16
+        },
+        {
+          "column": "cate_numerical_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.8422067905033408e-16
+        },
+        {
+          "column": "u_probability_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 2.7755575615628914e-17
+        },
+        {
+          "column": "mu0_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.1971871034848614e-16
+        },
+        {
+          "column": "mu1_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.0067100733767484e-16
+        },
+        {
+          "column": "cate_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.2433676154705154e-16
+        }
+      ]
+    },
+    {
+      "file": "b02_truth_precision_L3_fixed_lt100.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": false,
+      "machine_precision_differences": [
+        {
+          "column": "cate_profit",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.440892098500626e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_0",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 9.185570347602772e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_1",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 7.343363557113568e-16
+        },
+        {
+          "column": "cate_amount_time_error_estimate_cny",
+          "rows_zero_based": [
+            4380
+          ],
+          "maximum_absolute_difference": 2.524354896707238e-29
+        },
+        {
+          "column": "cate_time_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 6.941975965944904e-29
+        },
+        {
+          "column": "cate_fulfillment_tail_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.3140830754274083e-32
+        },
+        {
+          "column": "cate_fulfillment_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.944304526105059e-31
+        },
+        {
+          "column": "cate_discrete_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 5.048709793414476e-29
+        },
+        {
+          "column": "cate_assembly_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.1554436208840472e-30
+        },
+        {
+          "column": "cate_u_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.842206790502836e-16
+        },
+        {
+          "column": "cate_numerical_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.8422067905033408e-16
+        },
+        {
+          "column": "u_probability_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 2.7755575615628914e-17
+        },
+        {
+          "column": "mu0_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.1971871034848614e-16
+        },
+        {
+          "column": "mu1_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.0067100733767484e-16
+        },
+        {
+          "column": "cate_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.2433676154705154e-16
+        }
+      ]
+    },
+    {
+      "file": "b02_truth_precision_L3_fixed_lt125.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": false,
+      "machine_precision_differences": [
+        {
+          "column": "cate_profit",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.440892098500626e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_0",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 9.185570347602772e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_1",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 7.343363557113568e-16
+        },
+        {
+          "column": "cate_amount_time_error_estimate_cny",
+          "rows_zero_based": [
+            4380
+          ],
+          "maximum_absolute_difference": 2.524354896707238e-29
+        },
+        {
+          "column": "cate_time_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 6.941975965944904e-29
+        },
+        {
+          "column": "cate_fulfillment_tail_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.3140830754274083e-32
+        },
+        {
+          "column": "cate_fulfillment_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.944304526105059e-31
+        },
+        {
+          "column": "cate_discrete_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 5.048709793414476e-29
+        },
+        {
+          "column": "cate_assembly_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.1554436208840472e-30
+        },
+        {
+          "column": "cate_u_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.842206790502836e-16
+        },
+        {
+          "column": "cate_numerical_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.8422067905033408e-16
+        },
+        {
+          "column": "u_probability_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 2.7755575615628914e-17
+        },
+        {
+          "column": "mu0_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.1971871034848614e-16
+        },
+        {
+          "column": "mu1_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.0067100733767484e-16
+        },
+        {
+          "column": "cate_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.2433676154705154e-16
+        }
+      ]
+    },
+    {
+      "file": "b02_truth_precision_L3_fixed_lt150.csv",
+      "rows": 5000,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": false,
+      "machine_precision_differences": [
+        {
+          "column": "cate_profit",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.440892098500626e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_0",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 9.185570347602772e-16
+        },
+        {
+          "column": "net_profit_error_estimate_cny_1",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 7.343363557113568e-16
+        },
+        {
+          "column": "cate_amount_time_error_estimate_cny",
+          "rows_zero_based": [
+            4380
+          ],
+          "maximum_absolute_difference": 2.524354896707238e-29
+        },
+        {
+          "column": "cate_time_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 6.941975965944904e-29
+        },
+        {
+          "column": "cate_fulfillment_tail_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 4.3140830754274083e-32
+        },
+        {
+          "column": "cate_fulfillment_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.944304526105059e-31
+        },
+        {
+          "column": "cate_discrete_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 5.048709793414476e-29
+        },
+        {
+          "column": "cate_assembly_roundoff_bound_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.1554436208840472e-30
+        },
+        {
+          "column": "cate_u_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.842206790502836e-16
+        },
+        {
+          "column": "cate_numerical_error_estimate_cny",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.8422067905033408e-16
+        },
+        {
+          "column": "u_probability_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 2.7755575615628914e-17
+        },
+        {
+          "column": "mu0_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.1971871034848614e-16
+        },
+        {
+          "column": "mu1_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 1.0067100733767484e-16
+        },
+        {
+          "column": "cate_relative_error_estimate",
+          "rows_zero_based": [
+            4323,
+            4380
+          ],
+          "maximum_absolute_difference": 3.2433676154705154e-16
+        }
+      ]
+    },
+    {
+      "file": "b02_u_distribution.csv",
+      "rows": 3,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "b02_u_integrals.csv",
+      "rows": 60,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    },
+    {
+      "file": "checks.csv",
+      "rows": 750,
+      "excluded_timing_columns": [],
+      "exactly_equal_excluding_timing": true,
+      "machine_precision_differences": []
+    }
+  ],
+  "same_numerical_tables_as_previous_approved_attempt": false,
+  "comparison_interpretation": "20 tables exactly equal excluding elapsed; seven L3 precision tables differ at machine precision for two users. CATE deltas are covered by recorded numerical error estimates; origin of last-bit variation not established, not attributed to ledger change.",
+  "elapsed_seconds": 232.288452,
+  "formal_repetitions_completed": 0,
+  "regression": {
+    "passed": 789,
+    "warnings": 1,
+    "elapsed_seconds": 183.87,
+    "warning_scope": "existing 1e-14 timing convergence roundoff; not production precision certification",
+    "log": "out/v3_phase_c/pytest_full.log",
+    "log_sha256": "aae1554305e3c01b0e1f07151977bb36fd6d60e43a8caee466ef3de2b60c2f98"
+  },
+  "legacy_gates": {
+    "source_label": "合成数据 / 已知 DGP；v2历史回归，不代表v3长稿",
+    "paper_pages": 15,
+    "tex_warnings": [],
+    "pdf_text_forbidden": {
+      "windows_paths": 0,
+      "scripts": 0,
+      "versions": 0,
+      "em_dash": 5
+    },
+    "original_pdf_preserved": true,
+    "text_extraction": "MiKTeX cache denied; existing TeX Live pdftotext succeeded"
+  }
+}

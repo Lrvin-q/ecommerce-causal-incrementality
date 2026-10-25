@@ -1,0 +1,159 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "cli_sha256": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6",
+  "runs": [
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "scenario_id": "L0_P_main",
+      "command": [
+        "D:\\L\\practice_project\\营销数分项目\\.venv\\Scripts\\python.exe",
+        "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\scripts\\11_build_v3_data.py",
+        "--scenario",
+        "L0_P_main",
+        "--rep",
+        "0",
+        "--n",
+        "200"
+      ],
+      "cli_hashes_before": {
+        "original": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6",
+        "copied": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6"
+      },
+      "cli_hashes_after": {
+        "original": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6",
+        "copied": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6"
+      },
+      "returncode": 0,
+      "stdout_path": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\logs\\L0_P_main\\stdout.log",
+      "stderr_path": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\logs\\L0_P_main\\stderr.log",
+      "formal_repetitions_completed": 0,
+      "observed_manifest": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\data\\v3\\engineering_checks\\L0_P_main\\rep_0\\20261025T014238739312Z\\manifest.json",
+      "sealed_manifest": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\audit\\v3\\engineering_checks\\L0_P_main\\rep_0\\20261025T014238739312Z\\manifest.json",
+      "canonical_stream_prefix": "v3.L0_controls.history",
+      "pipeline_stream_prefix": "v3.L0_controls.history",
+      "generator_stream_prefix": "v3.L0_controls.history",
+      "n_actual": 200,
+      "cart_missing_selected": 8,
+      "hist_fraud_selected": 0,
+      "hist_fraud_changed": 0,
+      "split_stream": "v3.L0_controls.history.split",
+      "preprocessor_training_n": 100,
+      "canonical_mask_values_arrivals_split_preprocessor_verified": true
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "scenario_id": "L0_Pi_equal_cost",
+      "command": [
+        "D:\\L\\practice_project\\营销数分项目\\.venv\\Scripts\\python.exe",
+        "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\scripts\\11_build_v3_data.py",
+        "--scenario",
+        "L0_Pi_equal_cost",
+        "--rep",
+        "0",
+        "--n",
+        "200"
+      ],
+      "cli_hashes_before": {
+        "original": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6",
+        "copied": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6"
+      },
+      "cli_hashes_after": {
+        "original": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6",
+        "copied": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6"
+      },
+      "returncode": 0,
+      "stdout_path": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\logs\\L0_Pi_equal_cost\\stdout.log",
+      "stderr_path": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\logs\\L0_Pi_equal_cost\\stderr.log",
+      "formal_repetitions_completed": 0,
+      "observed_manifest": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\data\\v3\\engineering_checks\\L0_Pi_equal_cost\\rep_0\\20261025T014246270175Z\\manifest.json",
+      "sealed_manifest": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\audit\\v3\\engineering_checks\\L0_Pi_equal_cost\\rep_0\\20261025T014246270175Z\\manifest.json",
+      "canonical_stream_prefix": "v3.L0_controls.history",
+      "pipeline_stream_prefix": "v3.L0_controls.history",
+      "generator_stream_prefix": "v3.L0_controls.history",
+      "n_actual": 200,
+      "cart_missing_selected": 8,
+      "hist_fraud_selected": 0,
+      "hist_fraud_changed": 0,
+      "split_stream": "v3.L0_controls.history.split",
+      "preprocessor_training_n": 100,
+      "canonical_mask_values_arrivals_split_preprocessor_verified": true
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "scenario_id": "L3_fixed_lt000",
+      "command": [
+        "D:\\L\\practice_project\\营销数分项目\\.venv\\Scripts\\python.exe",
+        "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\scripts\\11_build_v3_data.py",
+        "--scenario",
+        "L3_fixed_lt000",
+        "--rep",
+        "0",
+        "--n",
+        "200"
+      ],
+      "cli_hashes_before": {
+        "original": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6",
+        "copied": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6"
+      },
+      "cli_hashes_after": {
+        "original": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6",
+        "copied": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6"
+      },
+      "returncode": 0,
+      "stdout_path": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\logs\\L3_fixed_lt000\\stdout.log",
+      "stderr_path": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\logs\\L3_fixed_lt000\\stderr.log",
+      "formal_repetitions_completed": 0,
+      "observed_manifest": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\data\\v3\\engineering_checks\\L3_fixed_lt000\\rep_0\\20261025T014257034743Z\\manifest.json",
+      "sealed_manifest": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\audit\\v3\\engineering_checks\\L3_fixed_lt000\\rep_0\\20261025T014257034743Z\\manifest.json",
+      "canonical_stream_prefix": "v3.L3_fixed_truth.history",
+      "pipeline_stream_prefix": "v3.L3_fixed_truth.history",
+      "generator_stream_prefix": "v3.L3_fixed_truth.history",
+      "n_actual": 200,
+      "cart_missing_selected": 0,
+      "hist_fraud_selected": 0,
+      "hist_fraud_changed": 0,
+      "split_stream": "v3.L3_fixed_truth.history.split",
+      "preprocessor_training_n": 100,
+      "canonical_mask_values_arrivals_split_preprocessor_verified": true
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "scenario_id": "L3_fixed_lt050",
+      "command": [
+        "D:\\L\\practice_project\\营销数分项目\\.venv\\Scripts\\python.exe",
+        "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\scripts\\11_build_v3_data.py",
+        "--scenario",
+        "L3_fixed_lt050",
+        "--rep",
+        "0",
+        "--n",
+        "200"
+      ],
+      "cli_hashes_before": {
+        "original": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6",
+        "copied": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6"
+      },
+      "cli_hashes_after": {
+        "original": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6",
+        "copied": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6"
+      },
+      "returncode": 0,
+      "stdout_path": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\logs\\L3_fixed_lt050\\stdout.log",
+      "stderr_path": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\logs\\L3_fixed_lt050\\stderr.log",
+      "formal_repetitions_completed": 0,
+      "observed_manifest": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\data\\v3\\engineering_checks\\L3_fixed_lt050\\rep_0\\20261025T014306144342Z\\manifest.json",
+      "sealed_manifest": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\audit\\v3\\engineering_checks\\L3_fixed_lt050\\rep_0\\20261025T014306144342Z\\manifest.json",
+      "canonical_stream_prefix": "v3.L3_fixed_truth.history",
+      "pipeline_stream_prefix": "v3.L3_fixed_truth.history",
+      "generator_stream_prefix": "v3.L3_fixed_truth.history",
+      "n_actual": 200,
+      "cart_missing_selected": 0,
+      "hist_fraud_selected": 0,
+      "hist_fraud_changed": 0,
+      "split_stream": "v3.L3_fixed_truth.history.split",
+      "preprocessor_training_n": 100,
+      "canonical_mask_values_arrivals_split_preprocessor_verified": true
+    }
+  ],
+  "formal_repetitions_completed": 0
+}

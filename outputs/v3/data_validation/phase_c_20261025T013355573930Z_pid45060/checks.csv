@@ -1,0 +1,689 @@
+﻿job_id,scenario_id,check,passed,formal_repetitions_completed,details
+smoke__L0_P_main,L0_P_main,sealed_private_state_hashes,True,0,{}
+smoke__L0_P_main,L0_P_main,all_artifacts_byte_hashes,True,0,{}
+smoke__L0_P_main,L0_P_main,all_assigned_users_retained,True,0,"{""n_expected"": 200, ""n_observed"": 200}"
+smoke__L0_P_main,L0_P_main,registered_and_actual_sizes_recorded,True,0,"{""n_actual"": 200, ""n_registered"": 200000}"
+smoke__L0_P_main,L0_P_main,unique_user_keys,True,0,{}
+smoke__L0_P_main,L0_P_main,learning_input_is_sql,True,0,{}
+smoke__L0_P_main,L0_P_main,verified_sql_restore_matches,True,0,{}
+smoke__L0_P_main,L0_P_main,sql_quality_all_zero,True,0,{}
+smoke__L0_P_main,L0_P_main,two_prespecified_windows_per_user,True,0,{}
+smoke__L0_P_main,L0_P_main,convert_7d:window_days,True,0,{}
+smoke__L0_P_main,L0_P_main,convert_7d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,convert_7d:converted:independent_B_ledger,True,0,{}
+smoke__L0_P_main,L0_P_main,convert_7d:refunded:independent_B_ledger,True,0,{}
+smoke__L0_P_main,L0_P_main,convert_7d:paid_orders:independent_B_ledger,True,0,{}
+smoke__L0_P_main,L0_P_main,convert_7d:refunded_orders:independent_B_ledger,True,0,{}
+smoke__L0_P_main,L0_P_main,convert_7d:mature,True,0,{}
+smoke__L0_P_main,L0_P_main,profit_30d:window_days,True,0,{}
+smoke__L0_P_main,L0_P_main,profit_30d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L0_P_main,L0_P_main,profit_30d:converted:independent_B_ledger,True,0,{}
+smoke__L0_P_main,L0_P_main,profit_30d:refunded:independent_B_ledger,True,0,{}
+smoke__L0_P_main,L0_P_main,profit_30d:paid_orders:independent_B_ledger,True,0,{}
+smoke__L0_P_main,L0_P_main,profit_30d:refunded_orders:independent_B_ledger,True,0,{}
+smoke__L0_P_main,L0_P_main,profit_30d:mature,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:gross_order_amount_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:gross_refund_reversal_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:goods_cost_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:goods_cost_recovered_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:fulfill_cost_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:coupon_cost_initial_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:coupon_return_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:coupon_cost_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:refund_processing_fee_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:consumer_paid_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:consumer_refund_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:net_profit_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,analysis:net_transaction_amount_cent:profit_window,True,0,{}
+smoke__L0_P_main,L0_P_main,group_denominators_sum_to_all_users,True,0,"{""grouped_n"": 200}"
+smoke__L0_P_main,L0_P_main,missing_injection_count,True,0,{}
+smoke__L0_P_main,L0_P_main,pollution_master_seed_matches_config,True,0,{}
+smoke__L0_P_main,L0_P_main,anomaly_user_order_preserved,True,0,{}
+smoke__L0_P_main,L0_P_main,anomaly_injection_count,True,0,"{""changed_count"": 0, ""expected_changed_count"": 0, ""recorded_selected_count"": 0, ""selected_count"": 0}"
+smoke__L0_P_main,L0_P_main,anomaly_values_match_replay,True,0,"{""changed_count"": 0, ""expected_changed_count"": 0, ""recorded_selected_count"": 0, ""selected_count"": 0}"
+smoke__L0_P_main,L0_P_main,cleaning_retains_missing_and_users,True,0,{}
+smoke__L0_P_main,L0_P_main,truncated_events_count_recorded,True,0,{}
+smoke__L0_P_main,L0_P_main,assignment_delay_count,True,0,{}
+smoke__L0_P_main,L0_P_main,dirty:factual_money_and_refunds_unchanged,True,0,{}
+smoke__L0_P_main,L0_P_main,payment_delay_count,True,0,{}
+smoke__L0_P_main,L0_P_main,refund_delay_count,True,0,{}
+smoke__L0_P_main,L0_P_main,clean:factual_money_and_refunds_unchanged,True,0,{}
+smoke__L0_P_main,L0_P_main,raw_events_unpolluted,True,0,{}
+smoke__L0_P_main,L0_P_main,clean_event_keys_unique,True,0,{}
+smoke__L0_P_main,L0_P_main,event_delay_count,True,0,{}
+smoke__L0_P_main,L0_P_main,duplicate_injection_and_repair_exact,True,0,{}
+smoke__L0_P_main,L0_P_main,event_stage_counts_recorded,True,0,{}
+smoke__L0_P_main,L0_P_main,all_users_have_one_split,True,0,{}
+smoke__L0_P_main,L0_P_main,preprocessor_present,True,0,{}
+smoke__L0_P_main,L0_P_main,preprocessor_fitted_on_train_keys_only,True,0,{}
+smoke__L0_P_main,L0_P_main,all_three_splits_nonempty,True,0,{}
+smoke__L0_P_main,L0_P_main,learning_features_from_frozen_sql_transform,True,0,{}
+smoke__L0_P_main,L0_P_main,no_formal_repetitions_claimed,True,0,{}
+smoke__L0_P_main,L0_P_main,source_hashes_unchanged_during_job,True,0,{}
+smoke__L1_main,L1_main,sealed_private_state_hashes,True,0,{}
+smoke__L1_main,L1_main,all_artifacts_byte_hashes,True,0,{}
+smoke__L1_main,L1_main,all_assigned_users_retained,True,0,"{""n_expected"": 200, ""n_observed"": 200}"
+smoke__L1_main,L1_main,registered_and_actual_sizes_recorded,True,0,"{""n_actual"": 200, ""n_registered"": 200000}"
+smoke__L1_main,L1_main,unique_user_keys,True,0,{}
+smoke__L1_main,L1_main,learning_input_is_sql,True,0,{}
+smoke__L1_main,L1_main,verified_sql_restore_matches,True,0,{}
+smoke__L1_main,L1_main,sql_quality_all_zero,True,0,{}
+smoke__L1_main,L1_main,two_prespecified_windows_per_user,True,0,{}
+smoke__L1_main,L1_main,convert_7d:window_days,True,0,{}
+smoke__L1_main,L1_main,convert_7d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,convert_7d:converted:independent_B_ledger,True,0,{}
+smoke__L1_main,L1_main,convert_7d:refunded:independent_B_ledger,True,0,{}
+smoke__L1_main,L1_main,convert_7d:paid_orders:independent_B_ledger,True,0,{}
+smoke__L1_main,L1_main,convert_7d:refunded_orders:independent_B_ledger,True,0,{}
+smoke__L1_main,L1_main,convert_7d:mature,True,0,{}
+smoke__L1_main,L1_main,profit_30d:window_days,True,0,{}
+smoke__L1_main,L1_main,profit_30d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L1_main,L1_main,profit_30d:converted:independent_B_ledger,True,0,{}
+smoke__L1_main,L1_main,profit_30d:refunded:independent_B_ledger,True,0,{}
+smoke__L1_main,L1_main,profit_30d:paid_orders:independent_B_ledger,True,0,{}
+smoke__L1_main,L1_main,profit_30d:refunded_orders:independent_B_ledger,True,0,{}
+smoke__L1_main,L1_main,profit_30d:mature,True,0,{}
+smoke__L1_main,L1_main,analysis:gross_order_amount_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,analysis:gross_refund_reversal_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,analysis:goods_cost_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,analysis:goods_cost_recovered_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,analysis:fulfill_cost_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,analysis:coupon_cost_initial_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,analysis:coupon_return_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,analysis:coupon_cost_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,analysis:refund_processing_fee_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,analysis:consumer_paid_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,analysis:consumer_refund_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,analysis:net_profit_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,analysis:net_transaction_amount_cent:profit_window,True,0,{}
+smoke__L1_main,L1_main,group_denominators_sum_to_all_users,True,0,"{""grouped_n"": 200}"
+smoke__L1_main,L1_main,missing_injection_count,True,0,{}
+smoke__L1_main,L1_main,pollution_master_seed_matches_config,True,0,{}
+smoke__L1_main,L1_main,anomaly_user_order_preserved,True,0,{}
+smoke__L1_main,L1_main,anomaly_injection_count,True,0,"{""changed_count"": 1, ""expected_changed_count"": 1, ""recorded_selected_count"": 1, ""selected_count"": 1}"
+smoke__L1_main,L1_main,anomaly_values_match_replay,True,0,"{""changed_count"": 1, ""expected_changed_count"": 1, ""recorded_selected_count"": 1, ""selected_count"": 1}"
+smoke__L1_main,L1_main,cleaning_retains_missing_and_users,True,0,{}
+smoke__L1_main,L1_main,truncated_events_count_recorded,True,0,{}
+smoke__L1_main,L1_main,assignment_delay_count,True,0,{}
+smoke__L1_main,L1_main,dirty:factual_money_and_refunds_unchanged,True,0,{}
+smoke__L1_main,L1_main,payment_delay_count,True,0,{}
+smoke__L1_main,L1_main,refund_delay_count,True,0,{}
+smoke__L1_main,L1_main,clean:factual_money_and_refunds_unchanged,True,0,{}
+smoke__L1_main,L1_main,raw_events_unpolluted,True,0,{}
+smoke__L1_main,L1_main,clean_event_keys_unique,True,0,{}
+smoke__L1_main,L1_main,event_delay_count,True,0,{}
+smoke__L1_main,L1_main,duplicate_injection_and_repair_exact,True,0,{}
+smoke__L1_main,L1_main,event_stage_counts_recorded,True,0,{}
+smoke__L1_main,L1_main,all_users_have_one_split,True,0,{}
+smoke__L1_main,L1_main,preprocessor_present,True,0,{}
+smoke__L1_main,L1_main,preprocessor_fitted_on_train_keys_only,True,0,{}
+smoke__L1_main,L1_main,all_three_splits_nonempty,True,0,{}
+smoke__L1_main,L1_main,learning_features_from_frozen_sql_transform,True,0,{}
+smoke__L1_main,L1_main,no_formal_repetitions_claimed,True,0,{}
+smoke__L1_main,L1_main,source_hashes_unchanged_during_job,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,sealed_private_state_hashes,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,all_artifacts_byte_hashes,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,all_assigned_users_retained,True,0,"{""n_expected"": 200, ""n_observed"": 200}"
+smoke__L2_n200000_p050,L2_n200000_p050,registered_and_actual_sizes_recorded,True,0,"{""n_actual"": 200, ""n_registered"": 200000}"
+smoke__L2_n200000_p050,L2_n200000_p050,unique_user_keys,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,learning_input_is_sql,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,verified_sql_restore_matches,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,sql_quality_all_zero,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,two_prespecified_windows_per_user,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:window_days,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:converted:independent_B_ledger,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:refunded:independent_B_ledger,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:paid_orders:independent_B_ledger,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:refunded_orders:independent_B_ledger,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,convert_7d:mature,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:window_days,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:converted:independent_B_ledger,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:refunded:independent_B_ledger,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:paid_orders:independent_B_ledger,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:refunded_orders:independent_B_ledger,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,profit_30d:mature,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:gross_order_amount_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:gross_refund_reversal_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:goods_cost_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:goods_cost_recovered_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:fulfill_cost_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:coupon_cost_initial_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:coupon_return_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:coupon_cost_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:refund_processing_fee_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:consumer_paid_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:consumer_refund_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:net_profit_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,analysis:net_transaction_amount_cent:profit_window,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,group_denominators_sum_to_all_users,True,0,"{""grouped_n"": 200}"
+smoke__L2_n200000_p050,L2_n200000_p050,missing_injection_count,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,pollution_master_seed_matches_config,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,anomaly_user_order_preserved,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,anomaly_injection_count,True,0,"{""changed_count"": 0, ""expected_changed_count"": 0, ""recorded_selected_count"": 0, ""selected_count"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,anomaly_values_match_replay,True,0,"{""changed_count"": 0, ""expected_changed_count"": 0, ""recorded_selected_count"": 0, ""selected_count"": 0}"
+smoke__L2_n200000_p050,L2_n200000_p050,cleaning_retains_missing_and_users,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,truncated_events_count_recorded,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,assignment_delay_count,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,dirty:factual_money_and_refunds_unchanged,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,payment_delay_count,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,refund_delay_count,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,clean:factual_money_and_refunds_unchanged,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,raw_events_unpolluted,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,clean_event_keys_unique,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,event_delay_count,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,duplicate_injection_and_repair_exact,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,event_stage_counts_recorded,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,all_users_have_one_split,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,preprocessor_present,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,preprocessor_fitted_on_train_keys_only,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,all_three_splits_nonempty,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,learning_features_from_frozen_sql_transform,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,no_formal_repetitions_claimed,True,0,{}
+smoke__L2_n200000_p050,L2_n200000_p050,source_hashes_unchanged_during_job,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,sealed_private_state_hashes,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,all_artifacts_byte_hashes,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,all_assigned_users_retained,True,0,"{""n_expected"": 200, ""n_observed"": 200}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,registered_and_actual_sizes_recorded,True,0,"{""n_actual"": 200, ""n_registered"": 200000}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,unique_user_keys,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,learning_input_is_sql,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,verified_sql_restore_matches,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,sql_quality_all_zero,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,two_prespecified_windows_per_user,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:window_days,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:converted:independent_B_ledger,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:refunded:independent_B_ledger,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:paid_orders:independent_B_ledger,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:refunded_orders:independent_B_ledger,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,convert_7d:mature,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:window_days,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:converted:independent_B_ledger,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:refunded:independent_B_ledger,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:paid_orders:independent_B_ledger,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:refunded_orders:independent_B_ledger,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,profit_30d:mature,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:gross_order_amount_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:gross_refund_reversal_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:goods_cost_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:goods_cost_recovered_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:fulfill_cost_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:coupon_cost_initial_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:coupon_return_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:coupon_cost_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:refund_processing_fee_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:consumer_paid_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:consumer_refund_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:net_profit_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,analysis:net_transaction_amount_cent:profit_window,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,group_denominators_sum_to_all_users,True,0,"{""grouped_n"": 200}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,missing_injection_count,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,pollution_master_seed_matches_config,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,anomaly_user_order_preserved,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,anomaly_injection_count,True,0,"{""changed_count"": 0, ""expected_changed_count"": 0, ""recorded_selected_count"": 0, ""selected_count"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,anomaly_values_match_replay,True,0,"{""changed_count"": 0, ""expected_changed_count"": 0, ""recorded_selected_count"": 0, ""selected_count"": 0}"
+smoke__L3_fixed_lt000,L3_fixed_lt000,cleaning_retains_missing_and_users,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,truncated_events_count_recorded,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,assignment_delay_count,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,dirty:factual_money_and_refunds_unchanged,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,payment_delay_count,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,refund_delay_count,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,clean:factual_money_and_refunds_unchanged,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,raw_events_unpolluted,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,clean_event_keys_unique,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,event_delay_count,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,duplicate_injection_and_repair_exact,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,event_stage_counts_recorded,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,all_users_have_one_split,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,preprocessor_present,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,preprocessor_fitted_on_train_keys_only,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,all_three_splits_nonempty,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,learning_features_from_frozen_sql_transform,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,no_formal_repetitions_claimed,True,0,{}
+smoke__L3_fixed_lt000,L3_fixed_lt000,source_hashes_unchanged_during_job,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,sealed_private_state_hashes,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,all_artifacts_byte_hashes,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,all_assigned_users_retained,True,0,"{""n_expected"": 200, ""n_observed"": 200}"
+smoke_validation__L0_P_main,L0_P_main,registered_and_actual_sizes_recorded,True,0,"{""n_actual"": 200, ""n_registered"": 200000}"
+smoke_validation__L0_P_main,L0_P_main,unique_user_keys,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,learning_input_is_sql,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,verified_sql_restore_matches,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,sql_quality_all_zero,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,two_prespecified_windows_per_user,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,convert_7d:window_days,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,convert_7d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,convert_7d:converted:independent_B_ledger,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,convert_7d:refunded:independent_B_ledger,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,convert_7d:paid_orders:independent_B_ledger,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,convert_7d:refunded_orders:independent_B_ledger,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,convert_7d:mature,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,profit_30d:window_days,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,profit_30d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L0_P_main,L0_P_main,profit_30d:converted:independent_B_ledger,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,profit_30d:refunded:independent_B_ledger,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,profit_30d:paid_orders:independent_B_ledger,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,profit_30d:refunded_orders:independent_B_ledger,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,profit_30d:mature,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:gross_order_amount_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:gross_refund_reversal_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:goods_cost_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:goods_cost_recovered_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:fulfill_cost_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:coupon_cost_initial_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:coupon_return_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:coupon_cost_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:refund_processing_fee_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:consumer_paid_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:consumer_refund_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:net_profit_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,analysis:net_transaction_amount_cent:profit_window,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,group_denominators_sum_to_all_users,True,0,"{""grouped_n"": 200}"
+smoke_validation__L0_P_main,L0_P_main,missing_injection_count,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,pollution_master_seed_matches_config,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,anomaly_user_order_preserved,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,anomaly_injection_count,True,0,"{""changed_count"": 0, ""expected_changed_count"": 0, ""recorded_selected_count"": 0, ""selected_count"": 0}"
+smoke_validation__L0_P_main,L0_P_main,anomaly_values_match_replay,True,0,"{""changed_count"": 0, ""expected_changed_count"": 0, ""recorded_selected_count"": 0, ""selected_count"": 0}"
+smoke_validation__L0_P_main,L0_P_main,cleaning_retains_missing_and_users,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,truncated_events_count_recorded,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,assignment_delay_count,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,dirty:factual_money_and_refunds_unchanged,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,payment_delay_count,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,refund_delay_count,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,clean:factual_money_and_refunds_unchanged,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,raw_events_unpolluted,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,clean_event_keys_unique,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,event_delay_count,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,duplicate_injection_and_repair_exact,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,event_stage_counts_recorded,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,all_users_have_one_split,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,preprocessor_present,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,validation_no_fit_all_heldout,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,validation_arms_and_denominator,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,validation_recorded_probabilities,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,learning_features_from_frozen_sql_transform,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,no_formal_repetitions_claimed,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,validation_users_disjoint_from_history,True,0,{}
+smoke_validation__L0_P_main,L0_P_main,source_hashes_unchanged_during_job,True,0,{}
+smoke_validation__L1_main,L1_main,sealed_private_state_hashes,True,0,{}
+smoke_validation__L1_main,L1_main,all_artifacts_byte_hashes,True,0,{}
+smoke_validation__L1_main,L1_main,all_assigned_users_retained,True,0,"{""n_expected"": 200, ""n_observed"": 200}"
+smoke_validation__L1_main,L1_main,registered_and_actual_sizes_recorded,True,0,"{""n_actual"": 200, ""n_registered"": 200000}"
+smoke_validation__L1_main,L1_main,unique_user_keys,True,0,{}
+smoke_validation__L1_main,L1_main,learning_input_is_sql,True,0,{}
+smoke_validation__L1_main,L1_main,verified_sql_restore_matches,True,0,{}
+smoke_validation__L1_main,L1_main,sql_quality_all_zero,True,0,{}
+smoke_validation__L1_main,L1_main,two_prespecified_windows_per_user,True,0,{}
+smoke_validation__L1_main,L1_main,convert_7d:window_days,True,0,{}
+smoke_validation__L1_main,L1_main,convert_7d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,convert_7d:converted:independent_B_ledger,True,0,{}
+smoke_validation__L1_main,L1_main,convert_7d:refunded:independent_B_ledger,True,0,{}
+smoke_validation__L1_main,L1_main,convert_7d:paid_orders:independent_B_ledger,True,0,{}
+smoke_validation__L1_main,L1_main,convert_7d:refunded_orders:independent_B_ledger,True,0,{}
+smoke_validation__L1_main,L1_main,convert_7d:mature,True,0,{}
+smoke_validation__L1_main,L1_main,profit_30d:window_days,True,0,{}
+smoke_validation__L1_main,L1_main,profit_30d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L1_main,L1_main,profit_30d:converted:independent_B_ledger,True,0,{}
+smoke_validation__L1_main,L1_main,profit_30d:refunded:independent_B_ledger,True,0,{}
+smoke_validation__L1_main,L1_main,profit_30d:paid_orders:independent_B_ledger,True,0,{}
+smoke_validation__L1_main,L1_main,profit_30d:refunded_orders:independent_B_ledger,True,0,{}
+smoke_validation__L1_main,L1_main,profit_30d:mature,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:gross_order_amount_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:gross_refund_reversal_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:goods_cost_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:goods_cost_recovered_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:fulfill_cost_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:coupon_cost_initial_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:coupon_return_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:coupon_cost_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:refund_processing_fee_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:consumer_paid_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:consumer_refund_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:net_profit_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,analysis:net_transaction_amount_cent:profit_window,True,0,{}
+smoke_validation__L1_main,L1_main,group_denominators_sum_to_all_users,True,0,"{""grouped_n"": 200}"
+smoke_validation__L1_main,L1_main,missing_injection_count,True,0,{}
+smoke_validation__L1_main,L1_main,pollution_master_seed_matches_config,True,0,{}
+smoke_validation__L1_main,L1_main,anomaly_user_order_preserved,True,0,{}
+smoke_validation__L1_main,L1_main,anomaly_injection_count,True,0,"{""changed_count"": 1, ""expected_changed_count"": 1, ""recorded_selected_count"": 1, ""selected_count"": 1}"
+smoke_validation__L1_main,L1_main,anomaly_values_match_replay,True,0,"{""changed_count"": 1, ""expected_changed_count"": 1, ""recorded_selected_count"": 1, ""selected_count"": 1}"
+smoke_validation__L1_main,L1_main,cleaning_retains_missing_and_users,True,0,{}
+smoke_validation__L1_main,L1_main,truncated_events_count_recorded,True,0,{}
+smoke_validation__L1_main,L1_main,assignment_delay_count,True,0,{}
+smoke_validation__L1_main,L1_main,dirty:factual_money_and_refunds_unchanged,True,0,{}
+smoke_validation__L1_main,L1_main,payment_delay_count,True,0,{}
+smoke_validation__L1_main,L1_main,refund_delay_count,True,0,{}
+smoke_validation__L1_main,L1_main,clean:factual_money_and_refunds_unchanged,True,0,{}
+smoke_validation__L1_main,L1_main,raw_events_unpolluted,True,0,{}
+smoke_validation__L1_main,L1_main,clean_event_keys_unique,True,0,{}
+smoke_validation__L1_main,L1_main,event_delay_count,True,0,{}
+smoke_validation__L1_main,L1_main,duplicate_injection_and_repair_exact,True,0,{}
+smoke_validation__L1_main,L1_main,event_stage_counts_recorded,True,0,{}
+smoke_validation__L1_main,L1_main,all_users_have_one_split,True,0,{}
+smoke_validation__L1_main,L1_main,preprocessor_present,True,0,{}
+smoke_validation__L1_main,L1_main,validation_no_fit_all_heldout,True,0,{}
+smoke_validation__L1_main,L1_main,validation_arms_and_denominator,True,0,{}
+smoke_validation__L1_main,L1_main,validation_recorded_probabilities,True,0,{}
+smoke_validation__L1_main,L1_main,learning_features_from_frozen_sql_transform,True,0,{}
+smoke_validation__L1_main,L1_main,no_formal_repetitions_claimed,True,0,{}
+smoke_validation__L1_main,L1_main,validation_users_disjoint_from_history,True,0,{}
+smoke_validation__L1_main,L1_main,source_hashes_unchanged_during_job,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,sealed_private_state_hashes,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,all_artifacts_byte_hashes,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,all_assigned_users_retained,True,0,"{""n_expected"": 200, ""n_observed"": 200}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,registered_and_actual_sizes_recorded,True,0,"{""n_actual"": 200, ""n_registered"": 200000}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,unique_user_keys,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,learning_input_is_sql,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,verified_sql_restore_matches,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,sql_quality_all_zero,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,two_prespecified_windows_per_user,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:window_days,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:converted:independent_B_ledger,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:refunded:independent_B_ledger,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:paid_orders:independent_B_ledger,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:refunded_orders:independent_B_ledger,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,convert_7d:mature,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:window_days,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:converted:independent_B_ledger,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:refunded:independent_B_ledger,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:paid_orders:independent_B_ledger,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:refunded_orders:independent_B_ledger,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,profit_30d:mature,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:gross_order_amount_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:gross_refund_reversal_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:goods_cost_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:goods_cost_recovered_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:fulfill_cost_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:coupon_cost_initial_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:coupon_return_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:coupon_cost_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:refund_processing_fee_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:consumer_paid_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:consumer_refund_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:net_profit_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,analysis:net_transaction_amount_cent:profit_window,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,group_denominators_sum_to_all_users,True,0,"{""grouped_n"": 200}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,missing_injection_count,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,pollution_master_seed_matches_config,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,anomaly_user_order_preserved,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,anomaly_injection_count,True,0,"{""changed_count"": 1, ""expected_changed_count"": 1, ""recorded_selected_count"": 1, ""selected_count"": 1}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,anomaly_values_match_replay,True,0,"{""changed_count"": 1, ""expected_changed_count"": 1, ""recorded_selected_count"": 1, ""selected_count"": 1}"
+smoke_validation__L2_n200000_p050,L2_n200000_p050,cleaning_retains_missing_and_users,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,truncated_events_count_recorded,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,assignment_delay_count,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,dirty:factual_money_and_refunds_unchanged,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,payment_delay_count,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,refund_delay_count,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,clean:factual_money_and_refunds_unchanged,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,raw_events_unpolluted,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,clean_event_keys_unique,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,event_delay_count,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,duplicate_injection_and_repair_exact,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,event_stage_counts_recorded,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,all_users_have_one_split,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,preprocessor_present,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,validation_no_fit_all_heldout,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,validation_arms_and_denominator,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,validation_recorded_probabilities,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,learning_features_from_frozen_sql_transform,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,no_formal_repetitions_claimed,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,validation_users_disjoint_from_history,True,0,{}
+smoke_validation__L2_n200000_p050,L2_n200000_p050,source_hashes_unchanged_during_job,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,sealed_private_state_hashes,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,all_artifacts_byte_hashes,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,all_assigned_users_retained,True,0,"{""n_expected"": 200, ""n_observed"": 200}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,registered_and_actual_sizes_recorded,True,0,"{""n_actual"": 200, ""n_registered"": 200000}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,unique_user_keys,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,learning_input_is_sql,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,verified_sql_restore_matches,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,sql_quality_all_zero,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,two_prespecified_windows_per_user,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:window_days,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:converted:independent_B_ledger,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:refunded:independent_B_ledger,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:paid_orders:independent_B_ledger,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:refunded_orders:independent_B_ledger,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,convert_7d:mature,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:window_days,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:gross_order_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:gross_refund_reversal_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:goods_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:goods_cost_recovered_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:fulfill_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:coupon_cost_initial_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:coupon_return_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:coupon_cost_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:refund_processing_fee_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:consumer_paid_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:consumer_refund_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:net_profit_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:net_transaction_amount_cent:independent_B_ledger,True,0,"{""maximum_absolute_error_cent"": 0, ""tolerance_cent"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:converted:independent_B_ledger,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:refunded:independent_B_ledger,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:paid_orders:independent_B_ledger,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:refunded_orders:independent_B_ledger,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,profit_30d:mature,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:gross_order_amount_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:gross_refund_reversal_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:goods_cost_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:goods_cost_recovered_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:fulfill_cost_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:coupon_cost_initial_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:coupon_return_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:coupon_cost_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:refund_processing_fee_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:consumer_paid_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:consumer_refund_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:net_profit_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,analysis:net_transaction_amount_cent:profit_window,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,group_denominators_sum_to_all_users,True,0,"{""grouped_n"": 200}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,missing_injection_count,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,pollution_master_seed_matches_config,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,anomaly_user_order_preserved,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,anomaly_injection_count,True,0,"{""changed_count"": 0, ""expected_changed_count"": 0, ""recorded_selected_count"": 0, ""selected_count"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,anomaly_values_match_replay,True,0,"{""changed_count"": 0, ""expected_changed_count"": 0, ""recorded_selected_count"": 0, ""selected_count"": 0}"
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,cleaning_retains_missing_and_users,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,truncated_events_count_recorded,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,assignment_delay_count,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,dirty:factual_money_and_refunds_unchanged,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,payment_delay_count,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,refund_delay_count,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,clean:factual_money_and_refunds_unchanged,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,raw_events_unpolluted,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,clean_event_keys_unique,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,event_delay_count,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,duplicate_injection_and_repair_exact,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,event_stage_counts_recorded,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,all_users_have_one_split,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,preprocessor_present,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,validation_no_fit_all_heldout,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,validation_arms_and_denominator,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,validation_recorded_probabilities,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,learning_features_from_frozen_sql_transform,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,no_formal_repetitions_claimed,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,validation_users_disjoint_from_history,True,0,{}
+smoke_validation__L3_fixed_lt000,L3_fixed_lt000,source_hashes_unchanged_during_job,True,0,{}

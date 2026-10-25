@@ -1,0 +1,2 @@
+﻿source_label,scenario_id,n_actual,raw_zero_hist_gmv,anomaly_selected,anomaly_changed,selected_zero_hist_gmv,all_dirty_hist_values_match_replay,formal_repetitions_completed,pipeline_manifest,pipeline_manifest_sha256
+合成数据 / 已知 DGP；C-R09故障诊断,L0_P_main,200000,1023,362,361,1,True,0,D:\L\practice_project\营销数分项目\data\v3\engineering_checks\representative__L0_P_main\phase_c_20261024T191836270464Z_pid2300\manifest.json,32a360fd194b0fd826d9b8da4f02fa3f6a50da25b8815677736abeba6e775e98

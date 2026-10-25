@@ -1,8 +1,17 @@
 # 电商营销策略的因果评估与增量利润优化
 
-> **当前开发：v3 Phase A/B独立复审通过，进入Phase C；正式结果尚未产生。** 当前状态见 [TODO.md](TODO.md)，验收见 [GOAL.md](GOAL.md)，施工协议见 [docs/v3_协议.md](docs/v3_协议.md)，冻结批准见 [approval.json](outputs/v3/protocol/approval.json)。本轮仅研究不发券/单一10元券，不能外推最优面额。
+> **维护时间：2026-10-25 10:09（北京时间）。v3 Phase A/B/C独立评审通过，本轮按用户要求在C收尾后暂停交接，D未启动。正式实验R=0。** 当前状态见 [TODO.md](TODO.md)，验收见 [GOAL.md](GOAL.md)，下一位agent从 [AGENT_HANDOFF.md](AGENT_HANDOFF.md) 的最新交接节开始。本轮仅研究不发券/单一10元券，不能外推最优面额。
 >
 > **下文数据版本：v2，作为历史基线保留。** 原有数值和结论不属于v3；其中“已扣券净增量/券成本小于1就是亏钱”的解释有误，已在v3协议纠正。待v3完成后替换全文，不混用两版产物。
+
+v3当前交付了四层机制、分币真值校验、原始/污染/清洗五表、SQL双窗口核算、训练专属预处理、观测接口与审计隔离，以及可恢复工程验证。C阶段101项工程作业、6977项检查全部通过，包含73个场景、四个20万人代表数据库、四个独立工程队列和20项功效模板合同；功效合同尚未生成校准机制。最终回归803项通过，保留1条既有积分舍入告警。数字及来源见 [C验收汇总CSV](outputs/tables/v3_phase_C_acceptance.csv)。
+
+- C批准与源码/产物哈希：[approval.json](outputs/v3/data_validation/approval.json)；独立评审：[v3_phase_C_review.md](docs/reviews/v3_phase_C_review.md)。
+- 数据/API：[流水线与隔离契约](docs/v3_data_pipeline.md)、[五表字典](docs/v3_data_dictionary.md)、[SQL契约](docs/v3_sql_contract.md)、[预处理契约](docs/v3_preprocessing.md)。
+- 工程入口：项目虚拟环境运行 `scripts/11_build_v3_data.py`（单场景）或 `scripts/12_validate_v3_data.py --scope smoke`（小样本）/ `--scope all`（完整工程）。必须设置PYTHONUTF8=1与PYTHONIOENCODING=utf-8；工程入口不登记正式R。
+- 下一阶段是D：先完成20次×三种粒度、每次20万人的资源pilot，再实现检测能力和估计。当前 `scripts/run_all.py --round ...` 仍是v2入口，不能当作v3全流程；v3统一入口属于后续验收。
+
+后续文件维护的时间统一精确到分钟，使用北京时间 `YYYY-MM-DD HH:mm`，详见 [AGENTS.md](AGENTS.md) §10。以下保留v2历史说明与结果，当前可交接状态以上述v3入口为准。
 
 > **当前为 v2 版本，已打 tag `v2.0` 归档。** v3 将按
 > [HITL/完整修订建议_L0-L3与观测评估闭环.md](HITL/完整修订建议_L0-L3与观测评估闭环.md)

@@ -1,8 +1,56 @@
 # AGENT 交接说明 —— v3 重建
 
-> **当前接管记录（2026-10-25）**：主控在`codex/v3-rebuild`完成Phase A/B独立复审，进入C五表SQL与真值隔离；最新进度唯一入口为`TODO.md`，当前验收为`GOAL.md`，决策记录为`docs/v3_决策与反思日志.md`。下文“v3尚未动工”等是接管前快照，保留其施工约束，不作为当前进度。
-> A验收：418项测试通过，93行矩阵逐行核对，批准hash及7配置/2文档hash见`outputs/v3/protocol/approval.json`；独立评审见`docs/reviews/v3_phase_A_review.md`。旧版数字门禁已修复通过，图门禁7图零错误/警告，旧PDF构建15页并保留原文件。humanizer已安装并备份旧技能。A结束时正式实验尚未开始；B后续验收见下一条记录。
-> B验收：最终750项机制检查、552项测试通过；批准与源码hash见`outputs/v3/validation/approval.json`，独立评审见`docs/reviews/v3_phase_B_review.md`。L0等成本可行4882/5000，自然成本4750/5000；共同域自然成本几乎恒定，后续图表称自然成本机制，不宣称异质成本筛选作用。数值诊断含估计而非严格区间认证；1e-14时间收敛对照告警保留。正式R=0，C–H/Z均待完成。
+> **最新交接时间：2026-10-25 10:09（北京时间，Asia/Shanghai）。当前分支：`codex/v3-rebuild`。A/B/C独立评审通过；正式实验R=0。** 用户要求完成当前C部分后先收尾，由另一个agent接替，本轮不启动D。以下最新节是当前事实；后文旧版交接保留施工约束与历史背景，其中“v3尚未动工”、旧测试数和资源数字不能当作当前进度。
+
+## 最新交接：C已验收，下一阶段D未开始
+
+### 权威状态与证据
+
+- 进度以`TODO.md`为准，验收以`GOAL.md`为准，业务范围继续服从只读`项目方案思路.md`及用户更新的`HITL/完整修订建议_L0-L3与观测评估闭环.md`。原D–H与Z完整目标未缩减。
+- A：`outputs/v3/protocol/approval.json`与`docs/reviews/v3_phase_A_review.md`。七份冻结YAML的canonical hash仍为`30511a32bcee9db55e8f5ec1bbc2b9d63eb63dc2a13aa5c720f948c781eccdbe`。
+- B：`outputs/v3/validation/approval.json`与`docs/reviews/v3_phase_B_review.md`，包含C集成时闭端点补审。750项机制检查通过；数值误差与自然成本解释边界仍有效。
+- C：`outputs/v3/data_validation/approval.json`与`docs/reviews/v3_phase_C_review.md`。最终矩阵为`outputs/v3/data_validation/phase_c_20261025T013445468783Z_pid18708/`；101项作业、6977项检查全过，实际数据队列81批，累计队列行1185000（不是去重用户数）。20项功效合同actual_n=0，实际机制仍待D。
+- C全部3015产物逐SHA验证，四个20万人SQLite逐行复核；主控双窗分币比对、独立三阶段账务/事件比对及CLI四格补验均通过。机器证据和来源见`outputs/tables/v3_phase_C_acceptance.csv`，不要从旧报告抄数字。
+- 最终全回归803 passed、1条既有B时间积分roundoff告警，日志`out/v3_phase_c/pytest_final_delivery.log`；可提交凭据为`outputs/v3/data_validation/pytest_gate.json`。这不等于正式实验完成。
+
+### 当前实现与入口
+
+- 业务配置：`configs/v3/*.yaml`；数值配置：`configs/v3_numerics.yaml`；C工程配置：`configs/v3_data.yaml`。文件内审前状态标签未改，外部approval是验收依据；不要为改状态或补时间而改变冻结哈希。
+- 机制：`src/causal_growth/dgp/v3_*.py`。`V3Population.observation_bundle()`仅返回用户、实际分配、事实订单三张DataFrame；训练不可接受生成器对象或审计字段。
+- 五表/SQL/拆分/预处理/持久化：`src/causal_growth/data/v3_*.py`和`sql/v3_*.sql`。学习必须从`ObservedDataset`进入；验证队列不能重新fit或拆成训练，诊断未成熟快照不能进入主分析。
+- 文档：`docs/v3_data_pipeline.md`、`docs/v3_data_dictionary.md`、`docs/v3_sql_contract.md`、`docs/v3_preprocessing.md`、`docs/v3_phase_C_validation.md`。
+- 单场景工程：`.venv/Scripts/python.exe scripts/11_build_v3_data.py --scenario L1_main --n 200 --sqlite`；工程矩阵：同一解释器运行` scripts/12_validate_v3_data.py --scope smoke`或`--scope all`。先设置PYTHONUTF8=1、PYTHONIOENCODING=utf-8，数值线程OMP/OPENBLAS/MKL/NUMEXPR均为1。
+- 当前` scripts/run_all.py --round ...`只编排v2流程；不可当作v3全复现入口。统一v3实验/图/论文入口仍属后续Z验收。
+- 完整事实数据位于`data/v3/engineering_checks/`，封存位于`audit/v3/engineering_checks/`；二者按规则不入Git。代表库路径由最终矩阵的`jobs/representative__*.json`指向，不要读取旧失败attempt当作当前代表。
+
+### 已解决问题与必须保留的边界
+
+- 支付/退款与入库窗口统一按绝对闭端点比较，不用epsilon掩盖浮点问题。B独立账本补丁已重新验证并批准。
+- C-R09：异常mask选中数与数值改变数分开。零值乘倍率或倍率1允许两数不同；按原命名流逐值验证，不放宽成不等式。
+- C-R10：CLI11必须沿用生成器metadata里的canonical配对前缀。101矩阵的68源快照没有包含CLI11，因此其源码与真实CLI补验单独绑定，不能扩大矩阵的证明范围。
+- 恢复凭据绑定配置、源码、产物和历史预处理；真实活跃进程按PID与创建FILETIME互斥，不能仅因有running文件就重启。Windows启动器PID可能与真实Python PID不同。
+- 旧失败工程尝试和独立核验器的失败日志均保留。首次C批准早于最终评审文件冻结，中间批准已另存`approval_before_review_freeze.json`；现行批准重新绑定最终冻结评审，不覆盖历史。
+- L0自然成本机制在共同可行域内几乎等成本，不能宣称识别了异质成本筛选。误差估计不冒称严格数值认证，既有积分告警不能隐去。
+- C的独立三臂队列使用工程占位策略，只检验数据链，不是F的策略收益验证。封存只写未释放；F仍须实现模型/策略/OPE/决策/随机验证冻结后的真值读取门禁。
+- 现有完整留存入口仅支持工程/代表范围。F/G必须实现非代表验证每rep全链执行、只保留名单/规定摘要/汇总/manifest的精简路径。
+
+### 接替后从D开始
+
+1. 先核验A/B/C批准与实际源码锚点，阅读当前GOAL/TODO和决策日志；无需无改动地重复全部C矩阵。当前所有C计算与核验已结束。
+2. D前必须实际跑20次×三种粒度、每次20万人pilot：纯估计、五表SQL加估计、含CF完整流程。记录实际进程CPU、墙钟、峰值内存及失败，按冻结完整矩阵外推；C工程记录不能代替该pilot。
+3. 原40–55 CPU小时未获验证，超过原估算50%必须与用户重商，未获回复不能减正式N/R。模型内单线程、并发与内存上限按协议；并行度须据实测决定。
+4. D实现独立观测先导方差与MDE、实际功效微观机制、完整AA和常数/T/S/CF及适用DR；形式上的模型名或功效合同不算实际执行。
+5. E/F/G/H/Z均未完成：成本/策略优化、交叉拟合OPE、额外20万随机验证、冻结后审计、全部正式重复、三张原生PPT方法图、50–100页长稿与最后清理仍按原协议执行。每阶段须独立评审，不能把C通过当作全项目完成。
+
+### 维护与工具要求
+
+用户新增要求已写入`AGENTS.md`§10：今后文件维护时间精确到分钟，采用北京时间`YYYY-MM-DD HH:mm`；机器凭据保留带时区ISO时间，历史冻结时间不猜补。humanizer已全局安装、旧入口可恢复，见`docs/v3_humanizer_install.md`，不需要重复安装。
+
+本次C里程碑提交以Git日志为准；未推送远端。旧v2的data/outputs须等整个v3验收后按Z单独清理，包含本轮`outputs/tables/v3_phase_C_acceptance.csv`在内的新v3证据必须保留。
+
+---
+
+## 接管前保存的交接原文（历史背景，当前状态以上节为准）
 
 > **读者**：接手 v3 重建的任何 agent（人或模型）。
 > **写于**：2026-10-25，v2 已归档（git tag `v2.0`），v3 尚未动工。

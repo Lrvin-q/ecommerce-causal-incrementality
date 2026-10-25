@@ -1,0 +1,46 @@
+# 合成数据 / 已知 DGP。Phase C工程参数，不改变七份冻结实验配置。
+schema_version: '3.0'
+status: phase_c_pending_independent_review
+source_label: 合成数据 / 已知 DGP；工程校验，不推进正式R
+time:
+  hours_per_day: 24
+  origin: synthetic_relative_day_zero
+events:
+  pre_assignment_window_days: 7
+  include_eligibility_cart_event: true
+  event_types: {browse: browse, cart: cart}
+  cap_scope: all_pre_assignment_events_first_chronological
+  cart_event_offset_days: 0
+  interpretation: synthetic_preassignment_logs_of_already_eligible_users_not_SKU_membership_evidence
+sql:
+  convert_window_name: convert_7d
+  profit_window_name: profit_30d
+  busy_timeout_seconds: 30
+  insert_chunk_size: 10000
+preprocessing:
+  numeric_columns: [is_new, hist_gmv, cart_value, browse_depth]
+  unknown_channel_policy: error
+  zero_variance_scale: 1
+  std_ddof: 0
+  quantile_method: linear
+  time_feature_transform: standardize_without_winsor_or_clip
+  serialization_version: '3.0'
+isolation:
+  forbidden_path_segments: [audit, truth]
+  forbidden_column_patterns: ['(^|_)(audit|truth|potential|latent|oracle|true|control_feasible|common_feasible|knob)(_|$)', '^U$', '^p[01]$', '^mu[01]$']
+  audit_requires_policy_and_observed_results_frozen: true
+io:
+  parquet_engine: pyarrow
+  compression: zstd
+  csv_encoding: utf-8-sig
+  text_encoding: utf-8
+  engineering_namespace: engineering_checks
+  representative_sqlite_name: observed.sqlite
+  csv_preview_rows: 100
+validation:
+  smoke_n: 200
+  independent_validation_n: 5000
+  per_scenario_n: 5000
+  representative_n: 200000
+  representative_rep: 0
+  formal_repetitions_completed: 0

@@ -1,0 +1,790 @@
+{
+  "status": "passed",
+  "binding": {
+    "job": {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "category": "matrix",
+      "n": 5000,
+      "population_kind": "history",
+      "persist_database": false,
+      "historical_job_id": null
+    },
+    "scenario_hash": "d7b65b6ef3c921151010c612e0f9f1a39e94c06a8d2eed611f8a8c504ff6e587",
+    "protocol_hash": "30511a32bcee9db55e8f5ec1bbc2b9d63eb63dc2a13aa5c720f948c781eccdbe",
+    "data_config_hash": "e5e3a7b3fd8b085701320bc513f2962545f44ec2199e3804f95b5dd49ed22a2b",
+    "source_hashes": {
+      "configs/v3/business.yaml": "d1259d2342aba1a4cdcaca5c0de6e4914c8a55b315a80af7c0923757d1ba0e0a",
+      "configs/v3/design.yaml": "d2fd51a1156457257cf7977b32bd5aeb1c9745a10e528d029a877ef1b531fa99",
+      "configs/v3/evaluation.yaml": "5f6dfcb2c700bc72831efb1ff94b3b2137bc8dd9680b862981c4b2755c3241d1",
+      "configs/v3/execution.yaml": "dc1c8e9ab147e58d95e1367c2abcd90ba02acf05ca27da11e3dfb84da8631733",
+      "configs/v3/models.yaml": "19ce3bf5a338ea0e055e3ba0ff676054e8926dde7ce44409ca7699443361bdf2",
+      "configs/v3/policy.yaml": "57ff5721de12af0cc285bb235f320fd7047a06837dc5f2ac00e228690d36958a",
+      "configs/v3/scenarios.yaml": "29a158b046cb91661f2327cc5acbc1dc868a57c17dc0783cfe9d6d41058e9ddb",
+      "configs/v3_data.yaml": "93a85fe6a45d92adc987ca7091b04b40da91678acbfbc2cd0674df890f5de131",
+      "configs/v3_numerics.yaml": "e183b6ec852e5d42e7020ab60a6614bcf6a21b777b7aedfd77441e603ae67332",
+      "requirements.txt": "f413692c8d75b4dd36e6eb5545c4bee0404729e2bc0a3f5189c57b17076f4171",
+      "scripts/12_validate_v3_data.py": "0c40eac9a6d3650eec68662e7657989f5087eb5ecd2bc7054d6c34e6b8d318fb",
+      "sql/v3_analytics.sql": "c08756a1e0a602743e360c7b8c96e5051db69b6f829837a55f3542a5282f3df7",
+      "sql/v3_schema.sql": "11a7fd50e0216a98eda89e405867321ad02bf846163f8eb49fef1fc49e9519bc",
+      "src/causal_growth/__init__.py": "23d0623e17d02bd23db318989f25cf0e5bdd924101657fd27586f51d1988eae2",
+      "src/causal_growth/config.py": "36792dde643c3ff6c300643efcc9974945c9ccae2bfdf3bfed4536f8c82dbe75",
+      "src/causal_growth/contracts.py": "6cf32fd1ecc10009592c48c618736f27a42df46a94706dd79f0c806319e35824",
+      "src/causal_growth/data/__init__.py": "f61e7cbd2dc4e5b5e74777c973c7cd48805d3ce111dac6280ba3cd6ce935d9e1",
+      "src/causal_growth/data/cleaning.py": "744978fbe53b1a012b3cb765dc1b64d6487643530ee185e25f318d758697bb00",
+      "src/causal_growth/data/dirt.py": "464db1c76b02296fa984c53f066eb2e51df29d5c21081a97e00ef6a18d2d725d",
+      "src/causal_growth/data/profit.py": "861181bd15fc45bb0f23262825567a5d5dbd7f5465baa7ac969bf60c634abb1d",
+      "src/causal_growth/data/quality.py": "ace7f616fe678d71216e106bd3b1f851fedd18cb13c5d440d885367e0c2ba043",
+      "src/causal_growth/data/split.py": "5fbf9513915691fe7439ec3ee62395b45842b1949071b7453ecffb1d804cfed0",
+      "src/causal_growth/data/sql_layer.py": "bf54e81e1d0122e3722f8ab69e8f301749052a010aa9eca9833bca2ee5f27393",
+      "src/causal_growth/data/tables.py": "61af73b538cccdc4d5ca97e844ed4ebf525f6a6ba25defe70807b77e672d93fa",
+      "src/causal_growth/data/v3_dirt.py": "e1b89bc7bf2f56dcea1ea840f31fb500f2b19fb08266dc65317360220790c31b",
+      "src/causal_growth/data/v3_observed.py": "0059ba16fba983f1c1a380508eee478773449403f55be0b7782f2261e0378946",
+      "src/causal_growth/data/v3_pipeline.py": "7366ccb120375415da3c960141a882eb9d038329abbe7ca4a9b77e7b7fd0b28f",
+      "src/causal_growth/data/v3_preprocessing.py": "7f34672de883a2a721c0cf60d2a364c6a1c6ef2a4882d141537bb20a5d24d9e4",
+      "src/causal_growth/data/v3_quality.py": "24125bae1668a7be2cead0731d5d3f78a43ca3b430b86b087c7c8d2bf5281d22",
+      "src/causal_growth/data/v3_split.py": "2fbcdfc0180691121e3d805d2ff7e4ab63fe663c60709f64c4d6c6ddc7736281",
+      "src/causal_growth/data/v3_sql.py": "fea10f71a959547350c5f717121a3219ad4a04b38fea1b0b51085dd94f4d9273",
+      "src/causal_growth/data/v3_storage.py": "8d1f4b273986940a7740f2aef0ce4c7ca63bc46ac8a5d11036b357f3f36922f2",
+      "src/causal_growth/data/v3_tables.py": "1d8cadde7bdbcb5d6bbefd14c2c27dfc9a9ed83ccb2840251f99fafe628b5451",
+      "src/causal_growth/design/__init__.py": "b20faada2dd2cf300e5846a3140cb9c986ac2325e9330b01978d2eccf593248b",
+      "src/causal_growth/design/aa.py": "2da6a65fe431bbbea5991e1a976f1518fb9c20b70937a547fe552a36cf3b8a0c",
+      "src/causal_growth/design/guardrail.py": "bea57fa7ba9564dddcc85451d9a937a170093147ce6165b68dae7c29d9652f75",
+      "src/causal_growth/design/multiplicity.py": "2151ad3554bc70debc9186a7db80b307a575e686f9a802a27899a615dec9dbda",
+      "src/causal_growth/design/power.py": "a333636b0b74ebf8bb7226acd2c9e17c836feaba7f9456e94457e0f41cc4936e",
+      "src/causal_growth/dgp/__init__.py": "01ab07d12ad37ebf90ad70581f69a9df141e21448b1ab70d7cf1d2c88814a4f9",
+      "src/causal_growth/dgp/assign.py": "a957bb94fec9eaba0afb5dbc09973fc333d5845f664a9c30984e50bb365d3447",
+      "src/causal_growth/dgp/base.py": "d89de0a41b8cf01abc23bd871b57ac984a246de424630e0a2e4be9fa1e4379b2",
+      "src/causal_growth/dgp/levels.py": "0d987460969ef5b8af3cf47c00b85e6fdd0c5071a810bed9c5ab9cf5927a0096",
+      "src/causal_growth/dgp/v3_amounts.py": "0f0332a02b7973f58c46f4b238ec901d77bda2820fb0c194a3fc0da8e309a3ac",
+      "src/causal_growth/dgp/v3_archive.py": "4a7fd8df81a21fae412406e348e3765d9385bdfa6e7b25c07ad7aa77cca193ce",
+      "src/causal_growth/dgp/v3_controls.py": "ba3ff495464f162a62a9cfdf015ae511568875b431792f2f7a0dd47139645627",
+      "src/causal_growth/dgp/v3_covariates.py": "a53c2926e8a2e673e076a1019c10f4f696f1ca6b56236efd44109cdccda89c84",
+      "src/causal_growth/dgp/v3_engine.py": "f8f3c886c8ec014b651a7397926a95734dd94cc49f606b2b633792ec14adfd24",
+      "src/causal_growth/dgp/v3_ledger.py": "1168d6b16ea53ee03c2bff8c9a0c9af420410d623d8356fdca6f84aefe7ce16c",
+      "src/causal_growth/dgp/v3_probability.py": "773339eb04fe2fbd000e1d16296613d35fc8b04ba65ffac1313ff4ce4d6cd469",
+      "src/causal_growth/dgp/v3_semantics.py": "e90b1f445f7072c2096d67caaa64ffc8c653cbd50989e81806cf5336a82b9c1d",
+      "src/causal_growth/dgp/v3_timing.py": "fe01d430533d119b26f7c4fdb44bee16c8eef3de951a634e71ca289439287a3c",
+      "src/causal_growth/estimate/__init__.py": "adef8356a8322bca9cb7de63abee7a983805429fe2d5d1c88255e6a30b669197",
+      "src/causal_growth/estimate/cate.py": "2ca8103ce0e97ba265fde9894ace9e90f696c88d8ca8b61be1852a4f223c1ca3",
+      "src/causal_growth/estimate/itt.py": "a75b295ec631729c26f4a85c8bc49ea1af2643a67fcc74a875774618945d2b07",
+      "src/causal_growth/estimate/obs.py": "e385cc0d79ac4036eb70796e7ebfe9fdaa438cffde9dd38f0eb5961ef29908c6",
+      "src/causal_growth/evaluation/__init__.py": "2cd383ed2d05adbcff58db82a66b806a50a6a2b67a73e957b561974b372dc73f",
+      "src/causal_growth/evaluation/metrics.py": "648447f0e8811a82be279e33300e9ef75d52a04c2327d8eb55388ee2a035c804",
+      "src/causal_growth/evaluation/v3_data_checks.py": "479c1a716ef77c42b0f97c2eddb1e26612abcd938c584a3d6de009db6d0c2765",
+      "src/causal_growth/evaluation/v3_mechanism_checks.py": "2fe6ef554ef4ad961d78dbfe5337c888487464fa9806e30761ea4d0dc4199706",
+      "src/causal_growth/io_utils.py": "ad4a1e0a6f2620972e908046434b93c09611118b2e9ba0866a8542fc9eb7ce28",
+      "src/causal_growth/policy/__init__.py": "7a27acaa9f592e499fd7ebbe1b2e02d9b5fc002f209a7c74622bd5cc55074b12",
+      "src/causal_growth/policy/cost.py": "6a11af233c23cbefcd63f683b01174a70c87c202d359ebb45e23df3ad6f3121e",
+      "src/causal_growth/policy/selection.py": "fb59bfc3868ab50643440afeaabd0c1fa5d5a803d98a91caaaba153fe2deedcb",
+      "src/causal_growth/rng.py": "a6a536b75e5d988cb7aa5692efd9218a7c0a9aa16600ae52a0b83beb98d04bad",
+      "src/causal_growth/v3_config.py": "63b6584e9eb7f80528312ef5ae4a93c6cf094769ffeca39310a0bbf151784fe7",
+      "src/causal_growth/v3_data_config.py": "08fa068b1a7fb889a5bd584294b1549789bbae0bf18fac21e78c4365b732b9d4",
+      "src/causal_growth/v3_numerics.py": "a966f81540ab09c168bb958f557a551a2461d08e6cb272a461899953e56d3522",
+      "src/causal_growth/viz.py": "27cfb858fdf74bf8696ac3370e0fea25fb3c05d3e26f457419f6a930af0c73d4"
+    }
+  },
+  "checks": [
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "sealed_private_state_hashes",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "all_artifacts_byte_hashes",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "all_assigned_users_retained",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"n_expected\": 5000, \"n_observed\": 5000}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "registered_and_actual_sizes_recorded",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"n_actual\": 5000, \"n_registered\": 200000}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "unique_user_keys",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "learning_input_is_sql",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "verified_sql_restore_matches",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "sql_quality_all_zero",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "two_prespecified_windows_per_user",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:window_days",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:gross_order_amount_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:gross_refund_reversal_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:goods_cost_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:goods_cost_recovered_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:fulfill_cost_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:coupon_cost_initial_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:coupon_return_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:coupon_cost_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:refund_processing_fee_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:consumer_paid_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:consumer_refund_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:net_profit_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:net_transaction_amount_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:converted:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:refunded:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:paid_orders:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:refunded_orders:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "convert_7d:mature",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:window_days",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:gross_order_amount_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:gross_refund_reversal_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:goods_cost_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:goods_cost_recovered_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:fulfill_cost_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:coupon_cost_initial_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:coupon_return_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:coupon_cost_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:refund_processing_fee_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:consumer_paid_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:consumer_refund_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:net_profit_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:net_transaction_amount_cent:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"maximum_absolute_error_cent\": 0, \"tolerance_cent\": 0}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:converted:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:refunded:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:paid_orders:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:refunded_orders:independent_B_ledger",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "profit_30d:mature",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:gross_order_amount_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:gross_refund_reversal_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:goods_cost_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:goods_cost_recovered_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:fulfill_cost_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:coupon_cost_initial_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:coupon_return_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:coupon_cost_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:refund_processing_fee_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:consumer_paid_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:consumer_refund_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:net_profit_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "analysis:net_transaction_amount_cent:profit_window",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "group_denominators_sum_to_all_users",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{\"grouped_n\": 5000}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "missing_injection_count",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "anomaly_injection_count",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "cleaning_retains_missing_and_users",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "truncated_events_count_recorded",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "assignment_delay_count",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "dirty:factual_money_and_refunds_unchanged",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "payment_delay_count",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "refund_delay_count",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "clean:factual_money_and_refunds_unchanged",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "raw_events_unpolluted",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "clean_event_keys_unique",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "event_delay_count",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "duplicate_injection_and_repair_exact",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "event_stage_counts_recorded",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "all_users_have_one_split",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "preprocessor_present",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "preprocessor_fitted_on_train_keys_only",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "all_three_splits_nonempty",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "learning_features_from_frozen_sql_transform",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "no_formal_repetitions_claimed",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    },
+    {
+      "job_id": "matrix__L1_param_refund_high",
+      "scenario_id": "L1_param_refund_high",
+      "check": "source_hashes_unchanged_during_job",
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "details": "{}"
+    }
+  ],
+  "started_at_utc": "2026-10-24T19:23:24.081391+00:00",
+  "manifest_hashes": {
+    "pipeline_manifest": "c0cdb63ba4721719a82580ffe5320d429e084660e4d2a23adf598d6afdd486a9",
+    "audit_manifest": "d7ddf086fea1d24b933184e0d84db4781faf2daefcef5ed7298474d9054262ac",
+    "sealed_manifest": "3b1f9e79dda7bdfbb80b4a9c27d08e21c5b630b1d674964ee7b29c63e02fcf50"
+  },
+  "summary": {
+    "n_registered": 200000,
+    "n_actual": 5000,
+    "orders": 617,
+    "population_kind": "history",
+    "database_persisted": false,
+    "pipeline_manifest": "D:\\L\\practice_project\\营销数分项目\\data\\v3\\engineering_checks\\matrix__L1_param_refund_high\\phase_c_20261024T191836270464Z_pid2300\\manifest.json",
+    "audit_manifest": "D:\\L\\practice_project\\营销数分项目\\audit\\v3\\engineering_checks\\matrix__L1_param_refund_high\\phase_c_20261024T191836270464Z_pid2300\\ledger_checks\\manifest.json",
+    "split_counts": {
+      "train": 2500,
+      "test": 1500,
+      "validation": 1000
+    },
+    "pollution": {
+      "users": 5000,
+      "cart_missing_injected": 262,
+      "hist_fraud_injected": 9,
+      "event_duplicates_injected": 1040,
+      "events_before": 34888,
+      "events_after": 35928,
+      "events_delayed": 34888,
+      "assignments_delayed": 5000,
+      "payments_delayed": 617,
+      "refunds_delayed": 55,
+      "event_truncated": 8
+    },
+    "repair": {
+      "events_before": 35928,
+      "events_after": 34888,
+      "duplicate_events_removed": 1040,
+      "cart_missing_retained": 262,
+      "users_removed": 0,
+      "refund_orders_removed": 0
+    },
+    "formal_repetitions_completed": 0,
+    "sealed_manifest": "D:\\L\\practice_project\\营销数分项目\\audit\\v3\\engineering_checks\\matrix__L1_param_refund_high\\phase_c_20261024T191836270464Z_pid2300\\sealed\\manifest.json"
+  },
+  "elapsed_seconds": 6.315387299982831,
+  "ended_at_utc": "2026-10-24T19:23:30.398449+00:00"
+}

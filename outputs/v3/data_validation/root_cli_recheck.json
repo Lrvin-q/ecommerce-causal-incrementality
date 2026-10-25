@@ -1,0 +1,14 @@
+{
+  "source_label": "合成数据 / 已知 DGP；主控CLI补充复核",
+  "status": "passed",
+  "entrypoint_sha256": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6",
+  "execution_record": "D:\\L\\practice_project\\营销数分项目\\out\\pytest\\run_74lzsins\\temp\\v3_cli0\\cli_delivery.json",
+  "execution_record_sha256": "9151457c8b2d03db86594f7ebf74369ef23f826300433f73284007248565747d",
+  "file_count": 141,
+  "file_bytes": 2198617,
+  "actual_cohort_rows": 800,
+  "formal_repetitions_completed": 0,
+  "job_table": "D:\\L\\practice_project\\营销数分项目\\outputs\\v3\\data_validation\\cli_checked_jobs.csv",
+  "job_table_sha256": "cdb29a2e1be009345afa54415ad3b602beb46ff49d30238917666eaed3cc9ed3",
+  "script_sha256": "4cf0e6cafdcb2ce8f87dd2974e2ca2b9fdb8ecb2c62b5066bae305efc5b4766a"
+}

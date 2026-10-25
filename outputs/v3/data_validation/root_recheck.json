@@ -1,0 +1,1148 @@
+{
+  "source_label": "合成数据 / 已知 DGP；主控独立工程产物复核",
+  "status": "passed",
+  "verified_at_utc": "2026-10-25T01:59:15.676596+00:00",
+  "manifest": "D:\\L\\practice_project\\营销数分项目\\outputs\\v3\\data_validation\\phase_c_20261025T013445468783Z_pid18708\\manifest.json",
+  "manifest_sha256": "eecb90dd78353a130390ba16fd4b690ff422971a8c49842917a7a73d63252416",
+  "source_count": 68,
+  "jobs": 101,
+  "checks": 6977,
+  "file_count": 3015,
+  "file_bytes": 3669241965,
+  "actual_cohort_rows": 1185000,
+  "matched_integer_ledger_cells": 30810000,
+  "representatives": [
+    {
+      "scenario": "L0_P_main",
+      "manifest": "D:\\L\\practice_project\\营销数分项目\\data\\v3\\engineering_checks\\representative__L0_P_main\\phase_c_20261025T013445468783Z_pid18708\\manifest.json",
+      "n": 200000,
+      "profit_30d_total_cent": 45634323,
+      "split_counts": {
+        "train": 100000,
+        "test": 60000,
+        "validation": 40000
+      }
+    },
+    {
+      "scenario": "L1_main",
+      "manifest": "D:\\L\\practice_project\\营销数分项目\\data\\v3\\engineering_checks\\representative__L1_main\\phase_c_20261025T013445468783Z_pid18708\\manifest.json",
+      "n": 200000,
+      "profit_30d_total_cent": 54692039,
+      "split_counts": {
+        "train": 100000,
+        "test": 60000,
+        "validation": 40000
+      }
+    },
+    {
+      "scenario": "L2_n200000_p050",
+      "manifest": "D:\\L\\practice_project\\营销数分项目\\data\\v3\\engineering_checks\\representative__L2_n200000_p050\\phase_c_20261025T013445468783Z_pid18708\\manifest.json",
+      "n": 200000,
+      "profit_30d_total_cent": 54169764,
+      "split_counts": {
+        "train": 100000,
+        "test": 60000,
+        "validation": 40000
+      }
+    },
+    {
+      "scenario": "L3_fixed_lt000",
+      "manifest": "D:\\L\\practice_project\\营销数分项目\\data\\v3\\engineering_checks\\representative__L3_fixed_lt000\\phase_c_20261025T013445468783Z_pid18708\\manifest.json",
+      "n": 200000,
+      "profit_30d_total_cent": 57911981,
+      "split_counts": {
+        "train": 100000,
+        "test": 60000,
+        "validation": 40000
+      }
+    }
+  ],
+  "category_counts": {
+    "matrix": {
+      "planned": 73,
+      "passed": 73,
+      "failed": 0
+    },
+    "matrix_validation": {
+      "planned": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    "power_contract": {
+      "planned": 20,
+      "passed": 20,
+      "failed": 0
+    },
+    "representative": {
+      "planned": 4,
+      "passed": 4,
+      "failed": 0
+    }
+  },
+  "formal_repetitions_completed": 0,
+  "power_mechanism_status": "pending_phase_d_actual_calibrated_mechanism",
+  "validation_queue_status": "engineering_placeholder_only_not_phase_f_policy_evidence",
+  "pytest_log": "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_c\\pytest_final_delivery.log",
+  "pytest_log_sha256": "6a6ee4e1a2a9a35a7bde7f954ad8a3d4959fb97b7ba5a33a0ea048896feef576",
+  "test_sources": {
+    "tests\\test_v3_amounts.py": "63c6c668528712ec2c413e62d74939465309442ab364dc9826ba7bddd0a6458a",
+    "tests\\test_v3_cli.py": "b212e7284dd38f280e03bf8307aecedf218afa7c253a90608fb58d48b8b323b6",
+    "tests\\test_v3_controls.py": "5ba7cb4b182bfa6d2853db1d914fa1bfc0b6cc3f82ee91098acd33015745b144",
+    "tests\\test_v3_data_checks.py": "31dd2a9ee86cdd2ddd22c013c220f8a7ca713ea8857bfcf58ba42bf6d88e957d",
+    "tests\\test_v3_data_config.py": "8cf78733c83f35053eeb090fe4a3db8248c6d449d5b5ea7b69b0fb598a0a9afd",
+    "tests\\test_v3_dirt.py": "a5ae73f29da897d7e41e2cd7adc51f6bd4330fbafbf24c2fae36b049dd5d66fc",
+    "tests\\test_v3_engine.py": "821e9b157e6effed2a334662b1f07e937208dafa0074c2e2efbf2b9eca4cf93a",
+    "tests\\test_v3_ledger.py": "0209f7d9ffb9d485dcfb64ac6eac2476b24c89cde8225a54e0777d24f0e86f36",
+    "tests\\test_v3_mechanism_checks.py": "f4ca28f3cbec9885a4b0848d5c03fa094018e8ea59399da43ca5f60937647459",
+    "tests\\test_v3_numerics.py": "f0fb09a26f610dc6ab4c5be9b8ed6482176e2ad8c9d2c651fc6d8ac80cfabdf6",
+    "tests\\test_v3_observed.py": "363eae92662644fbfe65ae0e2c6aac8c4837a7e45cfaad004b30c745b036d66f",
+    "tests\\test_v3_pipeline.py": "f634c162d76df7d35123fe4ee75729954e75f712dffbe22ed449a8c3d6cff68c",
+    "tests\\test_v3_preprocessing.py": "c9bdc33a05a0ff613c34bcfb0d599166942d5b62b7736531f500cb0428483fd4",
+    "tests\\test_v3_probabilities.py": "8e8a6298b54b6ca429d987cdcd3e61dd6830c768a8095ecc5beec7fe1fcde09e",
+    "tests\\test_v3_protocol.py": "0ab01a0d782652bc3a0d5e4351f957210d79a158905d4e85e2861b03fe651ecf",
+    "tests\\test_v3_quality.py": "9bf0ab97eec6f49f14fc7719312567b373214fac3953fabf2e1bb83b73f0e466",
+    "tests\\test_v3_semantics.py": "bde8d7634947a39d7cabbf1b165c404b3091bc592e42491ca5686a1613639cf9",
+    "tests\\test_v3_split.py": "792bfb0070eaea220839afa606b6d13d7a1e73adc3debbfcfcdb2aab1f8f4857",
+    "tests\\test_v3_sql.py": "fd8156a66a777e1f481cb2e27957b4dab7d158913b9b26415c2cc13e32a68ee9",
+    "tests\\test_v3_storage.py": "391e43319bfac68b28fcdda467786f3e4ab52c6e1642ed6395dd076085bf9b9a",
+    "tests\\test_v3_tables.py": "f24c9401cc7704abff71718bb5593ea8e3990787b27a5b9255ea3c70db055057",
+    "tests\\test_v3_timing.py": "d0201dfd8ac28338a832c3073c665fd20b4ea9d3f091d5bc90373cf40866de63"
+  },
+  "supplemental_cli_sha256": "feec523151d3e8ee77c768b80fe4e5a2b32ecc9c750cac7cd7bfc7c0f2efc5e6",
+  "review_script_sha256": "44c923d153915b3f999046cfe12355251a3281298c6601e089f129c4862c9dcc",
+  "job_results": [
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L0_P_main",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5521555,
+      "hist_anomaly_selected": 11,
+      "hist_anomaly_changed": 11
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "representative__L0_P_main",
+      "n_actual": 200000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 41,
+      "artifact_bytes": 792655953,
+      "hist_anomaly_selected": 362,
+      "hist_anomaly_changed": 361
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix_validation__L0_P_main",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5463666,
+      "hist_anomaly_selected": 8,
+      "hist_anomaly_changed": 8
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L0_Pi_equal_cost",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 38,
+      "artifact_bytes": 6054121,
+      "hist_anomaly_selected": 11,
+      "hist_anomaly_changed": 11
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L0_Pi_heterogeneous_cost",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 38,
+      "artifact_bytes": 6007266,
+      "hist_anomaly_selected": 11,
+      "hist_anomaly_changed": 11
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L0_zero_purchase_effect",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5455946,
+      "hist_anomaly_selected": 11,
+      "hist_anomaly_changed": 11
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L0_AA",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5452258,
+      "hist_anomaly_selected": 12,
+      "hist_anomaly_changed": 12
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_main",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5583138,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "representative__L1_main",
+      "n_actual": 200000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 41,
+      "artifact_bytes": 783757446,
+      "hist_anomaly_selected": 396,
+      "hist_anomaly_changed": 392
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix_validation__L1_main",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5576783,
+      "hist_anomaly_selected": 8,
+      "hist_anomaly_changed": 8
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_heterogeneity_000",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5582509,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_heterogeneity_050",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5583516,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_heterogeneity_150",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5586893,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_signal_weak",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5586853,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_signal_strong",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5579591,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_misspec_omit_new_channel",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5578855,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_misspec_nonlinear_interaction",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5586336,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_mar_none",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5583419,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_mar_double",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5576382,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_fraction_mean_low",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5584664,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_fraction_mean_high",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5586040,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_fraction_sd_low",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5585040,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_fraction_sd_high",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5585544,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_cost_prediction_under",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5586107,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_cost_prediction_over",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5585980,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_cost_prediction_noise",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5586129,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_param_baseline_low",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5533720,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_param_baseline_high",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5629995,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_param_redemption_low",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5585163,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_param_redemption_high",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5586579,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_param_refund_low",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5580895,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_param_refund_high",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5589003,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_learning_n10000",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5585052,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_learning_n25000",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5585044,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_learning_n50000",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5584967,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L1_AA",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5598824,
+      "hist_anomaly_selected": 8,
+      "hist_anomaly_changed": 8
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_n30000_p050",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5488497,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_n30000_p030",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5474872,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_n30000_p010",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5451066,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_n60000_p050",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5488497,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_n60000_p030",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5474872,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_n60000_p010",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5451066,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_n100000_p050",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5488623,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_n100000_p030",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5474998,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_n100000_p010",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5451100,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_n200000_p050",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5488623,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "representative__L2_n200000_p050",
+      "n_actual": 200000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 41,
+      "artifact_bytes": 829938631,
+      "hist_anomaly_selected": 431,
+      "hist_anomaly_changed": 431
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix_validation__L2_n200000_p050",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5331265,
+      "hist_anomaly_selected": 8,
+      "hist_anomaly_changed": 8
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_n200000_p030",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5474998,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_n200000_p010",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5451100,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_drift_smooth",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5491959,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_drift_abrupt",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5500975,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_composition_shift",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5471825,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_joint_drift_composition",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5474074,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_ingestion_delay",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5487277,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_immature_negative_control",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5490248,
+      "hist_anomaly_selected": 7,
+      "hist_anomaly_changed": 7
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L2_AA",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5417633,
+      "hist_anomaly_selected": 9,
+      "hist_anomaly_changed": 9
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_fixed_lt000",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5689568,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "representative__L3_fixed_lt000",
+      "n_actual": 200000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 41,
+      "artifact_bytes": 832395777,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix_validation__L3_fixed_lt000",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5551711,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_fixed_lt025",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5690973,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_fixed_lt050",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5691524,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_fixed_lt075",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5691783,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_fixed_lt100",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5692141,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_fixed_lt125",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5691530,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_fixed_lt150",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5691445,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_joint_lam000",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5667062,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_joint_lam025",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5669453,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_joint_lam050",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5689717,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_joint_lam075",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5718435,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_joint_lam100",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5743944,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_joint_lam125",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5775893,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_joint_lam150",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5805829,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_overlap_mild",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5691588,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_overlap_strong",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5689175,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_overlap_extreme",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5690983,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_overlap_hidden_joint",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5688947,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_U_normal",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5693158,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_U_uniform_bounded",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5693924,
+      "hist_anomaly_selected": 0,
+      "hist_anomaly_changed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_missing_confounders",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5689483,
+      "hist_anomaly_selected": 13,
+      "hist_anomaly_changed": 13
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "matrix__L3_AA",
+      "n_actual": 5000,
+      "passed": true,
+      "formal_repetitions_completed": 0,
+      "artifact_files": 37,
+      "artifact_bytes": 5554491,
+      "hist_anomaly_selected": 11,
+      "hist_anomaly_changed": 11
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L0_power_mde000",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L0_power_mde050",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L0_power_mde100",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L0_power_mde150",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L0_power_mde200",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L1_power_mde000",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L1_power_mde050",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L1_power_mde100",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L1_power_mde150",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L1_power_mde200",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L2_power_mde000",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L2_power_mde050",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L2_power_mde100",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L2_power_mde150",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L2_power_mde200",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L3_power_mde000",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L3_power_mde050",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L3_power_mde100",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L3_power_mde150",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    },
+    {
+      "source_label": "合成数据 / 已知 DGP",
+      "job_id": "power_contract__L3_power_mde200",
+      "n_actual": 0,
+      "passed": true,
+      "formal_repetitions_completed": 0
+    }
+  ],
+  "job_table": "D:\\L\\practice_project\\营销数分项目\\outputs\\v3\\data_validation\\root_checked_jobs.csv",
+  "job_table_sha256": "b15407df115cf1c15e6b161852eaee41d74b9261d3ca19f5759b0e0a8db87e80"
+}
