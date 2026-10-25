@@ -586,3 +586,29 @@ L0 启动时带了 `--negative-control-reps 100`，负对照排在 250 次 `true
   否则会把负对照当 AA）。`17_merge_aa_layers.py` 只汇总 `block=true_aa`，负对照不会污染 FPR。
 - 负对照的产出在逐 rep 表的 `block=purchase_null_negative_control` 行，
   其 `truth` 列购买率为 0、利润列为空——这是刻意的机械分离。
+
+#### 重要变更：AA 已改为「脱离会话的独立进程」（2026-10-25 16:14）
+
+原来是会话后台作业，**会话结束就会全部被杀**。因为剩余 9.4 小时墙钟远超会话可覆盖的时间，
+已改为 `Start-Process -WindowStyle Hidden` 启动的独立进程——**不随会话终止**。
+
+- **当前跑在** `out/v3_phase_d_aa_formal_r2_det/<L0|L1|L2>/` 与 `out/v3_phase_d_aa_formal_r3_det/L3/`
+- 历史数据在 `_formal`（最初 40 次）/`_r2`、`_r3`（内存复位后续跑）；**合并脚本已包含全部根**，
+  并按 `[block, rep]` 去重
+- 查看：`python scripts/18_aa_status.py`
+- 若要停止：`Get-Process python | Where-Object { $_.WorkingSet64 -gt 200MB } | Stop-Process -Force`
+  （先确认没有别的 python 大进程在跑）
+- 续跑：`--resume-from <某层>/aa_repetitions.csv` + **新的** `--run-root`，`PYTHONPATH` 指向 `out/aa_snapshot/src`
+- **重启有固定开销**：`--keep-representative` 会让新 run-root 重新生成代表 rep 0 的完整五表（约 140 s CPU）
+
+**已知缺口（必须在正式池化前补）**：本次重启时四层统一带了 `--no-negative-control`，
+**L0 的 100 次负对照没有跑**。补跑命令：
+
+```powershell
+.\.venv\Scripts\python.exe -m causal_growth.evaluation.v3_aa --layers L0 ^
+    --reps 1 --negative-control-reps 100 --quiet ^
+    --run-root out\v3_phase_d_aa_formal_nc\L0 ^
+    --summary-csv outputs\tables\v3_phase_D_aa_formal_L0.csv
+```
+`--reps` 不能设 0（CLI 无"只跑负对照"模式），故设 1：多跑 1 次真 AA（按 `[block, rep]` 去重，无害），
+负对照完整 100 次，约 **3.9 CPU·h**。
