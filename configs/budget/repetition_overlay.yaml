@@ -27,9 +27,12 @@ budget:
   tier2_remaining_note: 由 all_scenarios_single_pass 覆盖，正文只写方向，不写区间
 
   # —— 随机化有效性与策略复制性：降 R 但不取消 ——
+  # 2026-10-25 13:45：GOAL G01 原文「AA1000」指每层 1000（execution.yaml:25）。
+  # 四层 4000 次约 131 CPU·h，等于全部修订预算；按用户放宽授权改为 250/层（合计 1000）。
+  # 代价：合并 1000 次 FPR 的 CP 约 [0.037,0.065] 可作合并判定；逐层半宽约 ±0.03 只能描述。
   complete_aa_levels: 4
-  complete_aa_reps_per_level: 200
-  complete_aa_total_jobs: 800
+  complete_aa_reps_per_level: 250
+  complete_aa_total_jobs: 1000
   independent_validation_tier1_cells: 4
   independent_validation_reps_per_cell: 50
   independent_validation_total_jobs: 200
