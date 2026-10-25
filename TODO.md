@@ -74,6 +74,18 @@ A/B/C独立评审通过。C最终101项作业、6977项检查全部通过，主�
 - [~] D.2 完整 DGP AA 机制（子代理 B）。
 - [~] D.3 四主模型 + L1/L3 适用 DR-learner 与统一重复（子代理 C）。
 - [~] D.4 `_load_facts` 批量插入优化与 C 回归重绑（子代理 D）。
+- [x] D.1 接口冻结（`src/causal_growth/design/v3_power.py`）：`profit_mde` / `profit_power` /
+      `purchase_mde` / `purchase_power` / `split_counts` / `holm_per_test_alpha` /
+      `multiplier_*` / `design_sample_profile` / `calibrate_power_cell(s)` / `build_mde_rows`。
+      唯一口径近似：单侧 α 仍取 0.05（配置无独立单侧 α），须在文档标注。
+- [x] D.3 接口冻结（`src/causal_growth/estimate/v3_models.py`）：`prepare_learning_data` /
+      `fit_predict` / `Predictions` / `fit_validation_scorer` / `rank_models` / `learning_curve`；
+      低层 `crossfit_nuisance` / `aipw_pseudo_outcome` / `crossfit_dr_ate` / `dr_learner_cate` /
+      `causal_forest_estimator`。三条硬约束：禁用特征在接口层抛 `FeatureBoundaryError`；
+      同一 rep 只调一次 `prepare_learning_data` 并共享 `LearningData`（pairing 载体）；
+      L0/L2 调 `dr_learner` 抛 `ModelNotApplicableError`，不得 try/except 吞掉。
+- [x] 修掉一个主控引入的副作用：预算覆盖文件原落在 `configs/v3*.yaml` 的源码绑定 glob 内，
+      已移至 `configs/budget/repetition_overlay.yaml`；协议 `config_hash` 仍为 `30511a32…`。
 - [ ] D.5 主控集成：四域合并、单独评审、D 阶段总验收。
 ## 下一位agent的启动顺序
 
