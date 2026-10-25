@@ -1,0 +1,38 @@
+         197674322 function calls (197533759 primitive calls) in 223.162 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1897 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.049    0.049  232.669  232.669 D:\L\practice_project\营销数分项目\src\causal_growth\data\v3_pipeline.py:48(build_observed_pipeline)
+        2    0.001    0.000  144.715   72.358 D:\L\practice_project\营销数分项目\src\causal_growth\data\v3_sql.py:137(run_sql_pipeline)
+        2    0.017    0.008  100.308   50.154 D:\L\practice_project\营销数分项目\src\causal_growth\data\v3_sql.py:97(_load_facts)
+      366   21.811    0.060   99.233    0.271 {method 'executemany' of 'sqlite3.Connection' objects}
+  3649704   13.552    0.000   77.422    0.000 D:\L\practice_project\营销数分项目\src\causal_growth\data\v3_sql.py:117(<genexpr>)
+        8    0.067    0.008   59.683    7.460 D:\L\practice_project\营销数分项目\src\causal_growth\data\v3_quality.py:49(validate_tables)
+ 27137276   14.836    0.000   38.066    0.000 D:\L\practice_project\营销数分项目\src\causal_growth\data\v3_sql.py:91(_scalar)
+       61    0.002    0.000   34.245    0.561 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\core\series.py:5018(map)
+       61    0.004    0.000   34.228    0.561 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\core\base.py:1052(_map_values)
+       55    0.436    0.008   34.223    0.622 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\core\arrays\base.py:2986(map)
+       18    0.329    0.018   31.470    1.748 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\io\sql.py:437(read_sql_query)
+       18    0.000    0.000   31.141    1.730 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\io\sql.py:2866(read_query)
+        8    0.057    0.007   27.513    3.439 D:\L\practice_project\营销数分项目\src\causal_growth\data\v3_quality.py:138(_validate_events)
+       61    6.387    0.105   24.927    0.409 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\core\algorithms.py:1929(map_array)
+      585    0.235    0.000   20.799    0.036 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\core\algorithms.py:837(factorize)
+        1    0.010    0.010   20.676   20.676 D:\L\practice_project\营销数分项目\src\causal_growth\data\v3_dirt.py:97(deduplicate_events)
+ 27138374    8.262    0.000   19.417    0.000 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\core\dtypes\missing.py:98(isna)
+ 10655466   17.093    0.000   17.095    0.000 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\core\arrays\arrow\array.py:1148(__iter__)
+        1    0.564    0.564   15.559   15.559 D:\L\practice_project\营销数分项目\src\causal_growth\data\v3_dirt.py:27(inject_dirt)
+       18    0.424    0.024   14.894    0.827 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\io\sql.py:2906(_fetchall_as_list)
+       22   14.469    0.658   14.469    0.658 {method 'fetchall' of 'sqlite3.Cursor' objects}
+      303   12.327    0.041   12.672    0.042 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\core\arrays\arrow\array.py:2044(factorize)
+ 15922875    8.166    0.000   12.182    0.000 D:\L\practice_project\营销数分项目\src\causal_growth\data\v3_quality.py:60(<lambda>)
+ 27138374   10.961    0.000   11.155    0.000 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\core\dtypes\missing.py:181(_isna)
+       18    0.000    0.000   11.087    0.616 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\io\sql.py:2794(execute)
+       18   11.087    0.616   11.087    0.616 {method 'execute' of 'sqlite3.Cursor' objects}
+       78    0.707    0.009   11.051    0.142 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\core\frame.py:8918(duplicated)
+       24    0.005    0.000   10.763    0.448 D:\L\practice_project\营销数分项目\src\causal_growth\data\v3_storage.py:101(write_frame)
+      157    0.001    0.000    9.926    0.063 D:\L\practice_project\营销数分项目\.venv\Lib\site-packages\pandas\core\frame.py:9020(f)
+        6    9.738    1.623    9.738    1.623 {method 'executescript' of 'sqlite3.Connection' objects}
+
+
