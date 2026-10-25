@@ -62,7 +62,9 @@ def main() -> int:
     parser.add_argument("--root", nargs="+",
                         default=[str(ROOT / "out" / "v3_phase_d_aa_formal"),
                                  str(ROOT / "out" / "v3_phase_d_aa_formal_r2"),
-                                 str(ROOT / "out" / "v3_phase_d_aa_formal_r3")],
+                                 str(ROOT / "out" / "v3_phase_d_aa_formal_r3"),
+                                 str(ROOT / "out" / "v3_phase_d_aa_formal_r2_det"),
+                                 str(ROOT / "out" / "v3_phase_d_aa_formal_r3_det")],
                         help="可给多个运行根；同名层会合并并按 (层, rep) 去重")
     parser.add_argument("--band-low", type=float, default=0.035)
     parser.add_argument("--band-high", type=float, default=0.065)

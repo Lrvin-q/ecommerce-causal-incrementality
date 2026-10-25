@@ -26,6 +26,8 @@ DEFAULT_ROOTS = [
     ROOT / "out" / "v3_phase_d_aa_formal",
     ROOT / "out" / "v3_phase_d_aa_formal_r2",
     ROOT / "out" / "v3_phase_d_aa_formal_r3",
+    ROOT / "out" / "v3_phase_d_aa_formal_r2_det",
+    ROOT / "out" / "v3_phase_d_aa_formal_r3_det",
 ]
 LAYERS = ("L0", "L1", "L2", "L3")
 TARGET = 250          # 每层正式 AA 目标次数
