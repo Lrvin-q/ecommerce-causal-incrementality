@@ -59,7 +59,7 @@ def detect_power(true_rate: float, reps: int, alpha: float, band: tuple[float, f
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--root", default=str(ROOT / "out" / "v3_phase_d_aa_formal"))
+    parser.add_argument("--root", default=str(ROOT / "out" / "v3_phase_d_aa_formal_r2"))
     parser.add_argument("--band-low", type=float, default=0.035)
     parser.add_argument("--band-high", type=float, default=0.065)
     args = parser.parse_args()
