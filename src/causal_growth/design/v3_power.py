@@ -490,7 +490,7 @@ def purchase_mde(
     # 因此判定标准必须跟着斜率走，否则把 xtol 从 1e-12 放宽到配置的 1e-10 就会误报。
     step = max(tol, 1e-12)
     slope = abs(_gap(min(root + step, upper)) - _gap(max(root - step, 0.0))) / (2.0 * step)
-    allowed = max(1e-12, 10.0 * slope * tol)
+    allowed = max(_POWER_ROUND_TRIP_TOLERANCE, 10.0 * slope * tol)
     if abs(_gap(root)) > allowed:
         raise RuntimeError(
             f"购买率 MDE 反解不可信：回代功效误差 {abs(_gap(root)):.3e} 超过允许值 {allowed:.3e}"
@@ -1141,26 +1141,35 @@ def build_mde_rows(
     protocol: V3Protocol | None = None,
     profiles: Mapping[str, DesignSampleProfile] | None = None,
     *,
-    design_scenario: str | None = None,
+    design_scenarios: Sequence[str] | None = None,
     sides_reported: Sequence[str] = (TWO_SIDED, ONE_SIDED),
     root_tolerance: float | None = None,
 ) -> list[dict[str, Any]]:
     """生成 ``outputs/tables/v3_phase_D_mde.csv`` 的全部行。
 
-    ``record_type = design_mde`` 的行覆盖"队列 × 分流 × 功效 × 单/双侧 × 指标 ×
-    是否多重校正"；``record_type = power_cell`` 的行覆盖 20 个功效格。所有参数
-    （α、目标功效、分流网格、族大小、根容差、队列人数）都从注册表读。
+    ``record_type = design_mde`` 的行覆盖"设计场景 × 队列 × 分流 × 功效 × 单/双侧 ×
+    指标 × 是否多重校正"；``record_type = power_cell`` 的行覆盖 20 个功效格。
+    所有参数（α、目标功效、分流网格、族大小、根容差、队列人数）都从注册表读。
+
+    ``design_scenarios`` 默认取 ``design.local_power.base_scenarios``（四层的参考机制）。
+    之所以逐层各出一份 design_mde 行，是因为 **σ 与 p0 随机制变化**，同一个 20 万人
+    队列在不同层能检测到的最小效应并不相同；只报 L1 会把"利潤 MDE"说成层级无关。
     """
     proto = protocol or load_v3_protocol()
     provided = dict(profiles or {})
-    scenario = design_scenario or design_scenario_id(proto)
-    if scenario not in provided:
-        raise ValueError(f"缺少主设计场景 {scenario} 的设计样本画像")
-    profile = provided[scenario]
+    design = proto.config.section("design")
+    if design_scenarios is None:
+        scenarios = [str(name) for name in design["local_power"]["base_scenarios"]]
+    else:
+        scenarios = [str(name) for name in design_scenarios]
+    if not scenarios:
+        raise ValueError("至少要给一个设计场景")
+    missing = [name for name in scenarios if name not in provided]
+    if missing:
+        raise ValueError(f"缺少这些设计场景的样本画像：{missing}")
     alpha = alpha_from_config(proto)
     powers = power_targets_from_config(proto)
     shares = allocation_shares_from_config(proto)
-    design = proto.config.section("design")
     primary_metric = str(design["primary_metric"])
     auxiliary_metric = str(design["auxiliary_metric"])
     auxiliary_family = _families_from_config(proto)
@@ -1172,98 +1181,104 @@ def build_mde_rows(
     sides_list = [_validate_sides(side) for side in sides_reported]
     if not sides_list:
         raise ValueError("至少要报告一种单/双侧口径")
-    level = str(proto.scenario(scenario).require("active_scenario.level"))
-    variance_source = f"design_pilot_train_split:{scenario}:rep{profile.rep_id}"
+    primary_scenario = design_scenario_id(proto)
+    contrasts = contrasts_from_config(proto)
 
     rows: list[dict[str, Any]] = []
-    for contrast in contrasts_from_config(proto):
-        if contrast.cohort_id == "independent_validation":
-            allocations: tuple[float | None, ...] = (None,)
-        else:
-            allocations = tuple(shares)  # type: ignore[assignment]
-        for share in allocations:
-            if share is None:
-                n_treatment, n_control = contrast.n_treatment, contrast.n_control
+    for scenario in scenarios:
+        profile = provided[scenario]
+        level = str(proto.scenario(scenario).require("active_scenario.level"))
+        variance_source = f"design_pilot_train_split:{scenario}:rep{profile.rep_id}"
+        for contrast in contrasts:
+            if contrast.cohort_id == "independent_validation":
+                allocations: tuple[float | None, ...] = (None,)
             else:
-                counts = split_counts(contrast.n_total, (share, 1.0 - share))
-                n_treatment, n_control = counts
-            share_label = n_treatment / (n_treatment + n_control)
-            for sides in sides_list:
-                for power in powers:
-                    for metric in (primary_metric, auxiliary_metric):
-                        is_proportion = metric == auxiliary_metric
-                        if is_proportion:
-                            variants = [("none", 1), ("holm", len(auxiliary_family))]
-                        elif contrast.metric_family == "policy_comparison":
-                            variants = [("none", 1), ("holm", len(policy_comparisons))]
-                        else:
-                            variants = [("none", 1)]
-                        for adjustment, family_size in variants:
-                            alpha_per_test = (alpha if adjustment == "none"
-                                              else holm_per_test_alpha(alpha, family_size))
+                allocations = tuple(shares)  # type: ignore[assignment]
+            for share in allocations:
+                if share is None:
+                    n_treatment, n_control = contrast.n_treatment, contrast.n_control
+                else:
+                    counts = split_counts(contrast.n_total, (share, 1.0 - share))
+                    n_treatment, n_control = counts
+                share_label = n_treatment / (n_treatment + n_control)
+                for sides in sides_list:
+                    for power in powers:
+                        for metric in (primary_metric, auxiliary_metric):
+                            is_proportion = metric == auxiliary_metric
                             if is_proportion:
-                                mde = purchase_mde(
-                                    profile.purchase_rate_control, n_treatment, n_control,
-                                    alpha=alpha_per_test, power=power, sides=sides,
-                                    tolerance=tolerance,
-                                )
-                                control_mean = profile.purchase_rate_control
-                                p0, p1 = control_mean, control_mean + mde
+                                variants = [("none", 1), ("holm", len(auxiliary_family))]
+                            elif contrast.metric_family == "policy_comparison":
+                                variants = [("none", 1), ("holm", len(policy_comparisons))]
                             else:
-                                mde = profit_mde(
-                                    profile.profit_sd_treatment, profile.profit_sd_control,
-                                    n_treatment, n_control,
-                                    alpha=alpha_per_test, power=power, sides=sides,
+                                variants = [("none", 1)]
+                            for adjustment, family_size in variants:
+                                alpha_per_test = (alpha if adjustment == "none"
+                                                  else holm_per_test_alpha(alpha, family_size))
+                                if is_proportion:
+                                    mde = purchase_mde(
+                                        profile.purchase_rate_control, n_treatment, n_control,
+                                        alpha=alpha_per_test, power=power, sides=sides,
+                                        tolerance=tolerance,
+                                    )
+                                    control_mean = profile.purchase_rate_control
+                                    p0, p1 = control_mean, control_mean + mde
+                                else:
+                                    mde = profit_mde(
+                                        profile.profit_sd_treatment, profile.profit_sd_control,
+                                        n_treatment, n_control,
+                                        alpha=alpha_per_test, power=power, sides=sides,
+                                    )
+                                    control_mean = profile.profit_mean_control
+                                    p0, p1 = None, None
+                                row = _base_row(proto)
+                                row.update({
+                                    "record_type": "design_mde",
+                                    "scenario_id": scenario,
+                                    "level": level,
+                                    "base_scenario_id": scenario,
+                                    "cohort_id": contrast.cohort_id,
+                                    "cohort_provenance": contrast.provenance,
+                                    "contrast": contrast.contrast,
+                                    "metric": metric,
+                                    "n_total": contrast.n_total,
+                                    "n_treatment": n_treatment,
+                                    "n_control": n_control,
+                                    "treatment_share": share_label,
+                                    "alpha": alpha,
+                                    "alpha_per_test": alpha_per_test,
+                                    "sides": sides,
+                                    "power_target": power,
+                                    "multiplicity": adjustment,
+                                    "family_size": family_size,
+                                    "mde": mde,
+                                    "mde_unit": ("probability" if is_proportion
+                                                 else "CNY_per_assigned_user"),
+                                    "mde_pp": mde * 100.0 if is_proportion else None,
+                                    "control_mean": control_mean,
+                                    "mde_relative_pct": _relative_percent(mde, control_mean),
+                                    "sigma_treatment": profile.profit_sd_treatment,
+                                    "sigma_control": profile.profit_sd_control,
+                                    "p0_baseline": p0,
+                                    "p1_at_mde": p1,
+                                    "analytic_power": power,
+                                    "variance_source": variance_source,
+                                    "observed_dataset_hash": profile.observed_dataset_hash,
+                                    "notes": (f"normal_approximation; root_tolerance={tolerance:g}; "
+                                              "cohort_split=user_id_within_run; R=0"),
+                                })
+                                row["primary_row"] = bool(
+                                    scenario == primary_scenario
+                                    and sides == TWO_SIDED
+                                    and abs(power - powers[0]) < 1e-12
+                                    and adjustment == "none"
+                                    and (
+                                        (contrast.cohort_id == "independent_validation"
+                                         and contrast.contrast == policy_comparisons[0])
+                                        or (contrast.cohort_id != "independent_validation"
+                                            and abs(share_label - 0.5) < _PROBABILITY_TOLERANCE)
+                                    )
                                 )
-                                control_mean = profile.profit_mean_control
-                                p0, p1 = None, None
-                            row = _base_row(proto)
-                            row.update({
-                                "record_type": "design_mde",
-                                "scenario_id": scenario,
-                                "level": level,
-                                "base_scenario_id": scenario,
-                                "cohort_id": contrast.cohort_id,
-                                "cohort_provenance": contrast.provenance,
-                                "contrast": contrast.contrast,
-                                "metric": metric,
-                                "n_total": contrast.n_total,
-                                "n_treatment": n_treatment,
-                                "n_control": n_control,
-                                "treatment_share": share_label,
-                                "alpha": alpha,
-                                "alpha_per_test": alpha_per_test,
-                                "sides": sides,
-                                "power_target": power,
-                                "multiplicity": adjustment,
-                                "family_size": family_size,
-                                "mde": mde,
-                                "mde_unit": "probability" if is_proportion else "CNY_per_assigned_user",
-                                "mde_pp": mde * 100.0 if is_proportion else None,
-                                "control_mean": control_mean,
-                                "mde_relative_pct": _relative_percent(mde, control_mean),
-                                "sigma_treatment": profile.profit_sd_treatment,
-                                "sigma_control": profile.profit_sd_control,
-                                "p0_baseline": p0,
-                                "p1_at_mde": p1,
-                                "analytic_power": power,
-                                "variance_source": variance_source,
-                                "observed_dataset_hash": profile.observed_dataset_hash,
-                                "notes": (f"normal_approximation; root_tolerance={tolerance:g}; "
-                                          "cohort_split=user_id_within_run; R=0"),
-                            })
-                            row["primary_row"] = bool(
-                                sides == TWO_SIDED
-                                and abs(power - powers[0]) < 1e-12
-                                and adjustment == "none"
-                                and (
-                                    (contrast.cohort_id == "independent_validation"
-                                     and contrast.contrast == policy_comparisons[0])
-                                    or (contrast.cohort_id != "independent_validation"
-                                        and abs(share_label - 0.5) < _PROBABILITY_TOLERANCE)
-                                )
-                            )
-                            rows.append(row)
+                                rows.append(row)
 
     for cell in calibrate_power_cells(proto, provided):
         row = _base_row(proto)

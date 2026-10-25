@@ -413,6 +413,34 @@ def test_purchase_mde_refuses_unreachable_power():
         vp.purchase_mde(0.12, 2, 2, alpha=0.05, power=0.999999)
 
 
+@pytest.mark.parametrize("n", [5000, 10000])
+def test_profit_mde_normal_approximation_survives_zero_inflated_profit(n):
+    """利润是"九成零 + 少数大额"的零膨胀变量（偏度≈5.7、超额峰度≈45），
+    MDE 却用正态近似：在真实形状下，MDE 处的实际拒绝率应随 n 增大逼近名义功效。"""
+    p_pay, payer_mean, payer_sd = 0.10, 26.0, 22.2
+    shape = (payer_mean / payer_sd) ** 2
+    scale = payer_sd**2 / payer_mean
+    sigma = math.sqrt(p_pay * payer_sd**2 + p_pay * (1 - p_pay) * payer_mean**2)
+    mde = vp.profit_mde(sigma, sigma, n, n, alpha=0.05, power=0.80)
+    rng = child_rng(master_seed=20240101, stream="test.v3_power.mc_zero_inflated", index=0)
+    reps = 600
+
+    def draw(uplift_per_assigned_user: float) -> np.ndarray:
+        """MDE 是"每个合格用户"的利润增量；购买者只占 p_pay，故购买者需抬高 mde/p_pay。"""
+        pays = rng.random((reps, n)) < p_pay
+        amounts = rng.gamma(shape, scale, size=(reps, n)) + uplift_per_assigned_user / p_pay
+        return np.where(pays, amounts, 0.0)
+
+    treated, control = draw(mde), draw(0.0)
+    se = np.sqrt(treated.var(axis=1, ddof=1) / n + control.var(axis=1, ddof=1) / n)
+    z = (treated.mean(axis=1) - control.mean(axis=1)) / se
+    rejection = float(np.mean(np.abs(z) > norm.ppf(0.975)))
+    # 实测：n=5000 → 0.747，n=10000 → 0.780（正态近似在强偏态下偏乐观）。
+    # 断言留 0.08 的余量：只要不是"完全没功效"或"离谱地高"就算通过。
+    assert abs(rejection - 0.80) < 0.08
+    assert rejection > 0.05
+
+
 def test_purchase_power_rejects_probability_overflow():
     with pytest.raises(ValueError):
         vp.purchase_power(0.9, 0.2, 100, 100, alpha=0.05)
@@ -764,11 +792,34 @@ def mde_rows(protocol, profiles):
 
 
 def test_rows_cover_design_and_power_cells(mde_rows, protocol):
-    assert len(mde_rows) == 196
-    assert sum(1 for row in mde_rows if row["record_type"] == "design_mde") == 176
+    base_scenarios = [str(name) for name in protocol.config.require("design.local_power.base_scenarios")]
+    assert len(mde_rows) == 176 * len(base_scenarios) + 20
+    assert sum(1 for row in mde_rows if row["record_type"] == "design_mde") == 176 * len(base_scenarios)
     assert sum(1 for row in mde_rows if row["record_type"] == "power_cell") == 20
     assert all(row["data_source"] == protocol.config.require("project.data_source_label")
                for row in mde_rows)
+
+
+def test_rows_cover_every_reference_mechanism(protocol, mde_rows):
+    """σ 与 p0 随机制变化，所以四层都要各有 design_mde 行，不能只报 L1。"""
+    reference = protocol.config.section("matrix_contract")["reference_scenarios"]
+    design_rows = [row for row in mde_rows if row["record_type"] == "design_mde"]
+    assert {row["scenario_id"] for row in design_rows} == set(reference.values())
+    assert {row["level"] for row in design_rows} == set(reference)
+    for level, scenario_id in reference.items():
+        per_level = [row for row in design_rows if row["scenario_id"] == scenario_id]
+        assert len(per_level) == 176
+        assert {row["level"] for row in per_level} == {level}
+
+
+def test_primary_rows_are_confined_to_the_primary_design_scenario(protocol, mde_rows):
+    primary_design = [row for row in mde_rows
+                      if row["record_type"] == "design_mde" and row["primary_row"]]
+    assert primary_design
+    assert {row["scenario_id"] for row in primary_design} == {vp.design_scenario_id(protocol)}
+    assert all(row["sides"] == vp.TWO_SIDED for row in primary_design)
+    assert all(row["power_target"] == pytest.approx(0.80) for row in primary_design)
+    assert all(row["multiplicity"] == "none" for row in primary_design)
 
 
 def test_rows_never_mix_total_sample_with_arm_samples(mde_rows):
@@ -851,12 +902,13 @@ def test_csv_writer_refuses_unknown_columns(mde_rows, tmp_path):
         vp.write_mde_csv(rows, tmp_path / "bad.csv")
 
 
-def test_committed_table_matches_its_schema():
+def test_committed_table_matches_its_schema(protocol):
     path = ROOT / "outputs" / "tables" / "v3_phase_D_mde.csv"
     if not path.exists():  # pragma: no cover - 表由 --table 生成后才会存在
         pytest.skip("尚未生成 v3_phase_D_mde.csv")
     frame = vp.read_mde_csv(path)
-    assert len(frame) == 196
+    dataset_cells = len(protocol.config.require("design.local_power.base_scenarios"))
+    assert len(frame) == 176 * dataset_cells + 20
     assert set(frame["record_type"]) == {"design_mde", "power_cell"}
     assert frame["data_source"].str.startswith("合成数据").all()
 
