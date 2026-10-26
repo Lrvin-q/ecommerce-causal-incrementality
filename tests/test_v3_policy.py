@@ -429,3 +429,46 @@ def test_random_under_budget_is_reproducible_and_respects_budget() -> None:
     assert first.mask.tolist() == second.mask.tolist(), "同一种子必须给出同一名单"
     assert first.selected_count == 20, "10 元预算 / 每人 0.5 元 = 20 人"
     assert first.predicted_cost <= 10.0 + 1e-9
+
+
+def test_random_baseline_summary_separates_quantiles_from_mean_se() -> None:
+    """分位数描述名单变异，mean_se 描述均值不确定性；两者绝不可互换。"""
+    from causal_growth.rng import child_rng
+
+    rng = child_rng(20240101, "test.rand.summary", 0)
+    values = rng.normal(1.0, 0.1, size=200)
+    summary = pol.summarize_random_baseline(values, quantiles=[0.025, 0.5, 0.975])
+
+    assert summary["n_seeds"] == 200
+    assert summary["mean"] == pytest.approx(float(values.mean()))
+    spread = summary["quantiles"][0.975] - summary["quantiles"][0.025]
+    assert summary["mean_se"] < spread / 10, "均值的标准误必须远小于名单变异区间"
+    assert "not the CI" in summary["interpretation"]
+
+
+def test_random_baseline_rejects_too_few_seeds() -> None:
+    with pytest.raises(ValueError, match="2 个种子"):
+        pol.summarize_random_baseline([1.0], quantiles=[0.5])
+
+
+def test_random_baseline_rejects_invalid_quantiles() -> None:
+    with pytest.raises(ValueError, match="分位数"):
+        pol.summarize_random_baseline([1.0, 2.0], quantiles=[1.5])
+
+
+def test_cost_options_reject_non_default_values(monkeypatch) -> None:
+    """偏差倍数/噪声当前是 1.0/0.0（等于无操作）。改成别的值必须响，不能静默忽略。"""
+    from causal_growth.config import Config
+    from causal_growth.v3_config import load_v3_protocol
+
+    cfg = load_v3_protocol().config
+    original = Config.require
+
+    def patched(self: Config, dotted: str):
+        if dotted == "policy.cost_model.prediction_bias_multiplier":
+            return 1.1
+        return original(self, dotted)
+
+    monkeypatch.setattr(Config, "require", patched)
+    with pytest.raises(NotImplementedError, match="尚未实现"):
+        pol._require_supported_cost_options(cfg)

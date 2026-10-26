@@ -20,6 +20,7 @@ r"""E 阶段策略接口（冻结版）：成本预测、二元选择器、预�
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
@@ -218,6 +219,22 @@ def tie_break_order(user_ids: Any) -> NDArray[np.int64]:
 # ---------------------------------------------------------------------------
 # 成本模型（已实现）
 # ---------------------------------------------------------------------------
+def _require_supported_cost_options(cfg: Config) -> None:
+    """成本模型只支持"无偏差、无噪声"的配置；别的值必须显式拒绝。
+
+    ``prediction_bias_multiplier = 1.0`` 与 ``multiplicative_noise_log_sd = 0.0``
+    当前都等于"不做任何事"。若有人把它们改掉，本模块**不能静默忽略**——
+    那会让"做了敏感性分析"变成一句空话。要么实现，要么在这里响。
+    """
+    bias = float(cfg.require("policy.cost_model.prediction_bias_multiplier"))
+    noise = float(cfg.require("policy.cost_model.multiplicative_noise_log_sd"))
+    if bias != 1.0 or noise != 0.0:
+        raise NotImplementedError(
+            f"成本模型的偏差倍数={bias}、对数噪声={noise} 尚未实现；"
+            "当前只支持 1.0 / 0.0。请先实现再加到配置里，不要静默忽略"
+        )
+
+
 def fit_cost_model(X: FloatArray, treatment: NDArray[np.int64],
                    purchased: NDArray[np.int64], coupon_cost: FloatArray,
                    cfg: Config) -> CostModel:
@@ -238,6 +255,7 @@ def fit_cost_model(X: FloatArray, treatment: NDArray[np.int64],
     """
     import lightgbm as lgb
 
+    _require_supported_cost_options(cfg)
     features = np.asarray(X, dtype=np.float64)
     treated_flag = np.asarray(treatment, dtype=np.int64)
     bought_flag = np.asarray(purchased, dtype=np.int64)
@@ -582,6 +600,36 @@ def random_under_budget(value: FloatArray, cost: FloatArray, budget: float,
             mask[index] = True
             spent += float(costs[index])
     return _assemble(values, costs, mask, "random_same_budget")
+
+
+def summarize_random_baseline(values: Sequence[float], quantiles: Sequence[float]) -> dict[str, Any]:
+    """汇总多个随机种子的名单价值（``random_baseline.summary``）。
+
+    **分位数描述的是"名单换一批人"的变异，不是均值的置信区间**
+    （policy.yaml ``random_baseline.interpretation``）。把 ``q=0.025/0.975`` 当成均值 CI
+    会把"随机名单的波动范围"误读成"均值的不确定性"——后者应按 ``mean_se`` 计算，
+    它随种子数按 ``1/√n`` 收缩，而分位数不会。
+
+    两个量都返回，正是为了让这个区别不可混淆。
+    """
+    array = np.asarray(list(values), dtype=np.float64)
+    if array.ndim != 1:
+        raise ValueError("values 必须是一维")
+    if array.size < 2:
+        raise ValueError("随机基线至少要 2 个种子，否则标准差无定义")
+    levels = [float(q) for q in quantiles]
+    if any(not (0.0 < q < 1.0) for q in levels):
+        raise ValueError("分位数必须严格落在 (0,1) 内")
+
+    sd = float(array.std(ddof=1))
+    return {
+        "n_seeds": int(array.size),
+        "mean": float(array.mean()),
+        "sd": sd,
+        "mean_se": float(sd / np.sqrt(array.size)),
+        "quantiles": {q: float(np.quantile(array, q)) for q in levels},
+        "interpretation": "quantiles describe list-to-list variability, not the CI of the mean",
+    }
 
 
 # ---------------------------------------------------------------------------
