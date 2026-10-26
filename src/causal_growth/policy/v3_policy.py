@@ -529,6 +529,62 @@ def lp_upper_bound(value: FloatArray, cost: FloatArray, budget: float) -> float:
 
 
 # ---------------------------------------------------------------------------
+# 排序类策略与随机基线（通用组件）
+# ---------------------------------------------------------------------------
+def rank_and_select(score: FloatArray, cost: FloatArray, budget: float, user_id: NDArray,
+                    algorithm: str) -> Selection:
+    """按分数降序选到预算用完，用于所有"排序类"策略。
+
+    与 ``greedy_by_ratio`` 的区别：本函数吃的是**任意分数**（购买倾向、预测利润、
+    预测增量……），不要求"价值/成本"的比值语义。平手时按 ``user_id`` 升序
+    （``np.lexsort`` 保证确定性，不依赖 ``argsort`` 的默认行为）。
+
+    ``algorithm`` 必须是已注册的策略名，否则 ``Selection`` 构造会拒绝。
+    """
+    scores = np.asarray(score, dtype=np.float64)
+    costs = np.asarray(cost, dtype=np.float64)
+    identifiers = np.asarray(user_id)
+    require_same_length(scores, costs, identifiers)
+    _validate_solver_inputs(scores, costs, budget)
+
+    mask = np.zeros(scores.size, dtype=np.bool_)
+    order = np.lexsort((identifiers, -scores))
+    spent = 0.0
+    for index in order:
+        if scores[index] <= 0:
+            break  # 分数降序，后面的都不为正
+        if spent + costs[index] <= budget + BUDGET_TOLERANCE:
+            mask[index] = True
+            spent += float(costs[index])
+    return _assemble(scores, costs, mask, algorithm)
+
+
+def random_under_budget(value: FloatArray, cost: FloatArray, budget: float,
+                        rng: np.random.Generator) -> Selection:
+    """同一预算下的随机名单基线（``random_same_budget``）。
+
+    ``rng`` 必须是 ``child_rng`` 派生的生成器，禁止裸 ``np.random``。
+    预算是**期望核销成本**，所以随机名单也按成本装填，不是无限发券。
+    ``predicted_value`` 仍按 ``value`` 汇总，便于与其他策略在同一预测目标下比较；
+    它**不参与选人**——随机名单的选人只由 ``rng`` 决定。
+    """
+    values = np.asarray(value, dtype=np.float64)
+    costs = np.asarray(cost, dtype=np.float64)
+    require_same_length(values, costs)
+    if budget < 0:
+        raise ValueError("预算不能为负")
+    require_non_negative_cost(costs, floor=0.0)
+
+    mask = np.zeros(costs.size, dtype=np.bool_)
+    spent = 0.0
+    for index in rng.permutation(costs.size):
+        if spent + costs[index] <= budget + BUDGET_TOLERANCE:
+            mask[index] = True
+            spent += float(costs[index])
+    return _assemble(values, costs, mask, "random_same_budget")
+
+
+# ---------------------------------------------------------------------------
 # 预算（已实现）
 # ---------------------------------------------------------------------------
 def build_budget_plan(cfg: Config, n_target: int) -> BudgetPlan:

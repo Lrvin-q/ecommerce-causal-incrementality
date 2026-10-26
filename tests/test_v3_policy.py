@@ -383,3 +383,49 @@ def test_predict_expected_cost_rejects_1d_input() -> None:
     cfg = load_v3_protocol().config
     with pytest.raises(ValueError, match="二维"):
         pol.predict_expected_cost(None, np.zeros(5), cfg)
+
+
+# ---------------------------------------------------------------------------
+# 排序类策略与随机基线
+# ---------------------------------------------------------------------------
+def test_rank_and_select_breaks_ties_by_user_id_ascending() -> None:
+    """同分时按 user_id 升序——这是 policy.yaml 冻结的 tie-break，不能交给不稳定排序。"""
+    score = np.array([0.0, 5.0, 5.0, 1.0])
+    cost = np.ones(4)
+    user_id = np.array([3, 2, 1, 4])
+
+    selection = pol.rank_and_select(score, cost, budget=2.0, user_id=user_id,
+                                    algorithm="incremental_profit_rank")
+
+    assert selection.mask.tolist() == [False, True, True, False], "应选中两个 5 分且 user_id 较小的"
+    assert selection.selected_count == 2
+
+
+def test_rank_and_select_stops_at_non_positive_scores() -> None:
+    score = np.array([-1.0, 0.5])
+    cost = np.ones(2)
+    user_id = np.array([1, 2])
+
+    selection = pol.rank_and_select(score, cost, budget=10.0, user_id=user_id,
+                                    algorithm="incremental_profit_rank")
+
+    assert selection.mask.tolist() == [False, True], "负分的人不该因为预算宽裕就被选中"
+
+
+def test_rank_and_select_rejects_unregistered_algorithm_name() -> None:
+    with pytest.raises(ValueError, match="未注册的算法名"):
+        pol.rank_and_select(np.array([1.0]), np.array([1.0]), 1.0, np.array([1]), "our_best_policy")
+
+
+def test_random_under_budget_is_reproducible_and_respects_budget() -> None:
+    from causal_growth.rng import child_rng
+
+    value = np.ones(100)
+    cost = np.full(100, 0.5)
+
+    first = pol.random_under_budget(value, cost, budget=10.0, rng=child_rng(20240101, "test.rand", 0))
+    second = pol.random_under_budget(value, cost, budget=10.0, rng=child_rng(20240101, "test.rand", 0))
+
+    assert first.mask.tolist() == second.mask.tolist(), "同一种子必须给出同一名单"
+    assert first.selected_count == 20, "10 元预算 / 每人 0.5 元 = 20 人"
+    assert first.predicted_cost <= 10.0 + 1e-9
