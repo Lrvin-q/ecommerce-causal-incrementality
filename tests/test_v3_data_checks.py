@@ -382,3 +382,25 @@ with _output_registry_lock(Path(sys.argv[1])):
     assert owner.returncode != 0
     with checks._output_registry_lock(tmp_path):
         assert checks.process_identity(actual_pid) is None
+
+
+def test_registry_lock_open_failure_becomes_active_validation_not_permission_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """``open`` 本身失败时必须翻译成 ActiveValidationError。
+
+    修复前 ``open("a+b")`` 裸奔：Windows 共享冲突（WinError 32/5）会以裸 ``PermissionError``
+    冒泡，调用方看到的是崩溃，既不是"另一个进程在跑"，也不会触发重试。这条测试用
+    monkeypatch 直接让锁文件的 open 抛错，不依赖真实竞争即可复现。
+    """
+    original_open = Path.open
+
+    def guarded_open(self: Path, *args, **kwargs):
+        if self.name == ".registry.lock":
+            raise PermissionError(13, "sharing violation")
+        return original_open(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", guarded_open)
+    with pytest.raises(checks.ActiveValidationError, match="registering"):
+        with checks._output_registry_lock(tmp_path):
+            pytest.fail("open 失败时应拒绝进入，而不是继续持有锁")

@@ -119,9 +119,22 @@ def process_identity(pid: int) -> dict[str, Any] | None:
 
 @contextmanager
 def _output_registry_lock(output_root: Path) -> Iterator[None]:
-    """Hold an OS-released cross-process lock over scan AND attempt registration."""
+    """Hold an OS-released cross-process lock over scan AND attempt registration.
+
+    ``open`` itself can fail on Windows when another process holds the file with an
+    incompatible share mode (``WinError 32/5``). That is the same contention this lock
+    exists to report, so it is translated into :class:`ActiveValidationError` instead of
+    escaping as a bare ``PermissionError`` — otherwise a caller sees a crash rather than
+    "another process is running", and retry logic never triggers.
+    """
     output_root.mkdir(parents=True, exist_ok=True)
-    with (output_root / ".registry.lock").open("a+b") as handle:
+    try:
+        handle = (output_root / ".registry.lock").open("a+b")
+    except OSError as exc:
+        raise ActiveValidationError(
+            "another process is registering an engineering attempt; retry after registration"
+        ) from exc
+    with handle:
         if handle.seek(0, os.SEEK_END) == 0:
             handle.write(b"\0")
             handle.flush()
