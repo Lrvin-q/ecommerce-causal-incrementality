@@ -90,19 +90,6 @@ def test_length_mismatch_is_rejected_not_broadcast() -> None:
         pol.require_same_length(np.zeros(3), np.zeros(2))
 
 
-@pytest.mark.parametrize(
-    "call",
-    [
-        lambda: pol.fit_cost_model(None, None),
-        lambda: pol.predict_expected_cost(None, None, None),
-    ],
-)
-def test_unimplemented_interfaces_raise_explicitly(call) -> None:
-    """尚未实现的接口必须明确抛 NotImplementedError，而不是静默返回。"""
-    with pytest.raises(NotImplementedError):
-        call()
-
-
 def test_policy_and_solver_names_match_the_contract() -> None:
     """9 个候选策略、5 个求解器，名称与 policy.yaml 一一对应。"""
     assert len(pol.POLICY_NAMES) == 9
@@ -329,3 +316,70 @@ def test_decompose_error_closes_and_allows_negative_optimization() -> None:
     assert decomposition.optimization_error < 0
     assert decomposition.total_regret == pytest.approx(10.0 / 4)
     assert abs(decomposition.identity_residual) <= pol.ERROR_IDENTITY_TOLERANCE
+
+
+# ---------------------------------------------------------------------------
+# 成本模型（两阶段）
+# ---------------------------------------------------------------------------
+def _synthetic_cost_data(n: int = 2000, seed_index: int = 0):
+    """构造购买与核销都受 X 驱动的合成数据，附带真实期望成本。"""
+    from causal_growth.rng import child_rng
+
+    rng = child_rng(master_seed=20240101, stream="test.policy.cost", index=seed_index)
+    X = rng.normal(size=(n, 3))
+    p_purchase = 1.0 / (1.0 + np.exp(-(2.0 * X[:, 0] - 1.0)))
+    bought = rng.binomial(1, p_purchase).astype(np.int64)
+    p_redeem = 1.0 / (1.0 + np.exp(-(2.0 * X[:, 1])))
+    redeemed = (bought == 1) & (rng.random(n) < p_redeem)
+    coupon_cost = redeemed.astype(np.float64) * 10.0
+    treatment = np.ones(n, dtype=np.int64)
+    return X, treatment, bought, coupon_cost, 10.0 * p_purchase * p_redeem
+
+
+def test_cost_model_recovers_expected_cost_structure() -> None:
+    """两阶段模型应恢复 E[券成本] = 面额 × P(购买) × P(核销|购买)。
+
+    这是**结构与量级**检查，不是精度承诺：LightGBM 在 2000 样本上必有噪声，
+    所以只断言相关性足够高、取值区间合法。
+    """
+    from causal_growth.v3_config import load_v3_protocol
+
+    cfg = load_v3_protocol().config
+    X, treatment, bought, coupon_cost, true_expected = _synthetic_cost_data()
+
+    model = pol.fit_cost_model(X, treatment, bought, coupon_cost, cfg)
+    predicted = pol.predict_expected_cost(model, X, cfg)
+
+    assert predicted.shape == (X.shape[0],)
+    assert predicted.min() >= float(cfg.require("policy.cost_model.cost_floor_cny")) - 1e-12
+    assert predicted.max() <= 10.0 + 1e-9
+    correlation = float(np.corrcoef(predicted, true_expected)[0, 1])
+    assert correlation > 0.75, f"预测与真实期望成本相关性过低：{correlation:.3f}"
+
+
+def test_cost_model_rejects_samples_without_treated() -> None:
+    from causal_growth.v3_config import load_v3_protocol
+
+    cfg = load_v3_protocol().config
+    X = np.zeros((100, 3))
+    with pytest.raises(ValueError, match="treatment=1"):
+        pol.fit_cost_model(X, np.zeros(100, dtype=np.int64), np.zeros(100, dtype=np.int64),
+                           np.zeros(100), cfg)
+
+
+def test_cost_model_rejects_constant_purchase_label() -> None:
+    from causal_growth.v3_config import load_v3_protocol
+
+    cfg = load_v3_protocol().config
+    X = np.zeros((100, 3))
+    with pytest.raises(ValueError, match="购买标签"):
+        pol.fit_cost_model(X, np.ones(100, dtype=np.int64), np.zeros(100, dtype=np.int64),
+                           np.zeros(100), cfg)
+
+
+def test_predict_expected_cost_rejects_1d_input() -> None:
+    from causal_growth.v3_config import load_v3_protocol
+
+    cfg = load_v3_protocol().config
+    with pytest.raises(ValueError, match="二维"):
+        pol.predict_expected_cost(None, np.zeros(5), cfg)

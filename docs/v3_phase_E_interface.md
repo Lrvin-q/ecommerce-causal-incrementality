@@ -43,21 +43,26 @@
 ```python
 @dataclass(frozen=True)
 class CostModel:
-    """两阶段成本模型：P(购买) × E[核销金额 | 购买]，再加辅助直接回归作对照。"""
-    stage_purchase: Any        # 购买倾向模型（分类）
-    stage_redemption: Any      # 条件核销金额模型（回归）
+    """两阶段成本模型：P(购买) × P(核销|购买) × 面额，再加辅助直接回归作对照。"""
+    stage_purchase: Any        # 购买倾向（分类）
+    stage_redemption: Any      # 条件核销（分类，只在购买者上训练）
     auxiliary_direct: Any      # 直接对成本回归的辅助模型
     target: str                # 必须等于 "expected_coupon_cost_given_assigned_coupon_and_observable_features"
 
-def fit_cost_model(learning: LearningData, cfg: Config) -> CostModel:
-    """只在 training 上拟合；validation 只用于校准，不参与拟合。"""
-
-def predict_expected_cost(model: CostModel, frame: pd.DataFrame, cfg: Config) -> NDArray[np.float64]:
-    """返回逐用户的 ĉ(X)，下界 cost_floor_cny（1e-6），不得为 0 或负。"""
+def fit_cost_model(X, treatment, purchased, coupon_cost, cfg) -> CostModel
+def predict_expected_cost(model, X, cfg) -> NDArray[np.float64]
 ```
 
-**为什么成本必须是 $\hat c = 10 \times \hat P(\text{核销})$ 而不是面额。**
-用面额做预算约束会把预算高估 10 倍以上（核销率约 0.55，且只有部分人购买），
+**接口变更（2026-10-26）**：原设计收 `LearningData`，但它的 `SplitBlock` 只带主指标 `y`
+（净增量利润），**不含 `coupon_cost` / `paid_purchase_7d`**，无法训练成本模型。
+扩展 `LearningData` 会动 D.3 已验收的接口，因此改为**纯数组入参**，
+由调用方保证只传 training 子集。`CostModel.fitted_on` 仍标 `training_only`。
+
+**只用 `treatment == 1` 的样本训练。** 券成本只在被发券的人身上有定义；
+把对照组（成本恒 0）混进来会把期望成本系统性地压向零，预算约束随之失效。
+
+**为什么成本必须是 $\hat c = \text{面额} \times \hat P(\text{购买}) \times \hat P(\text{核销}\mid\text{购买})$ 而不是面额。**
+用面额做预算约束会把预算高估十倍以上（核销率约 0.55，且只有部分人购买），
 策略会选得过少、看起来"保守"，实际是口径错。这一点 v2 已经踩过，写进过复盘。
 
 ### 2.2 选择器族 `v3_select.py`
@@ -223,7 +228,13 @@ total_regret = learning_error + optimization_error
 | MILP 用哪个求解器 | **已定**：`scipy.optimize.milp`（scipy 1.18 内置 HiGHS），无额外依赖 |
 | `learning_error` 用哪个"该 τ̂ 的最优" | **已定**：改由调用方传入 `oracle_under_hat_mask`，函数内不隐式求解——否则无法审计 |
 | 桶宽收敛的验收阈值（相邻两档差多少算收敛） | **仍未定**。必须先看到实际曲线再定，不能先拍一个再凑 |
+| `fit_cost_model` 的输入容器 | **已改**：`LearningData` 只有主指标 `y`、不含成本标签，改纯数组入参 |
 
-前三条是接口冻结后、实现时暴露的问题：`decompose_error` 原签名缺 `oracle_under_hat_mask`，
-若在函数内部求解就必须隐式依赖预算与求解器选型，等于把不可审计的假设藏进函数体。
+前四条是接口冻结后、实现时暴露的问题，两条值得记下来：
+
+1. `decompose_error` 原签名缺 `oracle_under_hat_mask`。若在函数内部求解，就必须隐式依赖
+   预算与求解器选型，等于把不可审计的假设藏进函数体。
+2. `fit_cost_model` 原签名收 `LearningData`，但它不带 `coupon_cost` / `paid_purchase_7d`。
+   这不是笔误，是**接口冻结时没有把"这个函数需要哪些标签"列清楚**。
+
 **接口冻结不完整是正常的，但修正必须回写文档**——所以本节保留这些记录，而不是悄悄改掉。

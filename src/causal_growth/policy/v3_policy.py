@@ -24,10 +24,10 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 import numpy as np
-import pandas as pd
 from numpy.typing import NDArray
 
 from causal_growth.config import Config
+from causal_growth.rng import child_seed
 
 FloatArray = NDArray[np.float64]
 BoolArray = NDArray[np.bool_]
@@ -215,14 +215,100 @@ def tie_break_order(user_ids: Any) -> NDArray[np.int64]:
 # ---------------------------------------------------------------------------
 # 成本模型接口（不实现）
 # ---------------------------------------------------------------------------
-def fit_cost_model(learning: Any, cfg: Config) -> CostModel:
-    """在 training 观测上拟合两阶段成本模型；validation 只用于校准。"""
-    raise NotImplementedError("E 阶段实现：两阶段成本模型")
+# ---------------------------------------------------------------------------
+# 成本模型（已实现）
+# ---------------------------------------------------------------------------
+def fit_cost_model(X: FloatArray, treatment: NDArray[np.int64],
+                   purchased: NDArray[np.int64], coupon_cost: FloatArray,
+                   cfg: Config) -> CostModel:
+    r"""在 training 观测上拟合两阶段成本模型。
+
+    **接口变更（2026-10-26）**：原签名收 ``LearningData``，但它的 ``SplitBlock`` 只带主指标
+    ``y``（净增量利润），**不含** ``coupon_cost`` / ``paid_purchase_7d``，无法训练成本模型。
+    扩展 ``LearningData`` 会动 D.3 已验收的接口，因此改为**纯数组入参**，
+    由调用方保证只传 training 子集。
+
+    两阶段口径（``cost_model.primary``）：
+
+    .. math:: E[\text{券成本}\mid X] = \text{面额}\times P(\text{购买}\mid X)
+              \times P(\text{核销}\mid \text{购买}, X)
+
+    只用 ``treatment == 1`` 的样本训练——券成本只在被发券的人身上有定义，
+    把对照组（成本恒 0）混进来会把期望成本系统性地压到零。
+    """
+    import lightgbm as lgb
+
+    features = np.asarray(X, dtype=np.float64)
+    treated_flag = np.asarray(treatment, dtype=np.int64)
+    bought_flag = np.asarray(purchased, dtype=np.int64)
+    costs = np.asarray(coupon_cost, dtype=np.float64)
+    require_same_length(features, costs, treated_flag, bought_flag)
+    if features.ndim != 2:
+        raise ValueError("X 必须是二维特征矩阵")
+
+    treated = treated_flag == 1
+    if int(treated.sum()) < 10:
+        raise ValueError(f"treatment=1 的样本只有 {int(treated.sum())} 个，无法拟合成本模型")
+    features_treated = features[treated]
+    bought_treated = bought_flag[treated]
+    cost_treated = costs[treated]
+    if int(bought_treated.min()) == int(bought_treated.max()):
+        raise ValueError("购买标签在处理组内没有变异，第一阶段无法识别")
+
+    spec = cfg.require("models.lightgbm")
+    params = {
+        "n_estimators": int(spec["n_estimators"]),
+        "learning_rate": float(spec["learning_rate"]),
+        "num_leaves": int(spec["num_leaves"]),
+        "min_child_samples": int(spec["min_child_samples"]),
+        "subsample": float(spec["subsample"]),
+        "colsample_bytree": float(spec["colsample_bytree"]),
+        "n_jobs": int(spec["n_jobs"]),
+        "verbose": int(spec["verbosity"]),
+    }
+    master_seed = int(cfg.require("project.master_seed"))
+
+    stage_purchase = lgb.LGBMClassifier(
+        random_state=child_seed(master_seed, "v3.policy.cost.purchase", 0), **params
+    ).fit(features_treated, bought_treated)
+
+    buyers = bought_treated == 1
+    if int(buyers.sum()) < 10:
+        raise ValueError(f"购买者只有 {int(buyers.sum())} 个，条件核销阶段无法识别")
+    redeemed = (cost_treated[buyers] > 0).astype(np.int64)
+    if int(redeemed.min()) == int(redeemed.max()):
+        raise ValueError("核销标签在购买者内没有变异，第二阶段无法识别")
+    stage_redemption = lgb.LGBMClassifier(
+        random_state=child_seed(master_seed, "v3.policy.cost.redeem", 0), **params
+    ).fit(features_treated[buyers], redeemed)
+
+    auxiliary = lgb.LGBMRegressor(
+        random_state=child_seed(master_seed, "v3.policy.cost.direct", 0), **params
+    ).fit(features_treated, cost_treated)
+
+    return CostModel(
+        stage_purchase=stage_purchase,
+        stage_redemption=stage_redemption,
+        auxiliary_direct=auxiliary,
+    )
 
 
-def predict_expected_cost(model: CostModel, frame: pd.DataFrame, cfg: Config) -> FloatArray:
-    r"""逐用户预测 $\hat c(X)$（元），下界 ``policy.cost_model.cost_floor_cny``。"""
-    raise NotImplementedError("E 阶段实现：期望成本预测")
+def predict_expected_cost(model: CostModel, X: FloatArray, cfg: Config) -> FloatArray:
+    r"""逐用户预测 $\hat c(X)$（元），下界 ``policy.cost_model.cost_floor_cny``。
+
+    成本必须是**期望核销成本**而不是面额：用面额做预算约束会把预算高估十倍以上，
+    策略会选得过少、看起来"保守"，实际是口径错。
+    """
+    features = np.asarray(X, dtype=np.float64)
+    if features.ndim != 2:
+        raise ValueError("X 必须是二维特征矩阵")
+    face = float(cfg.require("policy.face_value_cny"))
+    floor = float(cfg.require("policy.cost_model.cost_floor_cny"))
+
+    p_purchase = model.stage_purchase.predict_proba(features)[:, 1]
+    p_redeem_given_purchase = model.stage_redemption.predict_proba(features)[:, 1]
+    expected = face * p_purchase * p_redeem_given_purchase
+    return np.maximum(expected, floor)
 
 
 # ---------------------------------------------------------------------------
