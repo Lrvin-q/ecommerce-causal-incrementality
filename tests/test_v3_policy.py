@@ -95,11 +95,6 @@ def test_length_mismatch_is_rejected_not_broadcast() -> None:
     [
         lambda: pol.fit_cost_model(None, None),
         lambda: pol.predict_expected_cost(None, None, None),
-        lambda: pol.greedy_by_ratio(np.zeros(1), np.ones(1), 1.0),
-        lambda: pol.local_swap(None, np.zeros(1), np.ones(1), 1.0, 10, 500),
-        lambda: pol.cent_exact_dp(np.zeros(1, dtype=np.int64), np.ones(1, dtype=np.int64), 100),
-        lambda: pol.milp_select(np.zeros(1), np.ones(1), 1.0, 60.0, 0.001),
-        lambda: pol.lp_upper_bound(np.zeros(1), np.ones(1), 1.0),
         lambda: pol.build_budget_plan(None, 100),
         lambda: pol.audit_budget(None, np.zeros(1), None),
         lambda: pol.policy_value(_mask(True), np.zeros(1)),
@@ -107,8 +102,8 @@ def test_length_mismatch_is_rejected_not_broadcast() -> None:
         lambda: pol.decompose_error(_mask(True), np.zeros(1), np.zeros(1), _mask(True)),
     ],
 )
-def test_interfaces_are_declared_but_not_implemented(call) -> None:
-    """E 阶段实现前，每个接口都必须明确抛 NotImplementedError，而不是静默返回。"""
+def test_unimplemented_interfaces_raise_explicitly(call) -> None:
+    """尚未实现的接口必须明确抛 NotImplementedError，而不是静默返回。"""
     with pytest.raises(NotImplementedError):
         call()
 
@@ -119,3 +114,142 @@ def test_policy_and_solver_names_match_the_contract() -> None:
     assert set(pol.SOLVER_NAMES) == {"greedy", "local_swap", "cent_exact_dp", "milp", "lp_relaxation"}
     assert "greedy_incremental_profit_per_cost" in pol.POLICY_NAMES
     assert "greedy_local_swap" in pol.POLICY_NAMES
+
+
+# ---------------------------------------------------------------------------
+# 求解器行为：冻结反例、枚举互证、顺序约束
+# ---------------------------------------------------------------------------
+def _brute_force(value: np.ndarray, cost: np.ndarray, budget: float) -> tuple[float, np.ndarray]:
+    """2^n 枚举的最优解（仅用于 n ≤ 12 的互证，不进生产路径）。"""
+    n = value.size
+    best_value, best_mask = -np.inf, np.zeros(n, dtype=np.bool_)
+    for bits in range(1 << n):
+        mask = np.array([(bits >> i) & 1 for i in range(n)], dtype=np.bool_)
+        if cost[mask].sum() <= budget + 1e-9:
+            candidate = float(value[mask].sum())
+            if candidate > best_value:
+                best_value, best_mask = candidate, mask
+    return best_value, best_mask
+
+
+def test_frozen_counterexample_greedy_loses_a_third() -> None:
+    """policy.yaml 冻结反例：贪心得 12，最优得 18，损失 33%。
+
+    这条是 greedy 不能声称"近似最优"的硬证据；若代码改动导致它不再复现，
+    说明目标或成本口径被动过。
+    """
+    value = np.array([12.0, 9.0, 9.0])
+    cost = np.array([6.0, 5.0, 5.0])
+    budget = 10.0
+
+    greedy = pol.greedy_by_ratio(value, cost, budget)
+    assert greedy.selected_count == 1, "贪心应只选比值最高的第一件"
+    assert greedy.predicted_value == pytest.approx(12.0)
+
+    exact = pol.cent_exact_dp(np.array([1200, 900, 900], dtype=np.int64),
+                              np.array([600, 500, 500], dtype=np.int64), 1000)
+    assert exact.selected_count == 2, "精确解应选后两件"
+    assert exact.predicted_value == pytest.approx(1800.0), "单位是分"
+
+    loss = (1800.0 - 1200.0) / 1800.0
+    assert loss == pytest.approx(1.0 / 3.0, abs=1e-9)
+
+
+def test_exact_dp_matches_brute_force_on_small_instances() -> None:
+    """分币精确 DP 必须与 2^n 枚举在同一整数化问题上给出同一最优值。"""
+    from causal_growth.rng import child_rng
+
+    rng = child_rng(master_seed=20240101, stream="test.policy.enum", index=0)
+    for trial in range(5):
+        n = 10
+        value_cents = rng.integers(1, 2000, size=n)
+        cost_cents = rng.integers(100, 800, size=n)
+        budget_cents = int(rng.integers(800, 2400))
+
+        exact = pol.cent_exact_dp(value_cents, cost_cents, budget_cents)
+        expected, _ = _brute_force(value_cents.astype(float), cost_cents.astype(float), float(budget_cents))
+        assert exact.predicted_value == pytest.approx(expected), f"trial {trial}"
+
+
+def test_milp_objective_matches_exact_dp_in_yuan() -> None:
+    """MILP 与分币 DP 在换算到元后应给出同一个最优目标值。"""
+    value = np.array([12.0, 9.0, 9.0, 7.0, 4.0])
+    cost = np.array([6.0, 5.0, 5.0, 3.0, 2.0])
+    budget = 10.0
+
+    milp = pol.milp_select(value, cost, budget, time_limit_seconds=30.0, relative_gap=0.0)
+    assert milp.status == "optimal"
+    assert milp.may_claim_optimal is True
+
+    exact = pol.cent_exact_dp((value * 100).astype(np.int64), (cost * 100).astype(np.int64), 1000)
+    assert milp.selection.predicted_value == pytest.approx(exact.predicted_value / 100.0)
+
+
+def test_solver_ordering_greedy_le_swap_le_exact_le_lp() -> None:
+    """四种口径的相对位置：贪心 ≤ 局部交换 ≤ 精确 ≤ LP 上界。
+
+    **必须在同一个分币整数化问题上比较**：若用浮点成本再单独取整给 DP，
+    两者面对的预算会差几分钱，最优解本来就可能不同（见接口文档 §2.2）。
+    """
+    from causal_growth.rng import child_rng
+
+    rng = child_rng(master_seed=20240101, stream="test.policy.order", index=0)
+    for trial in range(5):
+        n = 40
+        value_cents = rng.integers(10, 500, size=n)
+        cost_cents = rng.integers(10, 100, size=n)
+        budget_cents = int(rng.integers(200, 800))
+
+        value = value_cents.astype(np.float64)
+        cost = cost_cents.astype(np.float64)
+        budget = float(budget_cents)
+
+        greedy = pol.greedy_by_ratio(value, cost, budget)
+        swap = pol.local_swap(greedy, value, cost, budget, max_passes=10, exchange_candidate_limit=500)
+        exact = pol.cent_exact_dp(value_cents, cost_cents, budget_cents)
+        upper = pol.lp_upper_bound(value, cost, budget)
+
+        assert greedy.predicted_value <= swap.predicted_value + 1e-9, f"trial {trial}: swap 不该更差"
+        assert swap.predicted_value <= exact.predicted_value + 1e-9, f"trial {trial}: swap 不该超过精确解"
+        assert exact.predicted_value <= upper + 1e-9, f"trial {trial}: 精确解不该超过 LP 上界"
+
+
+def test_all_solvers_respect_the_budget() -> None:
+    value = np.array([5.0, 4.0, 3.0, 2.0])
+    cost = np.array([3.0, 2.5, 2.0, 1.0])
+    budget = 4.5
+
+    greedy = pol.greedy_by_ratio(value, cost, budget)
+    swap = pol.local_swap(greedy, value, cost, budget, max_passes=5, exchange_candidate_limit=10)
+    milp = pol.milp_select(value, cost, budget, time_limit_seconds=10.0, relative_gap=0.0)
+    for selection in (greedy, swap, milp.selection):
+        assert selection.predicted_cost <= budget + 1e-9, f"{selection.algorithm} 超预算"
+
+
+def test_greedy_rejects_unknown_tie_break() -> None:
+    with pytest.raises(ValueError, match="user_id_ascending"):
+        pol.greedy_by_ratio(np.array([1.0]), np.array([1.0]), 1.0, tie_break="random")
+
+
+def test_empty_pool_returns_empty_selection() -> None:
+    empty = np.zeros(0)
+    selection = pol.greedy_by_ratio(empty, empty, 1.0)
+    assert selection.selected_count == 0
+    assert pol.lp_upper_bound(empty, empty, 1.0) == 0.0
+
+
+def test_greedy_skips_unaffordable_and_keeps_going() -> None:
+    """装不下的跳过，不许直接中断——否则会白白浪费预算。"""
+    value = np.array([100.0, 1.0, 1.0])
+    cost = np.array([10.0, 1.0, 1.0])
+    selection = pol.greedy_by_ratio(value, cost, budget=10.0)
+    assert selection.mask.tolist() == [True, False, False]
+    # 预算刚好装下第一件；若改成跳过策略，后两件也装不下（10 元预算已用尽）
+
+
+def test_local_swap_never_worse_than_initial() -> None:
+    value = np.array([3.0, 3.0, 2.9, 2.9])
+    cost = np.array([2.0, 2.0, 2.0, 2.0])
+    initial = pol.greedy_by_ratio(value, cost, budget=4.0)
+    improved = pol.local_swap(initial, value, cost, budget=4.0, max_passes=5, exchange_candidate_limit=10)
+    assert improved.predicted_value >= initial.predicted_value - 1e-12

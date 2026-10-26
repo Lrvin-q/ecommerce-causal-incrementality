@@ -214,38 +214,220 @@ def predict_expected_cost(model: CostModel, frame: pd.DataFrame, cfg: Config) ->
 
 
 # ---------------------------------------------------------------------------
-# 求解器接口（不实现）
+# 求解器族（已实现；口径见 docs/v3_phase_E_interface.md §4）
 # ---------------------------------------------------------------------------
+BUDGET_TOLERANCE = 1e-9
+
+
+def _validate_solver_inputs(value: FloatArray, cost: FloatArray, budget: float) -> None:
+    """求解器统一入口校验：等长、逐用户成本严格为正、预算非负。"""
+    require_same_length(value, cost)
+    if budget < 0:
+        raise ValueError("预算不能为负")
+    require_non_negative_cost(np.asarray(cost, dtype=np.float64), floor=0.0)
+
+
+def _assemble(value: FloatArray, cost: FloatArray, mask: BoolArray, algorithm: str) -> Selection:
+    """由 mask 汇总预测价值与预测成本，统一构造 Selection。"""
+    mask = np.asarray(mask, dtype=np.bool_)
+    return Selection(
+        mask=mask,
+        predicted_value=float(np.asarray(value, dtype=np.float64)[mask].sum()),
+        predicted_cost=float(np.asarray(cost, dtype=np.float64)[mask].sum()),
+        algorithm=algorithm,
+    )
+
+
 def greedy_by_ratio(value: FloatArray, cost: FloatArray, budget: float,
                     tie_break: str = "user_id_ascending") -> Selection:
-    r"""按 $\hat\tau/\hat c$ 降序选到预算用完。**不是背包，也不是最优。**"""
-    raise NotImplementedError("E 阶段实现：比值贪心")
+    r"""按 $\hat\tau/\hat c$ 降序选到预算用完。**不是背包，也不是最优。**
+
+    平手规则：输入必须已按 ``user_id`` 升序排列；本函数用 **stable** 排序，
+    因此比值相同的候选保持输入顺序，等价于冻结的 ``user_id_ascending``。
+    装不下的人**跳过继续看后面**，不直接中断——直接 break 会白白浪费预算。
+    只对预测价值为正的人排序（``no_negative_predicted_increment_for_targeting``）。
+    """
+    if tie_break != "user_id_ascending":
+        raise ValueError("只支持 user_id_ascending（policy.yaml 冻结口径）")
+    _validate_solver_inputs(value, cost, budget)
+    value = np.asarray(value, dtype=np.float64)
+    cost = np.asarray(cost, dtype=np.float64)
+
+    mask = np.zeros(value.size, dtype=np.bool_)
+    eligible = np.flatnonzero(value > 0)
+    if eligible.size == 0:
+        return _assemble(value, cost, mask, "greedy")
+
+    order = eligible[np.argsort(-(value[eligible] / cost[eligible]), kind="stable")]
+    spent = 0.0
+    for index in order:
+        if spent + cost[index] <= budget + BUDGET_TOLERANCE:
+            mask[index] = True
+            spent += float(cost[index])
+    return _assemble(value, cost, mask, "greedy")
 
 
 def local_swap(initial: Selection, value: FloatArray, cost: FloatArray, budget: float,
                max_passes: int, exchange_candidate_limit: int) -> Selection:
-    """贪心解上做成对交换的局部改进。**仍不保证最优。**"""
-    raise NotImplementedError("E 阶段实现：贪心后局部交换")
+    """贪心解上做成对交换的局部改进。**仍不保证最优。**
+
+    每轮尝试"移出一个已选、加入一个未选"，只在**价值严格上升且预算可行**时接受；
+    未选者按价值降序只看前 ``exchange_candidate_limit`` 个，避免 O(n²)。
+    任何一轮没有改进就停。
+    """
+    _validate_solver_inputs(value, cost, budget)
+    require_binary_mask(initial.mask, value.size)
+    if max_passes < 0 or exchange_candidate_limit <= 0:
+        raise ValueError("max_passes 不能为负，exchange_candidate_limit 必须为正")
+
+    value = np.asarray(value, dtype=np.float64)
+    cost = np.asarray(cost, dtype=np.float64)
+    mask = initial.mask.copy()
+    spent = float(cost[mask].sum())
+
+    for _ in range(max_passes):
+        selected = np.flatnonzero(mask)
+        unselected = np.flatnonzero(~mask)
+        if selected.size == 0 or unselected.size == 0:
+            break
+        unselected = unselected[np.argsort(-value[unselected], kind="stable")][:exchange_candidate_limit]
+
+        improved = False
+        for out_index in selected:
+            room = budget - (spent - cost[out_index])
+            candidates = unselected[(cost[unselected] <= room + BUDGET_TOLERANCE)
+                                    & (value[unselected] > value[out_index])]
+            if candidates.size == 0:
+                continue
+            in_index = int(candidates[np.argmax(value[candidates])])
+            mask[out_index] = False
+            mask[in_index] = True
+            spent += float(cost[in_index] - cost[out_index])
+            unselected = unselected[unselected != in_index]
+            improved = True
+            break
+        if not improved:
+            break
+    return _assemble(value, cost, mask, "local_swap")
 
 
 def cent_exact_dp(value_cents: NDArray[np.int64], cost_cents: NDArray[np.int64],
                   budget_cents: int) -> Selection:
-    """**分币整数化问题**上的精确 DP（``decimal_half_up_to_cent``）。
+    """**分币整数化问题**上的精确 0/1 背包 DP（``decimal_half_up_to_cent``）。
 
-    精确性只对该整数化问题成立，不得声称原浮点问题最优。
+    精确性只对该整数化问题成立；浮点原问题可能有不同最优解，**不得声称原问题最优**。
+    返回的 ``predicted_value`` / ``predicted_cost`` 单位是**分**（与输入一致）。
+    规模化使用注意：时间与内存都是 ``O(n × budget_cents)``，只用于小池子（≤ 500）。
     """
-    raise NotImplementedError("E 阶段实现：分币精确 DP")
+    value = np.asarray(value_cents, dtype=np.int64)
+    cost = np.asarray(cost_cents, dtype=np.int64)
+    if value.shape != cost.shape:
+        raise ValueError("value_cents 与 cost_cents 必须等长")
+    if value.ndim != 1:
+        raise ValueError("只接受一维数组")
+    if np.any(cost < 0):
+        raise ValueError("整数化成本不能为负")
+    budget = int(budget_cents)
+    if budget < 0:
+        raise ValueError("预算不能为负")
+
+    n = value.size
+    neg_inf = np.int64(-(1 << 62))
+    table = np.full((n + 1, budget + 1), neg_inf, dtype=np.int64)
+    table[0, :] = 0
+    take = np.zeros((n, budget + 1), dtype=np.bool_)
+
+    for i in range(n):
+        ci, vi = int(cost[i]), int(value[i])
+        table[i + 1] = table[i]
+        if ci <= budget and vi > 0:
+            candidate = table[i, : budget + 1 - ci] + vi
+            improved = candidate > table[i + 1, ci:]
+            positions = np.flatnonzero(improved) + ci
+            table[i + 1, positions] = candidate[improved]
+            take[i, positions] = True
+
+    best_budget = int(np.argmax(table[n]))
+    mask = np.zeros(n, dtype=np.bool_)
+    remaining = best_budget
+    for i in range(n - 1, -1, -1):
+        if take[i, remaining]:
+            mask[i] = True
+            remaining -= int(cost[i])
+    return _assemble(value.astype(np.float64), cost.astype(np.float64), mask, "cent_exact_dp")
 
 
 def milp_select(value: FloatArray, cost: FloatArray, budget: float,
                 time_limit_seconds: float, relative_gap: float) -> MilpResult:
-    """时间受控 MILP，必须同时返回 incumbent / bound / gap / status。"""
-    raise NotImplementedError("E 阶段实现：MILP 对照")
+    """时间受控 MILP（scipy 内置 HiGHS），必须同时返回 incumbent / bound / gap / status。
+
+    只有 ``status == "optimal"`` 且 ``gap ≈ 0`` 时 ``may_claim_optimal`` 才为真；
+    时间受限时返回的是**带上下界的可行解**，正文只能这么写。
+    """
+    from scipy.optimize import Bounds, LinearConstraint, milp
+
+    _validate_solver_inputs(value, cost, budget)
+    if time_limit_seconds <= 0:
+        raise ValueError("time_limit_seconds 必须为正")
+
+    value = np.asarray(value, dtype=np.float64)
+    cost = np.asarray(cost, dtype=np.float64)
+    result = milp(
+        c=-value,
+        constraints=LinearConstraint(cost.reshape(1, -1), -np.inf, budget),
+        integrality=np.ones(value.size),
+        bounds=Bounds(0, 1),
+        options={"time_limit": float(time_limit_seconds), "mip_rel_gap": float(relative_gap), "disp": False},
+    )
+
+    status_map = {0: "optimal", 1: "time_limit", 2: "infeasible"}
+    status = status_map.get(int(result.status), "error")
+    if result.x is None:
+        empty = np.zeros(value.size, dtype=np.bool_)
+        selection = _assemble(value, cost, empty, "milp")
+        incumbent = 0.0
+        bound = 0.0
+        gap = 0.0
+    else:
+        mask = np.asarray(result.x, dtype=np.float64) > 0.5
+        selection = _assemble(value, cost, mask, "milp")
+        incumbent = float(selection.predicted_value)
+        bound = float(-result.mip_dual_bound) if getattr(result, "mip_dual_bound", None) is not None else incumbent
+        gap = float(getattr(result, "mip_gap", 0.0) or 0.0)
+    return MilpResult(
+        selection=selection,
+        status=status,
+        incumbent=max(incumbent, 0.0),
+        bound=max(bound, max(incumbent, 0.0)),
+        relative_gap=max(gap, 0.0),
+        time_limit_seconds=float(time_limit_seconds),
+    )
 
 
 def lp_upper_bound(value: FloatArray, cost: FloatArray, budget: float) -> float:
-    """分数背包松弛给出的**上界**；不是可行解，不得当策略用。"""
-    raise NotImplementedError("E 阶段实现：LP 上界")
+    """分数背包松弛的**上界**（不是可行解，不得当策略用）。
+
+    与贪心使用**完全相同**的目标与成本（``policy.optimization``），否则上界没有意义。
+    只考虑预测价值为正的人：负价值的人在任何最优解里都不会被选中。
+    """
+    _validate_solver_inputs(value, cost, budget)
+    value = np.asarray(value, dtype=np.float64)
+    cost = np.asarray(cost, dtype=np.float64)
+    eligible = np.flatnonzero(value > 0)
+    if eligible.size == 0:
+        return 0.0
+
+    order = eligible[np.argsort(-(value[eligible] / cost[eligible]), kind="stable")]
+    remaining = float(budget)
+    total = 0.0
+    for index in order:
+        if cost[index] <= remaining + BUDGET_TOLERANCE:
+            total += float(value[index])
+            remaining -= float(cost[index])
+        else:
+            total += float(value[index]) * (remaining / float(cost[index]))
+            break
+    return float(total)
 
 
 # ---------------------------------------------------------------------------
