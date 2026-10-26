@@ -64,14 +64,14 @@ def test_error_decomposition_accepts_closed_identity() -> None:
 
 def test_budget_plan_requires_buffered_above_expected() -> None:
     with pytest.raises(ValueError, match="缓冲预算"):
-        pol.BudgetPlan(expected=1.0, buffered=0.9, worst_case=10.0, n_target=100)
+        pol.BudgetPlan(expected=1.0, buffered=0.9, worst_case=10.0, n_target=100, face_value=10.0)
 
 
 def test_budget_plan_rejects_negative_and_bad_n() -> None:
     with pytest.raises(ValueError, match="预算不能为负"):
-        pol.BudgetPlan(expected=-1.0, buffered=1.0, worst_case=1.0, n_target=100)
+        pol.BudgetPlan(expected=-1.0, buffered=1.0, worst_case=1.0, n_target=100, face_value=10.0)
     with pytest.raises(ValueError, match="目标用户数"):
-        pol.BudgetPlan(expected=1.0, buffered=1.25, worst_case=10.0, n_target=0)
+        pol.BudgetPlan(expected=1.0, buffered=1.25, worst_case=10.0, n_target=0, face_value=10.0)
 
 
 def test_tie_break_is_stable_by_user_id() -> None:
@@ -95,11 +95,6 @@ def test_length_mismatch_is_rejected_not_broadcast() -> None:
     [
         lambda: pol.fit_cost_model(None, None),
         lambda: pol.predict_expected_cost(None, None, None),
-        lambda: pol.build_budget_plan(None, 100),
-        lambda: pol.audit_budget(None, np.zeros(1), None),
-        lambda: pol.policy_value(_mask(True), np.zeros(1)),
-        lambda: pol.truth_regret(_mask(True), _mask(True), np.zeros(1)),
-        lambda: pol.decompose_error(_mask(True), np.zeros(1), np.zeros(1), _mask(True)),
     ],
 )
 def test_unimplemented_interfaces_raise_explicitly(call) -> None:
@@ -253,3 +248,84 @@ def test_local_swap_never_worse_than_initial() -> None:
     initial = pol.greedy_by_ratio(value, cost, budget=4.0)
     improved = pol.local_swap(initial, value, cost, budget=4.0, max_passes=5, exchange_candidate_limit=10)
     assert improved.predicted_value >= initial.predicted_value - 1e-12
+
+
+# ---------------------------------------------------------------------------
+# 预算三口径
+# ---------------------------------------------------------------------------
+def test_budget_plan_from_frozen_config() -> None:
+    """三种口径必须同时给出，数值直接来自 policy.yaml。"""
+    from causal_growth.v3_config import load_v3_protocol
+
+    cfg = load_v3_protocol().config
+    plan = pol.build_budget_plan(cfg, n_target=200_000)
+
+    assert plan.expected == pytest.approx(0.2 * 200_000)
+    assert plan.buffered == pytest.approx(plan.expected * 1.25)
+    assert plan.face_value == pytest.approx(10.0)
+    assert plan.max_recipients_face == 4_000
+    assert plan.worst_case == pytest.approx(10.0 * 4_000)
+
+
+def test_budget_plan_rejects_non_positive_n() -> None:
+    from causal_growth.v3_config import load_v3_protocol
+
+    cfg = load_v3_protocol().config
+    with pytest.raises(ValueError, match="目标用户数"):
+        pol.build_budget_plan(cfg, n_target=0)
+
+
+def test_face_bound_floor_rounds_down() -> None:
+    """面额口径下人数必须向下取整，不能因为余数多给一张券。"""
+    plan = pol.BudgetPlan(expected=95.0, buffered=118.75, worst_case=90.0, n_target=100, face_value=10.0)
+    assert plan.max_recipients_face == 9
+
+
+def test_audit_budget_flags_overrun_and_never_claims_hard_cap() -> None:
+    plan = pol.BudgetPlan(expected=100.0, buffered=125.0, worst_case=100.0, n_target=500, face_value=10.0)
+    mask = np.array([True, True, False, False], dtype=np.bool_)
+    selection = pol.Selection(mask=mask, predicted_value=5.0, predicted_cost=4.0, algorithm="greedy")
+
+    within = pol.audit_budget(selection, np.array([30.0, 30.0, 0.0, 0.0]), plan)
+    assert within["observed_cost_total"] == pytest.approx(60.0)
+    assert within["within_expected"] is True
+    assert within["face_bound_respected"] is True
+    assert within["hard_cap_claim_allowed"] is False
+
+    overrun = pol.audit_budget(selection, np.array([70.0, 60.0, 0.0, 0.0]), plan)
+    assert overrun["observed_cost_total"] == pytest.approx(130.0)
+    assert overrun["within_expected"] is False
+    assert overrun["within_buffered"] is False
+    assert overrun["hard_cap_claim_allowed"] is False
+
+
+# ---------------------------------------------------------------------------
+# 策略价值与误差分解
+# ---------------------------------------------------------------------------
+def test_policy_value_uses_all_users_as_denominator() -> None:
+    """分母是全部目标用户，不是被选中的人——否则不同预算下的价值不可比。"""
+    profit = np.array([1.0, 2.0, 3.0, 4.0])
+    mask = np.array([True, False, True, False], dtype=np.bool_)
+    assert pol.policy_value(mask, profit) == pytest.approx((1.0 + 3.0) / 4)
+
+
+def test_truth_regret_is_zero_for_the_optimal_mask() -> None:
+    profit = np.array([1.0, 2.0])
+    mask = np.array([True, False], dtype=np.bool_)
+    assert pol.truth_regret(mask, mask, profit) == pytest.approx(0.0)
+
+
+def test_decompose_error_closes_and_allows_negative_optimization() -> None:
+    """optimization_error 允许为负：τ̂ 有噪声时，"τ̂ 下最优"在真值下可能更差。"""
+    profit = np.array([10.0, -5.0, 0.0, 0.0])
+    truth_optimal = np.array([True, False, False, False], dtype=np.bool_)
+    oracle_under_hat = np.array([False, True, False, False], dtype=np.bool_)
+    actual = np.array([False, False, True, False], dtype=np.bool_)
+
+    decomposition = pol.decompose_error(actual, oracle_under_hat, truth_optimal, profit)
+
+    assert decomposition.learning_error == pytest.approx((10.0 - (-5.0)) / 4)
+    assert decomposition.optimization_error == pytest.approx((-5.0 - 0.0) / 4)
+    assert decomposition.optimization_error < 0
+    assert decomposition.total_regret == pytest.approx(10.0 / 4)
+    assert abs(decomposition.identity_residual) <= pol.ERROR_IDENTITY_TOLERANCE

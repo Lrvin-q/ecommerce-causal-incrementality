@@ -130,12 +130,17 @@ class MilpResult:
 
 @dataclass(frozen=True)
 class BudgetPlan:
-    """三种预算口径必须同时存在，且不得互相替代。"""
+    """三种预算口径必须同时存在，且不得互相替代。
+
+    ``worst_case`` 是**按面额计**的紧口径：最多发 ``floor(expected / face_value)`` 张券，
+    因此券面总额不超过 ``expected``。它保证的是"实际券支出不超"，代价是能覆盖的人少得多。
+    """
 
     expected: float
     buffered: float
     worst_case: float
     n_target: int
+    face_value: float
     multiplier: float = 1.25
 
     def __post_init__(self) -> None:
@@ -145,6 +150,13 @@ class BudgetPlan:
             raise ValueError("目标用户数必须为正")
         if self.buffered < self.expected:
             raise ValueError("缓冲预算不得低于期望预算")
+        if self.face_value <= 0:
+            raise ValueError("面额必须为正")
+
+    @property
+    def max_recipients_face(self) -> int:
+        """面额口径下最多能发券的人数（``floor(expected / face_value)``）。"""
+        return int(self.expected // self.face_value)
 
 
 @dataclass(frozen=True)
@@ -431,32 +443,101 @@ def lp_upper_bound(value: FloatArray, cost: FloatArray, budget: float) -> float:
 
 
 # ---------------------------------------------------------------------------
-# 预算接口（不实现）
+# 预算（已实现）
 # ---------------------------------------------------------------------------
-def build_budget_plan(budget_cfg: Any, n_target: int) -> BudgetPlan:
-    """由 ``policy.budget`` 构造三种预算口径。"""
-    raise NotImplementedError("E 阶段实现：预算三口径")
+def build_budget_plan(cfg: Config, n_target: int) -> BudgetPlan:
+    """由 ``policy.budget`` 构造三种预算口径。
+
+    主口径 ``expected`` 作用在**期望核销成本**上；``buffered`` 是显式风险缓冲
+    （``buffered_expected.multiplier``，当前 1.25），**不是硬上限**；
+    ``worst_case`` 按面额计，保证实际券支出不超。
+    """
+    if n_target <= 0:
+        raise ValueError("目标用户数必须为正")
+    base = float(cfg.require("policy.budget.base_per_user_cny"))
+    multiplier = float(cfg.require(
+        "policy.budget.conservative_comparison.modes.buffered_expected.multiplier"))
+    face = float(cfg.require(
+        "policy.budget.conservative_comparison.modes.worst_case_face.cost_per_user_cny"))
+    if base <= 0 or face <= 0:
+        raise ValueError("每人预算与券面额必须为正")
+    expected = base * n_target
+    return BudgetPlan(
+        expected=expected,
+        buffered=expected * multiplier,
+        worst_case=face * int(expected // face),
+        n_target=n_target,
+        face_value=face,
+        multiplier=multiplier,
+    )
 
 
 def audit_budget(selection: Selection, observed_cost: FloatArray, plan: BudgetPlan) -> dict[str, Any]:
-    """报告预期成本、实际支出、超支概率；主口径下**不得**声称硬上限。"""
-    raise NotImplementedError("E 阶段实现：预算审计")
+    """报告预测成本、实际支出与三种口径下的超支情况。
+
+    ``hard_cap_claim_allowed`` 恒为 False（policy.yaml 冻结）：主口径下**只能说"期望不超"**。
+    要声称"实际券支出不超"，只能用 ``face_bound_respected``（人数 ≤ floor(B / 面额)）。
+    """
+    cost = np.asarray(observed_cost, dtype=np.float64)
+    require_binary_mask(selection.mask, cost.size)
+    observed_total = float(cost[selection.mask].sum())
+    return {
+        "algorithm": selection.algorithm,
+        "selected_count": selection.selected_count,
+        "predicted_cost": selection.predicted_cost,
+        "observed_cost_total": observed_total,
+        "observed_cost_per_selected": (observed_total / selection.selected_count) if selection.selected_count else 0.0,
+        "expected_budget": plan.expected,
+        "buffered_budget": plan.buffered,
+        "within_expected": bool(observed_total <= plan.expected + BUDGET_TOLERANCE),
+        "within_buffered": bool(observed_total <= plan.buffered + BUDGET_TOLERANCE),
+        "face_bound_respected": bool(selection.selected_count <= plan.max_recipients_face),
+        "hard_cap_claim_allowed": False,
+    }
 
 
 # ---------------------------------------------------------------------------
-# 评估与审计接口（不实现）
+# 评估与审计（已实现）
 # ---------------------------------------------------------------------------
 def policy_value(mask: BoolArray, profit_true: FloatArray, baseline: FloatArray | None = None) -> float:
-    """给定名单的**真实**净增量利润（元/人）；只在冻结后由审计入口调用。"""
-    raise NotImplementedError("E 阶段实现：策略真值价值")
+    """给定名单的**真实**净增量利润（元/人）。
+
+    分母是**全部目标用户**（R1 口径），不是被选中的人——否则不同预算下的价值不可比。
+    ``baseline`` 若给出，会被减掉（用于"相对某个参照策略"的口径）。
+    """
+    profit = np.asarray(profit_true, dtype=np.float64)
+    boolean_mask = np.asarray(mask, dtype=np.bool_)
+    require_binary_mask(boolean_mask, profit.size)
+    value = float(profit[boolean_mask].sum()) / profit.size
+    if baseline is not None:
+        reference = np.asarray(baseline, dtype=np.float64)
+        require_same_length(profit, reference)
+        value -= float(reference[boolean_mask].sum()) / profit.size
+    return value
 
 
 def truth_regret(mask: BoolArray, truth_optimal_mask: BoolArray, profit_true: FloatArray) -> float:
-    """与真值最优名单的差（元）；这是**策略质量**，不是求解器质量。"""
-    raise NotImplementedError("E 阶段实现：真值 regret")
+    """与真值最优名单的差（元/人，通常非负）。这是**策略质量**，不是求解器质量。"""
+    return policy_value(truth_optimal_mask, profit_true) - policy_value(mask, profit_true)
 
 
-def decompose_error(mask: BoolArray, tau_hat: FloatArray, profit_true: FloatArray,
-                    truth_optimal_mask: BoolArray) -> ErrorDecomposition:
-    """拆成 learning / optimization 两项，并校验恒等式闭合。"""
-    raise NotImplementedError("E 阶段实现：误差分解")
+def decompose_error(mask: BoolArray, oracle_under_hat_mask: BoolArray,
+                    truth_optimal_mask: BoolArray, profit_true: FloatArray) -> ErrorDecomposition:
+    r"""拆成 learning / optimization 两项。
+
+    - ``learning_error`` = 真值最优 − **$\hat\tau$ 下的最优**（猜错 $\tau$ 的代价）
+    - ``optimization_error`` = $\hat\tau$ 下的最优 − 实际解（求解器没解到 $\hat\tau$ 最优的代价）
+    - ``total_regret`` = 真值最优 − 实际解
+
+    **``optimization_error`` 允许为负**：当 $\hat\tau$ 有噪声时，"$\hat\tau$ 下的最优"
+    在真值下可能不如某个次优解。这不是 bug，是"用预测目标求最优"的固有性质，
+    恒等式仍逐项闭合。把这一项当成"求解器一定在拖后腿"是误读。
+    """
+    value_actual = policy_value(mask, profit_true)
+    value_oracle_hat = policy_value(oracle_under_hat_mask, profit_true)
+    value_oracle_truth = policy_value(truth_optimal_mask, profit_true)
+    return ErrorDecomposition(
+        learning_error=value_oracle_truth - value_oracle_hat,
+        optimization_error=value_oracle_hat - value_actual,
+        total_regret=value_oracle_truth - value_actual,
+    )

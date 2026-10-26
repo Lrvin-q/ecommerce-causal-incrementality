@@ -95,34 +95,41 @@ def lp_upper_bound(value, cost, budget) -> float
 ```python
 @dataclass(frozen=True)
 class BudgetPlan:
-    expected: float      # 期望核销成本预算（主口径）
+    expected: float      # 期望核销成本预算（元）= base_per_user_cny × n_target
     buffered: float      # expected × 1.25（显式风险缓冲，不是硬上限）
-    worst_case: float    # 面额口径的紧预算（保证实际券支出不超）
+    worst_case: float    # 按面额计：face × floor(expected / face)
+    n_target: int
+    face_value: float    # 10.0
 
-def build_budget_plan(budget_cfg, n_target) -> BudgetPlan
-def audit_budget(selection, observed_cost, plan) -> BudgetAudit
+    @property
+    def max_recipients_face(self) -> int:
+        """面额口径下最多能发券的人数 = floor(expected / face_value)。"""
+
+def build_budget_plan(cfg: Config, n_target: int) -> BudgetPlan
+def audit_budget(selection, observed_cost, plan) -> dict
 ```
 
 **三种预算必须分开报**（`E02`）：预期预算、实际支出、硬上限。
 `hard_cap_claim_allowed: false` 意味着主口径下**只能说"期望不超"，不能说"实际不超"**；
 要声称实际不超，只能用 `worst_case_face`（每人最多 10 元、人数 ≤ B/10）。
+`audit_budget` 返回的 `hard_cap_claim_allowed` 恒为 `False`，这是编码进返回值的约束，不是注释。
 
 ### 2.4 评估与审计 `v3_audit.py`
 
 ```python
 @dataclass(frozen=True)
 class ErrorDecomposition:
-    learning_error: float       # 用真值策略 vs 用学到的 τ̂ 的差
-    optimization_error: float   # 同一 τ̂ 下，求解器 vs 该 τ̂ 的最优
-    total_regret: float         # 与真值最优的总差
-    identity_residual: float    # 三者是否对得上（应接近 0）
+    learning_error: float       # 真值最优 − τ̂ 下的最优
+    optimization_error: float   # τ̂ 下的最优 − 实际解（允许为负）
+    total_regret: float         # 真值最优 − 实际解
+    identity_residual: float    # 构造时自动校验，应为 0
 
-def policy_value(mask, profit_true, baseline="no_coupon") -> float
+def policy_value(mask, profit_true, baseline=None) -> float   # 元/人，分母是全部目标用户
 def truth_regret(mask, truth_optimal_mask, profit_true) -> float
-def decompose_error(mask, tau_hat, profit_true, truth_optimal_mask) -> ErrorDecomposition
+def decompose_error(mask, oracle_under_hat_mask, truth_optimal_mask, profit_true) -> ErrorDecomposition
 ```
 
-**误差分解的恒等式**（实现时必须逐 rep 校验残差）：
+**误差分解的恒等式**（构造时逐项校验，不闭合直接抛 `ValueError`）：
 
 ```
 total_regret = learning_error + optimization_error
@@ -130,6 +137,13 @@ total_regret = learning_error + optimization_error
 
 - `learning_error`：拿学到的 $\hat\tau$ 去求**该 $\hat\tau$ 的最优**，再与真值最优比 → 纯学习误差
 - `optimization_error`：同一 $\hat\tau$ 下，求解器解与最优解比 → 纯求解误差
+
+**`optimization_error` 允许为负。** 当 $\hat\tau$ 有噪声时，"$\hat\tau$ 下的最优"在真值下
+可能不如某个次优解。这不是 bug，是"用预测目标求最优"的固有性质；恒等式仍逐项闭合。
+把这一项当成"求解器一定在拖后腿"是误读。
+
+**`oracle_under_hat_mask` 必须由调用方用求解器在 $\hat\tau$ 上算出来再传入**，
+不在本函数内部求——否则函数会隐式依赖预算与求解器选型，无法审计。
 
 **真值只在最后解封**（`oracle_audit.stage: after_all_observed_outputs_frozen`）。
 审计模块是唯一允许读 `truth_*` 字段的入口，且必须在所有观测侧输出落盘并哈希冻结之后调用。
@@ -201,13 +215,15 @@ total_regret = learning_error + optimization_error
 4. 不读真值。审计入口是唯一例外，且必须在冻结后。
 5. 不承诺"贪心近似最优"。反例已经写在 §4.4。
 
-## 7. 留给实现阶段的决定（现在不定，但必须显式记录）
+## 7. 实现阶段才定的决定（2026-10-26 更新）
 
-| 问题 | 为什么现在不定 |
+| 问题 | 状态 |
 |---|---|
-| `local_swap` 的候选对如何采样（全枚举还是限 500） | 影响耗时与解质量，要看池子规模实测 |
-| MILP 用哪个求解器（HiGHS / CBC / SCIP） | 依赖 venv 里有什么，且要报 gap，先测可用性 |
-| 桶宽收敛的验收阈值（相邻两档差多少算收敛） | 需要先看到实际曲线，不能拍 |
-| `learning_error` 用哪个"该 τ̂ 的最优"（精确 DP 还是 LP 上界） | 小规模用精确 DP，大规模只能用 LP 上界并标注 |
+| `local_swap` 的候选对如何采样 | **已定**：未选者按价值降序取前 `exchange_candidate_limit` 个，1-swap，无改进即停 |
+| MILP 用哪个求解器 | **已定**：`scipy.optimize.milp`（scipy 1.18 内置 HiGHS），无额外依赖 |
+| `learning_error` 用哪个"该 τ̂ 的最优" | **已定**：改由调用方传入 `oracle_under_hat_mask`，函数内不隐式求解——否则无法审计 |
+| 桶宽收敛的验收阈值（相邻两档差多少算收敛） | **仍未定**。必须先看到实际曲线再定，不能先拍一个再凑 |
 
-这些不是遗漏，是**故意留到有数据再定**——按项目规矩，阈值不能先写死再凑。
+前三条是接口冻结后、实现时暴露的问题：`decompose_error` 原签名缺 `oracle_under_hat_mask`，
+若在函数内部求解就必须隐式依赖预算与求解器选型，等于把不可审计的假设藏进函数体。
+**接口冻结不完整是正常的，但修正必须回写文档**——所以本节保留这些记录，而不是悄悄改掉。
