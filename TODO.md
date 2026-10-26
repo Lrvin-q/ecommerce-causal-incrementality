@@ -67,7 +67,12 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] **D02 的负对照**（100 次 × n=20 万，4.37 CPU·h）：购买率 size **0.080**
       （CP [0.0352,0.1516] 含 0.05、二项 p=0.128；点估计偏高须披露）、利润功效 **1.000**
       （真值约 −0.56 元/人 ≈ 4×MDE，应全拒）。产物 `outputs/tables/v3_phase_D_aa_nc20w_L0.csv`
-- [ ] **D02 最后一项**：15 个功效格的实测拒绝率（三路跑批中，58.3 CPU·h，预计 10-27 06:30）
+- [x] **D02 第④项（功效格）**：15 格 × 100 次 = **1500 次实测**完成，
+      产物 `outputs/tables/v3_phase_D_local_power_formal.csv`（15×62）。
+      功效曲线 0.04–0.08 → 0.28–0.33 → 0.78–0.87 → 0.97–1.00 → 1.00；
+      `achieved_effect_analytic` 与 target 的相对偏差 **1.96e-15**（构造正确）；
+      3 个 `boundary_zero_margin` 格（三层的 `mde100`）已单列，不得计入"可检出"。
+      写入 `docs/v3_phase_D_aa_formal.md` §7。**D02 证据齐备，但仍待独立评审**
 - [x] DR 设计概率敏感性 + `propensity.primary` 关系 + raw 诊断（C7，`515b75a`）
       ——**主控复核通过**：61 项独立复跑全绿；真接入 `crossfit_dr_ate`、默认仍 `estimated`；
       敏感性表 `outputs/tables/v3_phase_D_models_sensitivity.csv`（R=3、非正式）

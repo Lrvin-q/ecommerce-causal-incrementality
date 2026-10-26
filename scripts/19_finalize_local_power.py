@@ -117,8 +117,14 @@ def main(argv: list[str] | None = None) -> int:
             print("  -", item)
         return 1
 
-    warnings = frame[frame["estimator_warning"].fillna("").astype(str).str.len() > 0]
-    boundary = frame[frame.get("power_cell_class", "").astype(str) == "boundary_zero_margin"] if "power_cell_class" in frame else frame.iloc[0:0]
+    # 空值在 CSV 读回后可能是 NaN（float64），直接 fillna("") 会触发 pandas 4 的警告；
+    # 用逐元素映射既避免 dtype 冲突，也保证纯空白字符串算作"无警告"。
+    warning_text = frame["estimator_warning"].map(lambda value: "" if pd.isna(value) else str(value).strip())
+    warnings = frame[warning_text.str.len() > 0]
+    if "power_cell_class" in frame:
+        boundary = frame[frame["power_cell_class"].astype(str) == "boundary_zero_margin"]
+    else:
+        boundary = frame.iloc[0:0]
 
     csv_encoding = "utf-8-sig"
     frame.to_csv(OUT_CSV, index=False, encoding=csv_encoding)
