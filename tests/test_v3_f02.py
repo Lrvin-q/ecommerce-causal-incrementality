@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -219,6 +221,17 @@ def test_run_f02_rep_end_to_end(tmp_path) -> None:
         "manifest.json",
     ):
         assert (tmp_path / name).exists(), name
+    # 代表 rep（配置的 representative_rep=0）必须落盘完整五表与 SQL。
+    assert result.manifest["representative_five_tables"] is True
+    analysis_path = tmp_path / "five_tables" / "sql" / "analysis.parquet"
+    assert analysis_path.exists()
+    five_manifest = result.manifest["representative_tables_manifest"]
+    assert five_manifest is not None and json.loads(
+        (tmp_path / "manifest.json").read_text(encoding="utf-8")
+    )["representative_tables_manifest"] == five_manifest
+    assert result.manifest["representative_tables_manifest_sha256"] == hashlib.sha256(
+        Path(five_manifest).read_bytes()
+    ).hexdigest()
     freeze = json.loads((tmp_path / "freeze.json").read_text(encoding="utf-8"))
     assert freeze["freeze_hash"] == result.freeze_hash
     assert freeze["truth_columns_present"] is False

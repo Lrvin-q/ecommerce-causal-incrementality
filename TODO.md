@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-**2026-10-27 15:55 更新。A/B/C/D02 通过。D03 正式 R（200 rep）正在跑（15:55 时 142/200，四分片各 35–36/50；stderr 全空）；正式报告聚合层与证据导出脚本已就绪并演练通过；F01（观测闭环 OPE）核心模块 9 项测试绿；F02（独立验证三臂）机制、9 项测试与 CLI 已就绪，预算按臂内分配人数、审计名单按 user_id 对齐；全量 1226 项测试串行 exit=0（15:55）。**
+**2026-10-27 16:00 更新。A/B/C/D02 通过。D03 正式 R（200 rep）正在跑（15:55 时 142/200，四分片各 35–36/50；stderr 全空）；正式报告聚合层与证据导出脚本已就绪并演练通过；F01（观测闭环 OPE）核心模块 9 项测试绿；F02（独立验证三臂）机制、9 项测试、CLI 与代表 rep 五表落盘已就绪；全量 1226 项测试在 15:55 串行 exit=0，代表五表改动后的全量待 D03 结束再跑。**
 
 **D02 通过**，闭环为：独立评审 PASS WITH CONDITIONS → 3 项文档 P0 修正（4×MDE→4.93×、34%→0.729、相对差 2.3%→7.84% 并改归因为层水平偏移）+ P0-1/E-1~E-3 修复 → **独立复核 PASS**（`docs/reviews/v3_phase_D_recheck.md`）→ 复核抓出的 2 处再修。详见 `docs/v3_phase_D_aa_formal.md` §8。证据包在 `outputs/evidence/`（1.79 MB，仅凭它可重建 FPR 46/1000 与 CP [0.0339,0.0609]）。
 
@@ -138,7 +138,7 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] 折划分复用：`crossfit_nuisance` 新增 `fold_id`，`crossfit_two_arm_outcome` 在同一折上拟合成本/退款模型，杜绝跨折泄漏
 - [x] 真值隔离入口：观测表若含 `*_true` / `audit_*` / `truth_*` / `potential_*` 列直接拒收；`actual_action` 放行
 - [x] 9 项测试（`tests/test_v3_ope.py`）：SNIPS 手算公式、单臂退化、n=4 000 恢复已知策略值、no_coupon 跳过处理臂门禁、ESS/支持拒收、配对差用协方差而非独立 SE、成本/护栏恢复、真值列拒收、Holm 阈值
-- [x] **F02 独立验证机制**（15:55 更新）：`evaluation/v3_f02.py` 从 D03 选中模型冻结三臂（`no_coupon / random_same_budget / selected_targeted_policy`，1/3 各臂），**每个活跃臂按臂内分配人数 × 0.2 元冻结名单**（配置 `same_per_assigned_user_in_each_active_arm`）；新一批验证用户走五表+SQL 出观测，全臂 ITT 对照；**先落盘冻结策略名单与 per_user，再解封真值**；全队列交付名单只用于审计且按 `user_id` 对齐；9 项测试绿，n=2 000 CLI 冒烟产出 8 个文件
+- [x] **F02 独立验证机制**（16:00 更新）：`evaluation/v3_f02.py` 从 D03 选中模型冻结三臂（`no_coupon / random_same_budget / selected_targeted_policy`，1/3 各臂），**每个活跃臂按臂内分配人数 × 0.2 元冻结名单**（配置 `same_per_assigned_user_in_each_active_arm`）；新一批验证用户走五表+SQL 出观测，全臂 ITT 对照；**先落盘冻结策略名单与 per_user，再解封真值**；全队列交付名单只用于审计且按 `user_id` 对齐；**代表 rep（0）额外落盘完整五表与 SQL，manifest 绑定其路径与 sha256**；9 项测试绿，n=2 000 CLI 冒烟产出 8 个文件 + `five_tables/`
 - [ ] **F02 正式验证**：n=200 000、单 rep 跑通并核验解锁顺序与哈希；随后需用户批准才能排正式 200 rep（`--status formal` 需要显式授权）
 - [ ] **F01 正式证据**：D03 R 与 E 正式产物就绪后，用 `--from-d03` 的策略名单 + 观测表出价值/配对差/成本/护栏四张表；写 `docs/v3_phase_F_*.md`
 - [ ] 独立科学评审 → F 判定

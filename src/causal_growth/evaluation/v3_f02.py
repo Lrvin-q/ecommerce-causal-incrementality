@@ -32,6 +32,12 @@ D03 在历史数据上选出一个模型，E 在它之上选出一个策略。�
 支出都以臂内预算为上限（容差内）。
 另算两张**全队列交付**名单（同样 0.2 元/人）只用于冻结后的审计价值对照，不参与
 交付，也不参与任何选择；它们回答"如果策略部署到全部目标用户"的真值。
+
+代表 rep
+--------
+``validation.representative_rep``（当前为 0）在给出 ``out_dir`` 时会额外把完整五表与
+SQL 写到 ``out_dir/five_tables/``，并在 manifest 记录其 manifest 路径与 sha256；
+其他 rep 只保留逐用户名单、汇总与 manifest。
 """
 
 from __future__ import annotations
@@ -49,10 +55,10 @@ import pandas as pd
 from causal_growth.config import Config
 from causal_growth.data.v3_dirt import deduplicate_events, inject_dirt
 from causal_growth.data.v3_observed import ObservedDataset
-from causal_growth.data.v3_pipeline import pipeline_source_hashes
+from causal_growth.data.v3_pipeline import build_observed_pipeline, pipeline_source_hashes
 from causal_growth.data.v3_quality import validate_tables
 from causal_growth.data.v3_sql import run_sql_pipeline
-from causal_growth.data.v3_storage import dataframe_sha256
+from causal_growth.data.v3_storage import dataframe_sha256, file_sha256
 from causal_growth.data.v3_tables import build_raw_tables
 from causal_growth.dgp.v3_engine import (
     audit_realized_worlds,
@@ -69,6 +75,7 @@ from causal_growth.policy import v3_policy as pol
 from causal_growth.policy.v3_policy import predict_expected_cost
 from causal_growth.policy.v3_policy_grid import POLICIES, run_policy
 from causal_growth.rng import child_rng
+from causal_growth.v3_data_config import load_v3_data_config
 
 ARMS: tuple[str, ...] = (
     "no_coupon",
@@ -600,9 +607,26 @@ def run_f02_rep(
     )
     if dataframe_sha256(population.users) != dataframe_sha256(users):
         raise RuntimeError("两次生成的验证用户不一致，三臂分配无法与事实订单对齐")
-    dataset = _materialize_validation_dataset(
-        population, cfg, scenario=scenario, rep_id=int(rep_id)
-    )
+    target = Path(out_dir) if out_dir is not None else None
+    representative_rep = int(load_v3_data_config().require("validation.representative_rep"))
+    save_five = target is not None and int(rep_id) == representative_rep
+    five_manifest: Path | None = None
+    if save_five:
+        target.mkdir(parents=True, exist_ok=True)
+        users_t, assignments_t, orders_t = population.observation_bundle()
+        pipeline = build_observed_pipeline(
+            users_t, assignments_t, orders_t, cfg,
+            directory=target / "five_tables",
+            run_id=f"f02:{scenario}:rep{int(rep_id)}",
+            rep_id=int(rep_id), stream_prefix=f"v3.f02.{scenario}",
+            population_kind="validation", retention_scope="representative_full",
+        )
+        dataset = pipeline.dataset
+        five_manifest = pipeline.manifest_path
+    else:
+        dataset = _materialize_validation_dataset(
+            population, cfg, scenario=scenario, rep_id=int(rep_id)
+        )
     observed = dataset.observations
     if len(observed) != n or not observed["user_id"].is_unique:
         raise ValueError("验证观测表的全臂分母不完整")
@@ -655,6 +679,7 @@ def run_f02_rep(
         "selected_model": scored.model,
         "selected_policy": policy,
         "budget_cny_per_user": assignment_info["budget_cny_per_user"],
+        "budget_basis": assignment_info["budget_basis"],
         "arms": assignment_info["arms"],
         "arm_lists": assignment_info["arm_lists"],
         "audit_full_lists": assignment_info["audit_full_lists"],
@@ -665,6 +690,11 @@ def run_f02_rep(
         "per_user_hash": dataframe_sha256(per_user),
         "assignment_hash": dataframe_sha256(assignment),
         "observed_sql_hash": dataset.content_hash,
+        "representative_five_tables": bool(save_five),
+        "representative_tables_manifest": str(five_manifest) if five_manifest is not None else None,
+        "representative_tables_manifest_sha256": (
+            file_sha256(five_manifest) if five_manifest is not None else None
+        ),
         "source_hashes": pipeline_source_hashes(),
         "audit_true_arm_means": audit_means.to_dict(orient="records"),
     }
