@@ -683,6 +683,7 @@ L0 启动时带了 `--negative-control-reps 100`，负对照排在 250 次 `true
 
 04:08 状态：已完成 5/200（shard0 3、shard1 2），可用内存 4.2–5.3 GB，无 ALARM。
 04:26 状态：已完成 **10/200**（shard0 6、shard1 4），可用内存 2.8–3.5 GB，ALARM **0 次**。
+04:47 状态：已完成 **16/200**（shard0 到 rep 9、shard1 到 rep 57），free 最低 **2 716 MB**，ALARM **0 次**。
 
 ETA 已从假设改为实测投影：10 个已完成 rep 的 mean **460.8 s**（sd 64.8，min 366.4 = constant，
 max 524.2 = causal_forest），2 并发 ⇒ 200 rep = **12.80 h**，95% 区间 **11.68–13.92 h**
@@ -704,14 +705,21 @@ max 524.2 = causal_forest），2 并发 ⇒ 200 rep = **12.80 h**，95% 区间 *
 
 1. **把 F02 证据登记进顶层 `outputs/evidence/coverage.json`**：30 号脚本只在自己的
    `--evidence-dir` 写 `coverage.json`（`:186`），**不刷顶层索引**——与 03:13 给 31 号脚本补的
-   `_refresh_top_registry` 同类缺口。**04:24 已把工具做好**：
+   `_refresh_top_registry` 同类缺口。**04:24 做好工具、04:49 按 30 号的真实形状演练过**：
    `out/scratch/register_evidence_top.py`（身份类 JSON 规则提升 + 提升前逐文件重算 sha256/bytes
-   + 提升后全表复算 + 幂等 + 只追加不重排），合并后直接
-   `.venv/Scripts/python.exe out/scratch/register_evidence_top.py --dry-run` 再实跑即可。
+   + 提升后全表复算 + 幂等 + 只追加不重排 + 四种目录级 schema + 读不懂就硬失败），合并后跑
+   `.venv/Scripts/python.exe out/scratch/register_evidence_top.py --dirs f02_formal --dry-run`
+   再实跑即可，**期望新增 4 条**（decision/freeze/manifest/five_tables-manifest，
+   kind=`f02_formal_*`、status=`formal_r200`）。
    该脚本已用它把 `d03_formal` 与 `f02_n200k_rep0` 补进顶层（35 → 41 条，既有 35 条逐条与顺序未变）。
-2. 复核合并产物：`outputs/tables/v3_phase_F02_formal_*.csv`（7 张）+ `_summary.json`，
-   以及 `outputs/evidence/f02_formal/`；确认 `formal_approval=F02-FORMAL-20261028-R200`、
-   `config_hash=e1aa4314b8d84b04…`、`source_hashes_sha256=d8327ae0a190a5c2…` 四者跨分片一致。
+   **注意它在 `out/` 下、不入库**；可入库的长期形态是下面第 5 条。
+   演练细节与 6 例结果见 `docs/v3_决策与反思日志.md` 04:52 条。
+2. **读回**合并产物（不是手工复核口径——30 号脚本已强制）：
+   `outputs/tables/v3_phase_F02_formal_*.csv`（7 张）+ `_summary.json`，以及 `outputs/evidence/f02_formal/`；
+   确认 `formal_approval=F02-FORMAL-20261028-R200`、`config_hash=e1aa4314b8d84b04…`、
+   `source_hashes_sha256=d8327ae0a190a5c2…`。这三项跨分片一致性**已由 `:231-251` 强制**，
+   不一致会在合并时抛错、根本产不出表；`:112-120` 的 `_read_shard_summary` 又在任何写盘之前跑
+   （缺 `summary.json` / `status != formal` / `failures` 非空都抛），所以这一步只是把已落盘的数字读回来。
 3. 写 `docs/v3_phase_F02_formal.md` 正文（聚合按 rep 配对报告通过率，**不合并 p 值**），
    并补 D03 §11.2 程序豁免记录。
 4. **D01 20 rep**（独占机器，~92 min）：
@@ -723,16 +731,22 @@ max 524.2 = causal_forest），2 并发 ⇒ 200 rep = **12.80 h**，95% 区间 *
 5. **机制修复（合并后连全量测试一起做）**：让 `scripts/27_export_d03_evidence.py` 与
    `scripts/30_merge_f02_formal.py` 自带顶层刷新（复用 31 号 `_refresh_top_registry` 的口径），
    否则 G/H 阶段会第三次踩同一个坑。运行期不改脚本。
+   顺带把 30 号的 evidence `coverage.json` 记录补三点（04:52 演练时查出）：
+   ① 加 `kind`；② `path` 改名或并列 `target`（顶层惯用 `target`）；
+   ③ `source` 现在指向 `out/f02_formal/shardX/rep0/...`，而 `out/` 不入库，
+   评审者跟着它会扑空——应改成可复算来源（快照 + rep 0），与它自己 `excluded` 里的说法一致。
+   补完这三点，第 1 条那个 `out/scratch/` 里的临时工具就可以退役。
    另记：`registry_repairs[1]`（03:06）的 `total_bytes_before` 与 `reason` 是
    `out/scratch/fix_evidence_registry.py:100/:102` 的**硬编码常量**、不是实测前值，
    缺陷已登记在 04:24 条目的 `prior_entry_defects`，历史条目未改写。
 
 ### 还欠着什么
 
-- `git push origin codex/d03`：03:38 推上 `e004810..7870b9a`，04:09 推上 `7870b9a..111f19b`；
-  04:29 复核 `HEAD == origin/codex/d03 == 111f19b`，**本段三个提交（`c290b84`/`17a1011`/`111f19b`）
-  均已在远端**（此前两次 push 因 github.com:443 间歇连不上而失败，已重试成功）。
+- `git push origin codex/d03`：03:38 推上 `e004810..7870b9a`，04:09 推上 `7870b9a..111f19b`，
+  04:50 推上 `111f19b..3457f85`（此前 04:44/04:46/04:47 三次 `Connection reset` / `port 443` 超时）；
+  现在 `codex/d03` 与 `origin/codex/d03` **齐平**，无待推提交。
   **push 后等用户 review，不要自行合并。**
+  仍**没有**装无人值守的后台 push 重试循环——那是网络可见动作，不该在无人看管时反复触发。
 - E01/E02、F01、D03 **全部仍标"未证实"**：用户 01:10 的"默认批准"按**批准运行**执行，
   不按"批准关闭缺陷"执行；这三项只能由独立复审关闭（AGENTS §7.4）。
 - E 的 meta 缺 `cfg.hash(64)`（=`e1aa4314b8d84b04…`）：补齐要改 `scripts/24_e_evidence.py`
