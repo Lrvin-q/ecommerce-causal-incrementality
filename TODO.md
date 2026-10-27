@@ -108,7 +108,7 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] 3 rep × n=200 000 试点（`out/d03_pilot/`，快照 `67d842ae…`）：墙钟 13 分 49 秒，≈276 秒/rep（5 模型 + 5 份 9×8 网格）
 - [x] 试点关键值：选模 constant 1 / causal_forest 2；cf 校准斜率 0.79–0.84；0.20 档 business − greedy 在 cf 上 −0.0189 ± 0.0075、s 打平、constant/t/dr 仍 business 更好；greedy 实际支出 0.04 档 1.31 倍预算；local_swap 120 格中 4 格真值为负（最小 −0.00075）
 - [x] 分片与可观测性：`--rep-start/--rep-stop/--formal-r`、逐 rep 耗时日志；分片只切 `rep_id`，随机流不变
-- [~] 正式 R：200 rep × n=200 000 × 5 模型，L1_main；快照 `out/d03_formal_snapshot/`，4 个独立进程写 `out/d03_formal/shard{0..3}/`；**13:26 进度 20/200（每分片 5/50），≈300–356 秒/rep，预计 17:30 前后完成；run.err 为空**
+- [~] 正式 R：200 rep × n=200 000 × 5 模型，L1_main；快照 `out/d03_formal_snapshot/`，4 个独立进程写 `out/d03_formal/shard{0..3}/`；**13:51 进度 40/200（每分片 10/50），≈294–302 秒/rep，预计 17:10–17:30 完成；run.err 为空**
 - [x] 合并脚本 `scripts/25_merge_d03_formal.py`：写盘前校验 rep 覆盖/去重、5 模型×8 预算×9 策略、chosen 恰好覆盖一个模型、双口径合规标记与数值一致；用 3 rep 试点产物演练通过（15 / 1 080 行）
 - [x] 合并门禁 7 项合成用例（`tests/test_v3_d03_merge.py`）：缺 rep / 重复 rep / 篡改合规标记 / chosen 计数错 / config_hash 不一致 / 非正式分片全拒
 - [ ] 合并分片 → `outputs/tables/v3_phase_D03_formal_*`；校验 1 000 行 per-rep、72 000 行网格、每 rep 恰一个 chosen
