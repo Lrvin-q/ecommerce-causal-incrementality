@@ -1,7 +1,7 @@
 # AGENT 交接说明 —— v3 重建
 
-> **最新交接时间：2026-10-27 11:30（北京时间）。当前分支：`codex/d03`（从 `codex/v3-rebuild` 的 `9d05bd6` 切出）。**
-> **A/B/C/D02 通过；D03 仍未证实，但 provisional 逐用户 9 列导出已实现并跑通。E 组件层完成、编排层已消费真实 D.3 预测（仍非正式 R）。**
+> **最新交接时间：2026-10-27 12:10（北京时间）。当前分支：`codex/d03`（从 `codex/v3-rebuild` 的 `9d05bd6` 切出）。**
+> **A/B/C/D02 通过；D03 仍未证实，但 provisional 逐用户 9 列导出已跑通，20 rep 诊断（非正式 R）已完成。E 组件层完成、编排层已消费真实 D.3 预测与按模型配对网格（仍非正式 R）。**
 > 下文「最新交接」是当前事实；再往下的旧版交接保留施工约束与历史背景。
 
 ## 最新交接：D02 通过，E 被 D03 挡住
@@ -15,26 +15,39 @@
 | C 五表/SQL/隔离 | 通过 | `outputs/v3/data_validation/approval.json` |
 | **D02** | **通过（09:45）**，走完「评审判定 → 修复 → 独立复核 PASS」三环 | `docs/v3_phase_D_aa_formal.md` §8；`docs/reviews/v3_phase_D_recheck.md` |
 | D01 | **未证实**：20pilot 三粒度实测与资源计划未做 | — |
-| **D03** | **未证实，但 provisional 导出已通（11:30）**：`export_d03_predictions()` 产出 E 契约 9 列 CSV；n=20 000/单 rep/test 6 000 人；真值只在选人列冻结后合并 | `outputs/tables/v3_phase_D03_predictions_provisional_meta.json`；`docs/v3_phase_D_models.md` §14 |
+| **D03** | **未证实**：provisional 导出已通（11:30）；**20 rep 诊断完成（12:00，非正式 R）**——选模在 5 个模型间切换（constant 9/20、causal_forest 4/20、dr/s 各 3/20、t 1/20），除 causal_forest 外个体校准斜率中位数 0.02–0.18；0.20 档选模后悔值 −0.101 元/人（事后上界） | `docs/v3_phase_D03_diagnostic.md`；`outputs/tables/v3_phase_D03_diagnostic_{per_rep,policy_grid,summary}`；provisional 元信息 `v3_phase_D03_predictions_provisional_meta.json`；设计 §14 |
 | D04 装载优化 | 实现通过，调用点已切换 | `docs/v3_phase_D_loader_switch.md` |
 | E 组件层 | 完成，41 项测试绿 | `src/causal_growth/policy/v3_policy.py`；`docs/v3_phase_E_coverage.md` |
-| E 编排层 | 已跑通两次：合成数据一次；**真实 D.3 provisional 预测一次**（72 行） | `scripts/21_e_policy_run.py`；`out/e_policy_d03_provisional/e_policy_grid.csv`（`out/` 不入库，可由 CSV 重跑） |
+| E 编排层 | 已抽成 `v3_policy_grid.py`，跑通三次：合成数据、真实 D.3 provisional、**20 rep × 5 模型配对网格（7 200 行）** | `scripts/21_e_policy_run.py`；`outputs/tables/v3_phase_D03_diagnostic_policy_grid.csv` |
 | 推送 | `codex/d03` 已推送（`80c383d` + 本次文档提交）；`codex/v3-rebuild` 无积压 | `git log --oneline origin/codex/d03 -1` |
 
 ### 二、下一步（按优先级）
 
-1. **D03 正式 R（仍未启动）** —— provisional 导出链路已通，可直接复用：
-   - `_prepare_dataset(scenario, n, rep_id=...)`：返回 `(cfg, ObservedDataset, population_audit)`；population 只能交审计函数
-   - `export_d03_predictions(...)`：5 模型 → 验证集 LCB 选模 → 冻结 7 列选人字段 → 最后合并 `tau_true/cost_true`
-   - 命令：`python -m causal_growth.estimate.v3_models --export --scenario L1_main --n 20000 --rep 0`
-   - 先用 `--model constant,t_learner` 快速验链路；正式 R 前必须先裁决**跑几次 / 选模指标 / 评估量**
-2. D01 20pilot 三粒度实测与资源计划
-3. `codex/d03` 已 push，待 review 后合入 `codex/v3-rebuild`
+1. **D03 正式 R 的规模裁决** —— 20 rep 诊断已完成（`docs/v3_phase_D03_diagnostic.md`），结论是：
+   - 选模不稳定：20 rep 里 5 个模型都当过第一（constant 9、causal_forest 4、dr 3、s 3、t 1）；
+   - 个体校准差：除 causal_forest（斜率中位数 0.689）外，其余中位数 0.02–0.18；
+   - 选模有真实代价：0.20 档 chosen 比同 rep 事后最优少 **0.101 元/人**（事后上界）；
+   - 期望成本 ≠ 实际支出：按 `cost_hat` 全部 160/160 合规，按 `cost_true` 在 0.04 档只有 0–2/20 rep 全合规。
+   **在排正式 R 之前，先跑 3 rep × n=200 000 的计时/选模试点**（同时补 D01 的实测）：
+   ```powershell
+   .\.venv\Scripts\python.exe -m causal_growth.estimate.v3_models `
+     --scenario L1_main --n 200000 --diagnostic --diagnostic-reps 3 --diag-dir out/d03_diag_n200k
+   ```
+   不要用 26 秒/rep（n=20 000）直接外推正式 n=200 000 的耗时；正式 R 的次数/排期待试点后裁决。
+2. **正式 R 的报告口径**（已在诊断报告 §5 写明）：五个候选全部报 bias/校准/误差分位，报选模频率，
+   策略网格按模型配对，预算合规双口径；不得只报获胜模型，也不得偷换成"固定 causal_forest"。
+3. **D01** 20pilot 三粒度实测与资源计划（可与第 1 步合并产出）。
+4. `codex/d03` 已 push，待 review 后合入 `codex/v3-rebuild`。
 
 ### 三、接手须知（血泪版）
 
-- **不要拿合成 τ̂ 下策略结论。** `out/e_smoke/` 的 72 行只证明代码能跑；里面 `business_rule` 比
-  `greedy` 还高，是因为合成数据的 τ̂ 噪声（sd=0.35）压过了信号的排序能力，不是真实结论。
+- **不要拿合成 τ̂ 下策略结论。** `out/e_smoke/` 的 72 行只证明代码能跑。20 rep 诊断里
+  `business_rule` 在 4 个模型上赢 greedy、只在 causal_forest 上打平，这是真实 D.3 预测下
+  的个体校准问题（除 CF 外 Pearson 0.02–0.05），不是合成数据独有；但仍是已知 DGP、非正式 R，
+  不能当业务结论。
+- **策略比较必须按模型配对。** 同一 rep、同一批用户，分别用每个候选模型的 τ̂ 重跑网格，
+  否则会把"选中模型的好坏"误当成"策略的好坏"。首版诊断只跑了选中模型，causal_forest 被选中的
+  4 个 rep 里 greedy 全面胜出，聚合后却因为 constant 被选中 9 次而得出相反结论。
 - **`local_swap` 的真值可能低于 greedy**（0.60 预算 −0.00008）。它保证的是**预测目标**不降，
   真值可以降。这是"预测最优 ≠ 真值最优"，不是 bug。
 - **证据包在 `outputs/evidence/`（1.79 MB）**，换机只需要它就能重建 FPR 46/1000 与 CP [0.0339,0.0609]。

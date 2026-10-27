@@ -1010,3 +1010,70 @@ def test_d03_audit_truth_cannot_change_selection_columns(tmp_path, monkeypatch) 
     pd.testing.assert_frame_equal(baseline.loc[:, selection], poisoned.loc[:, selection])
     assert (poisoned["tau_true"] == 999.0).all()
     assert (poisoned["cost_true"] == 999.0).all()
+
+
+def test_d03_calibration_stats_recovers_known_slope() -> None:
+    rng = child_rng(20240101, "test.v3_models.calibration", 0)
+    tau_hat = rng.normal(2.0, 1.0, size=5000)
+    tau_true = 0.5 * tau_hat + 0.1 + rng.normal(0, 0.2, size=5000)
+    stats = models._calibration_stats(tau_hat, tau_true)
+    assert abs(stats["calibration_slope"] - 0.5) < 0.02
+    assert abs(stats["calibration_intercept"] - 0.1) < 0.05
+    assert stats["bias_mean"] == pytest.approx(float(np.mean(tau_hat - tau_true)))
+    degenerate = models._calibration_stats(np.full(100, 0.3), np.zeros(100))
+    assert np.isnan(degenerate["calibration_slope"])
+    assert np.isnan(degenerate["pearson_r"])
+    # 浮点残差（常数列求均值的舍入）也必须判定为退化，不能吐出伪斜率
+    noise = np.full(100, 0.3) + np.linspace(0.0, 1e-15, 100)
+    noisy = models._calibration_stats(noise, np.zeros(100))
+    assert np.isnan(noisy["calibration_slope"])
+
+
+def test_d03_diagnostic_writes_rep_and_policy_tables(tmp_path) -> None:
+    summary = models.run_d03_diagnostic(
+        scenario="L1_main", n=1200, reps=2, out_dir=str(tmp_path), models=("constant",)
+    )
+    per_rep = pd.read_csv(tmp_path / "v3_phase_D03_diagnostic_per_rep.csv", encoding="utf-8-sig")
+    policy_grid = pd.read_csv(
+        tmp_path / "v3_phase_D03_diagnostic_policy_grid.csv", encoding="utf-8-sig"
+    )
+    assert len(per_rep) == 2
+    assert per_rep["chosen"].all()
+    # 常数模型 τ̂ 无变异：斜率/相关系数无定义，必须是 NaN 而不是 0
+    assert per_rep["calibration_slope"].isna().all()
+    n_budgets = len(load_v3_protocol().config.require("policy.budget.per_user_grid_cny"))
+    assert len(policy_grid) == 2 * 1 * n_budgets * 9
+    assert set(policy_grid["rep_id"]) == {0, 1}
+    assert set(policy_grid["model"]) == {"constant"}
+    assert policy_grid["chosen"].all()
+    assert summary["status"] == "diagnostic"
+    assert summary["formal_r"] is False
+    assert summary["chosen_model_counts"] == {"constant": 2}
+    assert summary["truth_isolation"]["used_for_selection"] is False
+    assert summary["truth_isolation"]["used_for_evaluation"] is True
+    assert len(summary["policy_grid"]["mean_true_value_per_user"]["no_coupon"]) == n_budgets
+    assert set(summary["policy_grid_by_model"]) == {"constant"}
+    on_disk = json.loads(
+        (tmp_path / "v3_phase_D03_diagnostic_summary.json").read_text(encoding="utf-8")
+    )
+    assert on_disk["reps"] == 2
+    assert on_disk["outputs"]["policy_grid"].endswith(".csv")
+
+
+def test_d03_diagnostic_grid_covers_every_candidate_model(tmp_path) -> None:
+    summary = models.run_d03_diagnostic(
+        scenario="L1_main",
+        n=800,
+        reps=1,
+        out_dir=str(tmp_path),
+        models=("constant", "t_learner"),
+    )
+    policy_grid = pd.read_csv(
+        tmp_path / "v3_phase_D03_diagnostic_policy_grid.csv", encoding="utf-8-sig"
+    )
+    n_budgets = len(load_v3_protocol().config.require("policy.budget.per_user_grid_cny"))
+    assert set(policy_grid["model"]) == {"constant", "t_learner"}
+    assert len(policy_grid) == 2 * n_budgets * 9
+    # 每个 rep 只有一个模型带 chosen 标记；两个模型评估的是同一批用户
+    assert policy_grid.groupby("model")["chosen"].any().sum() == 1
+    assert set(summary["policy_grid_by_model"]) == {"constant", "t_learner"}

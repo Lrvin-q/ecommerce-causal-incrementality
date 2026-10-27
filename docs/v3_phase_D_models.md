@@ -621,3 +621,30 @@ python -m causal_growth.estimate.v3_models --export --scenario L1_main --n 20000
 3. **验证集 LCB 全为负**：说明在该 rep 的验证集上，5 个模型按预算选人的 DR 下界都不支持正收益；这不等于"发券一定亏"，但足以阻止把它写成正结果。
 4. **期望成本不是硬上限**：`greedy` 两策略按 `cost_hat` 8/8 合规、按 `cost_true` 只有 3/8 合规。这正是 `policy.yaml` 里 `hard_cap_claim_allowed: false` 的现场表现，不能把"期望不超"改写成"实际不超"。
 5. **逐用户 CSV 不入库**：按 `.gitignore` 的逐用户表规则只保留 meta（含 sha256）。复现只需上面的命令。
+
+## 15. D03 20 rep 诊断（2026-10-27 12:00，北京时间）
+
+§14.3 的 2–3 条已由 20 rep 诊断回答，完整报告见 `docs/v3_phase_D03_diagnostic.md`。
+命令：
+
+```
+python -m causal_growth.estimate.v3_models --scenario L1_main --n 20000 \
+  --diagnostic --diagnostic-reps 20 --diag-dir outputs/tables
+```
+
+关键结果（**诊断，不是正式 R**）：
+
+- 选模不稳定：20 rep 里 `constant` 9 次、`causal_forest` 4 次、`dr_learner` 3 次、
+  `s_learner` 3 次、`t_learner` 1 次；第一名与第二名分差中位数 0.0532、最小 0.0014。
+  单 rep 的 τ̂ 高估（§14.2 的 0.514 vs 0.202）不能归因于某个模型，也不能当成稳定结论。
+- 个体校准：斜率中位数 `t_learner` 0.042、`s_learner` 0.179、`causal_forest` 0.689、
+  `dr_learner` 0.018；`constant` 无定义（常数列）。除 `causal_forest` 外 τ̂ 与真值的
+  Pearson 中位数只有 0.019–0.046。
+- 策略网格按**模型配对**（同一 rep、同一批用户，5 个模型各跑 9 × 8）：
+  0.20 档 business 规则减各模型 greedy 为 constant +0.153、t +0.119、dr +0.137、
+  s +0.059、causal_forest −0.002（10/20 rep greedy 胜）。
+- 双口径预算：按 `cost_hat` 全部 160/160 合规；按 `cost_true` 在 0.04 档只有 0–2/20 rep
+  全合规，greedy 实际支出 1.82–3.59 倍预算。§14.3 第 4 条在 20 rep 上复现。
+
+产物：`outputs/tables/v3_phase_D03_diagnostic_{per_rep.csv, policy_grid.csv, summary.json}`
+（100 / 7 200 行 / 118 KB）。

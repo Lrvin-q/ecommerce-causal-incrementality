@@ -1,12 +1,15 @@
 # 营销数分项目（v3 重建中）
 
-> **状态（2026-10-27 11:30（北京时间））**：A/B/C 通过；**D02 通过**（走完「评审判定 → 修复 → 独立复核 PASS」三环）；
-> **D01/D03 未证实**，其中 **D03 是 E 的硬前置**——但 D03 的**逐用户 9 列导出已实现并跑通 provisional**：
-> `outputs/tables/v3_phase_D03_predictions_provisional.csv`（L1_main、n=20 000、单 rep、test 集 6 000 人）已直接喂给 E；
-> 逐用户表按规则不入库，仓库只留 meta（含 sha256），复现见 `docs/v3_phase_D_models.md` §14.2 的命令。
-> **正式 R 仍未启动**：跑几次、选模指标、评估量三件事尚未裁决，因此 D03 不得标"通过"。
+> **状态（2026-10-27 12:10（北京时间））**：A/B/C 通过；**D02 通过**（走完「评审判定 → 修复 → 独立复核 PASS」三环）；
+> **D01/D03 未证实**，其中 **D03 是 E 的硬前置**——D03 的**逐用户 9 列导出已跑通 provisional**
+> （L1_main、n=20 000、单 rep、test 集 6 000 人；`outputs/tables/v3_phase_D03_predictions_provisional.csv`，
+> 逐用户表不入库，仓库只留 meta 与 sha256），并已完成 **20 rep 诊断**（非正式 R）：
+> 选模在 5 个模型间切换（constant 9/20、causal_forest 4/20、dr/s 各 3/20、t 1/20），
+> 除 causal_forest 外个体校准斜率中位数仅 0.02–0.18，0.20 档选模后悔值 −0.101 元/人（事后上界）；
+> 详见 [docs/v3_phase_D03_diagnostic.md](docs/v3_phase_D03_diagnostic.md)。
+> **正式 R 仍未启动**：次数/规模/排期未裁决，诊断不能替代正式 R，D03 不得标"通过"。
 > **E 的组件层已完成**（成本模型 / 5 求解器 / 预算三口径 / 误差分解 / 排序，41 项测试绿），
-> **编排层已跑通两次**（`scripts/21_e_policy_run.py`，9 策略 × 8 预算 = 72 行：一次合成数据，一次真实 D.3 provisional 预测）。
+> **编排层已抽成 `v3_policy_grid.py` 并跑通三次**（72 行基础网格；20 rep × 5 模型配对网格 7 200 行）。
 > **接手请先读 [AGENT_HANDOFF.md](AGENT_HANDOFF.md) 顶部的最新交接节。**
 
 > 当前状态见 [TODO.md](TODO.md)，验收见 [GOAL.md](GOAL.md)。本轮仅研究不发券/单一10元券，不能外推最优面额。

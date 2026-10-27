@@ -115,6 +115,7 @@ __all__ = [
     "require_model_applicable",
     "require_whitelisted_feature_names",
     "resolve_propensity_source",
+    "run_d03_diagnostic",
     "run_propensity_sensitivity",
     "run_smoke",
 ]
@@ -1895,6 +1896,130 @@ def _audit_truth_for_test(
     return pd.DataFrame({"tau_true": tau_true_audit, "cost_true": cost_true_audit})
 
 
+@dataclass(frozen=True)
+class _D03Rep:
+    """单 rep 的 D03 产物。
+
+    ``truth`` / ``frame`` 里的真值两列只在 7 列选人字段冻结后才构造；
+    其余字段与真值无关，不得反向引用。
+    """
+
+    cfg: Config
+    dataset: ObservedDataset
+    data: LearningData
+    ranking: list[dict[str, Any]]
+    predictions: dict[str, Predictions]
+    chosen_model: str
+    selection: pd.DataFrame
+    truth: pd.DataFrame
+    frame: pd.DataFrame
+    cart_value_missing: int
+    cost_model: Any
+    cost_hat: NDArray[np.float64]
+    propensity: NDArray[np.float64]
+    predicted_profit: NDArray[np.float64]
+
+
+def _d03_rep_artifacts(
+    *,
+    scenario: str,
+    n: int,
+    rep_id: int,
+    models: Sequence[str] | None,
+    time_mode: str,
+) -> _D03Rep:
+    """单 rep 的固定链路：观测表 → 学习数据 → 全模型 → 验证集选模 → 冻结 → 合并真值。
+
+    导出与诊断共用本函数，保证两条路径的选模/冻结/真值隔离口径完全一致。
+    """
+    names = tuple(MODEL_NAMES if models is None else models)
+    if not names:
+        raise ValueError("至少需要一个模型")
+    unknown = [name for name in names if name not in MODEL_NAMES]
+    if unknown:
+        raise ValueError(f"未知模型 {unknown}；可用：{MODEL_NAMES}")
+
+    cfg, dataset, population_audit = _prepare_dataset(scenario, n, rep_id=rep_id)
+    data = prepare_learning_data(dataset, cfg, time_mode=time_mode)
+    scorer = fit_validation_scorer(data, cfg, seed_index=rep_id)
+    predictions = {
+        name: fit_predict(name, data, cfg, time_mode=time_mode, seed_index=rep_id)
+        for name in names
+    }
+    ranking = rank_models(predictions, scorer, cfg)
+    chosen_model = str(ranking[0]["model"])
+
+    train_observed = _observations_for_keys(
+        dataset, data.train.keys, ("paid_purchase_7d", "coupon_cost")
+    )
+    test_observed = _observations_for_keys(
+        dataset, data.test.keys, ("is_new", "cart_value")
+    )
+    cart_value_missing = int(test_observed["cart_value"].isna().sum())
+    propensity, predicted_profit = _fit_level_baselines(
+        data, train_observed, data.test.X, cfg, seed_index=rep_id
+    )
+    cost_model = fit_cost_model(
+        data.train.X,
+        data.train.treatment,
+        train_observed["paid_purchase_7d"].to_numpy(dtype=np.int64),
+        train_observed["coupon_cost"].to_numpy(dtype=np.float64),
+        cfg,
+    )
+    cost_hat = np.asarray(predict_expected_cost(cost_model, data.test.X, cfg), dtype=np.float64)
+
+    selection = pd.DataFrame(
+        {
+            "user_id": data.test.keys["user_id"].to_numpy(),
+            "is_new": test_observed["is_new"].to_numpy(dtype=np.int64),
+            # 未加购用户的 cart_value 在观测表里为空；对 E 的规则与预算语义而言等价于 0。
+            "cart_value": test_observed["cart_value"].fillna(0.0).to_numpy(dtype=np.float64),
+            "purchase_propensity": propensity,
+            "predicted_profit": predicted_profit,
+            "tau_hat": predictions[chosen_model].tau_test,
+            "cost_hat": cost_hat,
+        }
+    )
+    selection_columns = list(D03_EXPORT_COLUMNS[:7])
+    truth_columns = list(D03_EXPORT_COLUMNS[7:])
+    if list(selection.columns) != selection_columns:
+        raise ValueError("选人列顺序与 E 契约不一致")
+    if not selection["user_id"].is_unique:
+        raise ValueError("导出表的 user_id 必须唯一")
+    numeric = selection.loc[
+        :, ["cart_value", "purchase_propensity", "predicted_profit", "tau_hat", "cost_hat"]
+    ]
+    if not np.isfinite(numeric.to_numpy(dtype=np.float64)).all():
+        raise ValueError("选人列含非有限值")
+    if ((selection["purchase_propensity"] < 0) | (selection["purchase_propensity"] > 1)).any():
+        raise ValueError("purchase_propensity 必须落在 [0, 1]")
+    if (selection["cost_hat"] <= 0).any():
+        raise ValueError("cost_hat 必须严格为正（成本下界失效）")
+
+    # 选人列到此已冻结；真值只在下面这一次合并里出现。
+    truth_audit = _audit_truth_for_test(population_audit, cfg, data.test.keys)
+    frame = selection.copy()
+    for column in truth_columns:
+        frame[column] = truth_audit[column].to_numpy(dtype=np.float64)
+    frame = frame.loc[:, list(D03_EXPORT_COLUMNS)]
+    return _D03Rep(
+        cfg=cfg,
+        dataset=dataset,
+        data=data,
+        ranking=ranking,
+        predictions=predictions,
+        chosen_model=chosen_model,
+        selection=selection,
+        truth=truth_audit,
+        frame=frame,
+        cart_value_missing=cart_value_missing,
+        cost_model=cost_model,
+        cost_hat=cost_hat,
+        propensity=propensity,
+        predicted_profit=predicted_profit,
+    )
+
+
 def export_d03_predictions(
     *,
     scenario: str = "L1_main",
@@ -1926,75 +2051,15 @@ def export_d03_predictions(
     meta_target = (
         Path(meta_path) if meta_path is not None else target.with_name(f"{target.stem}_meta.json")
     )
-    names = tuple(MODEL_NAMES if models is None else models)
-    if not names:
-        raise ValueError("至少需要一个模型")
-    unknown = [name for name in names if name not in MODEL_NAMES]
-    if unknown:
-        raise ValueError(f"未知模型 {unknown}；可用：{MODEL_NAMES}")
-
-    cfg, dataset, population_audit = _prepare_dataset(scenario, n, rep_id=rep_id)
-    data = prepare_learning_data(dataset, cfg, time_mode=time_mode)
-    scorer = fit_validation_scorer(data, cfg, seed_index=rep_id)
-    predictions = {
-        name: fit_predict(name, data, cfg, time_mode=time_mode, seed_index=rep_id)
-        for name in names
-    }
-    ranking = rank_models(predictions, scorer, cfg)
-    chosen_model = str(ranking[0]["model"])
-    prediction = predictions[chosen_model]
-
-    train_observed = _observations_for_keys(
-        dataset, data.train.keys, ("paid_purchase_7d", "coupon_cost")
+    art = _d03_rep_artifacts(
+        scenario=scenario, n=n, rep_id=rep_id, models=models, time_mode=time_mode
     )
-    test_observed = _observations_for_keys(
-        dataset, data.test.keys, ("is_new", "cart_value")
-    )
-    cart_value_missing = int(test_observed["cart_value"].isna().sum())
-    propensity, predicted_profit = _fit_level_baselines(
-        data, train_observed, data.test.X, cfg, seed_index=rep_id
-    )
-    cost_model = fit_cost_model(
-        data.train.X,
-        data.train.treatment,
-        train_observed["paid_purchase_7d"].to_numpy(dtype=np.int64),
-        train_observed["coupon_cost"].to_numpy(dtype=np.float64),
-        cfg,
-    )
-    cost_hat = np.asarray(predict_expected_cost(cost_model, data.test.X, cfg), dtype=np.float64)
-
-    selection = pd.DataFrame(
-        {
-            "user_id": data.test.keys["user_id"].to_numpy(),
-            "is_new": test_observed["is_new"].to_numpy(dtype=np.int64),
-            # 未加购用户的 cart_value 在观测表里为空；对 E 的规则与预算语义而言等价于 0。
-            "cart_value": test_observed["cart_value"].fillna(0.0).to_numpy(dtype=np.float64),
-            "purchase_propensity": propensity,
-            "predicted_profit": predicted_profit,
-            "tau_hat": prediction.tau_test,
-            "cost_hat": cost_hat,
-        }
-    )
+    cfg, data, frame = art.cfg, art.data, art.frame
+    ranking, chosen_model = art.ranking, art.chosen_model
+    prediction = art.predictions[chosen_model]
+    cost_model, cost_hat = art.cost_model, art.cost_hat
     selection_columns = list(D03_EXPORT_COLUMNS[:7])
     truth_columns = list(D03_EXPORT_COLUMNS[7:])
-    if list(selection.columns) != selection_columns:
-        raise ValueError("选人列顺序与 E 契约不一致")
-    if not selection["user_id"].is_unique:
-        raise ValueError("导出表的 user_id 必须唯一")
-    numeric = selection.loc[:, ["cart_value", "purchase_propensity", "predicted_profit", "tau_hat", "cost_hat"]]
-    if not np.isfinite(numeric.to_numpy(dtype=np.float64)).all():
-        raise ValueError("选人列含非有限值")
-    if ((selection["purchase_propensity"] < 0) | (selection["purchase_propensity"] > 1)).any():
-        raise ValueError("purchase_propensity 必须落在 [0, 1]")
-    if (selection["cost_hat"] <= 0).any():
-        raise ValueError("cost_hat 必须严格为正（成本下界失效）")
-
-    # 选人列到此已冻结；真值只在下面这一次合并里出现。
-    truth_audit = _audit_truth_for_test(population_audit, cfg, data.test.keys)
-    frame = selection.copy()
-    for column in truth_columns:
-        frame[column] = truth_audit[column].to_numpy(dtype=np.float64)
-    frame = frame.loc[:, list(D03_EXPORT_COLUMNS)]
 
     target.parent.mkdir(parents=True, exist_ok=True)
     frame.to_csv(target, index=False, encoding="utf-8-sig")
@@ -2015,7 +2080,7 @@ def export_d03_predictions(
         "identification_mode": data.identification_mode,
         "time_mode": data.time_mode,
         "rep_id": rep_id,
-        "n_total": int(len(dataset.observations)),
+        "n_total": int(len(art.dataset.observations)),
         "n_train": data.train.n,
         "n_validation": data.validation.n,
         "n_test": data.test.n,
@@ -2034,13 +2099,13 @@ def export_d03_predictions(
         "model_selection": {
             "scoring": str(cfg.require("models.selection.scoring")),
             "chosen_model": chosen_model,
-            "models_fitted": list(names),
+            "models_fitted": list(art.predictions),
             "ranking": ranking,
         },
         "level_baselines": {
             "purchase_propensity": "LightGBM P(paid_purchase_7d=1|X)，训练集全部用户",
             "predicted_profit": "purchase_propensity × LightGBM E[net_profit+coupon_cost|X,purchased=1]，负值截 0",
-            "cart_value_missing_filled_zero": cart_value_missing,
+            "cart_value_missing_filled_zero": art.cart_value_missing,
         },
         "cost_model": {
             "target": str(cost_model.target),
@@ -2075,6 +2140,344 @@ def export_d03_predictions(
     )
     meta["meta_path"] = _label(meta_target)
     return meta
+
+
+# --------------------------------------------------------------------------- #
+# D03 诊断：多 rep 偏差、校准与策略网格（不是正式 R）
+# --------------------------------------------------------------------------- #
+_SUMMARY_STAT_COLUMNS: tuple[str, ...] = (
+    "tau_hat_mean",
+    "bias_mean",
+    "relative_bias",
+    "calibration_slope",
+    "calibration_intercept",
+    "pearson_r",
+    "rmse",
+    "mae",
+    "error_q10",
+    "error_q50",
+    "error_q90",
+)
+
+
+def _calibration_stats(tau_hat: Any, tau_true: Any) -> dict[str, float]:
+    """逐用户 τ̂ 对真值的偏差、校准斜率与误差分位。
+
+    ``calibration_slope`` 是 ``tau_true ~ a + b·tau_hat`` 的 OLS 斜率 ``b``：
+    ``b < 1`` 表示 τ̂ 被放大（预测的离散度大于真值），``b ≈ 1`` 才谈得上校准。
+    τ̂ 无变异时斜率与相关系数无定义，返回 ``nan``。
+
+    退化判定用相对极差，不用 ``var > 0``：常数列（如 ``constant`` 模型）
+    的浮点求均值会残留 ~1e-16 的伪方差，直接相除会得到毫无意义的斜率。
+    """
+    hat = np.asarray(tau_hat, dtype=float).reshape(-1)
+    truth = np.asarray(tau_true, dtype=float).reshape(-1)
+    if hat.size != truth.size or hat.size == 0:
+        raise ValueError("tau_hat 与 tau_true 必须等长且非空")
+    if not (np.isfinite(hat).all() and np.isfinite(truth).all()):
+        raise ValueError("校准统计输入含非有限值")
+    error = hat - truth
+    count = error.size
+    mean_truth = float(truth.mean())
+
+    def _degenerate(values: NDArray[np.float64]) -> bool:
+        scale = max(float(np.abs(values).max()), 1.0)
+        return float(np.ptp(values)) <= 1e-12 * scale
+
+    slope = float("nan")
+    intercept = float("nan")
+    corr = float("nan")
+    if not _degenerate(hat):
+        var_hat = float(hat.var(ddof=0))
+        slope = float(np.cov(hat, truth, ddof=0)[0, 1] / var_hat)
+        intercept = float(mean_truth - slope * float(hat.mean()))
+        if not _degenerate(truth):
+            corr = float(np.corrcoef(hat, truth)[0, 1])
+    q10, q50, q90 = (float(value) for value in np.quantile(error, [0.1, 0.5, 0.9]))
+    return {
+        "bias_mean": float(error.mean()),
+        "bias_se": float(error.std(ddof=1) / np.sqrt(count)) if count > 1 else float("nan"),
+        "relative_bias": float(error.mean() / mean_truth) if mean_truth != 0 else float("nan"),
+        "calibration_slope": slope,
+        "calibration_intercept": intercept,
+        "pearson_r": corr,
+        "rmse": float(np.sqrt(np.mean(error ** 2))),
+        "mae": float(np.abs(error).mean()),
+        "error_sd": float(error.std(ddof=1)) if count > 1 else float("nan"),
+        "error_q10": q10,
+        "error_q50": q50,
+        "error_q90": q90,
+    }
+
+
+def _aggregate_metrics(per_rep: pd.DataFrame) -> dict[str, dict[str, Any]]:
+    """把逐 rep 指标聚合成按模型的均值/离散/最差值。
+
+    相对偏差按 AGENTS §12.5 报 ``worst_abs_relative_bias``，分母是**同一 rep 的**
+    ``mean(tau_true)``；跨 rep 的均值区间用 t(df = n-1)，因为 20 个 rep 是独立抽样。
+    """
+    from scipy import stats as scipy_stats
+
+    summary: dict[str, dict[str, Any]] = {}
+    for model, block in per_rep.groupby("model", sort=False):
+        row: dict[str, Any] = {
+            "n_reps": int(len(block)),
+            "chosen_count": int(block["chosen"].sum()),
+        }
+        for column in _SUMMARY_STAT_COLUMNS:
+            values = block[column].to_numpy(dtype=float)
+            finite = values[np.isfinite(values)]
+            row[f"{column}_mean"] = float(finite.mean()) if finite.size else None
+            row[f"{column}_sd"] = float(finite.std(ddof=1)) if finite.size > 1 else None
+            row[f"{column}_min"] = float(finite.min()) if finite.size else None
+            row[f"{column}_max"] = float(finite.max()) if finite.size else None
+        bias = block["bias_mean"].to_numpy(dtype=float)
+        bias = bias[np.isfinite(bias)]
+        if bias.size > 1:
+            half = float(
+                scipy_stats.t.ppf(0.975, bias.size - 1) * bias.std(ddof=1) / np.sqrt(bias.size)
+            )
+            row["bias_mean_ci95"] = [float(bias.mean() - half), float(bias.mean() + half)]
+        else:
+            row["bias_mean_ci95"] = None
+        row["positive_bias_reps"] = int((bias > 0).sum())
+        relative = block["relative_bias"].to_numpy(dtype=float)
+        relative = relative[np.isfinite(relative)]
+        row["worst_abs_relative_bias"] = float(np.abs(relative).max()) if relative.size else None
+        row["relative_bias_denominator"] = "同一 rep 的 mean(tau_true)"
+        slope = block["calibration_slope"].to_numpy(dtype=float)
+        slope = slope[np.isfinite(slope)]
+        row["slope_defined_reps"] = int(slope.size)
+        row["calibration_slope_median"] = float(np.median(slope)) if slope.size else None
+        row["slope_below_one_reps"] = int((slope < 1).sum())
+        row["slope_denominator"] = "仅有限斜率 rep（τ̂ 有变异）"
+        summary[str(model)] = row
+    return summary
+
+
+def _compliance_stats(counts: pd.Series, n_budgets: int) -> dict[str, Any]:
+    """把"每个 rep 有多少预算点合规"压成均值/最差/全合规 rep 数。"""
+    values = counts.to_numpy(dtype=int)
+    return {
+        "mean_compliant_budgets": float(values.mean()),
+        "min_compliant_budgets": int(values.min()),
+        "max_compliant_budgets": int(values.max()),
+        "reps_all_compliant": int((values == n_budgets).sum()),
+    }
+
+
+def _aggregate_policy_grid(grid: pd.DataFrame, policies: Sequence[str]) -> dict[str, Any]:
+    """策略 × 预算的跨 rep 汇总：真实人均价值与双口径预算合规。"""
+    budgets = sorted(float(value) for value in grid["per_user_budget_cny"].unique())
+    mean_value = grid.pivot_table(
+        index="policy", columns="per_user_budget_cny", values="true_value_per_user",
+        aggfunc="mean", dropna=False,
+    )
+    sd_value = grid.pivot_table(
+        index="policy", columns="per_user_budget_cny", values="true_value_per_user",
+        aggfunc="std", dropna=False,
+    )
+    mean_selected = grid.pivot_table(
+        index="policy", columns="per_user_budget_cny", values="n_selected",
+        aggfunc="mean", dropna=False,
+    )
+    mean_spend = grid.pivot_table(
+        index="policy", columns="per_user_budget_cny", values="actual_spend_cny",
+        aggfunc="mean", dropna=False,
+    )
+    compliance: dict[str, Any] = {}
+    for policy in policies:
+        block = grid.loc[grid["policy"] == policy]
+        by_hat = block.groupby("rep_id")["within_budget_by_hat"].sum()
+        by_true = block.groupby("rep_id")["within_budget_by_true"].sum()
+        compliance[str(policy)] = {
+            "n_budgets": len(budgets),
+            "reps": int(block["rep_id"].nunique()),
+            "by_hat": _compliance_stats(by_hat, len(budgets)),
+            "by_true": _compliance_stats(by_true, len(budgets)),
+        }
+
+    def _table(source: pd.DataFrame) -> dict[str, list[float | None]]:
+        return {
+            str(policy): [
+                None if pd.isna(source.loc[policy, budget]) else float(source.loc[policy, budget])
+                for budget in budgets
+            ]
+            for policy in policies
+        }
+
+    return {
+        "budgets_cny_per_user": budgets,
+        "policies": [str(policy) for policy in policies],
+        "mean_true_value_per_user": _table(mean_value),
+        "sd_true_value_per_user": _table(sd_value),
+        "mean_n_selected": _table(mean_selected),
+        "mean_actual_spend_cny": _table(mean_spend),
+        "compliance": compliance,
+    }
+
+
+def run_d03_diagnostic(
+    *,
+    scenario: str = "L1_main",
+    n: int = 20_000,
+    reps: int = 20,
+    out_dir: str | None = None,
+    models: Sequence[str] | None = None,
+    time_mode: str = "static",
+) -> dict[str, Any]:
+    """多 rep 诊断：τ̂ 高估是选模偏差、模型偏差还是单 rep 噪声。
+
+    回答"D03 正式 R 该怎么排"：同一场景、同一 n，rep 之间只换种子。每个 rep
+    的选模仍只用冻结的验证集 LCB；真值只在**选模结束后**用于评估，且同时评估
+    全部候选模型（选模不使用真值，评估使用真值是允许的）。
+
+    产物三件：``per_rep``（rep × 模型指标）、``policy_grid``（rep × 模型 × 预算 ×
+    策略；同一批用户分别用每个模型的 τ̂ 重跑策略，``chosen=True`` 的子集即"按冻结
+    规则选中模型"的口径）、``summary``（跨 rep 聚合与哈希）。**这不是正式 R**：
+    单场景、单 n、无格间 R 计划，不能作为 GOAL 的验收证据。
+    """
+    from pathlib import Path
+
+    from causal_growth.policy.v3_policy_grid import POLICIES as E_POLICIES
+    from causal_growth.policy.v3_policy_grid import evaluate_policy_grid
+
+    if reps <= 0:
+        raise ValueError("reps 必须为正")
+    root = Path(__file__).resolve().parents[3]
+    target_dir = Path(out_dir) if out_dir is not None else root / "outputs" / "tables"
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    metric_rows: list[dict[str, Any]] = []
+    grid_frames: list[pd.DataFrame] = []
+    reps_meta: list[dict[str, Any]] = []
+    chosen_counts: dict[str, int] = {}
+    config_hash = ""
+    level = ""
+    identification = ""
+    selection_rule = ""
+
+    for rep_id in range(reps):
+        art = _d03_rep_artifacts(
+            scenario=scenario, n=n, rep_id=rep_id, models=models, time_mode=time_mode
+        )
+        if rep_id == 0:
+            config_hash = art.data.config_hash
+            level = art.data.level
+            identification = art.data.identification_mode
+            selection_rule = str(art.cfg.require("models.selection.scoring"))
+        tau_true = art.frame["tau_true"].to_numpy(dtype=float)
+        rank_by_model = {str(row["model"]): row for row in art.ranking}
+        for name, prediction in art.predictions.items():
+            rank_row = rank_by_model[str(name)]
+            metric_rows.append(
+                {
+                    "rep_id": rep_id,
+                    "model": str(name),
+                    "chosen": name == art.chosen_model,
+                    "rank": int(rank_row["rank"]),
+                    "selection_score": float(rank_row["selection_score"]),
+                    "validation_n": int(rank_row["validation_n"]),
+                    "n_test": int(tau_true.size),
+                    "tau_hat_mean": float(prediction.ate),
+                    "tau_hat_sd": float(prediction.tau_sd_test),
+                    "tau_true_mean": float(tau_true.mean()),
+                    **_calibration_stats(prediction.tau_test, tau_true),
+                }
+            )
+        for name, prediction in art.predictions.items():
+            alternate = art.frame.copy()
+            alternate["tau_hat"] = prediction.tau_test
+            model_grid = evaluate_policy_grid(alternate, art.cfg)
+            model_grid.insert(0, "chosen", name == art.chosen_model)
+            model_grid.insert(0, "model", str(name))
+            model_grid.insert(0, "rep_id", rep_id)
+            grid_frames.append(model_grid)
+        chosen_counts[art.chosen_model] = chosen_counts.get(art.chosen_model, 0) + 1
+        reps_meta.append(
+            {
+                "rep_id": rep_id,
+                "n_total": int(len(art.dataset.observations)),
+                "n_train": art.data.train.n,
+                "n_validation": art.data.validation.n,
+                "n_test": art.data.test.n,
+                "chosen_model": art.chosen_model,
+                "observed_hash": art.data.observed_hash,
+                "split_fingerprint": art.data.split_fingerprint,
+                "test_user_key_hash": art.data.test.key_hash,
+            }
+        )
+
+    per_rep = pd.DataFrame(metric_rows)
+    grid_frame = pd.concat(grid_frames, ignore_index=True)
+    n_budgets = int(grid_frame["per_user_budget_cny"].nunique())
+    n_models = int(grid_frame["model"].nunique())
+    expected_grid_rows = reps * n_models * n_budgets * len(E_POLICIES)
+    if len(grid_frame) != expected_grid_rows:
+        raise ValueError(
+            f"策略网格行数应为 {expected_grid_rows}，实际 {len(grid_frame)}"
+        )
+    chosen_per_rep = grid_frame.groupby("rep_id")["chosen"].sum()
+    if not (chosen_per_rep == n_budgets * len(E_POLICIES)).all():
+        raise ValueError("每个 rep 必须恰有一个模型的 chosen 标记覆盖整张网格")
+
+    per_rep_path = target_dir / "v3_phase_D03_diagnostic_per_rep.csv"
+    grid_path = target_dir / "v3_phase_D03_diagnostic_policy_grid.csv"
+    summary_path = target_dir / "v3_phase_D03_diagnostic_summary.json"
+    per_rep.to_csv(per_rep_path, index=False, encoding="utf-8-sig")
+    grid_frame.to_csv(grid_path, index=False, encoding="utf-8-sig")
+
+    def _label(path: Path) -> str:
+        try:
+            return path.resolve().relative_to(root).as_posix()
+        except ValueError:
+            return str(path)
+
+    summary: dict[str, Any] = {
+        "status": "diagnostic",
+        "formal_r": False,
+        "purpose": "多 rep 诊断 τ̂ 偏差/校准/策略网格；不是正式 R，不作验收证据",
+        "source_label": "合成数据 / 已知 DGP",
+        "scenario": scenario,
+        "level": level,
+        "identification_mode": identification,
+        "time_mode": time_mode,
+        "n_per_rep": int(n),
+        "reps": int(reps),
+        "rep_ids": list(range(reps)),
+        "selection_rule": selection_rule,
+        "truth_isolation": {
+            "producer": "_audit_truth_for_test",
+            "source": "V3Population.audit_potential_orders",
+            "used_for_selection": False,
+            "used_for_model_selection": False,
+            "used_for_evaluation": True,
+        },
+        "chosen_model_counts": chosen_counts,
+        "models": _aggregate_metrics(per_rep),
+        "chosen_model_rows": _aggregate_metrics(per_rep.loc[per_rep["chosen"]]),
+        "policy_grid": _aggregate_policy_grid(
+            grid_frame.loc[grid_frame["chosen"]], E_POLICIES
+        ),
+        "policy_grid_by_model": {
+            str(model): _aggregate_policy_grid(block, E_POLICIES)
+            for model, block in grid_frame.groupby("model", sort=False)
+        },
+        "reps_meta": reps_meta,
+        "config_hash": config_hash,
+        "written_at_beijing": datetime.now(timezone(timedelta(hours=8))).isoformat(
+            timespec="minutes"
+        ),
+        "outputs": {
+            "per_rep": _label(per_rep_path),
+            "policy_grid": _label(grid_path),
+            "summary": _label(summary_path),
+        },
+    }
+    summary_path.write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
+    )
+    return summary
 
 
 # --------------------------------------------------------------------------- #
@@ -2305,13 +2708,50 @@ def _main(argv: Sequence[str] | None = None) -> int:
         help="导出时只用逗号分隔的模型子集（默认全部 5 个；选模仍走验证集打分）",
     )
     parser.add_argument("--time-mode", default="static")
+    parser.add_argument(
+        "--diagnostic",
+        action="store_true",
+        help="跑多 rep D03 诊断（偏差/校准/策略网格；不是正式 R）",
+    )
+    parser.add_argument(
+        "--diagnostic-reps",
+        type=int,
+        default=20,
+        help="诊断 rep 数（默认 20，按 2026-10-27 的裁决）",
+    )
+    parser.add_argument("--diag-dir", default=None, help="诊断产物目录（默认 outputs/tables）")
     args = parser.parse_args(argv)
-    if args.export:
-        models = (
-            None
-            if not args.model
-            else tuple(piece.strip() for piece in args.model.split(",") if piece.strip())
+    models = (
+        None
+        if not args.model
+        else tuple(piece.strip() for piece in args.model.split(",") if piece.strip())
+    )
+    if args.diagnostic:
+        summary = run_d03_diagnostic(
+            scenario=args.scenario,
+            n=args.n,
+            reps=args.diagnostic_reps,
+            out_dir=args.diag_dir,
+            models=models,
+            time_mode=args.time_mode,
         )
+        print(
+            json.dumps(
+                {
+                    "status": summary["status"],
+                    "scenario": summary["scenario"],
+                    "reps": summary["reps"],
+                    "chosen_model_counts": summary["chosen_model_counts"],
+                    "bias_mean_by_model": {
+                        name: row["bias_mean_mean"] for name, row in summary["models"].items()
+                    },
+                    "summary": summary["outputs"]["summary"],
+                },
+                ensure_ascii=False,
+            )
+        )
+        return 0
+    if args.export:
         meta = export_d03_predictions(
             scenario=args.scenario,
             n=args.n,
