@@ -144,7 +144,8 @@ def merge(shards: list[Path], expected_reps: int, n_per_rep: int,
         ["rep_id", "model", "per_user_budget_cny", "policy"], kind="stable").reset_index(drop=True)
 
     rep_ids = sorted(int(value) for value in merged_per_rep["rep_id"].unique())
-    _require(len(rep_ids) == len(set(rep_ids)), "rep_id 有重复")
+    counts = merged_per_rep.groupby("rep_id").size()
+    _require(bool((counts == 5).all()), f"rep 行数异常（重复 rep？）：{counts[counts != 5].to_dict()}")
     expected_ids = list(range(expected_reps))
     if allow_partial:
         _require(set(rep_ids) <= set(expected_ids), "rep_id 超出 0..expected-1")
