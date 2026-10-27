@@ -34,6 +34,12 @@ from causal_growth.policy.v3_policy_grid import POLICIES
 
 PAIR_KEYS: tuple[str, ...] = ("rep_id", "model", "per_user_budget_cny")
 
+#: ``all_coupon_unconstrained_reference`` 不受预算约束，是参照不是可执行策略；
+#: 把它算进"事后最优"会虚增所有策略的后悔值。
+NON_FEASIBLE_REFERENCE_POLICIES: tuple[str, ...] = (
+    "all_coupon_unconstrained_reference",
+)
+
 SELECTION_COLUMNS: tuple[str, ...] = (
     "model", "times_chosen", "share_chosen", "mean_rank", "median_selection_score",
 )
@@ -231,11 +237,21 @@ def paired_policy_difference(
 
 
 def oracle_regret_summary(grid: pd.DataFrame, *, chosen_only: bool = False) -> pd.DataFrame:
-    """每个 rep×模型×预算内的事后最优（按真值），给出各策略的差距与夺魁频率。"""
+    """每个 rep×模型×预算内的事后最优（按真值），给出各策略的差距与夺魁频率。
+
+    事后最优只在**受预算约束**的策略里取；``all_coupon_unconstrained_reference``
+    是参照不是策略，既不参与比较也不出现在结果里。
+    """
     wide = _paired_wide(grid, chosen_only)
-    best = wide.max(axis=1)
+    feasible = [
+        column for column in wide.columns
+        if column not in NON_FEASIBLE_REFERENCE_POLICIES
+    ]
+    if not feasible:
+        raise ValueError("策略网格里没有可执行的预算约束策略，无法定义事后最优")
+    best = wide[feasible].max(axis=1)
     rows: list[dict[str, object]] = []
-    for policy in wide.columns:
+    for policy in feasible:
         regret = best - wide[policy]
         for (model, budget), group in regret.groupby(level=["model", "per_user_budget_cny"]):
             values = group.to_numpy(dtype=np.float64)

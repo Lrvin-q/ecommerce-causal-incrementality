@@ -182,6 +182,21 @@ def test_oracle_regret_identifies_best_policy_per_model() -> None:
     )
 
 
+def test_oracle_regret_excludes_unconstrained_reference() -> None:
+    # 全发券参考不受预算约束；若把它算进"事后最优"，所有策略的后悔值都会被抬高。
+    grid = _grid()
+    reference = grid.loc[grid["policy"] == "no_coupon"].copy()
+    reference["policy"] = "all_coupon_unconstrained_reference"
+    reference["true_value_per_user"] = 1000.0
+    with_reference = pd.concat([grid, reference], ignore_index=True)
+    base = formal.oracle_regret_summary(grid)
+    table = formal.oracle_regret_summary(with_reference)
+    assert "all_coupon_unconstrained_reference" not in set(table["policy"])
+    pd.testing.assert_frame_equal(
+        table.reset_index(drop=True), base.reset_index(drop=True)
+    )
+
+
 def test_compliance_separates_hat_and_true_cost() -> None:
     table = formal.compliance_summary(_grid()).set_index(["model", "policy"])
     business = table.loc[("constant", "business_rule_new_user_then_cart")]

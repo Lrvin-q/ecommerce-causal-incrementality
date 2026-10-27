@@ -111,7 +111,7 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [~] 正式 R：200 rep × n=200 000 × 5 模型，L1_main；快照 `out/d03_formal_snapshot/`，4 个独立进程写 `out/d03_formal/shard{0..3}/`；**14:07 进度 56/200（每分片 14/50），≈298–303 秒/rep，预计 17:05–17:20 完成；run.err 为空**
 - [x] 合并脚本 `scripts/25_merge_d03_formal.py`：写盘前校验 rep 覆盖/去重、5 模型×8 预算×9 策略、chosen 恰好覆盖一个模型、双口径合规标记与数值一致；用 3 rep 试点产物演练通过（15 / 1 080 行）
 - [x] 合并门禁 7 项合成用例（`tests/test_v3_d03_merge.py`）：缺 rep / 重复 rep / 篡改合规标记 / chosen 计数错 / config_hash 不一致 / 非正式分片全拒
-- [x] 报告聚合层 `src/causal_growth/evaluation/v3_d03_formal.py` + `scripts/26_d03_formal_tables.py`：选模频率、模型校准（all/chosen）、真值价值、**按 (rep, model, budget) 配对的策略差**、oracle 后悔、双口径合规；缺格/重复格/覆盖不足即抛错。10 项测试绿；用 3 rep 试点表端到端演练产出 7 张表（policy_value/paired_diff/oracle/compliance 各 360 行，chosen 配对 144 行）
+- [x] 报告聚合层 `src/causal_growth/evaluation/v3_d03_formal.py` + `scripts/26_d03_formal_tables.py`：选模频率、模型校准（all/chosen）、真值价值、**按 (rep, model, budget) 配对的策略差**、oracle 后悔、双口径合规；缺格/重复格/覆盖不足即抛错。11 项测试绿；用 3 rep 试点表端到端演练产出 7 张表（policy_value/paired_diff/compliance 各 360 行，oracle 320 行——**全发券参考不参与事后最优**，chosen 配对 144 行）
 - [x] 证据导出 `scripts/27_export_d03_evidence.py`：导出 manifest、快照绑定（83 文件）、4 份分片 summary 与 run.log；校验 rep 并集恰为 0..199、config_hash 四分片一致、run.err 全空、合并表哈希与行数（1 000 / 72 000）后再写 `coverage.json`
 - [ ] 合并分片 → `outputs/tables/v3_phase_D03_formal_*`；跑 27 导出证据；校验 1 000 行 per-rep、72 000 行网格、每 rep 恰一个 chosen
 - [ ] 独立评审（方法对照、选模频率、配对网格、双口径合规）→ D03 判定
