@@ -457,7 +457,14 @@ def freeze_observed(
         "net_profit": "observed_net_profit",
         "coupon_cost": "observed_coupon_cost",
     })
-    per_user = per_user.assign(selected_policy_id=selected_policy).loc[:, list(PER_USER_COLUMNS)]
+    delivered_policy = {
+        TARGETED_ARM: selected_policy,
+        RANDOM_ARM: RANDOM_ARM,
+        CONTROL_ARM: CONTROL_ARM,
+    }
+    per_user = per_user.assign(
+        selected_policy_id=per_user["assigned_policy_arm"].map(delivered_policy)
+    ).loc[:, list(PER_USER_COLUMNS)]
     per_user = per_user.sort_values("user_id", kind="stable").reset_index(drop=True)
     payload = dataframe_sha256(per_user) + "|" + selected_policy + "|" + model
     freeze_hash = hashlib.sha256(payload.encode("utf-8")).hexdigest()

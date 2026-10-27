@@ -137,6 +137,10 @@ def test_freeze_observed_strips_truth_and_is_value_sensitive() -> None:
     assert tuple(per_user.columns) == f02.PER_USER_COLUMNS
     assert "tau_true" not in per_user.columns
     assert "cost_true" not in per_user.columns
+    by_arm = per_user.groupby("assigned_policy_arm")["selected_policy_id"].unique()
+    assert by_arm[f02.TARGETED_ARM].tolist() == ["incremental_profit_rank"]
+    assert by_arm[f02.RANDOM_ARM].tolist() == [f02.RANDOM_ARM]
+    assert by_arm[f02.CONTROL_ARM].tolist() == [f02.CONTROL_ARM]
     again, digest_again = f02.freeze_observed(
         observed, selected_policy="incremental_profit_rank", model="constant"
     )
