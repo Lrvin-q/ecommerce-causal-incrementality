@@ -1,10 +1,51 @@
 # AGENT 交接说明 —— v3 重建
 
-> **最新交接时间：2026-10-25 14:40（北京时间）。当前分支：`codex/v3-rebuild`。**
-> A/B/C 已通过独立评审；**D 的实现层通过两份独立评审，但 D02 证据层未完成**；正式重复 R=0。
+> **最新交接时间：2026-10-27 09:45（北京时间）。当前分支：`codex/v3-rebuild`。**
+> **A/B/C/D02 通过；D03 未证实且是 E 的硬前置；E 组件层完成、编排层跑通但只有合成数据。**
 > 下文「最新交接」是当前事实；再往下的旧版交接保留施工约束与历史背景。
 
-## 最新交接：D 实现层已通过双评审，D02 未完成，正式 AA 在跑
+## 最新交接：D02 通过，E 被 D03 挡住
+
+### 一、权威状态（不要从旧叙述推断）
+
+| 项 | 事实 | 证据位置 |
+|---|---|---|
+| A 协议冻结 | 通过 | `outputs/v3/protocol/approval.json` |
+| B 机制与真值 | 通过 | `outputs/v3/validation/approval.json` |
+| C 五表/SQL/隔离 | 通过 | `outputs/v3/data_validation/approval.json` |
+| **D02** | **通过（09:45）**，走完「评审判定 → 修复 → 独立复核 PASS」三环 | `docs/v3_phase_D_aa_formal.md` §8；`docs/reviews/v3_phase_D_recheck.md` |
+| D01 | **未证实**：20pilot 三粒度实测与资源计划未做 | — |
+| **D03** | **未证实，且是 E 的硬前置**：只有冒烟（`v3_phase_D_models_smoke.csv` 5 行），**无逐用户 τ̂ 落盘** | `docs/v3_phase_D_models.md` §6 |
+| D04 装载优化 | 实现通过，调用点已切换 | `docs/v3_phase_D_loader_switch.md` |
+| E 组件层 | 完成，41 项测试绿 | `src/causal_growth/policy/v3_policy.py`；`docs/v3_phase_E_coverage.md` |
+| E 编排层 | 跑通：9 策略 × 8 预算 = 72 行（**合成数据**） | `scripts/21_e_policy_run.py`；`out/e_smoke/` |
+| 推送 | 积压若干 commit（GitHub 502 反复） | `git rev-list --count origin/codex/v3-rebuild..HEAD` |
+
+### 二、下一步（按优先级）
+
+1. **D03 正式跑 + 逐用户 τ̂ 导出** —— 唯一挡在 E 前面的活。现成链路：
+   - `_prepare_dataset(scenario, n, rep_id)`（`v3_models.py:1680`）：DGP → 脏化 → 去重 → SQL → `ObservedDataset`
+   - `fit_predict(model_name, dataset, cfg, seed_index=...)`（`:1225`）：返回 **test 集** τ̂（不在训练集上评估）
+   - 真值 τ 从 `population.audit_potential_orders[0/1]` 取（audit-only，**只用于评估，不得进入选人**）
+   - 产出 CSV 直接喂 `scripts/21_e_policy_run.py --input`
+2. D01 20pilot 三粒度实测与资源计划
+3. 推送积压
+
+### 三、接手须知（血泪版）
+
+- **不要拿合成 τ̂ 下策略结论。** `out/e_smoke/` 的 72 行只证明代码能跑；里面 `business_rule` 比
+  `greedy` 还高，是因为合成数据的 τ̂ 噪声（sd=0.35）压过了信号的排序能力，不是真实结论。
+- **`local_swap` 的真值可能低于 greedy**（0.60 预算 −0.00008）。它保证的是**预测目标**不降，
+  真值可以降。这是"预测最优 ≠ 真值最优"，不是 bug。
+- **证据包在 `outputs/evidence/`（1.79 MB）**，换机只需要它就能重建 FPR 46/1000 与 CP [0.0339,0.0609]。
+- `out/` 仍被 `.gitignore` 忽略。任何需要别人复算的材料，必须先从 `out/` 导出到 `outputs/`，
+  并且**按 block 过滤**——负对照表里就混着 1 行 `true_aa`，整表复制会算成 8/101。
+- **校验器不是装饰**：17/19 号脚本的 `validate` 都被独立评测过"可绕过"，现已扩到能拦 8 类篡改。
+  改动它们等于拆掉门禁。
+
+## 历史交接：D 实现层已通过双评审，D02 未完成，正式 AA 在跑（2026-10-25 14:40）
+
+> 以下为历史状态，保留施工约束与踩坑记录；当前状态以上一节为准。
 
 ### 一、权威状态（不要从旧叙述推断）
 
@@ -127,7 +168,7 @@ $env:PYTHONPATH = "$PWD\out\aa_snapshot\src"
 
 > **最新交接时间：2026-10-25 10:09（北京时间，Asia/Shanghai）。当前分支：`codex/v3-rebuild`。A/B/C独立评审通过；正式实验R=0。** 用户要求完成当前C部分后先收尾，由另一个agent接替，本轮不启动D。以下最新节是当前事实；后文旧版交接保留施工约束与历史背景，其中“v3尚未动工”、旧测试数和资源数字不能当作当前进度。
 
-## 最新交接：C已验收，下一阶段D未开始
+## 历史交接：C 已验收，D 未开始（2026-10-25 10:09）
 
 ### 权威状态与证据
 
