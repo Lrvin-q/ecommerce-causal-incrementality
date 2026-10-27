@@ -564,9 +564,14 @@ def cost_and_guardrail(
     propensity_source: str = "estimated",
     design_probability: Any | None = None,
     seed_index: int = 0,
-    confidence: float = 0.95,
+    confidence: float | None = None,
 ) -> pd.DataFrame:
-    """逐策略的 DR 券成本与退款率（含区间），与价值表分开列示。"""
+    """逐策略的 DR 券成本与退款率（含区间），与价值表分开列示。
+
+    ``confidence=None`` 时读 ``evaluation.confidence_level``，不在代码里写死水平。
+    """
+    if confidence is None:
+        confidence = float(cfg.require("evaluation.confidence_level"))
     ordered = require_observed_frame(frame)
     nuisance = fit_ope_nuisances(
         ordered, features, cfg,

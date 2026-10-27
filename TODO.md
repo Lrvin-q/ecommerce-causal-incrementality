@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-**2026-10-27 16:00 更新。A/B/C/D02 通过。D03 正式 R（200 rep）正在跑（15:55 时 142/200，四分片各 35–36/50；stderr 全空）；正式报告聚合层与证据导出脚本已就绪并演练通过；F01（观测闭环 OPE）核心模块 9 项测试绿；F02（独立验证三臂）机制、9 项测试、CLI 与代表 rep 五表落盘已就绪；全量 1226 项测试在 15:55 串行 exit=0，代表五表改动后的全量待 D03 结束再跑。**
+**2026-10-27 18:24 更新。A/B/C/D02 通过。D03 正式 R 已完成（200/200，12:54–17:14，stderr 全空），合并与证据导出通过（1 000 行 per-rep / 72 000 行网格，`coverage.json` 10 文件）；**D03 仍标未证实，待正文数字与独立评审**。F02 决策层（单侧 Holm + 退款率护栏）已完成、11 项测试绿；全量串行 1 228 项 exit=0（18:12:54–18:20:00，决策层改动前）；n=200k 单 rep 待跑。**
 
 **D02 通过**，闭环为：独立评审 PASS WITH CONDITIONS → 3 项文档 P0 修正（4×MDE→4.93×、34%→0.729、相对差 2.3%→7.84% 并改归因为层水平偏移）+ P0-1/E-1~E-3 修复 → **独立复核 PASS**（`docs/reviews/v3_phase_D_recheck.md`）→ 复核抓出的 2 处再修。详见 `docs/v3_phase_D_aa_formal.md` §8。证据包在 `outputs/evidence/`（1.79 MB，仅凭它可重建 FPR 46/1000 与 CP [0.0339,0.0609]）。
 
@@ -27,7 +27,7 @@
 | C 五表SQL隔离 | [x] | 101作业/6977检查、四库与CLI补验，独立工程评审通过 |
 | D 检测估计 | [~] | **D02 通过**；D01/D03 未证实。**D03 20 rep 诊断 + 3 rep × n=200k 试点已完成；正式 R（200 rep）12:52 启动** |
 | E 策略优化 | [ ] | D通过，科学+业务评审 |
-| F 观测闭环 | [~] | E通过，科学评审。**F01 核心 + F02 机制/测试/CLI 已就绪；F02 正式 200k 验证与冻结清单未跑** |
+| F 观测闭环 | [~] | E通过，科学评审。**F01 核心 + F02 机制/决策层/11 测试已就绪；n=200k 单 rep 未跑** |
 | G 正式重复 | [ ] | F通过，逐格R和工程评审 |
 | H 图与长稿 | [ ] | G通过，三视角评审 |
 | Z 最终审计清理 | [ ] | H通过，全项复核、单独清理提交 |
@@ -108,12 +108,14 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] 3 rep × n=200 000 试点（`out/d03_pilot/`，快照 `67d842ae…`）：墙钟 13 分 49 秒，≈276 秒/rep（5 模型 + 5 份 9×8 网格）
 - [x] 试点关键值：选模 constant 1 / causal_forest 2；cf 校准斜率 0.79–0.84；0.20 档 business − greedy 在 cf 上 −0.0189 ± 0.0075、s 打平、constant/t/dr 仍 business 更好；greedy 实际支出 0.04 档 1.31 倍预算；local_swap 120 格中 4 格真值为负（最小 −0.00075）
 - [x] 分片与可观测性：`--rep-start/--rep-stop/--formal-r`、逐 rep 耗时日志；分片只切 `rep_id`，随机流不变
-- [~] 正式 R：200 rep × n=200 000 × 5 模型，L1_main；快照 `out/d03_formal_snapshot/`，4 个独立进程写 `out/d03_formal/shard{0..3}/`；**14:07 进度 56/200（每分片 14/50），≈298–303 秒/rep，预计 17:05–17:20 完成；run.err 为空**
+- [x] 正式 R：200 rep × n=200 000 × 5 模型，L1_main；快照 `out/d03_formal_snapshot/`，4 个独立进程写 `out/d03_formal/shard{0..3}/`；**17:13–17:14 四分片各 50 rep 完成，12:54 启动、墙钟约 4 小时 20 分；run.err 全空；每分片 summary `status=formal_r`、reps=50**
 - [x] 合并脚本 `scripts/25_merge_d03_formal.py`：写盘前校验 rep 覆盖/去重、5 模型×8 预算×9 策略、chosen 恰好覆盖一个模型、双口径合规标记与数值一致；用 3 rep 试点产物演练通过（15 / 1 080 行）
 - [x] 合并门禁 7 项合成用例（`tests/test_v3_d03_merge.py`）：缺 rep / 重复 rep / 篡改合规标记 / chosen 计数错 / config_hash 不一致 / 非正式分片全拒
 - [x] 报告聚合层 `src/causal_growth/evaluation/v3_d03_formal.py` + `scripts/26_d03_formal_tables.py`：选模频率、模型校准（all/chosen，含**最大绝对相对偏差**）、真值价值、**按 (rep, model, budget) 配对的策略差**、oracle 后悔、双口径合规；缺格/重复格/覆盖不足/网格 chosen 行不完整即抛错。12 项测试绿；用 3 rep 试点表端到端演练产出 7 张表（policy_value/paired_diff/compliance 各 360 行，oracle 320 行——**全发券参考不参与事后最优**，chosen 配对 144 行）
 - [x] 证据导出 `scripts/27_export_d03_evidence.py`：导出 manifest、快照绑定（83 文件）、4 份分片 summary 与 run.log；校验 rep 并集恰为 0..199、config_hash 四分片一致、run.err 全空、合并表哈希与行数（1 000 / 72 000）后再写 `coverage.json`
-- [ ] 合并分片 → `outputs/tables/v3_phase_D03_formal_*`；跑 27 导出证据；校验 1 000 行 per-rep、72 000 行网格、每 rep 恰一个 chosen
+- [x] 合并分片 → `outputs/tables/v3_phase_D03_formal_*`；跑 26 报告表与 27 导出证据（17:15，`coverage.json` 10 个文件，`config_hash=e1aa4314…`）；校验 200 rep / 1 000 行 per-rep / 72 000 行网格 / 每 rep 恰一个 chosen 全过
+- [x] 报告表 7 张 + meta：`selection/calibration/policy_value/paired_diff/paired_diff_chosen/oracle/compliance`
+- [ ] **写 `docs/v3_phase_D03_formal.md` 正文数字**（选模 105/71/12/7/5；校准斜率 CF 0.754、S 0.467、T 0.114、DR 0.098；greedy−business 按模型符号分裂；0.2 档真实支出合规率 CF 11%/S 13%/T 39%/DR 26.5%/constant 0%）
 - [ ] 独立评审（方法对照、选模频率、配对网格、双口径合规）→ D03 判定
 
 ## E 证据层（2026-10-27 13:05，北京时间）
@@ -138,9 +140,12 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] 折划分复用：`crossfit_nuisance` 新增 `fold_id`，`crossfit_two_arm_outcome` 在同一折上拟合成本/退款模型，杜绝跨折泄漏
 - [x] 真值隔离入口：观测表若含 `*_true` / `audit_*` / `truth_*` / `potential_*` 列直接拒收；`actual_action` 放行
 - [x] 9 项测试（`tests/test_v3_ope.py`）：SNIPS 手算公式、单臂退化、n=4 000 恢复已知策略值、no_coupon 跳过处理臂门禁、ESS/支持拒收、配对差用协方差而非独立 SE、成本/护栏恢复、真值列拒收、Holm 阈值
-- [x] **F02 独立验证机制**（16:00 更新）：`evaluation/v3_f02.py` 从 D03 选中模型冻结三臂（`no_coupon / random_same_budget / selected_targeted_policy`，1/3 各臂），**每个活跃臂按臂内分配人数 × 0.2 元冻结名单**（配置 `same_per_assigned_user_in_each_active_arm`）；新一批验证用户走五表+SQL 出观测，全臂 ITT 对照；**先落盘冻结策略名单与 per_user，再解封真值**；全队列交付名单只用于审计且按 `user_id` 对齐；**代表 rep（0）额外落盘完整五表与 SQL，manifest 绑定其路径与 sha256**；9 项测试绿，n=2 000 CLI 冒烟产出 8 个文件 + `five_tables/`
+- [x] **F02 独立验证机制**（16:00 更新）：`evaluation/v3_f02.py` 从 D03 选中模型冻结三臂（`no_coupon / random_same_budget / selected_targeted_policy`，1/3 各臂），**每个活跃臂按臂内分配人数 × 0.2 元冻结名单**（配置 `same_per_assigned_user_in_each_active_arm`）；新一批验证用户走五表+SQL 出观测，全臂 ITT 对照；**先落盘冻结策略名单与 per_user，再解封真值**；全队列交付名单只用于审计且按 `user_id` 对齐；**代表 rep（0）额外落盘完整五表与 SQL，manifest 绑定其路径与 sha256**；11 项测试绿，n=2 000 CLI 冒烟产出 11 个文件 + `five_tables/`
 - [ ] **F02 正式验证**：n=200 000、单 rep 跑通并核验解锁顺序与哈希；随后需用户批准才能排正式 200 rep（`--status formal` 需要显式授权）
+- [x] **F02 决策层（18:24 完成）**：两条预声明主张（定向−不发券、定向−同预算随机）各做单侧检验，按 `evaluation.decision.benefit_evidence` 组成 Holm 家族（单侧 α=0.05），输出原始 p/调整阈值/调整 p/通过标记/反演下界；护栏复用 `design/guardrail.py` 的 0.005 非劣效、单侧 0.05，指标 `any_refund_30d_per_assigned_user`；`per_user` 新增 `observed_any_refund_30d`，`arm_summary` 新增退款人数/退款率；`decision.csv / guardrail.csv / decision.json` 与 `freeze.json` 同批先落盘，之后才读真值；F02 11 项测试绿
 - [ ] **F01 正式证据**：D03 R 与 E 正式产物就绪后，用 `--from-d03` 的策略名单 + 观测表出价值/配对差/成本/护栏四张表；写 `docs/v3_phase_F_*.md`
+- [x] **F01 小项（18:24 完成）**：`v3_ope.cost_and_guardrail` 的 `confidence` 默认改为 `None`，运行时读 `evaluation.confidence_level`，不再写死 0.95。
+- [ ] 全量串行测试（决策层改动后）1 228 项复跑 exit=0，日志落 `outputs/runs/`
 - [ ] 独立科学评审 → F 判定
 
 ## 收尾交接（2026-10-25 14:40（北京时间））

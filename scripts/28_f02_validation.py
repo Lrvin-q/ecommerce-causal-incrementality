@@ -66,6 +66,8 @@ def main(argv: list[str] | None = None) -> int:
         "freeze_hash": result.freeze_hash,
         "arm_summary": result.arm_summary.to_dict(orient="records"),
         "itt_contrasts": result.contrasts.to_dict(orient="records"),
+        "decision": result.decision.to_dict(orient="records"),
+        "guardrail": result.guardrail.to_dict(orient="records"),
         "audit_policy_values": result.audit_policy.to_dict(orient="records"),
         "out_dir": str(out_dir),
     }, ensure_ascii=False, indent=2))

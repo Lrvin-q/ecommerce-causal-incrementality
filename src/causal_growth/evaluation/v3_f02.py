@@ -23,6 +23,13 @@ D03 在历史数据上选出一个模型，E 在它之上选出一个策略。�
 
 第 5 步之前任何真值列都不存在；``audit_policy_values`` 是唯一读真值的入口。
 
+决策层
+------
+观测汇总同时给出两条**分开陈述**的收益主张（定向−不发券、定向−同预算随机）的单侧
+检验与 Holm step-down（α=0.05，``evaluation.decision.benefit_evidence``），以及定向−
+不发券的 30 天退款率非劣效护栏（界值 0.5pp、单侧 0.05，``design.guardrail``）。
+``decision.csv / guardrail.csv / decision.json`` 与冻结文件同批落盘，之后才读真值。
+
 预算口径
 --------
 每个活跃臂按 ``evaluation.independent_validation.primary_budget_cny_per_user``
@@ -60,6 +67,8 @@ from causal_growth.data.v3_quality import validate_tables
 from causal_growth.data.v3_sql import run_sql_pipeline
 from causal_growth.data.v3_storage import dataframe_sha256, file_sha256
 from causal_growth.data.v3_tables import build_raw_tables
+from causal_growth.design.guardrail import noninferiority_binary
+from causal_growth.evaluation.v3_ope import holm_step_down
 from causal_growth.dgp.v3_engine import (
     audit_realized_worlds,
     generate_covariates,
@@ -93,15 +102,36 @@ SCORE_COLUMNS: tuple[str, ...] = (
 PER_USER_COLUMNS: tuple[str, ...] = (
     "run_id", "user_id", "assigned_policy_arm", "issued_action",
     "selected_policy_id", "observed_net_profit", "observed_coupon_cost",
+    "observed_any_refund_30d",
 )
 ARM_SUMMARY_COLUMNS: tuple[str, ...] = (
     "arm", "n_assigned", "n_issued", "issue_share",
     "mean_net_profit_cny", "se_net_profit_cny",
     "mean_coupon_cost_cny", "total_coupon_cost_cny",
+    "n_refund", "refund_rate",
 )
 CONTRAST_COLUMNS: tuple[str, ...] = (
     "contrast", "diff_cny_per_user", "se", "ci_low", "ci_high",
     "two_sided_p_value", "n_left", "n_right",
+)
+DECISION_COLUMNS: tuple[str, ...] = (
+    "claim", "contrast", "configured_contrast", "threshold_cny_per_user",
+    "diff_cny_per_user", "se", "one_sided_p_value", "adjusted_alpha",
+    "holm_adjusted_p_value", "passes_adjusted_test",
+    "adjusted_lower_confidence_limit", "n_left", "n_right",
+)
+GUARDRAIL_COLUMNS: tuple[str, ...] = (
+    "contrast", "metric", "unit", "margin", "alpha_one_sided",
+    "left_rate", "right_rate", "diff", "se", "ci_one_sided_upper",
+    "passed", "n_left", "n_right", "n_left_refunds", "n_right_refunds",
+    "method",
+)
+# (claim, 配置别名, 左臂, 右臂)；别名必须与 evaluation.yaml 的 family 逐字一致。
+DECISION_CLAIMS: tuple[tuple[str, str, str, str], ...] = (
+    ("coupon_worth_issuing", "selected_targeted_minus_no_coupon",
+     TARGETED_ARM, CONTROL_ARM),
+    ("targeting_better_than_random", "selected_targeted_minus_same_budget_random",
+     TARGETED_ARM, RANDOM_ARM),
 )
 AUDIT_COLUMNS: tuple[str, ...] = (
     "run_id", "user_id", "assigned_policy_arm", "issued_action",
@@ -137,6 +167,8 @@ class F02Result:
     per_user: pd.DataFrame
     arm_summary: pd.DataFrame
     contrasts: pd.DataFrame
+    decision: pd.DataFrame
+    guardrail: pd.DataFrame
     audit_users: pd.DataFrame
     audit_policy: pd.DataFrame
     audit_contrasts: pd.DataFrame
@@ -386,13 +418,18 @@ def _mean_se(values: np.ndarray) -> tuple[float, float]:
 
 
 def arm_summary(observed: pd.DataFrame) -> pd.DataFrame:
-    """全臂 ITT 的逐臂均值；分母是该臂全部分配用户。"""
+    """全臂 ITT 的逐臂均值与退款率；分母是该臂全部分配用户。"""
     if "assigned_policy_arm" not in observed:
         raise ValueError("观测表缺少 assigned_policy_arm")
+    if "any_refund_30d" not in observed:
+        raise ValueError("观测表缺少 any_refund_30d，无法计算护栏指标")
+    if not observed["any_refund_30d"].isin([0, 1]).all():
+        raise ValueError("any_refund_30d 必须是 0/1")
     rows: list[dict[str, Any]] = []
     for arm in ARMS:
         block = observed.loc[observed["assigned_policy_arm"] == arm]
         mean, se = _mean_se(block["net_profit"].to_numpy(dtype=float))
+        refund = block["any_refund_30d"].to_numpy(dtype=float)
         rows.append({
             "arm": arm,
             "n_assigned": int(len(block)),
@@ -402,6 +439,8 @@ def arm_summary(observed: pd.DataFrame) -> pd.DataFrame:
             "se_net_profit_cny": se,
             "mean_coupon_cost_cny": float(block["coupon_cost"].mean()) if len(block) else float("nan"),
             "total_coupon_cost_cny": float(block["coupon_cost"].sum()),
+            "n_refund": int(refund.sum()),
+            "refund_rate": float(refund.mean()) if len(block) else float("nan"),
         })
     return pd.DataFrame(rows).loc[:, list(ARM_SUMMARY_COLUMNS)]
 
@@ -444,11 +483,123 @@ def itt_contrasts(observed: pd.DataFrame, cfg: Config) -> pd.DataFrame:
     return pd.DataFrame(rows).loc[:, list(CONTRAST_COLUMNS)]
 
 
+def _one_sided_p_value(diff: float, se: float, threshold: float) -> float:
+    """H0: diff ≤ threshold 的单侧 p；se 非正时返回 nan（不给伪显著）。"""
+    if not np.isfinite(se) or se <= 0.0:
+        return float("nan")
+    return float(1.0 - NormalDist().cdf((diff - threshold) / se))
+
+
+def decision_summary(observed: pd.DataFrame, cfg: Config) -> pd.DataFrame:
+    """两条**分开陈述**的收益主张，按预声明家族做单侧 Holm step-down。
+
+    家族成员与别名逐字取自 ``evaluation.decision.benefit_evidence``（α=0.05）。
+    区间不是未调整 95% CI，而是把同一 step-down 检验按其调整阈值反演得到的下界
+    （按被检验时的 α 水平反演；marginal，不是同时置信区间）。
+    """
+    benefit = cfg.require("evaluation.decision.benefit_evidence")
+    threshold = float(cfg.require("evaluation.decision.benefit_threshold_cny_per_user"))
+    alpha = float(cfg.require("evaluation.decision.benefit_evidence.family_alpha_one_sided"))
+    configured = tuple(
+        str(value) for value in cfg.require("evaluation.decision.benefit_evidence.family")
+    )
+    expected = tuple(alias for _, alias, _, _ in DECISION_CLAIMS)
+    if set(configured) != set(expected):
+        raise ValueError(f"决策家族与实现不一致：配置 {configured}，实现 {expected}")
+    if not bool(benefit["output_two_separate_claims"]):
+        raise ValueError("F02 决策层要求两条主张分开陈述（output_two_separate_claims）")
+    stats: dict[str, dict[str, Any]] = {}
+    p_values: dict[str, float] = {}
+    for claim, alias, left, right in DECISION_CLAIMS:
+        a = observed.loc[observed["assigned_policy_arm"] == left, "net_profit"].to_numpy(dtype=float)
+        b = observed.loc[observed["assigned_policy_arm"] == right, "net_profit"].to_numpy(dtype=float)
+        mean_a, se_a = _mean_se(a)
+        mean_b, se_b = _mean_se(b)
+        diff = mean_a - mean_b
+        se = float(np.sqrt(se_a**2 + se_b**2))
+        stats[claim] = {
+            "alias": alias, "left": left, "right": right,
+            "diff": diff, "se": se, "n_left": int(a.size), "n_right": int(b.size),
+        }
+        p_values[claim] = _one_sided_p_value(diff, se, threshold)
+    adjusted = holm_step_down(p_values, alpha)
+    rows: list[dict[str, Any]] = []
+    for claim, alias, left, right in DECISION_CLAIMS:
+        stat = stats[claim]
+        step = adjusted[claim]
+        lower = (
+            stat["diff"] - NormalDist().inv_cdf(1.0 - float(step["adjusted_alpha"])) * stat["se"]
+            if np.isfinite(stat["se"]) and stat["se"] > 0.0 else float("nan")
+        )
+        rows.append({
+            "claim": claim,
+            "contrast": f"{left}_minus_{right}",
+            "configured_contrast": alias,
+            "threshold_cny_per_user": threshold,
+            "diff_cny_per_user": stat["diff"],
+            "se": stat["se"],
+            "one_sided_p_value": float(step["p_value"]),
+            "adjusted_alpha": float(step["adjusted_alpha"]),
+            "holm_adjusted_p_value": float(step["adjusted_p_value"]),
+            "passes_adjusted_test": bool(step["rejected"]),
+            "adjusted_lower_confidence_limit": float(lower),
+            "n_left": stat["n_left"],
+            "n_right": stat["n_right"],
+        })
+    return pd.DataFrame(rows).loc[:, list(DECISION_COLUMNS)]
+
+
+def guardrail_summary(observed: pd.DataFrame, cfg: Config) -> pd.DataFrame:
+    """退款率护栏：定向臂对不发券臂的单侧非劣效（界值与 α 来自 ``design.guardrail``）。
+
+    指标是逐分配用户的 30 天退款事件率（不是退款单/支付单的条件口径）；判定用
+    ``noninferiority_binary`` 的非合并方差单侧 Wald 上界，"差异不显著"不算通过。
+    """
+    if "any_refund_30d" not in observed:
+        raise ValueError("观测表缺少 any_refund_30d，无法计算护栏指标")
+    if not observed["any_refund_30d"].isin([0, 1]).all():
+        raise ValueError("any_refund_30d 必须是 0/1")
+    treats = observed.loc[observed["assigned_policy_arm"] == TARGETED_ARM]
+    controls = observed.loc[observed["assigned_policy_arm"] == CONTROL_ARM]
+    if treats.empty or controls.empty:
+        raise ValueError("护栏检验需要定向臂与对照臂都非空")
+    margin = float(cfg.require("design.guardrail.noninferiority_margin_probability_points"))
+    alpha = float(cfg.require("design.guardrail.alpha_one_sided"))
+    metric = str(cfg.require("design.guardrail.primary_metric"))
+    result = noninferiority_binary(
+        int(treats["any_refund_30d"].sum()), int(len(treats)),
+        int(controls["any_refund_30d"].sum()), int(len(controls)),
+        margin=margin, alpha_one_sided=alpha, metric=metric,
+    )
+    row = {
+        "contrast": f"{TARGETED_ARM}_minus_{CONTROL_ARM}",
+        "metric": result.metric,
+        "unit": "per_assigned_user",
+        "margin": result.margin,
+        "alpha_one_sided": result.alpha_one_sided,
+        "left_rate": float(treats["any_refund_30d"].mean()),
+        "right_rate": float(controls["any_refund_30d"].mean()),
+        "diff": result.diff,
+        "se": result.se,
+        "ci_one_sided_upper": result.ci_one_sided_upper,
+        "passed": bool(result.passed),
+        "n_left": int(len(treats)),
+        "n_right": int(len(controls)),
+        "n_left_refunds": int(treats["any_refund_30d"].sum()),
+        "n_right_refunds": int(controls["any_refund_30d"].sum()),
+        "method": result.method,
+    }
+    return pd.DataFrame([row]).loc[:, list(GUARDRAIL_COLUMNS)]
+
+
 def freeze_observed(
     observed: pd.DataFrame, *, selected_policy: str, model: str
 ) -> tuple[pd.DataFrame, str]:
     """冻结逐用户观测记录并返回 (记录, freeze_hash)；此步不得读真值。"""
-    columns = ["run_id", "user_id", "assigned_policy_arm", "actual_action", "net_profit", "coupon_cost"]
+    columns = [
+        "run_id", "user_id", "assigned_policy_arm", "actual_action",
+        "net_profit", "coupon_cost", "any_refund_30d",
+    ]
     missing = [column for column in columns if column not in observed]
     if missing:
         raise ValueError(f"观测表缺少冻结列：{missing}")
@@ -456,7 +607,10 @@ def freeze_observed(
         "actual_action": "issued_action",
         "net_profit": "observed_net_profit",
         "coupon_cost": "observed_coupon_cost",
+        "any_refund_30d": "observed_any_refund_30d",
     })
+    if not per_user["observed_any_refund_30d"].isin([0, 1]).all():
+        raise ValueError("observed_any_refund_30d 必须是 0/1")
     delivered_policy = {
         TARGETED_ARM: selected_policy,
         RANDOM_ARM: RANDOM_ARM,
@@ -639,19 +793,59 @@ def run_f02_rep(
         raise ValueError("验证观测表的全臂分母不完整")
     summary = arm_summary(observed)
     contrasts = itt_contrasts(observed, cfg)
+    decision = decision_summary(observed, cfg)
+    guardrail = guardrail_summary(observed, cfg)
     per_user, freeze_hash = freeze_observed(
         observed, selected_policy=policy, model=scored.model
     )
+    decision_hash = dataframe_sha256(decision)
+    guardrail_hash = dataframe_sha256(guardrail)
+    decision_rule = {
+        "family_alpha_one_sided": float(
+            cfg.require("evaluation.decision.benefit_evidence.family_alpha_one_sided")
+        ),
+        "adjustment": str(
+            cfg.require("evaluation.decision.benefit_evidence.adjustment")
+        ),
+        "confidence_limits": str(
+            cfg.require("evaluation.decision.benefit_evidence.confidence_limits")
+        ),
+        "benefit_threshold_cny_per_user": float(
+            cfg.require("evaluation.decision.benefit_threshold_cny_per_user")
+        ),
+        "guardrail_margin": float(
+            cfg.require("design.guardrail.noninferiority_margin_probability_points")
+        ),
+        "guardrail_alpha_one_sided": float(
+            cfg.require("design.guardrail.alpha_one_sided")
+        ),
+        "require_guardrail_noninferiority": bool(
+            cfg.require("evaluation.decision.require_guardrail_noninferiority")
+        ),
+    }
     target = Path(out_dir) if out_dir is not None else None
     if target is not None:
         target.mkdir(parents=True, exist_ok=True)
         per_user.to_csv(target / "per_user.csv", index=False, encoding="utf-8-sig")
         summary.to_csv(target / "arm_summary.csv", index=False, encoding="utf-8-sig")
         contrasts.to_csv(target / "itt_contrasts.csv", index=False, encoding="utf-8-sig")
+        decision.to_csv(target / "decision.csv", index=False, encoding="utf-8-sig")
+        guardrail.to_csv(target / "guardrail.csv", index=False, encoding="utf-8-sig")
+        (target / "decision.json").write_text(
+            json.dumps({
+                **decision_rule,
+                "benefit_claims": decision.to_dict(orient="records"),
+                "guardrail": guardrail.to_dict(orient="records"),
+                "truth_columns_present": False,
+            }, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
         (target / "freeze.json").write_text(
             json.dumps({
                 "freeze_hash": freeze_hash,
                 "per_user_hash": dataframe_sha256(per_user),
+                "decision_hash": decision_hash,
+                "guardrail_hash": guardrail_hash,
                 "selected_model": scored.model,
                 "selected_policy": policy,
                 "truth_columns_present": False,
@@ -693,6 +887,9 @@ def run_f02_rep(
         "preprocessor_hash": scored.preprocessor_hash,
         "config_hash": cfg.hash(64),
         "freeze_hash": freeze_hash,
+        "decision_rule": decision_rule,
+        "decision_hash": decision_hash,
+        "guardrail_hash": guardrail_hash,
         "audit_unlock_order": "freeze_files_written_then_audit_realized_worlds",
         "per_user_hash": dataframe_sha256(per_user),
         "assignment_hash": dataframe_sha256(assignment),
@@ -723,6 +920,8 @@ def run_f02_rep(
         per_user=per_user,
         arm_summary=summary,
         contrasts=contrasts,
+        decision=decision,
+        guardrail=guardrail,
         audit_users=audit_users,
         audit_policy=audit_policy,
         audit_contrasts=audit_contrasts,
