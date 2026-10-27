@@ -698,8 +698,18 @@ max 524.2 = causal_forest），2 并发 ⇒ 200 rep = **12.80 h**，95% 区间 *
   分片每个 rep 前后都会重算 `pipeline_source_hashes()`，写这些路径会让作业抛
   `RuntimeError: source files changed during the data run`，**几个小时的运行会报废**。
 - 不要跑全量 pytest（抢内存、且 1 264 项要 6 分钟）；不要起第三个分片（3 × 2.4 GB > 可用）。
-- `scripts/` 不在绑定集合里，但仍不建议在运行期改：合并脚本 `scripts/30_merge_f02_formal.py`
-  会在收尾时被自动调用，改了就等于换了口径。
+- **`scripts/` 不被哈希，但不等于运行期可以改**（05:01 从 `snapshot_binding.json` 复核）：
+  `snapshot_dirs=['src','sql','configs','scripts']`，而 `source_hashes` 的 48 个文件是
+  src 37 + configs 9 + sql 2，**`scripts` 下 0 个**。两条自动化走的是不同路径：
+
+  | 自动化 | 实际执行 | 改仓库同名文件的后果 |
+  |---|---|---|
+  | 分片 `out/scratch/f02_shard.sh:17` | `$SNAP/scripts/29_f02_formal.py` | 无影响（快照副本） |
+  | 收尾 `out/scratch/f02_finalize.sh:45` | `$REPO/scripts/30_merge_f02_formal.py` | **直接换掉无人值守合并要跑的代码** |
+
+  ⇒ 运行期不改 30 号脚本（含 §12.7 那类加固），全部推迟到合并后待做 ⑥。
+- 也不要动正在被后台复审代理读取的 `docs/v3_phase_D03_formal.md`（05:03 起有独立复审在跑，
+  输出 `docs/reviews/v3_phase_D03_rereview.md`）。
 
 ### 合并完成后必须人工做的五件事（已登记在 TODO.md「合并后待做」）
 
