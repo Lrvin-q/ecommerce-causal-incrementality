@@ -1,0 +1,50 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "status": "f02_formal_approved",
+  "registration_id": "F02-FORMAL-20261028-R200",
+  "approved_on": "2026-10-28",
+  "approved_at_beijing": "2026-10-28 01:10",
+  "approver": "项目 owner（会话内明确授权）",
+  "approval_quote": "用户于 2026-10-28 01:10（北京时间）在本项目会话中明确批准：\"这些我都默认批准通过，不需要你停下来，你负责继续持续推进，阶段性的做反思。\" 所指四项为：F02 正式 200 rep、D01 20 rep 三粒度试点、D03 §11.2 程序豁免、以及 E/F01 的评审状态（后者主负责未据此改状态，理由见 docs/v3_决策与反思日志.md 01:22 条）。",
+  "scope": [
+    "F02"
+  ],
+  "run": {
+    "scenario": "L1_main",
+    "n_per_rep": 200000,
+    "rep_range": [
+      0,
+      199
+    ],
+    "n_reps": 200,
+    "policy": "greedy_incremental_profit_per_cost",
+    "models": "configs/v3/models.yaml 的全部 5 个（不指定 --models）",
+    "shards": "4 × 50 rep，按内存余量决定并发数（启动时实测单 rep 峰值 RSS）",
+    "status_flag": "formal",
+    "entry": "out/f02_formal_snapshot/scripts/29_f02_formal.py",
+    "merge": "scripts/30_merge_f02_formal.py --expected-reps 200"
+  },
+  "frozen_decision_rule": {
+    "family": "evaluation.decision.benefit_evidence（两条主张，单侧 Holm，α=0.05）",
+    "guardrail": "any_refund_30d_per_assigned_user，非劣效 margin=0.005，单侧 α=0.05",
+    "budget": "0.2 元/已分配用户，按预测成本装填（same_per_assigned_user_in_each_active_arm）"
+  },
+  "git_commit": "7870b9a191c573a41b69d886afc4c6662b5fea95",
+  "protocol_config_hash": "e1aa4314b8d84b04a26150cb8ccea5a35dbe9b2d514fee724c56570d5b586d75",
+  "config_sha256": {
+    "configs/v3/business.yaml": "d1259d2342aba1a4cdcaca5c0de6e4914c8a55b315a80af7c0923757d1ba0e0a",
+    "configs/v3/design.yaml": "d2fd51a1156457257cf7977b32bd5aeb1c9745a10e528d029a877ef1b531fa99",
+    "configs/v3/evaluation.yaml": "5f6dfcb2c700bc72831efb1ff94b3b2137bc8dd9680b862981c4b2755c3241d1",
+    "configs/v3/execution.yaml": "dc1c8e9ab147e58d95e1367c2abcd90ba02acf05ca27da11e3dfb84da8631733",
+    "configs/v3/models.yaml": "19ce3bf5a338ea0e055e3ba0ff676054e8926dde7ce44409ca7699443361bdf2",
+    "configs/v3/policy.yaml": "57ff5721de12af0cc285bb235f320fd7047a06837dc5f2ac00e228690d36958a",
+    "configs/v3/scenarios.yaml": "29a158b046cb91661f2327cc5acbc1dc868a57c17dc0783cfe9d6d41058e9ddb"
+  },
+  "source_hashes_sha256": "d8327ae0a190a5c250aea30683dfa44ed25887016d2de6106a6ae9a619d11eae",
+  "snapshot_binding": "out/f02_formal_snapshot/snapshot_binding.json",
+  "prerequisites": [
+    "评审后源码复验：最终源码 n=20 000 双跑，freeze.json 七字段逐位一致（TODO.md F02 项）",
+    "全量串行测试 exit=0（单进程、--basetemp C:/cg_t、留日志与起止时间）",
+    "快照含 scripts/，从快照运行，--out-root 用绝对路径（docs/v3_phase_F02_validation.md §5.5）"
+  ]
+}
