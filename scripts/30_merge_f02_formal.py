@@ -94,6 +94,14 @@ def _require(condition: bool, message: str) -> None:
         raise ValueError(message)
 
 
+def _display(path: Path) -> str:
+    """``relative_to(ROOT)`` 只适用于仓内路径；测试用临时目录时退回绝对路径。"""
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def _rep_dirs(shard_root: Path) -> list[Path]:
     return sorted(
         (path.parent for path in shard_root.glob("rep*/manifest.json")),
@@ -125,7 +133,7 @@ def _with_bindings(frame: pd.DataFrame, rep: dict[str, Any]) -> pd.DataFrame:
 def _write_csv(frame: pd.DataFrame, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     frame.to_csv(path, index=False, encoding="utf-8-sig")
-    _say(f"wrote {path.relative_to(ROOT).as_posix()} ({len(frame)} rows)")
+    _say(f"wrote {_display(path)} ({len(frame)} rows)")
 
 
 def _write_json(payload: dict[str, Any], path: Path) -> None:
@@ -133,7 +141,7 @@ def _write_json(payload: dict[str, Any], path: Path) -> None:
     path.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    _say(f"wrote {path.relative_to(ROOT).as_posix()}")
+    _say(f"wrote {_display(path)}")
 
 
 def _export_rep0_evidence(rep0_dir: Path, target: Path, aggregate_files: list[Path]) -> None:
@@ -193,23 +201,54 @@ def main(argv: list[str] | None = None) -> int:
         for path in (Path(item) for item in args.shard_root)
     ]
     summaries = []
+    raw_summaries: list[tuple[Path, dict[str, Any]]] = []
     rep_dirs: list[Path] = []
     for shard_root in shard_roots:
         _require(shard_root.is_dir(), f"分片目录不存在：{shard_root}")
         summary = _read_shard_summary(shard_root)
-        summaries.append({"root": shard_root.relative_to(ROOT).as_posix(), **{
+        shard_reps = _rep_dirs(shard_root)
+        _require(shard_reps, f"{shard_root} 没有任何 rep 目录")
+        shard_ids = sorted(int(path.name[3:]) for path in shard_reps)
+        completed = sorted(int(value) for value in summary.get("completed_rep_ids", []))
+        _require(
+            shard_ids == completed,
+            f"{shard_root} 的 completed_rep_ids={completed} 与 rep 目录 {shard_ids} 不一致",
+        )
+        raw_summaries.append((shard_root, summary))
+        summaries.append({"root": _display(shard_root), **{
             key: summary[key] for key in (
                 "formal_approval", "config_hash", "source_hashes_sha256",
                 "n_per_rep", "policy", "models", "rep_ids_requested",
                 "completed_rep_ids", "started_at", "finished_at",
             )
         }})
-        rep_dirs.extend(_rep_dirs(shard_root))
+        rep_dirs.extend(shard_reps)
     _say(f"分片 {len(shard_roots)} 个；rep 目录 {len(rep_dirs)} 个")
 
     claims, guardrail, itt, spend, meta = aggregate_f02(
         rep_dirs, expected_reps=args.expected_reps
     )
+    for shard_root, summary in raw_summaries:
+        _require(
+            str(summary.get("config_hash")) == meta["config_hash"],
+            f"{shard_root} 的 config_hash 与 rep 清单不一致",
+        )
+        _require(
+            str(summary.get("source_hashes_sha256")) == meta["source_hashes_sha256"],
+            f"{shard_root} 的 source_hashes_sha256 与 rep 清单不一致",
+        )
+        _require(
+            str(summary.get("formal_approval") or "").strip() == meta["formal_approval"],
+            f"{shard_root} 的 formal_approval 与 rep 清单不一致",
+        )
+        _require(
+            str(summary.get("policy")) == meta["policy"],
+            f"{shard_root} 的 policy 与 rep 清单不一致",
+        )
+        _require(
+            int(summary.get("n_per_rep", -1)) == int(meta["n_users_per_rep"]),
+            f"{shard_root} 的 n_per_rep 与 rep 清单不一致",
+        )
     reps = [load_formal_rep(path) for path in rep_dirs]
 
     aggregate_paths = [
@@ -242,7 +281,6 @@ def main(argv: list[str] | None = None) -> int:
         "created_at": _now(),
         "shards": summaries,
         "status": "formal_r",
-        "policy": reps[0]["manifest"].get("selected_policy"),
         "tables": {
             path.name: {"sha256": _sha256(path), "rows": int(len(pd.read_csv(path, encoding="utf-8-sig")))}
             for path in aggregate_paths
@@ -283,7 +321,7 @@ def main(argv: list[str] | None = None) -> int:
             "pass_count": int(guard["pass_count"]),
             "pass_rate": float(guard["pass_rate"]),
         },
-        "summary": summary_path.relative_to(ROOT).as_posix(),
+        "summary": _display(summary_path),
     }, ensure_ascii=False, indent=2))
     return 0
 

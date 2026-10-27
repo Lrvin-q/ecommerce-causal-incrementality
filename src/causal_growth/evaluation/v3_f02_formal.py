@@ -138,6 +138,11 @@ def load_formal_rep(rep_dir: str | Path) -> dict[str, Any]:
     _require(isinstance(n_users, int) and n_users > 0, f"{directory} 的 n_users 非法")
     _require(isinstance(manifest.get("config_hash"), str), f"{directory} 缺少 config_hash")
     _require(isinstance(manifest.get("source_hashes"), dict), f"{directory} 缺少 source_hashes")
+    selected_policy = manifest.get("selected_policy")
+    _require(
+        isinstance(selected_policy, str) and bool(selected_policy.strip()),
+        f"{directory} 缺少 selected_policy",
+    )
 
     decision = _read_csv(directory / "decision.csv", DECISION_COLUMNS)
     _require(len(decision) == len(DECISION_CLAIMS),
@@ -194,6 +199,7 @@ def load_formal_rep(rep_dir: str | Path) -> dict[str, Any]:
         "formal_approval": approval.strip(),
         "config_hash": str(manifest["config_hash"]),
         "source_hashes": manifest["source_hashes"],
+        "selected_policy": selected_policy.strip(),
         "decision": decision,
         "guardrail": guardrail,
         "arms": arms,
@@ -359,6 +365,8 @@ def aggregate_f02(
              f"rep_id 未恰好覆盖 0..{expected_reps - 1}")
     approvals = {rep["formal_approval"] for rep in reps}
     _require(len(approvals) == 1, "formal_approval 跨 rep 不一致")
+    policies = {rep["selected_policy"] for rep in reps}
+    _require(len(policies) == 1, "selected_policy 跨 rep 不一致")
     configs = {rep["config_hash"] for rep in reps}
     _require(len(configs) == 1, "config_hash 跨 rep 不一致")
     n_users = {rep["n_users"] for rep in reps}
@@ -370,7 +378,9 @@ def aggregate_f02(
     guardrail = _aggregate_guardrail(reps)
     itt = _aggregate_itt(reps)
     spend = _aggregate_spend(reps)
-    source_payload = json.dumps(reps[0]["source_hashes"], sort_keys=True).encode("utf-8")
+    source_payload = json.dumps(
+        reps[0]["source_hashes"], sort_keys=True, ensure_ascii=False
+    ).encode("utf-8")
     meta = {
         "phase": "F02_formal_aggregate",
         "status": "formal_r",
@@ -379,6 +389,7 @@ def aggregate_f02(
         "rep_ids": sorted(ids),
         "formal_approval": reps[0]["formal_approval"],
         "config_hash": reps[0]["config_hash"],
+        "policy": reps[0]["selected_policy"],
         "n_users_per_rep": next(iter(n_users)),
         "source_hashes_sha256": hashlib.sha256(source_payload).hexdigest(),
         "aggregation": "rep_level_paired_pass_rate_and_mc_se_no_pooled_p_value",

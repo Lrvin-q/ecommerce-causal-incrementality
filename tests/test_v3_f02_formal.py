@@ -70,6 +70,7 @@ def _write_rep(
     config_hash: str = "cfg-1",
     decision: pd.DataFrame | None = None,
     rep_offset: int = 0,
+    policy: str = "greedy_incremental_profit_per_cost",
 ) -> Path:
     directory = root / f"rep{rep_id}"
     directory.mkdir(parents=True, exist_ok=True)
@@ -143,6 +144,7 @@ def _write_rep(
         "n_users": 30,
         "config_hash": config_hash,
         "source_hashes": source_hashes or dict(_SOURCE_HASHES),
+        "selected_policy": policy,
         "decision_hash": f"decision-{rep_id}",
         "guardrail_hash": f"guardrail-{rep_id}",
         "arms": {
@@ -249,6 +251,23 @@ def test_aggregate_rejects_source_hash_drift(tmp_path: Path) -> None:
     )
     with pytest.raises(ValueError, match="source_hashes"):
         aggregate_f02([first, second], expected_reps=2)
+
+
+def test_aggregate_rejects_policy_drift(tmp_path: Path) -> None:
+    first = _write_rep(tmp_path / "a", 0, policy="policy_a")
+    second = _write_rep(tmp_path / "b", 1, policy="policy_b")
+    with pytest.raises(ValueError, match="selected_policy"):
+        aggregate_f02([first, second], expected_reps=2)
+
+
+def test_load_rejects_missing_policy(tmp_path: Path) -> None:
+    directory = _write_rep(tmp_path, 0)
+    path = directory / "manifest.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    manifest.pop("selected_policy")
+    path.write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
+    with pytest.raises(ValueError, match="selected_policy"):
+        load_formal_rep(directory)
 
 
 def test_as_bool_rejects_unknown_strings(tmp_path: Path) -> None:

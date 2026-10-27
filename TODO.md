@@ -134,6 +134,14 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] 修复 `lp_upper_bound` 的免费券除零缺口（真值成本有大量 0；共享校验仍要求成本严格为正，故真值 MILP 先按 `cost_floor=1e-6` 抬高并单列 `truth_milp_cost_floor_cny`）
 - [x] 10 项新测试（`tests/test_v3_policy_evidence.py`）+ 既有策略 54 项全绿
 - [x] n=900 CSV 冒烟：7 张表 + 校准 JSON，2.7 秒；产物隔离 `out/e_evidence_smoke/`，已清掉误写进 `outputs/tables/` 的冒烟副本
+- [x] **E 独立评审（21:24 落盘）**：`docs/reviews/v3_phase_E_review.md`，**PASS WITH CONDITIONS，0 P0 / 6 P1 / 9 P2**；E01/E02 仍“未证实”
+  - [ ] **P1-1**：`chosen=constant` 使 `tau_hat` 恒定（60 000 行 unique=1），24/24 求解器相等是必然结果；须用非退化价值向量重跑小池/规模表，入口断言 `nunique(tau_hat)>1`
+  - [ ] **P1-2**：真值 oracle 用 raw `cost_true`（0/10）而策略预算用 `cost_hat`，0.04/0.10 档学习误差被低估 0.25274/0.10526；须同口径重算并加 `truth_oracle_cost_basis`
+  - [ ] **P1-3**：E 无 `outputs/evidence/e_*`，meta 缺 `git_commit/source_sha256/cfg_hash`；帧与 `run.log` 只在 `out/`；`--from-d03` 重建而非读冻结 CSV
+  - [ ] **P1-4**：校准个体指标被 0/10 伯努利噪声主导，“不排序/欠离散 1/7”是误读；须改常数基准相对改进并改写正文
+  - [ ] **P1-5**：1.00 档“实际支出等于预算上限”与表矛盾（实际 50 570 vs 预算 60 000）
+  - [ ] **P1-6**：误差分解只跑 `chosen=constant`；须补第二个模型（CF/t）配对分解，或全面降级表述
+- [ ] **E 修复后复审**：P1 全修并重跑/重写后再次独立评审，才可把 E01/E02 转“已证实”
 - [x] `--from-d03` 正式路径小规模验证（14:01，n=2 000、rep=0、600 行 test）：8 个产物 61.1 秒，校准走 validation 处理组 201/400，分解表 `truth_milp_status=optimal`、`truth_milp_cost_basis=truth_cost_floored_at_cost_floor_cny`；产物隔离 `out/e_evidence_fromd03_smoke/`
 - [x] **正式数据**：2026-10-27 19:17:51–19:42:28 用 `--from-d03 --rep-id 0 --n 200000` 跑完（D03 正式 rep 0，`chosen=constant`），9 个产物齐：7 张表 + `v3_phase_E_calibration.json` + `v3_phase_E_evidence_meta.json`；帧 60 000 行、sha256 `c8fd698e…c54e0`；阶段耗时 87.7/1.2/42.3/1.0/117.9/967.3 秒。**规模扫描 60k 有 7 档 `time_limit_no_incumbent`（NaN，非 0）**
 - [x] E 正文报告 `docs/v3_phase_E_evidence.md`：2026-10-27 19:45 落盘（§2 校准、§7 规模扫描已补实数），明确"桶宽阈值由曲线定、不预设"；observed_value 留给 F01；**文首仍标"尚未独立评审、E01/E02 未证实"**
@@ -156,12 +164,19 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
   - [x] **快照运行口径（20:38）**：写入 `docs/v3_phase_F02_validation.md` §5.5——必须连 `scripts/` 一起快照并从快照运行；只设 `PYTHONPATH` 会被脚本的 `sys.path.insert` 绕过
   - [x] **n=200 000 同口径双跑复核（20:52 完成）**：A 20:44、B 20:51:59 各完成一次；`freeze.json` 七字段逐位一致（freeze `5a101174…52cc` / per_user `a6c100e3…2901` / decision `368c1d89…ee42` / guardrail `f6b1bd3c…4d45`）；六个汇总表逐字节相同；`five_tables/` 27 文件中 26 个逐字节相同，仅 manifest 时间戳不同；manifest 仅代表五表路径与其 sha 不同
   - [x] **快照机制实测（20:48）**：`out/snap_test/` 复制 `src/sql/configs/scripts`，快照内脚本以 n=2 000、rep 0、`--status engineering` 跑通；manifest 48 个 `source_hashes` 与主仓库逐项相同（字典 sha256 `0605947…71bd`），路径字段均指向快照；**相对 `--out-root` 会落到快照根**，正式运行必须绝对路径。冒烟产物不作证据
+  - [x] **合并门禁补强（21:18）**：库层 `selected_policy` 必填且跨 rep 唯一；脚本层校验分片 summary 的 `completed_rep_ids` 与 rep 目录一致，并把 `config_hash/source_hashes_sha256/formal_approval/policy/n_per_rep` 与 rep 清单聚合值比对；新增 `tests/test_v3_f02_merge.py` 5 项、formal 2 项，F02 26 项测试全绿
+  - [x] **门禁补强后全量串行测试（21:19:21–21:27:19）**：1 248 项 `exit=0`，478 秒，单进程、无并发写盘；日志 `out/logs/pytest_f02_merge_2119.log`（加 `-p no:warnings`）
   - [ ] **评审后源码复验**：D03 评审已改 `v3_models.py` 的斜率 docstring（行为不变，但 `source_hashes` 已变）；E/F01 评审可能继续改源码。**所有评审修改落地后、建正式快照前，用最终源码再做一次 n=20 000 双跑**，确认 `freeze.json` 七字段一致，再建快照
 - [x] **F02 决策层（18:24 完成）**：两条预声明主张（定向−不发券、定向−同预算随机）各做单侧检验，按 `evaluation.decision.benefit_evidence` 组成 Holm 家族（单侧 α=0.05），输出原始 p/调整阈值/调整 p/通过标记/反演下界；护栏复用 `design/guardrail.py` 的 0.005 非劣效、单侧 0.05，指标 `any_refund_30d_per_assigned_user`；`per_user` 新增 `observed_any_refund_30d`，`arm_summary` 新增退款人数/退款率；`decision.csv / guardrail.csv / decision.json` 与 `freeze.json` 同批先落盘，之后才读真值；F02 11 项测试绿
 - [x] **F01 单 rep 历史留出 OPE（20:17 完成，R=0，未证实）**：`v3_f01.py` + `scripts/31_f01_ope.py`，冻结先于审计（freeze_id `3ab44dcb…`，源码哈希 `7012a17b…`）；D03 rep0 n=200k、chosen=`constant`、test 60k，与 E 的 7 列选人哈希及 0.2 档三项数字逐位一致（23 437 人 / 预测成本 11 999.505475 / 审计 0.085638）；DR 主口径两条家族对比 Holm 均拒绝（调整 p 均 0.033431，下界 +0.005137 / +0.010225），但“定向优于同预算随机”只有 DR 显著（IPW p=0.063、SNIPS p=0.088）；真值审计误差 −0.020174 / −0.074016，随机基线符号相反；实际支出超预测预算 28.4%；证据 `outputs/evidence/f01_ope/`、七表 `outputs/tables/v3_phase_F01_*.csv`、正文 `docs/v3_phase_F01_ope.md`，10 项测试绿
 - [ ] **F01 独立科学评审**：按 `docs/v3_phase_F01_ope.md` §7 检查单；评审前 F01 仍为“未证实”
   - [x] **主负责数值预复核（21:15）**：`family` 两条 DR 调整 p 均 0.033431、下界 +0.005137/+0.010225；0.2 档 IPW 0.063065、SNIPS 0.087814；`audit` 定向 0.085638、误差 −0.020174，随机误差 −0.074016 且符号相反；`policy_meta` 23 437 人、预测成本 11 999.505475，`audit` 实际支出 15 410（+28.4%）；与 E 的 0.2 档贪心逐位一致
   - [ ] **评审代理（21:15 重启）**：写入 `docs/reviews/v3_phase_F01_review.md`，若已有文件则追加、不覆盖；返回后逐条复核 P0/P1
+- [x] **F01 独立科学评审（21:28 落盘）**：`docs/reviews/v3_phase_F01_review.md`，**PASS WITH CONDITIONS，3 P0 / 8 P1**；F01 仍“未证实”
+  - [ ] **P0-1**：`tau_hat` 恒定，"定向优于随机"的机制是"低价券覆盖更多人"，不含人群定向；须改写 §3.5/§4
+  - [ ] **P0-2**：随机组是单次抽样（200 次中的第 10 百分位），OPE 估计约为真实均值 4.8 倍；须补随机策略分布或明确限定
+  - [ ] **P0-3**：`outputs/evidence/f01_ope/` 只有 freeze/meta，无法重建 OPE/审计；须导出逐用户观测/掩码/真值审计表
+  - [ ] **P1-1~P1-8**：DR "预声明"无配置依据；1.28 SE 用错尺子；ESS 漏处理指示变量；真值先于冻结物化；HEAD `verify_freeze_manifest` 失败（源码改动）；E 随机均值两版本；9 列 vs 7 列哈希；未做等实际支出对照
 - [x] F01 改动后全量串行测试 1 248 项 exit=0（20:20:35–20:28:04，单进程，无并发写盘），日志 `outputs/runs/f01_tests/full_suite.log`
 - [x] **F01 小项（18:24 完成）**：`v3_ope.cost_and_guardrail` 的 `confidence` 默认改为 `None`，运行时读 `evaluation.confidence_level`，不再写死 0.95。
 - [x] 全量串行测试（决策层改动后）1 228 项复跑 exit=0（18:24:43–18:31:47，单进程），日志 `outputs/runs/f02_tests/full_suite_after_decision.log`

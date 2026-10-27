@@ -243,14 +243,24 @@ B 于 20:44:59–20:51:59 完成，均 `--status engineering`、单 rep 0，产�
 **合并门禁**（任何一条不过即抛错，不写"部分聚合"）：
 
 1. 每个分片 summary 的 `phase=F02_formal_shard`、`status=formal`、`failures` 为空；
-2. 全部 rep 目录的 `rep_id` 恰好覆盖 `0..R-1`，缺失、重复、越界都拒收；
-3. `formal_approval`、`config_hash`、`source_hashes`、`n_users` 跨 rep 唯一
-   （运行期间改过 `src/` 会在这里暴露）；
-4. 每个 rep 通过 `load_formal_rep` 六件套校验：`decision.csv` 恰两行且主张别名、
+2. 分片 summary 的 `completed_rep_ids` 必须与该分片实际 `rep*/manifest.json` 目录
+   逐一相等（防止"summary 说跑了 50 个、目录只有 49 个"这类证据错位）；
+3. 全部 rep 目录的 `rep_id` 恰好覆盖 `0..R-1`，缺失、重复、越界都拒收；
+4. `formal_approval`、`config_hash`、`source_hashes`、`n_users`、`selected_policy`
+   跨 rep 唯一（运行期间改过 `src/` 或分片用了不同策略会在这里暴露）；分片 summary 的
+   `config_hash` / `source_hashes_sha256` / `formal_approval` / `policy` / `n_per_rep`
+   还必须与 rep 清单聚合出的同一组值一致；
+5. 每个 rep 通过 `load_formal_rep` 六件套校验：`decision.csv` 恰两行且主张别名、
    左右臂人数与 `arm_summary.csv` 一致；`guardrail.csv` 恰一行且界值/α 合法；
    `itt_contrasts.csv` 恰三行；`decision.json` / `freeze.json` 均标记
    `truth_columns_present=false`；`freeze.json` 的 decision/guardrail 哈希与
-   `manifest.json` 一致。
+   `manifest.json` 一致；
+6. `manifest.json` 必须带非空 `selected_policy`，避免聚合表绑定列全空。
+
+门禁用例：`tests/test_v3_f02_formal.py`（10 项，含策略漂移/缺策略）与
+`tests/test_v3_f02_merge.py`（5 项：错误 phase/status/failures、summary 与 rep 数量
+不符、summary 与 rep 配置不符、空分片、多分片一致时成功写表）。2026-10-27 21:18
+实测 26 项 F02 测试全绿。
 
 **聚合口径**：两条预声明主张各自报告 rep 级通过率与 Clopper–Pearson 95% 区间；
 差值报均值与 MC 标准误（`sd/√R`）；逐 rep p 值只作描述统计（均值、中位调整 p），
