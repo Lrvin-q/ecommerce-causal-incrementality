@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-**2026-10-27 18:44 更新。A/B/C/D02 通过。D03 正式 R 已完成（200/200，12:54–17:14，stderr 全空），合并与证据导出通过（1 000 行 per-rep / 72 000 行网格，`coverage.json` 10 文件）；**D03 仍标未证实，待独立评审**。F02 决策层（单侧 Holm + 退款率护栏）已完成、11 项测试绿；全量串行 1 228 项两次 exit=0（18:12–18:20 决策层改动前、18:24–18:31 改动后）；**F02 n=200k 单 rep 已跑通（18:32–18:39，exit=0）**，证据在 `outputs/evidence/f02_n200k_rep0/`；新发现预算只约束预测成本、定向臂实际支出 +29.1%，正式 200 rep 前需裁决。**
+**2026-10-27 18:44 更新。A/B/C/D02 通过。D03 正式 R 已完成（200/200，12:54–17:14，stderr 全空），合并与证据导出通过（1 000 行 per-rep / 72 000 行网格，`coverage.json` 10 文件）；**D03 仍标未证实，待独立评审**。F02 决策层（单侧 Holm + 退款率护栏）已完成、11 项测试绿；全量串行 1 228 项两次 exit=0（18:12–18:20 决策层改动前、18:24–18:31 改动后）；**F02 n=200k 单 rep 已跑通（18:32–18:39，exit=0）**，证据在 `outputs/evidence/f02_n200k_rep0/`；新发现预算只约束预测成本、定向臂实际支出 +29.1%，裁决为保留规则并逐 rep 报告（见 F02 预算裁决项）。**
 
 **D02 通过**，闭环为：独立评审 PASS WITH CONDITIONS → 3 项文档 P0 修正（4×MDE→4.93×、34%→0.729、相对差 2.3%→7.84% 并改归因为层水平偏移）+ P0-1/E-1~E-3 修复 → **独立复核 PASS**（`docs/reviews/v3_phase_D_recheck.md`）→ 复核抓出的 2 处再修。详见 `docs/v3_phase_D_aa_formal.md` §8。证据包在 `outputs/evidence/`（1.79 MB，仅凭它可重建 FPR 46/1000 与 CP [0.0339,0.0609]）。
 
@@ -115,12 +115,13 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] 证据导出 `scripts/27_export_d03_evidence.py`：导出 manifest、快照绑定（83 文件）、4 份分片 summary 与 run.log；校验 rep 并集恰为 0..199、config_hash 四分片一致、run.err 全空、合并表哈希与行数（1 000 / 72 000）后再写 `coverage.json`
 - [x] 合并分片 → `outputs/tables/v3_phase_D03_formal_*`；跑 26 报告表与 27 导出证据（17:15，`coverage.json` 10 个文件，`config_hash=e1aa4314…`）；校验 200 rep / 1 000 行 per-rep / 72 000 行网格 / 每 rep 恰一个 chosen 全过
 - [x] 报告表 7 张 + meta：`selection/calibration/policy_value/paired_diff/paired_diff_chosen/oracle/compliance`
-- [ ] **写 `docs/v3_phase_D03_formal.md` 正文数字**（选模 105/71/12/7/5；校准斜率 CF 0.754、S 0.467、T 0.114、DR 0.098；greedy−business 按模型符号分裂；0.2 档真实支出合规率 CF 11%/S 13%/T 39%/DR 26.5%/constant 0%）
+- [x] **写 `docs/v3_phase_D03_formal.md` 正文数字**（选模 105/71/12/7/5；校准斜率 CF 0.754、S 0.467、T 0.114、DR 0.098；greedy−business 按模型符号分裂；0.2 档真实支出合规率 CF 11%/S 13%/T 39%/DR 26.5%/constant 0%）；2026-10-27 19:25 落盘，文首明确 **D03 仍未证实，等待独立评审**
 - [ ] 独立评审（方法对照、选模频率、配对网格、双口径合规）→ D03 判定
 
 ## E 证据层（2026-10-27 13:05，北京时间）
 
-> 覆盖 `docs/v3_phase_E_coverage.md` §8 的 12 个编排层缺口；**正式结果仍未产生**。
+> 覆盖 `docs/v3_phase_E_coverage.md` §8 的编排层缺口；**代表 rep 的正式证据已产生**，
+> 但 **E01/E02 仍标"未证实"**，等待独立评审。
 
 - [x] `src/causal_growth/policy/v3_policy_evidence.py`：成本校准（validation 处理组）/ 小池 20·100·500 的 5 求解器互证 + 浮点穷举参照 / 桶宽 5 档收敛 / 200 种子随机基线 / learning-optimization 误差分解 / 规模 1000·5000·full_test / 三预算口径
 - [x] 真值隔离：所有 mask 先冻结，`tau_true/cost_true` 只进 `true_*` / `actual_*` 列；毒化测试覆盖 5 张表
@@ -128,8 +129,9 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] 10 项新测试（`tests/test_v3_policy_evidence.py`）+ 既有策略 54 项全绿
 - [x] n=900 CSV 冒烟：7 张表 + 校准 JSON，2.7 秒；产物隔离 `out/e_evidence_smoke/`，已清掉误写进 `outputs/tables/` 的冒烟副本
 - [x] `--from-d03` 正式路径小规模验证（14:01，n=2 000、rep=0、600 行 test）：8 个产物 61.1 秒，校准走 validation 处理组 201/400，分解表 `truth_milp_status=optimal`、`truth_milp_cost_basis=truth_cost_floored_at_cost_floor_cny`；产物隔离 `out/e_evidence_fromd03_smoke/`
-- [ ] **正式数据**：D03 R 结束后 `scripts/24_e_evidence.py --from-d03 --rep-id 0 --n 200000`，产物进 `outputs/tables/`
-- [ ] E 正文报告 `docs/v3_phase_E_evidence.md`：必须写清"桶宽阈值由曲线定、不预设"；observed_value/audited_value 的 OPE 部分留给 F
+- [x] **正式数据**：2026-10-27 19:17:51–19:42:28 用 `--from-d03 --rep-id 0 --n 200000` 跑完（D03 正式 rep 0，`chosen=constant`），9 个产物齐：7 张表 + `v3_phase_E_calibration.json` + `v3_phase_E_evidence_meta.json`；帧 60 000 行、sha256 `c8fd698e…c54e0`；阶段耗时 87.7/1.2/42.3/1.0/117.9/967.3 秒。**规模扫描 60k 有 7 档 `time_limit_no_incumbent`（NaN，非 0）**
+- [x] E 正文报告 `docs/v3_phase_E_evidence.md`：2026-10-27 19:45 落盘（§2 校准、§7 规模扫描已补实数），明确"桶宽阈值由曲线定、不预设"；observed_value 留给 F01；**文首仍标"尚未独立评审、E01/E02 未证实"**
+- [x] 小池表 `time_limit_no_incumbent` 契约补强（2026-10-27 19:45）：原先空 mask 会写 0 花费/0 价值，现整行 NaN；新增 `test_small_pool_no_incumbent_rows_are_nan_not_zero`，策略两文件 57 项绿（`--basetemp C:/cg_t`）；全量单进程串行 1 238 项 exit=0（19:46:59–19:53:48，日志 `out/pytest_full_20261027_1947.log`）
 - [!] **LP 每 rep 上界缺口**：`policy.optimization.every_full_rep_required` 要求 `lp_relaxation` 在每个 full rep 上都有，但 D03 的 200 rep 网格只有 9 个策略、没有 LP 行；E 证据层只在代表 rep 上补。**G 阶段必须每 rep 补 LP 上界**，否则"规模对照覆盖所有 rep"不成立
 
 ## F 观测闭环（2026-10-27 14:39，北京时间）

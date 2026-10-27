@@ -472,3 +472,41 @@ def test_cost_options_reject_non_default_values(monkeypatch) -> None:
     monkeypatch.setattr(Config, "require", patched)
     with pytest.raises(NotImplementedError, match="尚未实现"):
         pol._require_supported_cost_options(cfg)
+
+
+def test_milp_time_limit_without_incumbent_is_explicit_not_error(monkeypatch) -> None:
+    """HiGHS 在时限内没有找到可行解时给 status=1、x=None。
+
+    E 阶段全量 60k 用户实测出现过这一分支（约 86 秒建完模型后 5 秒时限已到）。
+    它必须被报成 ``time_limit_no_incumbent``（不可解的事实），而不是崩溃或假装最优。
+    """
+    import scipy.optimize as spo
+
+    class _NoIncumbent:
+        status = 1
+        x = None
+        message = "Time limit reached. (HiGHS Status 13: model_status is No solution)"
+        mip_dual_bound = None
+
+    monkeypatch.setattr(spo, "milp", lambda *args, **kwargs: _NoIncumbent())
+    value = np.array([1.0, 2.0, 3.0])
+    cost = np.array([0.2, 0.2, 0.2])
+    result = pol.milp_select(value, cost, 0.4, time_limit_seconds=5.0, relative_gap=0.0)
+
+    assert result.status == "time_limit_no_incumbent"
+    assert result.selection.selected_count == 0
+    assert result.incumbent == 0.0
+    assert result.may_claim_optimal is False
+    assert np.isfinite(result.bound) and result.bound >= 0.0
+    assert result.relative_gap == pytest.approx(1.0)
+
+    class _HardError:
+        status = 4
+        x = None
+        message = "solver error"
+        mip_dual_bound = None
+
+    monkeypatch.setattr(spo, "milp", lambda *args, **kwargs: _HardError())
+    hard = pol.milp_select(value, cost, 0.4, time_limit_seconds=5.0, relative_gap=0.0)
+    assert hard.status == "error"
+    assert hard.may_claim_optimal is False

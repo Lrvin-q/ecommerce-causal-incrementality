@@ -1,0 +1,19 @@
+{
+  "n": 19987,
+  "mean_predicted_cny": 0.8194808662244817,
+  "mean_observed_cny": 0.8185320458297893,
+  "bias_cny": -0.0009488203946923512,
+  "relative_bias": -0.00115783105353486,
+  "sum_ratio_observed_to_predicted": 0.9988421689464652,
+  "mae_cny": 1.486140081509896,
+  "rmse_cny": 2.7352929499697005,
+  "pearson": 0.08525435736012503,
+  "ols_slope": 0.6165702108584488,
+  "ols_intercept_cny": 0.31326455534729647,
+  "predicted_sd_cny": 0.379069477204755,
+  "observed_sd_cny": 2.7414780279542024,
+  "calibration_basis": "validation_observed_logs_only",
+  "n_validation_treated": 19987,
+  "n_validation_total": 40000,
+  "chosen_model": "constant"
+}

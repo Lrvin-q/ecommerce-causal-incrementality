@@ -116,7 +116,9 @@ class MilpResult:
     time_limit_seconds: float
 
     def __post_init__(self) -> None:
-        if self.status not in {"optimal", "time_limit", "infeasible", "error"}:
+        if self.status not in {
+            "optimal", "time_limit", "time_limit_no_incumbent", "infeasible", "error"
+        }:
             raise ValueError(f"未注册的 MILP 状态: {self.status!r}")
         if not np.isfinite([self.incumbent, self.bound, self.relative_gap]).all():
             raise ValueError("incumbent / bound / gap 必须是有限值")
@@ -499,14 +501,15 @@ def milp_select(value: FloatArray, cost: FloatArray, budget: float,
     status_map = {0: "optimal", 1: "time_limit", 2: "infeasible"}
     status = status_map.get(int(result.status), "error")
     if result.x is None:
-        # 没有解向量时不能把 status 原样传出：HiGHS 偶尔会给出 status=0 但 x=None，
-        # 若保留 optimal，may_claim_optimal 会把空解当成最优。
-        status = "error"
+        # HiGHS 在时限内连可行解都没找到时会给 status=1 且 x=None。这与真正的
+        # error 不同：它说明"这个规模在时限内不可解"，正文只能报这个事实。
+        # 空解不是可交付名单，bound 用同一浮点问题的 LP 上界，gap 仅作描述。
+        status = "time_limit_no_incumbent" if int(result.status) == 1 else "error"
         empty = np.zeros(value.size, dtype=np.bool_)
         selection = _assemble(value, cost, empty, "milp")
         incumbent = 0.0
-        bound = 0.0
-        gap = 0.0
+        bound = lp_upper_bound(value, cost, budget) if status == "time_limit_no_incumbent" else 0.0
+        gap = (bound - incumbent) / bound if bound > 0 else 0.0
     else:
         mask = np.asarray(result.x, dtype=np.float64) > 0.5
         selection = _assemble(value, cost, mask, "milp")

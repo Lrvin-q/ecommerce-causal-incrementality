@@ -1,0 +1,77 @@
+{
+  "phase": "E_evidence",
+  "status": "evidence_not_formal_R",
+  "created_at": "2026-10-27T19:17:51+08:00",
+  "finished_at": "2026-10-27T19:42:28+08:00",
+  "source": "d03:L1_main:n=200000:rep=0",
+  "scenario": "L1_main",
+  "n_rows": 60000,
+  "rep_id": 0,
+  "chosen_model": "constant",
+  "frame_path": "out/e_evidence_formal/frame_rep0.csv",
+  "frame_sha256": "c8fd698ed05b47a62f0bc21883ef3520821fc3e66e14893fc0cf7665b69c54e0",
+  "budgets_cny_per_user": [
+    0.04,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.6,
+    0.8,
+    1.0
+  ],
+  "seed_offset": 0,
+  "small_pools_used": [
+    20,
+    100,
+    500
+  ],
+  "bucket_widths_used_cny": [
+    1.0,
+    0.5,
+    0.1,
+    0.05,
+    0.01
+  ],
+  "random_seeds_used": 200,
+  "scale_pools_used": [
+    1000,
+    5000,
+    "full_test"
+  ],
+  "scale_budgets_cny_per_user": [
+    0.04,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.6,
+    0.8,
+    1.0
+  ],
+  "timings_seconds": {
+    "small_pool": 87.74,
+    "bucket": 1.164,
+    "random": 42.273,
+    "decomposition": 0.989,
+    "conservative": 117.911,
+    "scale": 967.31
+  },
+  "outputs": {
+    "small_pool": "outputs/tables/v3_phase_E_small_pool.csv",
+    "bucket_convergence": "outputs/tables/v3_phase_E_bucket_convergence.csv",
+    "random_long": "outputs/tables/v3_phase_E_random_long.csv",
+    "random_summary": "outputs/tables/v3_phase_E_random_summary.csv",
+    "decomposition": "outputs/tables/v3_phase_E_decomposition.csv",
+    "conservative": "outputs/tables/v3_phase_E_conservative.csv",
+    "scale": "outputs/tables/v3_phase_E_scale.csv",
+    "calibration": "outputs/tables/v3_phase_E_calibration.json"
+  },
+  "notes": [
+    "小池/桶宽/误差分解的预算是 per_user_budget × pool_size，不是全量预算。",
+    "分币 DP 的精确性只对分币整数化问题成立；MILP 只有 gap=0 才可说最优。",
+    "LP 是上界，不是可行策略。",
+    "桶宽收敛只出曲线，未设通过阈值。",
+    "observed_value 需观测结局与 OPE，属 F 阶段；本表只给 DGP 真值审计值。"
+  ]
+}

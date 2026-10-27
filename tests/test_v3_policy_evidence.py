@@ -220,7 +220,9 @@ def test_error_decomposition_identity_and_truth_bound(cfg) -> None:
         table["total_regret_cny_per_user"],
         table["learning_error_cny_per_user"] + table["optimization_error_cny_per_user"],
     )
-    assert set(table["truth_milp_status"]) <= {"optimal", "time_limit", "infeasible", "error"}
+    assert set(table["truth_milp_status"]) <= {
+        "optimal", "time_limit", "time_limit_no_incumbent", "infeasible", "error"
+    }
     assert table["truth_milp_bound_cny"].ge(table["truth_milp_incumbent_cny"] - 1e-9).all()
     assert (table["truth_exactness"] == "exact_for_cent_integerized_raw_truth_problem").all()
     assert (table["truth_milp_cost_basis"] == "truth_cost_floored_at_cost_floor_cny").all()
@@ -303,3 +305,27 @@ def test_milp_without_solution_never_claims_optimal(monkeypatch) -> None:
     )
     assert result.status == "error"
     assert not result.may_claim_optimal
+
+
+def test_small_pool_no_incumbent_rows_are_nan_not_zero(cfg, monkeypatch) -> None:
+    class _NoIncumbent:
+        status = 1
+        x = None
+        mip_dual_bound = None
+        mip_gap = None
+
+    monkeypatch.setattr("scipy.optimize.milp", lambda *args, **kwargs: _NoIncumbent())
+    table = ev.small_pool_solver_table(
+        _frame(), cfg, pool_sizes=[20], budgets=[0.2], include_brute_force=False
+    )
+    milp = table.loc[table["solver"] == "milp"].iloc[0]
+    assert milp["status"] == "time_limit_no_incumbent"
+    assert not bool(milp["may_claim_optimal"])
+    for column in (
+        "n_selected", "predicted_value_cny", "predicted_cost_cny",
+        "within_budget_by_hat", "feasible_under_original_cost",
+        "true_value_per_user", "true_total_value_cny",
+        "actual_spend_cny", "within_budget_by_true", "incumbent_cny",
+    ):
+        assert pd.isna(milp[column]), column
+    assert milp["bound_cny"] > 0.0

@@ -400,10 +400,10 @@ def small_pool_solver_table(
             def add(solver: str, mask: BoolArray, *, exactness: str, status: str,
                     incumbent: float = float("nan"), bound: float = float("nan"),
                     gap: float = float("nan"), may_claim: bool = False,
-                    feasible_override: bool | None = None) -> None:
+                    metrics_override: dict[str, Any] | None = None) -> None:
                 metrics = _mask_metrics(mask, pool_arrays, budget)
-                if feasible_override is not None:
-                    metrics["feasible_under_original_cost"] = bool(feasible_override)
+                if metrics_override is not None:
+                    metrics.update(metrics_override)
                 rows.append({
                     "pool_size": len(pool),
                     "per_user_budget_cny": float(per_user),
@@ -451,12 +451,30 @@ def small_pool_solver_table(
 
             started = _time.perf_counter()
             milp = pol.milp_select(tau_hat, cost_hat, budget, time_limit, gap_tol)
-            add(
-                "milp", milp.selection.mask,
-                exactness="optimal_only_if_gap_zero",
-                status=milp.status, incumbent=milp.incumbent, bound=milp.bound,
-                gap=milp.relative_gap, may_claim=milp.may_claim_optimal,
-            )
+            if milp.status == "time_limit_no_incumbent":
+                # 时限内没有可行解：空 mask 的 0 花费/0 价值会被误读成
+                # "合法但无收益的名单"，因此该行所有选中量写 NaN。
+                add(
+                    "milp", milp.selection.mask,
+                    exactness="optimal_only_if_gap_zero",
+                    status=milp.status, incumbent=float("nan"), bound=milp.bound,
+                    gap=milp.relative_gap, may_claim=False,
+                    metrics_override={
+                        key: float("nan") for key in (
+                            "n_selected", "predicted_value_cny", "predicted_cost_cny",
+                            "within_budget_by_hat", "feasible_under_original_cost",
+                            "true_value_per_user", "true_total_value_cny",
+                            "actual_spend_cny", "within_budget_by_true",
+                        )
+                    },
+                )
+            else:
+                add(
+                    "milp", milp.selection.mask,
+                    exactness="optimal_only_if_gap_zero",
+                    status=milp.status, incumbent=milp.incumbent, bound=milp.bound,
+                    gap=milp.relative_gap, may_claim=milp.may_claim_optimal,
+                )
             rows[-1]["seconds"] = _time.perf_counter() - started
 
             lp_bound = pol.lp_upper_bound(tau_hat, cost_hat, budget)
@@ -918,11 +936,32 @@ def scale_table(
                 started = _time.perf_counter()
                 milp = pol.milp_select(p_tau_hat, p_cost_hat, budget, time_limit, gap_tol)
                 elapsed = _time.perf_counter() - started
-                append_row(
-                    "time_limited_milp", _mask_metrics(milp.selection.mask, pool_arrays, budget),
-                    status=milp.status, incumbent=milp.incumbent, bound=milp.bound,
-                    gap=milp.relative_gap, may_claim=milp.may_claim_optimal, seconds=elapsed,
-                )
+                if milp.status == "time_limit_no_incumbent":
+                    # 时限内没有可行解：空 mask 的 0 花费/0 价值会被误读成
+                    # "合法但无收益的名单"，因此该行所有选中量写 NaN。
+                    append_row(
+                        "time_limited_milp",
+                        {
+                            "n_selected": float("nan"),
+                            "predicted_value_cny": float("nan"),
+                            "predicted_cost_cny": float("nan"),
+                            "within_budget_by_hat": float("nan"),
+                            "feasible_under_original_cost": float("nan"),
+                            "true_value_per_user": float("nan"),
+                            "true_total_value_cny": float("nan"),
+                            "actual_spend_cny": float("nan"),
+                            "within_budget_by_true": float("nan"),
+                        },
+                        status=milp.status, incumbent=float("nan"), bound=milp.bound,
+                        gap=milp.relative_gap, may_claim=False, seconds=elapsed,
+                    )
+                else:
+                    append_row(
+                        "time_limited_milp", _mask_metrics(milp.selection.mask, pool_arrays, budget),
+                        status=milp.status, incumbent=milp.incumbent, bound=milp.bound,
+                        gap=milp.relative_gap, may_claim=milp.may_claim_optimal,
+                        seconds=elapsed,
+                    )
 
             rows.append({
                 "pool_size": len(pool),
