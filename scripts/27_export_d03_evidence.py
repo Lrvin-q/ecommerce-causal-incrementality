@@ -134,6 +134,11 @@ def main() -> int:
             "kind": "shard_run_log",
             **_copy(directory / "run.log", TARGET / f"shard{shard}_run.log"),
         })
+        records.append({
+            "kind": "shard_run_err",
+            **_copy(err, TARGET / f"shard{shard}_run.err"),
+            "bytes_checked_empty": int(err.stat().st_size),
+        })
 
     _require(
         sorted(rep_ids) == list(range(EXPECTED_REPS)),
@@ -154,11 +159,13 @@ def main() -> int:
         **_copy(BINDING, TARGET / "snapshot_binding.json"),
     })
 
+    merged_ok = True
     merged: dict[str, object] = {}
     for name, key in (("per_rep", "per_rep"), ("policy_grid", "policy_grid")):
         path = TABLES / f"v3_phase_D03_formal_{name}.csv"
         _require(path.is_file(), f"缺少合并表：{path}")
         sha = _sha256(path)
+        merged_ok = merged_ok and sha == merged_summary["output_sha256"][key]
         _require(
             sha == merged_summary["output_sha256"][key],
             f"合并表 {name} 的 sha256 与合并 summary 不一致",
@@ -170,6 +177,10 @@ def main() -> int:
             "sha256": sha,
             "copied": False,
         }
+    rows_ok = (
+        merged["per_rep"]["rows"] == EXPECTED_REPS * 5
+        and merged["policy_grid"]["rows"] == EXPECTED_REPS * 5 * 8 * 9
+    )
     _require(
         merged["per_rep"]["rows"] == EXPECTED_REPS * 5,
         f"逐 rep 表应为 {EXPECTED_REPS * 5} 行，实际 {merged['per_rep']['rows']}",
@@ -178,6 +189,32 @@ def main() -> int:
         merged["policy_grid"]["rows"] == EXPECTED_REPS * 5 * 8 * 9,
         f"策略网格应为 {EXPECTED_REPS * 5 * 8 * 9} 行，实际 {merged['policy_grid']['rows']}",
     )
+
+    formal_flags = [bool(s.get("formal_r")) and s.get("status") == "formal_r" for s in summaries]
+    rep_ids_ok = sorted(rep_ids) == list(range(EXPECTED_REPS))
+    config_identical = len(config_hashes) == 1
+    config_matches_merged = config_hashes == {str(merged_summary.get("config_hash"))}
+    binding_ok = (
+        manifest["snapshot_combined_sha256"] == binding["combined_sha256"]
+        and manifest["git_commit"] == binding["git_commit"]
+    )
+    run_err_ok = all(size == 0 for size in err_sizes.values())
+
+    live_drift: dict[str, object] = {
+        "n_bound": len(binding["files"]),
+        "n_live_different": 0,
+        "n_live_missing": 0,
+        "live_different": [],
+        "live_missing": [],
+    }
+    for relative, expected in sorted(binding["files"].items()):
+        live = ROOT / relative
+        if not live.is_file():
+            live_drift["n_live_missing"] += 1
+            live_drift["live_missing"].append(relative)
+        elif _sha256(live) != expected:
+            live_drift["n_live_different"] += 1
+            live_drift["live_different"].append(relative)
 
     coverage = {
         "phase": "D03_formal_evidence",
@@ -190,18 +227,28 @@ def main() -> int:
             "config_hash": sorted(config_hashes)[0],
         },
         "checks": {
-            "all_shards_formal_r": True,
-            "rep_ids_exactly_0_to_199": True,
-            "config_hash_identical_across_shards": True,
-            "manifest_matches_snapshot_binding": True,
+            "all_shards_formal_r": all(formal_flags),
+            "rep_ids_exactly_0_to_199": rep_ids_ok,
+            "n_rep_ids": len(rep_ids),
+            "config_hash_identical_across_shards": config_identical,
+            "config_hash_matches_merged_summary": config_matches_merged,
+            "manifest_matches_snapshot_binding": binding_ok,
             "run_err_all_empty": err_sizes,
-            "merged_tables_match_summary_hashes": True,
+            "run_err_all_empty_verified": run_err_ok,
+            "merged_tables_match_summary_hashes": merged_ok,
+            "merged_rows_expected": rows_ok,
         },
+        "snapshot_vs_live": live_drift,
         "merged_tables": merged,
         "files": records,
         "notes": [
-            "逐用户帧不进证据目录：72 000 行网格已在 outputs/tables/，此处只记哈希与行数。",
-            "快照绑定 83 个文件；live repo 之后的改动不影响本次运行。",
+            "复算输入 = 本证据包 + 已入库的 outputs/tables/ 两张合并表"
+            "（per_rep / policy_grid）；逐用户帧不进证据目录。",
+            "live repo 在正式运行窗口内有 3 次提交（df66a3c / 06d4740 / f2c6dab），"
+            "均未进入快照；snapshot_vs_live 记录当前 live 与快照的差异，"
+            "用来证明执行路径是快照而不是 live。",
+            "run.err 为空只证明进程无 stderr，不构成源码只读证明；"
+            "源码只读由 83/83 快照哈希与 combined_sha256 证明。",
         ],
     }
     TARGET.mkdir(parents=True, exist_ok=True)

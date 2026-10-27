@@ -2230,8 +2230,9 @@ _SUMMARY_STAT_COLUMNS: tuple[str, ...] = (
 def _calibration_stats(tau_hat: Any, tau_true: Any) -> dict[str, float]:
     """逐用户 τ̂ 对真值的偏差、校准斜率与误差分位。
 
-    ``calibration_slope`` 是 ``tau_true ~ a + b·tau_hat`` 的 OLS 斜率 ``b``：
-    ``b < 1`` 表示 τ̂ 被放大（预测的离散度大于真值），``b ≈ 1`` 才谈得上校准。
+    ``calibration_slope`` 是 ``tau_true ~ a + b·tau_hat`` 的 OLS 斜率 ``b``，
+    满足 ``b = r·σ_true/σ_hat``。``b < 1`` 可能来自相关系数低（回归稀释），也可能来自
+    σ̂ 大于 σ_true，**单看 b 不能判定过离散**；须同时报告 ``sd(τ̂)``、``sd(τ_true)`` 与 ``r``。
     τ̂ 无变异时斜率与相关系数无定义，返回 ``nan``。
 
     退化判定用相对极差，不用 ``var > 0``：常数列（如 ``constant`` 模型）

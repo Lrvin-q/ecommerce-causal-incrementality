@@ -11,7 +11,9 @@
   "checks": {
     "all_shards_formal_r": true,
     "rep_ids_exactly_0_to_199": true,
+    "n_rep_ids": 200,
     "config_hash_identical_across_shards": true,
+    "config_hash_matches_merged_summary": true,
     "manifest_matches_snapshot_binding": true,
     "run_err_all_empty": {
       "shard0": 0,
@@ -19,7 +21,20 @@
       "shard2": 0,
       "shard3": 0
     },
-    "merged_tables_match_summary_hashes": true
+    "run_err_all_empty_verified": true,
+    "merged_tables_match_summary_hashes": true,
+    "merged_rows_expected": true
+  },
+  "snapshot_vs_live": {
+    "n_bound": 83,
+    "n_live_different": 3,
+    "n_live_missing": 0,
+    "live_different": [
+      "src/causal_growth/estimate/v3_models.py",
+      "src/causal_growth/policy/v3_policy.py",
+      "src/causal_growth/policy/v3_policy_grid.py"
+    ],
+    "live_missing": []
   },
   "merged_tables": {
     "per_rep": {
@@ -103,6 +118,14 @@
       "sha256": "400f8d18027b1cbe866615a4e38d2bbaff7943ac3cf17331db7d47f92776c737"
     },
     {
+      "kind": "shard_run_err",
+      "source": "out/d03_formal/shard0/run.err",
+      "target": "outputs/evidence/d03_formal/shard0_run.err",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_checked_empty": 0
+    },
+    {
       "kind": "shard_summary",
       "source": "out/d03_formal/shard1/v3_phase_D03_diagnostic_summary.json",
       "target": "outputs/evidence/d03_formal/shard1_summary.json",
@@ -167,6 +190,14 @@
       "target": "outputs/evidence/d03_formal/shard1_run.log",
       "bytes": 3567,
       "sha256": "3d285f08e0d9165c52412521206024dcf330a984f7b65782c6a6a9047b84b637"
+    },
+    {
+      "kind": "shard_run_err",
+      "source": "out/d03_formal/shard1/run.err",
+      "target": "outputs/evidence/d03_formal/shard1_run.err",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_checked_empty": 0
     },
     {
       "kind": "shard_summary",
@@ -235,6 +266,14 @@
       "sha256": "7bbd52556e973254f9bb8330c61ee9128973791fcbc4431239384184bc067ebb"
     },
     {
+      "kind": "shard_run_err",
+      "source": "out/d03_formal/shard2/run.err",
+      "target": "outputs/evidence/d03_formal/shard2_run.err",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_checked_empty": 0
+    },
+    {
       "kind": "shard_summary",
       "source": "out/d03_formal/shard3/v3_phase_D03_diagnostic_summary.json",
       "target": "outputs/evidence/d03_formal/shard3_summary.json",
@@ -301,6 +340,14 @@
       "sha256": "e87242aedad9c7c7cb8eb28ef7ff16034863d03c1742b006920cdb5777fb5146"
     },
     {
+      "kind": "shard_run_err",
+      "source": "out/d03_formal/shard3/run.err",
+      "target": "outputs/evidence/d03_formal/shard3_run.err",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_checked_empty": 0
+    },
+    {
       "kind": "run_manifest",
       "source": "out/d03_formal/manifest.json",
       "target": "outputs/evidence/d03_formal/run_manifest.json",
@@ -316,7 +363,8 @@
     }
   ],
   "notes": [
-    "逐用户帧不进证据目录：72 000 行网格已在 outputs/tables/，此处只记哈希与行数。",
-    "快照绑定 83 个文件；live repo 之后的改动不影响本次运行。"
+    "复算输入 = 本证据包 + 已入库的 outputs/tables/ 两张合并表（per_rep / policy_grid）；逐用户帧不进证据目录。",
+    "live repo 在正式运行窗口内有 3 次提交（df66a3c / 06d4740 / f2c6dab），均未进入快照；snapshot_vs_live 记录当前 live 与快照的差异，用来证明执行路径是快照而不是 live。",
+    "run.err 为空只证明进程无 stderr，不构成源码只读证明；源码只读由 83/83 快照哈希与 combined_sha256 证明。"
   ]
 }

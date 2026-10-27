@@ -159,10 +159,21 @@ def main(argv: list[str] | None = None) -> int:
             per_rep.groupby("model")["chosen"].sum().items()
         },
         "outputs": outputs,
+        "code": {
+            "script": {
+                "path": _rel(Path(__file__)),
+                "sha256": _sha256(Path(__file__)),
+            },
+            "module": {
+                "path": "src/causal_growth/evaluation/v3_d03_formal.py",
+                "sha256": _sha256(ROOT / "src/causal_growth/evaluation/v3_d03_formal.py"),
+            },
+        },
         "notes": [
             "所有策略比较都在同一 rep、同一模型、同一预算上配对；chosen_only 是线上口径子集。",
             "预测成本口径与真实成本口径的合规率分别列示，不可互相替代。",
             "oracle 差距是事后上界，只用于解释选模/策略损失，不可当线上可得收益。",
+            "code 块记录聚合层源码哈希；分片原始表由 out/d03_formal_snapshot 绑定。",
         ],
     }
     meta_path = args.out_dir / "v3_phase_D03_formal_report_meta.json"

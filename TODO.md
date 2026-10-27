@@ -116,9 +116,11 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] 合并门禁 7 项合成用例（`tests/test_v3_d03_merge.py`）：缺 rep / 重复 rep / 篡改合规标记 / chosen 计数错 / config_hash 不一致 / 非正式分片全拒
 - [x] 报告聚合层 `src/causal_growth/evaluation/v3_d03_formal.py` + `scripts/26_d03_formal_tables.py`：选模频率、模型校准（all/chosen，含**最大绝对相对偏差**）、真值价值、**按 (rep, model, budget) 配对的策略差**、oracle 后悔、双口径合规；缺格/重复格/覆盖不足/网格 chosen 行不完整即抛错。12 项测试绿；用 3 rep 试点表端到端演练产出 7 张表（policy_value/paired_diff/compliance 各 360 行，oracle 320 行——**全发券参考不参与事后最优**，chosen 配对 144 行）
 - [x] 证据导出 `scripts/27_export_d03_evidence.py`：导出 manifest、快照绑定（83 文件）、4 份分片 summary 与 run.log；校验 rep 并集恰为 0..199、config_hash 四分片一致、run.err 全空、合并表哈希与行数（1 000 / 72 000）后再写 `coverage.json`
-- [x] 合并分片 → `outputs/tables/v3_phase_D03_formal_*`；跑 26 报告表与 27 导出证据（17:15，`coverage.json` 10 个文件，`config_hash=e1aa4314…`）；校验 200 rep / 1 000 行 per-rep / 72 000 行网格 / 每 rep 恰一个 chosen 全过
+- [x] 合并分片 → `outputs/tables/v3_phase_D03_formal_*`；跑 26 报告表与 27 导出证据（17:15；21:00 重导出后 15 文件 = 14 导出件 + `coverage.json`，`config_hash=e1aa4314…`）；校验 200 rep / 1 000 行 per-rep / 72 000 行网格 / 每 rep 恰一个 chosen 全过
 - [x] 报告表 7 张 + meta：`selection/calibration/policy_value/paired_diff/paired_diff_chosen/oracle/compliance`
 - [x] **写 `docs/v3_phase_D03_formal.md` 正文数字**（选模 105/71/12/7/5；校准斜率 CF 0.754、S 0.467、T 0.114、DR 0.098；greedy−business 按模型符号分裂；0.2 档真实支出合规率 CF 11%/S 13%/T 39%/DR 26.5%/constant 0%）；2026-10-27 19:25 落盘，文首明确 **D03 仍未证实，等待独立评审**
+- [x] **独立评审（20:53）返回 PASS WITH CONDITIONS**：数字层全部复现（选模、校准、40 个配对差、合规、oracle、证据哈希、83/83 快照、合并行数、7 表重建），**无算术错误**；P0-1（"运行期间未改 src"为假，窗口内 3 次 live 提交）、P1-1～P1-6 已按评审修正（21:02），并修源码斜率 docstring 与诊断 §111
+- [ ] **用户确认 D03 程序豁免**：正式 R 用 12:53:57 快照执行（83/83 哈希 + `snapshot_vs_live` 证明 3 个 live 改动未进入），但违反 AGENTS §11.2"不得与开发写盘并行"的字面规定；主负责已书面豁免，需用户确认后才把 D03 记入 GOAL 通过；不接受则需重跑约 4.3 h
 - [ ] 独立评审（方法对照、选模频率、配对网格、双口径合规）→ D03 判定
 
 ## E 证据层（2026-10-27 13:05，北京时间）

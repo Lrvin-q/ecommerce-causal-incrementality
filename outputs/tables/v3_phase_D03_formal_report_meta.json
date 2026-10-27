@@ -1,8 +1,8 @@
 {
   "phase": "D03_formal_report",
   "status": "aggregated_from_merged_tables",
-  "created_at": "2026-10-27T18:06:34+08:00",
-  "finished_at": "2026-10-27T18:06:35+08:00",
+  "created_at": "2026-10-27T21:00:16+08:00",
+  "finished_at": "2026-10-27T21:00:17+08:00",
   "inputs": {
     "per_rep": {
       "path": "outputs/tables/v3_phase_D03_formal_per_rep.csv",
@@ -89,9 +89,20 @@
       "path": "outputs/tables/v3_phase_D03_formal_compliance.csv"
     }
   },
+  "code": {
+    "script": {
+      "path": "scripts/26_d03_formal_tables.py",
+      "sha256": "bc176a426135df77785034fd08292dbccd16637775a914f21d0d1997bb89715e"
+    },
+    "module": {
+      "path": "src/causal_growth/evaluation/v3_d03_formal.py",
+      "sha256": "ee527c9036070c9e8a1f53f0e607f0a73a2acf069996ccd579166ac3ee028efa"
+    }
+  },
   "notes": [
     "所有策略比较都在同一 rep、同一模型、同一预算上配对；chosen_only 是线上口径子集。",
     "预测成本口径与真实成本口径的合规率分别列示，不可互相替代。",
-    "oracle 差距是事后上界，只用于解释选模/策略损失，不可当线上可得收益。"
+    "oracle 差距是事后上界，只用于解释选模/策略损失，不可当线上可得收益。",
+    "code 块记录聚合层源码哈希；分片原始表由 out/d03_formal_snapshot 绑定。"
   ]
 }
