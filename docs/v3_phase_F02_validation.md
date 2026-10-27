@@ -1,6 +1,6 @@
 # F02 独立三臂随机验证：设计与验收
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-27 18:42（北京时间）。
+> 合成数据 / 已知 DGP。维护时间：2026-10-27 18:42；状态表 20:36 更新（北京时间）。
 > 本文只描述机制与验收口径；**n=200 000 单 rep 已于 18:32–18:39 跑通（工程状态），
 > 正式 200 rep 尚未运行**。单 rep 与冒烟数字都不是证据，不得据此下策略结论。
 
@@ -10,12 +10,13 @@
 |---|---|---|
 | 三臂机制、预算、冻结/审计顺序 | 完成 | `src/causal_growth/evaluation/v3_f02.py` |
 | 决策层（单侧 Holm 两比较 + 退款率护栏） | 完成 | 同上；`decision.csv / guardrail.csv / decision.json` |
-| 测试 | 11 项绿 | `tests/test_v3_f02.py` |
-| CLI | 完成 | `scripts/28_f02_validation.py` |
+| 测试 | 11 项（决策层）+ 8 项（正式编排）= 19 项绿 | `tests/test_v3_f02.py`、`tests/test_v3_f02_formal.py` |
+| CLI | 完成 | `scripts/28_f02_validation.py`、`scripts/29_f02_formal.py`、`scripts/30_merge_f02_formal.py` |
 | n=2 000 冒烟（含决策层） | 完成（仅工程） | `out/f02_decision_smoke/`（不入库） |
-| 全量串行测试 | 1 228 项 exit=0（18:12:54–18:20:00） | `outputs/runs/f02_tests/full_suite.log` |
+| 全量串行测试 | 1 228 项 exit=0（18:12:54–18:20:00）；F01 改动后 1 248 项 exit=0（20:20:35–20:28:04，单进程） | `outputs/runs/f02_tests/full_suite.log`、`outputs/runs/f01_tests/full_suite.log` |
 | n=200 000 单 rep（工程状态） | 完成，18:32:41–18:39:21，exit=0 | `outputs/evidence/f02_n200k_rep0/` |
-| 正式 200 rep | **未跑，需用户批准** | — |
+| 正式 200 rep | **未跑，需用户批准与登记号** | — |
+| 正式前置：源码冻结 | 评审驱动的改动全部落地并复跑后，才可建快照；`source_hashes` 逐 rep 绑定，`--resume` 拒绝漂移 | `v3_f02_formal.py::plan_formal_shard` |
 | 独立科学评审 | **未做** | — |
 
 ## 1. 回答的问题
@@ -94,7 +95,7 @@ F02 三臂是**用户级独立随机**，两条差各用 `sqrt(se_l²+se_r²)`�
 
 - 模块：`src/causal_growth/evaluation/v3_f02.py`
 - CLI：`scripts/28_f02_validation.py`
-- 测试：`tests/test_v3_f02.py`（11 项）
+- 测试：`tests/test_v3_f02.py`（11 项）+ `tests/test_v3_f02_formal.py`（8 项，分片门槛、恢复一致性、200 rep 聚合）
 
 单 rep 输出（`--out-dir`）：
 
@@ -187,6 +188,22 @@ F02 三臂是**用户级独立随机**，两条差各用 `sqrt(se_l²+se_r²)`�
 ③ 实际券成本已进入 `observed_net_profit`，超支已被结果变量吸收。正式 200 rep 必须逐
 rep 报告实际支出与超支倍数，并把"同预算"限定为"同预测预算规则"，不得声称实际支出相等。
 
+### 5.2.1 两次独立拟合一致性（正式前置，2026-10-27 20:37，北京时间）
+
+§6 要求"若 learner 内部随机性不完全受种子控制，需在正式 R 前用两次独立拟合哈希核验"。
+2026-10-27 20:36–20:37 用两个独立进程、同一参数（`--scenario L1_main --n 20000 --rep 0
+--policy greedy_incremental_profit_per_cost --status provisional`）各跑一次，
+输出到 `out/f02_determinism_a` 与 `out/f02_determinism_b`（均不入库）：
+
+- `freeze.json` **7 个字段逐位一致**：`freeze_hash`、`per_user_hash`、`decision_hash`、
+  `guardrail_hash`、`selected_model`、`selected_policy`、`truth_columns_present=false`；
+- `manifest.json` 只有 `representative_tables_manifest` 的路径与文件 sha256 不同（路径不同导致）；
+- `five_tables/manifest.json` 的内容除 `started_at_utc / finished_at_utc` 外**完全一致**。
+
+结论：同一 rep 的选模、名单、观测、决策与护栏在独立进程间可复现，正式分片不必担心
+"隐式随机性导致 200 个 rep 不可比"。这是 **n=20 000 的工程核验**，不是科学证据；
+n=200 000 的同口径双跑另行执行并补充结果。
+
 ### 5.3 正式 200 rep（未跑，需用户批准）
 
 - [ ] 200 个 rep 全部完成，无空臂、无缺失文件；
@@ -227,9 +244,39 @@ rep 报告实际支出与超支倍数，并把"同预算"限定为"同预测预�
 **不把 200 个 p 值合并成一个"总显著"**。护栏同理单独报告通过率与差值分布。
 
 **产物**：7 张表（per-rep claims/guardrail/itt + 聚合 claims/guardrail/itt/spend，
-均含 `freeze_hash` 等绑定列）、`v3_phase_F02_formal_summary.json`、代表 rep 证据包
-（`coverage.json` 列出文件哈希与排除项；`per_user.csv` 与 `audit_truth.csv` 因体积和
-逐用户真值被显式排除，聚合不依赖它们）。
+均含 `freeze_hash` 等绑定列）、`v3_phase_F02_formal_summary.json`、代表 rep 证据包。
+证据包复制冻结/决策/护栏/ITT/arm_summary/manifest 与**五表 manifest**；
+`per_user.csv`、`audit_truth.csv`、两个审计聚合表与 `five_tables/` **本体**被显式排除，
+原因逐项写进 `coverage.json.excluded`——五表可由快照 + rep 0 重建，其 manifest 哈希
+已在包内。
+
+### 5.5 源码快照运行（AGENTS §11，2026-10-27 20:38 补充）
+
+`scripts/29_f02_formal.py` 在导入前执行 `sys.path.insert(0, ROOT / "src")`，`ROOT` 是
+**脚本自身所在仓库**。因此只把 `PYTHONPATH` 指向快照**无效**——仓库 `src` 会抢先被导入，
+`pipeline_source_hashes()` 也会哈希仓库文件。正确做法是**连 `scripts/` 一起快照**，
+运行快照里的分片脚本，并用绝对 `--out-root` 把产物写回主仓库：
+
+```powershell
+$snap = "$PWD\out\f02_formal_snapshot"
+robocopy src     "$snap\src"     /E /XD __pycache__
+robocopy sql     "$snap\sql"     /E
+robocopy configs "$snap\configs" /E
+robocopy scripts "$snap\scripts" /E
+
+# 正式运行期间：主仓库与快照的 v3*.py / v3*.sql / v3*.yaml 只读
+python "$snap\scripts\29_f02_formal.py" --scenario L1_main --n 200000 `
+  --rep-start 0 --rep-stop 49 --policy greedy_incremental_profit_per_cost `
+  --out-root "$PWD\out\f02_formal\shard0" --status formal --formal-approval "<登记号>"
+```
+
+- 快照内 `pipeline_source_hashes()` 的 root 解析为快照根，每个 rep manifest 绑定的是
+  **快照文件**哈希；`load_v3_protocol()` 也从快照 `configs/v3` 读七个冻结文件；
+- 快照建立后写 `snapshot_binding.json`（`git rev-parse HEAD`、各文件 sha256、建立时间），
+  与证据包同批导出；
+- 合并脚本仍用主仓库的 `scripts/30_merge_f02_formal.py`（只读逐 rep 产物，不再生成新哈希）；
+- 快照必须在**所有评审驱动的源码修改落地、测试复跑之后**建立；否则 `--resume` 会因
+  `source_hashes` 漂移拒绝复用，或更糟——200 个 rep 绑定到不同源码。
 
 **状态**：工具已在 n=2 000、2 rep 上用假登记号冒烟（冒烟产物已删除，不构成证据）；
 8 项聚合/分片测试绿；**正式 200 rep 未运行**，等待用户批准与登记号。

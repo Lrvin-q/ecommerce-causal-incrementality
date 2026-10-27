@@ -64,12 +64,13 @@ _EVIDENCE_FILES = (
     "manifest.json",
     "five_tables/manifest.json",
 )
-_EVIDENCE_EXCLUDED = (
-    "per_user.csv",
-    "audit_truth.csv",
-    "audit_policy_values.csv",
-    "audit_arm_contrasts.csv",
-)
+_EVIDENCE_EXCLUDED = {
+    "per_user.csv": "逐用户观测（每 rep 约 15.4 MB）；聚合只依赖汇总表",
+    "audit_truth.csv": "逐用户真值；冻结后才生成，仅审计用",
+    "audit_policy_values.csv": "聚合审计价值；正式聚合不依赖它",
+    "audit_arm_contrasts.csv": "聚合审计对照；正式聚合不依赖它",
+    "five_tables/": "五表与 SQL 产物体积大；只导出 manifest.json，原始表可由快照 + rep 0 重建",
+}
 
 
 def _now() -> str:
@@ -166,11 +167,8 @@ def _export_rep0_evidence(rep0_dir: Path, target: Path, aggregate_files: list[Pa
         "representative_rep_dir": rep0_dir.relative_to(ROOT).as_posix(),
         "files": records,
         "excluded": [
-            {
-                "path": name,
-                "reason": "体积过大且/或含逐用户真值；正式聚合不依赖它",
-            }
-            for name in _EVIDENCE_EXCLUDED
+            {"path": name, "reason": reason}
+            for name, reason in _EVIDENCE_EXCLUDED.items()
         ],
         "note": (
             "manifest.json 含冻结后聚合的 audit_true_arm_means（整臂均值），"
