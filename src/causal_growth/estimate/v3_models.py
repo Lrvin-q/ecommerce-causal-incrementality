@@ -2325,8 +2325,12 @@ def run_d03_diagnostic(
     out_dir: str | None = None,
     models: Sequence[str] | None = None,
     time_mode: str = "static",
+    rep_start: int = 0,
+    rep_stop: int | None = None,
+    formal: bool = False,
+    progress: bool = True,
 ) -> dict[str, Any]:
-    """多 rep 诊断：τ̂ 高估是选模偏差、模型偏差还是单 rep 噪声。
+    """多 rep 诊断/正式 R：τ̂ 偏差、校准与策略网格。
 
     回答"D03 正式 R 该怎么排"：同一场景、同一 n，rep 之间只换种子。每个 rep
     的选模仍只用冻结的验证集 LCB；真值只在**选模结束后**用于评估，且同时评估
@@ -2334,8 +2338,11 @@ def run_d03_diagnostic(
 
     产物三件：``per_rep``（rep × 模型指标）、``policy_grid``（rep × 模型 × 预算 ×
     策略；同一批用户分别用每个模型的 τ̂ 重跑策略，``chosen=True`` 的子集即"按冻结
-    规则选中模型"的口径）、``summary``（跨 rep 聚合与哈希）。**这不是正式 R**：
-    单场景、单 n、无格间 R 计划，不能作为 GOAL 的验收证据。
+    规则选中模型"的口径）、``summary``（跨 rep 聚合与哈希）。
+
+    ``rep_start`` / ``rep_stop`` 用于把正式 R 切成互不重叠的分片；每个 rep 的
+    随机流只由 ``rep_id`` 决定，因此分片结果与单进程全量跑逐位一致。``formal``
+    只改变 summary 的状态标签，不改变任何计算路径。
     """
     from pathlib import Path
 
@@ -2344,6 +2351,11 @@ def run_d03_diagnostic(
 
     if reps <= 0:
         raise ValueError("reps 必须为正")
+    if rep_stop is None:
+        rep_stop = rep_start + reps
+    if rep_start < 0 or rep_stop <= rep_start:
+        raise ValueError(f"rep 区间无效：[{rep_start}, {rep_stop})")
+    rep_ids = list(range(rep_start, rep_stop))
     root = Path(__file__).resolve().parents[3]
     target_dir = Path(out_dir) if out_dir is not None else root / "outputs" / "tables"
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -2357,11 +2369,12 @@ def run_d03_diagnostic(
     identification = ""
     selection_rule = ""
 
-    for rep_id in range(reps):
+    for rep_id in rep_ids:
+        rep_started = time.perf_counter()
         art = _d03_rep_artifacts(
             scenario=scenario, n=n, rep_id=rep_id, models=models, time_mode=time_mode
         )
-        if rep_id == 0:
+        if rep_id == rep_start:
             config_hash = art.data.config_hash
             level = art.data.level
             identification = art.data.identification_mode
@@ -2394,6 +2407,14 @@ def run_d03_diagnostic(
             model_grid.insert(0, "rep_id", rep_id)
             grid_frames.append(model_grid)
         chosen_counts[art.chosen_model] = chosen_counts.get(art.chosen_model, 0) + 1
+        elapsed = time.perf_counter() - rep_started
+        if progress:
+            print(
+                f"[D03 rep {rep_id}] chosen={art.chosen_model} "
+                f"score={float(rank_by_model[art.chosen_model]['selection_score']):.4f} "
+                f"elapsed={elapsed:.1f}s",
+                flush=True,
+            )
         reps_meta.append(
             {
                 "rep_id": rep_id,
@@ -2405,6 +2426,7 @@ def run_d03_diagnostic(
                 "observed_hash": art.data.observed_hash,
                 "split_fingerprint": art.data.split_fingerprint,
                 "test_user_key_hash": art.data.test.key_hash,
+                "elapsed_seconds": round(elapsed, 3),
             }
         )
 
@@ -2412,7 +2434,7 @@ def run_d03_diagnostic(
     grid_frame = pd.concat(grid_frames, ignore_index=True)
     n_budgets = int(grid_frame["per_user_budget_cny"].nunique())
     n_models = int(grid_frame["model"].nunique())
-    expected_grid_rows = reps * n_models * n_budgets * len(E_POLICIES)
+    expected_grid_rows = len(rep_ids) * n_models * n_budgets * len(E_POLICIES)
     if len(grid_frame) != expected_grid_rows:
         raise ValueError(
             f"策略网格行数应为 {expected_grid_rows}，实际 {len(grid_frame)}"
@@ -2434,17 +2456,22 @@ def run_d03_diagnostic(
             return str(path)
 
     summary: dict[str, Any] = {
-        "status": "diagnostic",
-        "formal_r": False,
-        "purpose": "多 rep 诊断 τ̂ 偏差/校准/策略网格；不是正式 R，不作验收证据",
+        "status": "formal_r" if formal else "diagnostic",
+        "formal_r": bool(formal),
+        "purpose": (
+            "正式 R：同一场景逐 rep 拟合全部候选模型，验证集 LCB 选模，"
+            "真值仅在选模后用于评估；策略网格按模型配对"
+            if formal
+            else "多 rep 诊断 τ̂ 偏差/校准/策略网格；不是正式 R，不作验收证据"
+        ),
         "source_label": "合成数据 / 已知 DGP",
         "scenario": scenario,
         "level": level,
         "identification_mode": identification,
         "time_mode": time_mode,
         "n_per_rep": int(n),
-        "reps": int(reps),
-        "rep_ids": list(range(reps)),
+        "reps": len(rep_ids),
+        "rep_ids": rep_ids,
         "selection_rule": selection_rule,
         "truth_isolation": {
             "producer": "_audit_truth_for_test",
@@ -2720,6 +2747,13 @@ def _main(argv: Sequence[str] | None = None) -> int:
         help="诊断 rep 数（默认 20，按 2026-10-27 的裁决）",
     )
     parser.add_argument("--diag-dir", default=None, help="诊断产物目录（默认 outputs/tables）")
+    parser.add_argument("--rep-start", type=int, default=0, help="起始 rep（分片用，含）")
+    parser.add_argument("--rep-stop", type=int, default=None, help="结束 rep（分片用，不含；缺省为 start+reps）")
+    parser.add_argument(
+        "--formal-r",
+        action="store_true",
+        help="把本次诊断运行标记为正式 R（计算路径不变，只改状态标签与 purpose）",
+    )
     args = parser.parse_args(argv)
     models = (
         None
@@ -2734,6 +2768,9 @@ def _main(argv: Sequence[str] | None = None) -> int:
             out_dir=args.diag_dir,
             models=models,
             time_mode=args.time_mode,
+            rep_start=args.rep_start,
+            rep_stop=args.rep_stop,
+            formal=args.formal_r,
         )
         print(
             json.dumps(

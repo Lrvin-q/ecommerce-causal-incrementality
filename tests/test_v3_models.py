@@ -1077,3 +1077,30 @@ def test_d03_diagnostic_grid_covers_every_candidate_model(tmp_path) -> None:
     # 每个 rep 只有一个模型带 chosen 标记；两个模型评估的是同一批用户
     assert policy_grid.groupby("model")["chosen"].any().sum() == 1
     assert set(summary["policy_grid_by_model"]) == {"constant", "t_learner"}
+
+
+def test_d03_diagnostic_rep_slice_and_formal_label(tmp_path) -> None:
+    summary = models.run_d03_diagnostic(
+        scenario="L1_main",
+        n=800,
+        reps=1,
+        out_dir=str(tmp_path),
+        models=("constant",),
+        rep_start=2,
+        formal=True,
+        progress=False,
+    )
+    per_rep = pd.read_csv(
+        tmp_path / "v3_phase_D03_diagnostic_per_rep.csv", encoding="utf-8-sig"
+    )
+    policy_grid = pd.read_csv(
+        tmp_path / "v3_phase_D03_diagnostic_policy_grid.csv", encoding="utf-8-sig"
+    )
+    assert set(per_rep["rep_id"]) == {2}
+    assert set(policy_grid["rep_id"]) == {2}
+    assert summary["rep_ids"] == [2]
+    assert summary["reps"] == 1
+    assert summary["status"] == "formal_r"
+    assert summary["formal_r"] is True
+    assert summary["reps_meta"][0]["rep_id"] == 2
+    assert "elapsed_seconds" in summary["reps_meta"][0]
