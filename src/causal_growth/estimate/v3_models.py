@@ -678,6 +678,7 @@ class NuisanceFit:
     propensity_clip_low: float = float("nan")
     propensity_clip_high: float = float("nan")
     propensity_source: str = "estimated"
+    fold_id: NDArray[np.int64] | None = None
 
     @property
     def n(self) -> int:
@@ -741,6 +742,17 @@ def _fold_train_indices(held: NDArray[np.int64], n: int) -> NDArray[np.int64]:
     return np.flatnonzero(mask)
 
 
+def _fold_id_vector(
+    folds_idx: Sequence[NDArray[np.int64]], n: int
+) -> NDArray[np.int64]:
+    fold_id = np.full(n, -1, dtype=np.int64)
+    for fold, held in enumerate(folds_idx):
+        fold_id[held] = fold
+    if (fold_id < 0).any():
+        raise ValueError("交叉拟合折号未覆盖全部样本")
+    return fold_id
+
+
 def _crossfit_outcomes(
     X: NDArray[np.float64],
     y: NDArray[np.float64],
@@ -768,6 +780,60 @@ def _crossfit_outcomes(
         model0.fit(X[control], y[control])
         mu1[held] = np.asarray(model1.predict(X[held]), dtype=float).reshape(-1)
         mu0[held] = np.asarray(model0.predict(X[held]), dtype=float).reshape(-1)
+    return mu1, mu0
+
+
+def crossfit_two_arm_outcome(
+    X: Any,
+    y: Any,
+    t: Any,
+    cfg: Config,
+    *,
+    fold_id: Any,
+    seed_index: int = 0,
+    seed_prefix: str = "ope",
+    classifier: bool = False,
+) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """在给定折号上交叉拟合两臂结果模型（成本、退款等任意结局）。
+
+    折号必须来自 ``crossfit_nuisance(...,).fold_id``：OPE 的成本/护栏模型要和主结局
+    用同一折划分，否则伪结局的残差修正会跨折泄漏。本函数不重新抽折。
+    """
+    X = _feature_matrix(X)
+    n = int(X.shape[0])
+    y = _outcome(y, n)
+    t = _binary_treatment(t, n, require_both_arms=True)
+    fold_id = np.asarray(fold_id, dtype=np.int64).reshape(-1)
+    if fold_id.shape != (n,):
+        raise ValueError(f"fold_id 长度应为 {n}")
+    if (fold_id < 0).any():
+        raise ValueError("fold_id 必须是非负整数")
+    fold_values = np.unique(fold_id)
+    folds_idx = tuple(
+        np.asarray(np.flatnonzero(fold_id == value), dtype=np.int64)
+        for value in fold_values
+    )
+    mu1 = np.empty(n, dtype=float)
+    mu0 = np.empty(n, dtype=float)
+    for fold, held in enumerate(folds_idx):
+        train_idx = _fold_train_indices(held, n)
+        treated = train_idx[t[train_idx] == 1]
+        control = train_idx[t[train_idx] == 0]
+        if treated.size < 2 or control.size < 2:
+            raise ValueError(f"第 {fold} 折训练部分处理组/对照组样本不足，无法交叉拟合")
+        seed1 = _seed(cfg, f"{seed_prefix}.fold{fold}.mu1", seed_index)
+        seed0 = _seed(cfg, f"{seed_prefix}.fold{fold}.mu0", seed_index)
+        factory = _lightgbm_classifier if classifier else _lightgbm_regressor
+        model1 = factory(cfg, seed=seed1)
+        model0 = factory(cfg, seed=seed0)
+        model1.fit(X[treated], y[treated])
+        model0.fit(X[control], y[control])
+        if classifier:
+            mu1[held] = np.asarray(model1.predict_proba(X[held])[:, 1], dtype=float)
+            mu0[held] = np.asarray(model0.predict_proba(X[held])[:, 1], dtype=float)
+        else:
+            mu1[held] = np.asarray(model1.predict(X[held]), dtype=float).reshape(-1)
+            mu0[held] = np.asarray(model0.predict(X[held]), dtype=float).reshape(-1)
     return mu1, mu0
 
 
@@ -877,6 +943,7 @@ def crossfit_nuisance(
         propensity_clip_low=clip_low,
         propensity_clip_high=clip_high,
         propensity_source=source,
+        fold_id=_fold_id_vector(folds_idx, n),
     )
 
 
