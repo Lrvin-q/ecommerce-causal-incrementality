@@ -36,7 +36,6 @@ TARGET = ROOT / "outputs" / "evidence"
 
 #: (源路径, 目标相对路径)。源不存在时**抛错**——静默跳过会让"证据缺失"看不出来。
 PLAN: tuple[tuple[str, str], ...] = (
-    ("out/v3_phase_d_aa_nc20w_r2/aa_repetitions.csv", "negctl/aa_repetitions.csv"),
     ("out/v3_phase_d_local_power/formal_L0/local_power_summary.csv", "local_power/L0_summary.csv"),
     ("out/v3_phase_d_local_power/formal_L1/local_power_summary.csv", "local_power/L1_summary.csv"),
     ("out/v3_phase_d_local_power/formal_L2/local_power_summary.csv", "local_power/L2_summary.csv"),
@@ -104,7 +103,33 @@ def main() -> int:
         "rows_deduped": int(len(deduped)),
     })
 
-    # 2) 其余单文件证据
+    # 2) 负对照表：**必须剔除混入的 1 行 true_aa**，否则 101 行会被算成 8/101 而不是 8/100
+    negctl_source = ROOT / "out" / "v3_phase_d_aa_nc20w_r2" / "aa_repetitions.csv"
+    if not negctl_source.is_file():
+        raise FileNotFoundError(f"缺少负对照表：{negctl_source.relative_to(ROOT)}")
+    negctl = pd.read_csv(negctl_source)
+    if "block" not in negctl.columns:
+        raise ValueError("负对照表缺 block 列，无法区分 true_aa 与负对照")
+    blocks_raw = {str(key): int(value) for key, value in negctl["block"].value_counts().items()}
+    kept = negctl[negctl["block"] == "purchase_null_negative_control"].copy()
+    if len(kept) != 100:
+        raise ValueError(f"负对照应为 100 行，实际 {len(kept)} 行（原始 {len(negctl)}）")
+    negctl_destination = TARGET / "negctl" / "aa_repetitions.csv"
+    negctl_destination.parent.mkdir(parents=True, exist_ok=True)
+    kept.to_csv(negctl_destination, index=False, encoding="utf-8-sig")
+    records.append({
+        "kind": "negative_control",
+        "source": negctl_source.relative_to(ROOT).as_posix(),
+        "target": negctl_destination.relative_to(ROOT).as_posix(),
+        "bytes": negctl_destination.stat().st_size,
+        "sha256": _sha256(negctl_destination),
+        "rows_raw": int(len(negctl)),
+        "rows_kept": int(len(kept)),
+        "blocks_raw": blocks_raw,
+        "note": "已剔除混入的 true_aa 行；负对照为 100 行",
+    })
+
+    # 3) 其余单文件证据
     for source_rel, target_rel in PLAN:
         source = ROOT / source_rel
         if not source.is_file():

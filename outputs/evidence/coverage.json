@@ -13,11 +13,18 @@
       "rows_deduped": 1000
     },
     {
-      "kind": "raw",
+      "kind": "negative_control",
       "source": "out/v3_phase_d_aa_nc20w_r2/aa_repetitions.csv",
       "target": "outputs/evidence/negctl/aa_repetitions.csv",
-      "bytes": 129470,
-      "sha256": "2eb6f6afac18a50902aed4b29747fd088ce80628d70f1403a4dd48bd7d2ff975"
+      "bytes": 128304,
+      "sha256": "a0d6f71ac10f8bcaeee370c6992798c85ada9962418ebaf58d146488d6b49602",
+      "rows_raw": 101,
+      "rows_kept": 100,
+      "blocks_raw": {
+        "purchase_null_negative_control": 100,
+        "true_aa": 1
+      },
+      "note": "已剔除混入的 true_aa 行；负对照为 100 行"
     },
     {
       "kind": "raw",
@@ -83,5 +90,5 @@
       "sha256": "f1040cde8646bbc8adc32b0222826a0cb90e12896a2200b6835a2ed4af7455a4"
     }
   ],
-  "total_bytes": 1829631
+  "total_bytes": 1828465
 }
