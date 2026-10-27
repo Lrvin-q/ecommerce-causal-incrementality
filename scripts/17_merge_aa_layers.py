@@ -36,6 +36,10 @@ ROOT = Path(__file__).resolve().parents[1]
 LAYERS = ("L0", "L1", "L2", "L3")
 METRICS = ("net_profit", "paid_purchase_7d", "any_refund_30d")
 
+#: 注册口径：任何一项被换掉，池化 FPR 都会悄悄失效而不报错，因此必须显式校验。
+FORMAL_ALPHA = 0.05
+EXPECTED_N_TOTAL = 200_000
+
 
 def clopper_pearson(successes: int, trials: int, confidence: float = 0.95) -> tuple[float, float]:
     """精确二项区间（等尾），与 AA 模块内部实现同一定义。"""
@@ -113,7 +117,27 @@ def main() -> int:
     total_rows = len(data)
     data = data[data["block"] == "true_aa"].copy()
     excluded = total_rows - len(data)
-    alpha = float(data["alpha"].iloc[0]) if "alpha" in data.columns else 0.05
+
+    # 加固（2026-10-27）：注册规模、显著性水平、每层 rep 数不能靠"看起来正常"放行。
+    # 这些篡改不会报错——只会让池化 FPR 悄悄失效，所以必须显式拦。
+    if "alpha" in data.columns:
+        alphas = sorted({round(float(value), 12) for value in data["alpha"].dropna().unique()})
+        if len(alphas) != 1:
+            raise SystemExit(f"拒绝合并：alpha 不一致 {alphas}")
+        if abs(alphas[0] - FORMAL_ALPHA) > 1e-12:
+            raise SystemExit(f"拒绝合并：alpha={alphas[0]} 与注册值 {FORMAL_ALPHA} 不符")
+    if "n_total" in data.columns:
+        totals = sorted({int(value) for value in data["n_total"].dropna().unique()})
+        if totals != [EXPECTED_N_TOTAL]:
+            raise SystemExit(f"拒绝合并：n_total={totals} 与注册规模 {EXPECTED_N_TOTAL} 不符")
+    # 注意：**不要**在这里要求每层必须 250 次。未跑满时下游会写 ``_provisional`` 副本
+    # 并明确标注"不得作为验收凭据"——那是有意的保护机制，不是缺口。
+    if not (0.0 < args.band_low < FORMAL_ALPHA < args.band_high < 1.0):
+        raise SystemExit(
+            f"拒绝：band [{args.band_low}, {args.band_high}] 必须把 {FORMAL_ALPHA} 夹在中间"
+        )
+
+    alpha = float(data["alpha"].iloc[0]) if "alpha" in data.columns else FORMAL_ALPHA
 
     rows = []
     for metric in METRICS:
