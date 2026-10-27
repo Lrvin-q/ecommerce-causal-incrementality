@@ -671,9 +671,16 @@ export PYTHONUTF8=1 PYTHONIOENCODING=utf-8
       **注意**：跑这两次时工作区相对该 commit **有未提交改动**（`v3_policy_evidence.py` 等），
       所以 `git_commit` 单独不足以描述源码，**逐文件 `source_sha256` 才是有效绑定**；评审时应
       用 `source_sha256` 对 live 文件复算，而不是 `git show`；
-- [ ] 核对顶层 `outputs/evidence/coverage.json`：35 条记录、`total_bytes` 15 811 356、
-      `registry_repairs` 里记着 2026-10-28 02:38 那次修复（丢弃 11 条指向已迁走目录的旧 E 记录、
-      刷新 2 条过期 F01 记录）。旧目录在 `out/attic/e_evidence_rep0_stale/`（未删、可回退）；
+- [ ] 核对顶层 `outputs/evidence/coverage.json`：**41 条记录、`total_bytes` 15 858 444**
+      （2026-10-28 04:24 起；此前 35 条 / 15 811 358，再早 15 811 356），逐条 sha256/bytes
+      复算一致。`registry_repairs` 按时间顺序记着 **3 次**修复：02:38（46 → 35 条，丢弃 11 条
+      指向已迁走目录的旧 E 记录、刷新 2 条过期 F01 记录）、03:06（F01 重新导出后刷新 freeze/meta
+      哈希，`meta.json` 17 333 → 17 335 B）、04:24（把 `d03_formal` 与 `f02_n200k_rep0` 的身份类
+      JSON 提升进顶层，新增 6 条，**既有 35 条逐条未变、顺序未变**）。
+      **注意**：03:06 那条的 `total_bytes_before`（22 788 510）与 `reason` 是
+      `out/scratch/fix_evidence_registry.py:100/:102` 的**硬编码常量**，不是 03:06 的实测前值
+      （真实前值 15 811 356）；该缺陷已在 04:24 条目的 `prior_entry_defects` 里登记，
+      历史条目本身未改写。旧 E 目录在 `out/attic/e_evidence_rep0_stale/`（未删、可回退）；
 - [ ] 核对 §1.2 的溯源修复：B 的 meta 是否 `chosen_model=constant` + `provenance=full_model_fit`
       + `frame_model_is_chosen_in_full_fit=false`；A 的 meta 是否同样齐全、且**单进程一次跑完**（§1.3）；
 - [ ] 确认 A 家族**没有**小池表且 `small_pools_used=null`（§3.0），且

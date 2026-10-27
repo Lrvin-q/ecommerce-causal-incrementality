@@ -682,8 +682,14 @@ L0 启动时带了 `--negative-control-reps 100`，负对照排在 250 次 `true
 | `mem_watch.py`（03:51 起） | 每分钟记可用内存/进程 RSS/已完成 rep 数，可用 <1 024 MB 打 ALARM | `out/logs/f02_memwatch_20261028_0351.log` |
 
 04:08 状态：已完成 5/200（shard0 3、shard1 2），可用内存 4.2–5.3 GB，无 ALARM。
-预计 **11–15 h**，即 2026-10-28 **15:00–19:00** 之间集齐并自动合并（区间依据见 TODO.md F02 段：
-单 rep 耗时由选中模型主导，`constant` 366 s / `causal_forest` 478–512 s）。
+04:26 状态：已完成 **10/200**（shard0 6、shard1 4），可用内存 2.8–3.5 GB，ALARM **0 次**。
+
+ETA 已从假设改为实测投影：10 个已完成 rep 的 mean **460.8 s**（sd 64.8，min 366.4 = constant，
+max 524.2 = causal_forest），2 并发 ⇒ 200 rep = **12.80 h**，95% 区间 **11.68–13.92 h**
+（mean 的标准误 20.5 s），自 03:45 起即 **15:30–17:45 集齐、点估计 ~16:30**，合并再加约 5 min。
+原记的 11–15 h 仍成立、收窄为上值；下界 11.68 h 与"D03 选模频率加权 ⇒ 11.7 h"几乎重合，
+两条独立路径互证。**第一波 100 rep 完成时用 n=100 重推一次**（当前 n=10 的 causal_forest
+占 60%，高于 D03 的 35.5%，但只差 +1.6 个二项 sd，不足以断言构成变了）。
 
 ### 运行期间的硬纪律
 
@@ -694,11 +700,15 @@ L0 启动时带了 `--negative-control-reps 100`，负对照排在 250 次 `true
 - `scripts/` 不在绑定集合里，但仍不建议在运行期改：合并脚本 `scripts/30_merge_f02_formal.py`
   会在收尾时被自动调用，改了就等于换了口径。
 
-### 合并完成后必须人工做的四件事（已登记在 TODO.md「合并后待做」）
+### 合并完成后必须人工做的五件事（已登记在 TODO.md「合并后待做」）
 
 1. **把 F02 证据登记进顶层 `outputs/evidence/coverage.json`**：30 号脚本只在自己的
    `--evidence-dir` 写 `coverage.json`（`:186`），**不刷顶层索引**——与 03:13 给 31 号脚本补的
-   `_refresh_top_registry` 同类缺口。补登记时要**全表逐条复算**，不能只校验自己那部分。
+   `_refresh_top_registry` 同类缺口。**04:24 已把工具做好**：
+   `out/scratch/register_evidence_top.py`（身份类 JSON 规则提升 + 提升前逐文件重算 sha256/bytes
+   + 提升后全表复算 + 幂等 + 只追加不重排），合并后直接
+   `.venv/Scripts/python.exe out/scratch/register_evidence_top.py --dry-run` 再实跑即可。
+   该脚本已用它把 `d03_formal` 与 `f02_n200k_rep0` 补进顶层（35 → 41 条，既有 35 条逐条与顺序未变）。
 2. 复核合并产物：`outputs/tables/v3_phase_F02_formal_*.csv`（7 张）+ `_summary.json`，
    以及 `outputs/evidence/f02_formal/`；确认 `formal_approval=F02-FORMAL-20261028-R200`、
    `config_hash=e1aa4314b8d84b04…`、`source_hashes_sha256=d8327ae0a190a5c2…` 四者跨分片一致。
@@ -709,11 +719,20 @@ L0 启动时带了 `--negative-control-reps 100`，负对照排在 250 次 `true
    产物 `out/v3_phase_d/pilot_raw_L1_main_n200000.csv`（每 rep 增量落盘），
    跑完另存 `outputs/tables/v3_phase_D_pilot_raw_r20.csv`，**不覆盖** R=3 旧表。
    并行方案已否决（理由见 `docs/v3_决策与反思日志.md` 04:07 条）。
+   按 04:26 实测投影，最早 **~18:00** 可起（17:45 上界 + 合并约 5 min）。
+5. **机制修复（合并后连全量测试一起做）**：让 `scripts/27_export_d03_evidence.py` 与
+   `scripts/30_merge_f02_formal.py` 自带顶层刷新（复用 31 号 `_refresh_top_registry` 的口径），
+   否则 G/H 阶段会第三次踩同一个坑。运行期不改脚本。
+   另记：`registry_repairs[1]`（03:06）的 `total_bytes_before` 与 `reason` 是
+   `out/scratch/fix_evidence_registry.py:100/:102` 的**硬编码常量**、不是实测前值，
+   缺陷已登记在 04:24 条目的 `prior_entry_defects`，历史条目未改写。
 
 ### 还欠着什么
 
-- `git push origin codex/d03`：03:38 成功过一次（`e004810..7870b9a`），之后 `c290b84`、`17a1011`
-  与本次文档提交**仍未推上去**（github.com:443 间歇连不上）。**push 后等用户 review，不要自行合并。**
+- `git push origin codex/d03`：03:38 推上 `e004810..7870b9a`，04:09 推上 `7870b9a..111f19b`；
+  04:29 复核 `HEAD == origin/codex/d03 == 111f19b`，**本段三个提交（`c290b84`/`17a1011`/`111f19b`）
+  均已在远端**（此前两次 push 因 github.com:443 间歇连不上而失败，已重试成功）。
+  **push 后等用户 review，不要自行合并。**
 - E01/E02、F01、D03 **全部仍标"未证实"**：用户 01:10 的"默认批准"按**批准运行**执行，
   不按"批准关闭缺陷"执行；这三项只能由独立复审关闭（AGENTS §7.4）。
 - E 的 meta 缺 `cfg.hash(64)`（=`e1aa4314b8d84b04…`）：补齐要改 `scripts/24_e_evidence.py`

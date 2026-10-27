@@ -260,9 +260,57 @@
       "target": "outputs/evidence/e_evidence_rep0_b/meta_cf.json",
       "bytes": 4687,
       "sha256": "83a26528c69286b0028021ec06b85c0622f65a623afd04207a110c243f77da0b"
+    },
+    {
+      "kind": "run_manifest",
+      "target": "outputs/evidence/d03_formal/run_manifest.json",
+      "bytes": 1074,
+      "sha256": "b00dd3e1aeecf1c9733dce7bde6820ca3530542b34c868fa4e5d7de4da1460f1",
+      "source": "out/d03_formal/manifest.json",
+      "note": "D03 正式 200 rep 的运行身份文件（源码快照绑定 + run manifest）。运行已完成并合并，但阶段状态为**未证实**，待独立评审（AGENTS §7.4）；逐 rep 表与分片 summary 由本目录 coverage.json 登记，顶层只收身份类文件。"
+    },
+    {
+      "kind": "snapshot_binding",
+      "target": "outputs/evidence/d03_formal/snapshot_binding.json",
+      "bytes": 9478,
+      "sha256": "af89589a30f716cc604acfbea4c1860381723dcc5a5c1ab6cfa9fa0ad15c5bfa",
+      "source": "out/d03_formal_snapshot_binding.json",
+      "note": "D03 正式 200 rep 的运行身份文件（源码快照绑定 + run manifest）。运行已完成并合并，但阶段状态为**未证实**，待独立评审（AGENTS §7.4）；逐 rep 表与分片 summary 由本目录 coverage.json 登记，顶层只收身份类文件。"
+    },
+    {
+      "kind": "f02_decision",
+      "target": "outputs/evidence/f02_n200k_rep0/decision.json",
+      "bytes": 2237,
+      "sha256": "8af344dc404a0b67e7456619177a7d5b5bb9d8c4922363d488c3136fdbeac3db",
+      "status": "engineering_single_rep_not_formal_evidence",
+      "note": "F02 **工程验证**单 rep（n=200 000，R=0）的身份文件，status=engineering_single_rep_not_formal_evidence，**不是**正式证据；正式证据在 outputs/evidence/f02_formal/（200 rep，登记号 F02-FORMAL-20261028-R200）。"
+    },
+    {
+      "kind": "f02_five_tables_manifest",
+      "target": "outputs/evidence/f02_n200k_rep0/five_tables/manifest.json",
+      "bytes": 25016,
+      "sha256": "b3a61c2e0c31eb771aa426b853f69cffe444d3605f7f607d132d8ec766a1d0d3",
+      "status": "engineering_single_rep_not_formal_evidence",
+      "note": "F02 **工程验证**单 rep（n=200 000，R=0）的身份文件，status=engineering_single_rep_not_formal_evidence，**不是**正式证据；正式证据在 outputs/evidence/f02_formal/（200 rep，登记号 F02-FORMAL-20261028-R200）。"
+    },
+    {
+      "kind": "f02_freeze",
+      "target": "outputs/evidence/f02_n200k_rep0/freeze.json",
+      "bytes": 482,
+      "sha256": "77c1d81e77bd89ba66ad13fa6a3cca43ef877940135000210c852e0576bfede8",
+      "status": "engineering_single_rep_not_formal_evidence",
+      "note": "F02 **工程验证**单 rep（n=200 000，R=0）的身份文件，status=engineering_single_rep_not_formal_evidence，**不是**正式证据；正式证据在 outputs/evidence/f02_formal/（200 rep，登记号 F02-FORMAL-20261028-R200）。"
+    },
+    {
+      "kind": "f02_manifest",
+      "target": "outputs/evidence/f02_n200k_rep0/manifest.json",
+      "bytes": 8799,
+      "sha256": "e26ce0cf764091dc18e33c45158947557262f454eb4ba4c6f059b3051906e691",
+      "status": "engineering_single_rep_not_formal_evidence",
+      "note": "F02 **工程验证**单 rep（n=200 000，R=0）的身份文件，status=engineering_single_rep_not_formal_evidence，**不是**正式证据；正式证据在 outputs/evidence/f02_formal/（200 rep，登记号 F02-FORMAL-20261028-R200）。"
     }
   ],
-  "total_bytes": 15811358,
+  "total_bytes": 15858444,
   "registry_repairs": [
     {
       "at": "2026-10-28 02:38",
@@ -337,7 +385,56 @@
       "total_bytes_before": 22788510,
       "total_bytes_after": 15811358,
       "reason": "24 号脚本的顶层合并只清理自身前缀，e_evidence_rep0/ 的旧记录长期滞留；31 号脚本只写目录级 coverage.json，F01 于 2026-10-28 00:47/00:49 重新导出后顶层登记的 freeze.json/meta.json 哈希未跟随更新"
+    },
+    {
+      "at": "2026-10-28 04:24",
+      "dropped_missing_target": [],
+      "added": [
+        "outputs/evidence/d03_formal/run_manifest.json",
+        "outputs/evidence/d03_formal/snapshot_binding.json",
+        "outputs/evidence/f02_n200k_rep0/decision.json",
+        "outputs/evidence/f02_n200k_rep0/five_tables/manifest.json",
+        "outputs/evidence/f02_n200k_rep0/freeze.json",
+        "outputs/evidence/f02_n200k_rep0/manifest.json"
+      ],
+      "enriched": [
+        "outputs/evidence/e_evidence_rep0_a/meta_constant.json",
+        "outputs/evidence/e_evidence_rep0_b/meta_cf.json",
+        "outputs/evidence/f01_ope/freeze.json",
+        "outputs/evidence/f01_ope/meta.json"
+      ],
+      "records_before": 35,
+      "records_after": 41,
+      "total_bytes_before": 15811358,
+      "total_bytes_after": 15858444,
+      "identity_patterns": [
+        "*binding*.json",
+        "*manifest*.json",
+        "freeze.json",
+        "meta*.json",
+        "decision.json"
+      ],
+      "ordering_policy": "append_only_preserve_existing_order",
+      "prior_entry_defects": [
+        {
+          "entry_index": 1,
+          "entry_at": "2026-10-28 03:06",
+          "untrustworthy_fields": [
+            "total_bytes_before",
+            "reason"
+          ],
+          "recorded_value": {
+            "total_bytes_before": 22788510
+          },
+          "correct_value": {
+            "total_bytes_before": 15811356
+          },
+          "evidence": "out/scratch/fix_evidence_registry.py:100 将 total_bytes_before 硬编码为 22788510、:102 将 reason 硬编码；该脚本于 02:38 与 03:06 各运行一次，故 03:06 条目的 before 值实为 02:38 的旧前值。03:06 的真实前值 = repairs[0].total_bytes_after = 15 811 356；03:06 的后值 15 811 358 = 15 811 356 + 2（f01_ope/meta.json 17 333 → 17 335 B）。out/scratch/coverage_backup_before_31patch_20261028_031329.json 佐证 03:13 前磁盘上 records=35、total_bytes=15 811 358、repairs=2。",
+          "action": "仅登记缺陷，未改写 repairs[1]；其 refreshed/records_before/records_after 字段仍可信"
+        }
+      ],
+      "reason": "27 号（D03 正式）与 30 号（F02 正式）脚本只写目录级 coverage.json、不刷顶层索引，导致 d03_formal / f02_n200k_rep0 的源码绑定与冻结清单在顶层不可发现（AGENTS §12.1）。按身份类 JSON 规则提升，提升前逐文件重算 sha256/bytes，提升后全表复算。"
     }
   ],
-  "last_refreshed_at": "2026-10-28T03:13:31+08:00"
+  "last_refreshed_at": "2026-10-28T04:24:36+08:00"
 }

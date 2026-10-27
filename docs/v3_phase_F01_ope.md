@@ -434,7 +434,8 @@ $env:PYTHONUTF8='1'; $env:PYTHONIOENCODING='utf-8'
   运行产物的 `source`），并对**全表**逐条复算：任何文件缺失、sha256 或 bytes 不符都抛
   `RuntimeError`；证据副本与运行产物不一致也抛错。实现见 `scripts/31_f01_ope.py:140`
   `_refresh_top_registry`，篡改用例钉在 `tests/test_v3_f01_registry.py`（5 项）。
-  当前顶层索引 35 条、`total_bytes=15 811 358`，全表复算一致。
+  当前顶层索引 **41 条、`total_bytes=15 858 444`**（2026-10-28 04:24 起；F01 自身那两条
+  自 03:13 未再变），全表复算一致。
 - 复算入口：`verify_freeze_manifest` 重算 payload；`audit_` 表只在 `freeze_id` 匹配时生成，
   否则抛错（真值隔离）。
 - 稳定性口径：`freeze_id` 绑定名单/设计/配置/源码内容，不绑定 `created_at`；
@@ -465,11 +466,13 @@ $env:PYTHONUTF8='1'; $env:PYTHONIOENCODING='utf-8'
 - [ ] 敏感性（IPW/SNIPS）、符号相反的 5 行、门禁未过的 7 行都被如实报告；
 - [ ] 全文没有把"预测预算"写成"实际预算"，没有把单 rep 写成正式 R，
       没有任何一处写成"定向优于随机"而不带 §4.6/§4.8 的限定。
-- [ ] 顶层索引 `outputs/evidence/coverage.json` 的 f01 两条记录（35 条中）与
+- [ ] 顶层索引 `outputs/evidence/coverage.json` 的 f01 两条记录（**41 条中**）与
       `outputs/evidence/f01_ope/` 里的文件一致：`freeze_id=b8402f30…`、sha256/bytes 相符，
       `source` 指向 `out/f01_ope_formal_20261028_0253/`（**不是**已被取代的 `out/f01_ope/`）；
-      全表逐条复算应无不一致（`registry_repairs` 记录了 2026-10-28 02:38 那次修复：
-      46 → 35 条、丢弃 11 条指向已消失文件的记录）；
+      全表逐条复算应无不一致（`registry_repairs` 现有 **3 条**：02:38 那次 46 → 35 条、
+      丢弃 11 条指向已消失文件的记录；03:06 刷新 F01 重导后的 freeze/meta 哈希；
+      04:24 把 `d03_formal`/`f02_n200k_rep0` 的身份类 JSON 提升进顶层，35 → 41 条，
+      **f01 那两条与其余 33 条逐条未变**）；
 - [ ] F01 与 E 的 A 家族**同源**：`freeze.json.source_hashes` 里
       `policy/v3_policy_evidence.py = ca29cdbcc57728e1…`，与 E meta 的 `source_sha256` 同值；
       不存在跨源码版本配对（AGENTS §12.6）；
