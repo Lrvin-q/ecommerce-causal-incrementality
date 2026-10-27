@@ -76,13 +76,13 @@
     },
     {
       "kind": "e_log",
-      "source": "out/e_evidence_formal/run.log",
+      "source": "out/logs/e_r2_A_20261028_0112.log",
       "target": "outputs/evidence/e_evidence_rep0_a/run_constant.log",
-      "bytes": 2209,
-      "sha256": "6ac1ea950641e1bc42f1aa6c9c887f0a8ceb73ad35d5b53a244e1852b3b02332"
+      "bytes": 2597,
+      "sha256": "0a32c7f90cbedca1e7d9c2e527ea117a571577787efe0d03267d9f3021776f14"
     }
   ],
-  "total_bytes": 6974049,
+  "total_bytes": 6974437,
   "excluded": [
     {
       "path": "D03 全链路中间产物",

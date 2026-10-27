@@ -48,6 +48,10 @@ desktop.ini
 # ---- 临时 ----
 *.tmp
 *.log
+# 证据包内的运行日志必须入库：outputs/evidence/coverage.json 会为它们记 sha256，
+# 若被上面的 *.log 吞掉，登记表就指向仓库里不存在的文件，新克隆上做全表复算必然失败
+# （2026-10-28 05:52 实测发现：A/B 两份 E 运行日志被忽略，共 5 478 B）
+!/outputs/evidence/**/*.log
 _probe/
 # ---- LaTeX 构建中间产物（main.pdf 需保留）----
 paper/*.aux

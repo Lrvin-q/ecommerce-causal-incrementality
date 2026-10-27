@@ -179,10 +179,17 @@
     },
     {
       "kind": "e_log",
-      "source": "out/e_evidence_formal/run.log",
+      "source": "out/logs/e_r2_A_20261028_0112.log",
       "target": "outputs/evidence/e_evidence_rep0_a/run_constant.log",
-      "bytes": 2209,
-      "sha256": "6ac1ea950641e1bc42f1aa6c9c887f0a8ceb73ad35d5b53a244e1852b3b02332"
+      "bytes": 2597,
+      "sha256": "0a32c7f90cbedca1e7d9c2e527ea117a571577787efe0d03267d9f3021776f14"
+    },
+    {
+      "kind": "e_log",
+      "source": "out/logs/e_r2_B_20261028_0112.log",
+      "target": "outputs/evidence/e_evidence_rep0_b/run_cf.log",
+      "bytes": 2881,
+      "sha256": "dbf0001d7b9e6904cb61adf5697fc47e232bccf457a0580b7e0084c6e04ffd87"
     },
     {
       "kind": "e_frame",
@@ -310,7 +317,7 @@
       "note": "F02 **工程验证**单 rep（n=200 000，R=0）的身份文件，status=engineering_single_rep_not_formal_evidence，**不是**正式证据；正式证据在 outputs/evidence/f02_formal/（200 rep，登记号 F02-FORMAL-20261028-R200）。"
     }
   ],
-  "total_bytes": 15858444,
+  "total_bytes": 15861713,
   "registry_repairs": [
     {
       "at": "2026-10-28 02:38",
@@ -434,7 +441,15 @@
         }
       ],
       "reason": "27 号（D03 正式）与 30 号（F02 正式）脚本只写目录级 coverage.json、不刷顶层索引，导致 d03_formal / f02_n200k_rep0 的源码绑定与冻结清单在顶层不可发现（AGENTS §12.1）。按身份类 JSON 规则提升，提升前逐文件重算 sha256/bytes，提升后全表复算。"
+    },
+    {
+      "at": "2026-10-28 05:44",
+      "issue": "E 复审 N2：e_evidence_rep0_a/run_constant.log 导出的是 10-27 19:17 那次运行的日志（sha 6ac1ea95、2209 B），与 meta_constant.json 的 created_at=2026-10-28T01:12:03 矛盾；B 家族完全没有日志记录。",
+      "action": "用 out/logs/e_r2_A_20261028_0112.log 覆盖 A 的日志副本，并新增 B 的 run_cf.log（源 out/logs/e_r2_B_20261028_0112.log）；两个目录级 coverage.json 与顶层登记表同步。",
+      "consistency_check": "导出前断言日志首行 [E evidence HH:MM:SS] 与 meta.created_at 的时分秒逐字相同，不符即中止（A 01:12:03、B 01:35:26 均通过）。该断言目前只在本次修复中执行，尚未写进 scripts/24_e_evidence.py（该文件被 E 的 source_sha256 逐文件绑定，改它须重跑两家族），已登记为 F02 之后与 cfg.hash(64) 一并处理的待办。",
+      "records_after": 42,
+      "total_bytes_after": 15861713
     }
   ],
-  "last_refreshed_at": "2026-10-28T04:24:36+08:00"
+  "last_refreshed_at": "2026-10-28T05:44:00+08:00"
 }

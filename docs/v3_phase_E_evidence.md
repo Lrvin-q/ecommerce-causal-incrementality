@@ -1,9 +1,14 @@
 # E 阶段正文证据（E01 / E02）
 
-> **合成数据 / 已知 DGP。** 维护时间：**2026-10-28 02:46（北京时间）**。
+> **合成数据 / 已知 DGP。** 维护时间：**2026-10-28 05:46（北京时间）**（02:46 首版；05:46 按独立复审修正 5 处标签/口径陈述并重导出两家族运行日志）。
 > 数据来源：D03 正式 R 的代表 rep（`rep 0`，L1_main，n=200 000；test=60 000），
 > 由 `scripts/24_e_evidence.py --from-d03` 重建。
-> **状态：证据已生成，尚未独立评审；E01/E02 仍标"未证实"。**
+> **状态：独立评审 PASS WITH CONDITIONS（`docs/reviews/v3_phase_E_review.md`，6 P1）→ 主负责修复 →
+> 独立复审 PASS WITH CONDITIONS（2026-10-28 05:34，`docs/reviews/v3_phase_E_rereview.md`，0 P0 + 3 新 P1，
+> 无一需要重跑）。复审明确要求"4 项廉价修复落地之前不得转通过"；这 4 项已于 05:46 落地
+> （§6 真值 oracle 来源、§8.1 local swap 的两家族分别陈述、两家族运行日志重导出、
+> `v3_phase_E_coverage.md` 4 处过期陈述），但按 AGENTS §7.4，主负责不单方改状态，
+> **E01/E02 仍标"未证实"，待复审确认这三项新 P1 已关闭**。**
 > 本文只记录**单代表 rep** 的编排层证据，不是正式 R，也不替代评审结论。
 
 本文覆盖**同一个 rep 上的两条价值向量**，两者的差别本身就是证据的一部分：
@@ -181,8 +186,14 @@ E 链自身不是正式 R，不满足"R>0"的重复实验定义。
 ## 2. 成本模型校准（E01 成本预测）
 
 表：`outputs/tables/v3_phase_E_calibration.json`（A）与 `v3_phase_E_calibration_cf.json`（B）。
-**两者 40 个键里 39 个逐值相同**，唯一不同的是 `calibration_rows_path`（各自指向自己的目录），
-`calibration_rows_sha256` 也相同——校准只依赖成本预测与 validation 处理组的观测核销，与用哪条 τ̂ 无关。
+**两者 40 个键里 34 个逐值相同、6 个不同**（2026-10-28 05:40 复算）。6 个不同键全部是
+溯源 / 模型标签，**没有一个是校准统计量**：`calibration_rows_path`（各自指向自己的目录）、
+`frame_model`（constant / causal_forest）、`frame_model_is_chosen`（True / False）、
+`frame_model_is_chosen_in_full_fit`（True / False）、`tau_hat_nunique`（1 / 59 861）、
+`tau_hat_sd_cny`（1.1102e-16 / 0.78165）。`calibration_rows_sha256` 相同——校准只依赖成本预测
+与 validation 处理组的观测核销，与用哪条 τ̂ 无关。
+（原文写"39 个逐值相同、唯一不同的是 `calibration_rows_path`"，漏数了 5 个 provenance 键；
+"校准统计量与 τ̂ 无关"的结论不变。复审 P2。）
 （A 的这份 JSON 在 10-27 那版还缺 23 个 provenance / 二值观测键，重跑后补齐，**变化键为 0**，§1.3。）
 口径：validation 处理组 n=19 987 / 40 000，`calibration_basis=validation_observed_logs_only`。
 
@@ -368,7 +379,8 @@ LP 口径下的负值行（A 1 行、B 4 行）绝对量级 1e-11 元、相对�
 
 表：`v3_phase_E_random_long{,_cf}.csv`（各 1 600 行 = 8 档 × 200 种子）与
 `v3_phase_E_random_summary{,_cf}.csv`（各 8 行）。
-**A 与 B 的随机汇总表逐值相同**（B 多一列 `mean_value_per_actual_spend`）：随机名单不用 τ̂ 排序，
+**A 与 B 的随机汇总表 17 列同名同序、8×17 逐值相同**（05:40 复算；原文写"B 多一列
+`mean_value_per_actual_spend`"是错的，两表列集合完全一致，复审 P2）：随机名单不用 τ̂ 排序，
 所以它的真值分布与价值向量无关。这本身是一条一致性检查。
 
 | 每用户预算（元） | 随机均值（元/人） | 随机 sd | mean_se | q025 / q500 / q975 | 实际超支概率 | 平均实际支出（元） | 平均入选人数 |
@@ -416,9 +428,16 @@ LP 口径下的负值行（A 1 行、B 4 行）绝对量级 1e-11 元、相对�
 
 表：`v3_phase_E_decomposition{,_cf}.csv`（各 16 行 = 8 档 × 2 策略，pool=500）。
 **主口径是 `cost_hat` 基准**（与策略实际使用的预算口径一致）；`*_cny_per_user`（无后缀）列是
-按 raw `cost_true`（0/10 实现成本）的敏感性口径。两者的真值最优都来自
-`truth_milp_cost_basis=truth_cost_floored_at_cost_floor_cny`、status=`optimal`、
-`truth_feasible_under_original_cost=True`。
+按 raw `cost_true`（0/10 实现成本）的敏感性口径。**两个口径的真值最优都由分币精确 DP 求出**
+（`cent_exact_dp`：主口径喂 `cost_hat`、敏感性口径喂 raw `cost_true`，价值都用带符号分币的
+`tau_true`；`v3_policy_evidence.py:851-870`，其中 `:856-857` 的注释明写"策略预算只用 cost_hat；
+真值 oracle 必须同口径"）。表里的 `truth_milp_*` 列**不是真值最优的来源，只是审计复核**：
+MILP 求的是"把 0 成本抬到 `cost_floor` 之后的**收紧问题**"，它的 bound/incumbent 不是 raw truth
+问题的界，所以只能读 `truth_milp_status=optimal`、`truth_milp_relative_gap` 与
+`truth_feasible_under_original_cost=True`（源码注释 `:920-921` 明写这一点）。
+（原文写"两者的真值最优都来自 `truth_milp_cost_basis=…`"，把复核当成了来源；
+数值本身没错——A 的 0.98436@0.04、0.99284@0.10 已由复审独立复现，最大相对差 1.76e-16。
+初审 P1-2 残留 / 复审 N3，2026-10-28 05:40 改正。）
 
 主口径（`cost_hat`）学习误差，元/人：
 
@@ -558,8 +577,19 @@ raw `cost_true` 敏感性口径的学习误差：A 为 0.73162 / 0.88758 / 0.917
 | worst_case_face | greedy（A） | 12 000 | 1 200 | 930.00 | 0.000 | 0.000 | **0.003740** |
 | worst_case_face | greedy（B） | 12 000 | 1 200 | 1 640.00 | 0.000 | 0.000 | **0.023890** |
 
-`greedy_local_swap` 在本表的 24 个格子上与 `greedy` **完全相同**（A 与 B 都是），
-因为 0.20 档的交换没有可改进移动；§7.2 的分离发生在其他预算档与更大池上。
+`greedy_local_swap` 与 `greedy` 的对比**两家族不同，不能合并陈述**（24 格 = 3 口径 × 8 档；
+按 `selected_count_mean / predicted_cost_mean / actual_spend_mean / true_value_per_user_mean /
+overrun_probability` 五列逐格比对，2026-10-28 05:40 从两张落库表复算）：
+
+| 家族 | 五列全同的格子 | 差异明细 |
+|---|---|---|
+| A（`constant`） | **24/24** | 无——τ̂ 全等，交换没有可改进移动（§1.1 的退化） |
+| B（`causal_forest`） | 人数 24/24、超支概率 24/24；**预测成本 19/24、实际支出 21/24、真值 21/24** | 预测成本最大 \|差\| 0.107 元，差格 (`buffered_expected`, 0.04/0.2/0.3) + (`expected`, 0.1/0.4)；实际支出最大 \|差\| 10 元、真值最大 \|差\| 0.000303 元/人，差格同为 (`buffered_expected`, 0.04/0.3) + (`expected`, 0.4) |
+
+**这正是 P1-1 修复要证明的事**：只有在非退化的 τ̂ 上 local swap 才真的会动。
+"24 格全同"在 A 上是退化的数学必然，不能当成"贪心已贴最优"的证据；
+在 B 上它干脆是假的——原文写"A 与 B 都是完全相同"，复审 N1 指出、主负责 05:40 复算确认。
+（B 的交换在预测成本上可以更低、进而在实际支出与真值上分开；求解器层面的系统对照见 §7.2。）
 
 ### 8.2 全预算档的口径均值（8 档 × 3 策略）
 
@@ -631,10 +661,42 @@ raw `cost_true` 敏感性口径的学习误差：A 为 0.73162 / 0.88758 / 0.917
 | `outputs/tables/v3_phase_E_decomposition{,_cf}.csv` | 16 | 学习/求解误差分解（两种成本口径） |
 | `outputs/tables/v3_phase_E_conservative{,_cf}.csv` | 72 | 三种预算口径 |
 | `outputs/tables/v3_phase_E_scale{,_cf}.csv` | 96 | 1000 / 5000 / full_test × 8 档 × 4 求解器 |
-| `outputs/tables/v3_phase_E_calibration{,_cf}.json` | — | validation 处理组成本校准（两版本各 40 键，39 键逐值相同，均含相对基准与 provenance） |
+| `outputs/tables/v3_phase_E_calibration{,_cf}.json` | — | validation 处理组成本校准（两版本各 40 键，**34 键逐值相同、6 个溯源/模型标签键不同，校准统计量全同**；均含相对基准与 provenance） |
 | `outputs/tables/v3_phase_E_evidence_meta{,_cf}.json` | — | 来源、哈希、耗时、实际使用的池/桶宽/种子 |
 | `outputs/evidence/e_evidence_rep0_a/coverage.json` | — | A 的证据副本登记（sha256 / 行数 / 排除项） |
 | `outputs/evidence/e_evidence_rep0_b/coverage.json` | — | B 的证据副本登记（同上） |
+| `outputs/evidence/e_evidence_rep0_a/run_constant.log` | — | **A 的运行日志**（源 `out/logs/e_r2_A_20261028_0112.log`，2 597 B，sha `0a32c7f9…`）。05:44 重导出 |
+| `outputs/evidence/e_evidence_rep0_b/run_cf.log` | — | **B 的运行日志**（源 `out/logs/e_r2_B_20261028_0112.log`，2 881 B，sha `dbf0001d…`）。05:44 新增（此前 B 无日志记录） |
+
+**运行日志重导出（2026-10-28 05:44，复审 N2）**：A 原先导出的 `run_constant.log`
+（2 209 B、sha `6ac1ea95…`、mtime 10-27 19:42）**是 19:17 那次被取代运行的日志**，
+与 `meta_constant.json` 的 `created_at=2026-10-28T01:12:03` 直接矛盾；B 则完全没有日志记录。
+两者都会让"仅凭 `outputs/evidence/` 可审计"失效（AGENTS §12.1），因为 `out/logs/` 不入库。
+
+导出前加了一条**日志↔meta 时间戳一致性断言**：日志首行必须形如 `[E evidence HH:MM:SS]`，
+且该时分秒必须与同家族 meta 的 `created_at` 逐字相同，不符即中止。本次 A `01:12:03`、
+B `01:35:26` 均通过；被替换掉的那份旧日志正是这条断言会拦下的形态。
+两级 `coverage.json` 与顶层登记表已同步（顶层 41 → **42** 条记录、`total_bytes`
+15 858 444 → **15 861 713**，`registry_repairs` 追加第 4 条），并对 **65 条记录全表复算**
+（文件存在 + bytes + sha256），0 条不符。
+
+> **该断言目前只在这次修复里执行过，还没进 `scripts/24_e_evidence.py`。**
+> 原因：script 24 被 E 的 `source_sha256` 逐文件绑定，改它就必须重跑两家族（约 50 min/家族）
+> 才能让文档哈希与 live 文件一致，而重跑是数据作业、不得与 F02 正式运行并行（AGENTS §11.2）。
+> 已登记为 F02 合并之后与 `cfg.hash(64)` 补充绑定一并处理的待办（TODO.md「合并后待做」）。
+
+**同一次修复里暴露的第二个口子（05:52）**：`.gitignore:50` 的 `*.log` 是全局规则，
+**连 `outputs/evidence/` 里的日志一起吞**。也就是说这两份运行日志**从来没有进过仓库**——
+登记表为它们记了 sha256，仓库里却没有对应文件，新克隆上做全表复算必然失败。
+这直接违反 §12.1"只用 `outputs/evidence/` 就能重建"，也解释了错源日志为什么能放几个小时没人发现：
+**它从来不出现在任何 git diff 里**。已在 `.gitignore` 加 `!/outputs/evidence/**/*.log`
+并把两份日志（共 5 478 B）入库。
+
+更深一层：05:44 那次"65 条记录全表复算 0 不符"是**在工作树上**做的，
+它证明"磁盘上的文件与登记表一致"，**不证明"仓库里的文件与登记表一致"**。
+绿灯的检查不等于检查了该检查的东西。永久修法是让登记表校验除 sha256 / bytes 之外
+再加一条 `git ls-files --error-unmatch`（或显式声明"此件不入库及原因"），
+已并入 TODO「合并后待做 ⑥」的范围。
 
 复现命令：
 

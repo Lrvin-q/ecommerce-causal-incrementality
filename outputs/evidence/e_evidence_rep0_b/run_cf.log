@@ -1,0 +1,39 @@
+[E evidence 01:35:26] 重建 D03 rep=0 scenario=L1_main n=200000 （模型 ['constant', 't_learner', 's_learner', 'causal_forest', 'dr_learner']，约数分钟）
+[E evidence 01:39:56] D03 重建完成：chosen=constant（full_model_fit，拟合 ['causal_forest', 'constant', 'dr_learner', 's_learner', 't_learner']），test=60000，269.5s
+[E evidence 01:39:56] 帧价值向量：model=causal_forest（chosen=constant），unique=59861 sd=0.781647
+[E evidence 01:39:57] wrote out/e_evidence_formal_cf/calibration_validation_treated_cf.csv (19987 rows)
+[E evidence 01:39:57] wrote out/e_evidence_formal_cf/frame_rep0_cf.csv (60000 rows)
+[E evidence 01:39:57] 帧 60000 行；预算 [0.04, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1.0]；chosen=constant
+[E evidence 01:39:57] 小池求解器互证：pools=[20, 100, 500]
+[E evidence 01:40:00] wrote outputs/tables/v3_phase_E_small_pool_cf.csv (128 rows)
+[E evidence 01:40:00] 桶宽收敛：pool=500 widths=config
+[E evidence 01:40:01] wrote outputs/tables/v3_phase_E_bucket_convergence_cf.csv (48 rows)
+[E evidence 01:40:01] 随机基线：budgets=8 seeds=config
+[E evidence 01:40:46] wrote outputs/tables/v3_phase_E_random_long_cf.csv (1600 rows)
+[E evidence 01:40:46] wrote outputs/tables/v3_phase_E_random_summary_cf.csv (8 rows)
+[E evidence 01:40:46] 误差分解：pool=500
+[E evidence 01:40:47] wrote outputs/tables/v3_phase_E_decomposition_cf.csv (16 rows)
+[E evidence 01:40:47] 三种预算口径：expected / buffered / worst-case face
+[E evidence 01:42:55] wrote outputs/tables/v3_phase_E_conservative_cf.csv (72 rows)
+[E evidence 01:42:55] 规模扫描：pools=[1000, 5000, 'full_test'] budgets=[0.04, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1.0]
+[E evidence 02:04:28] wrote outputs/tables/v3_phase_E_scale_cf.csv (96 rows)
+[E evidence 02:04:28] wrote outputs/tables/v3_phase_E_calibration_cf.json
+[E evidence 02:04:28] wrote outputs/tables/v3_phase_E_evidence_meta_cf.json
+[E evidence 02:04:29] wrote outputs/evidence/e_evidence_rep0_b/coverage.json
+[E evidence 02:04:29] 更新顶层 coverage.json：11 条 E 记录
+[E evidence 02:04:29] 证据包：outputs/evidence/e_evidence_rep0_b/coverage.json
+[E evidence 02:04:29] 完成：8 个产物；总耗时 1470.8s
+{
+  "meta": "outputs/tables/v3_phase_E_evidence_meta_cf.json",
+  "outputs": {
+    "small_pool": "outputs/tables/v3_phase_E_small_pool_cf.csv",
+    "bucket_convergence": "outputs/tables/v3_phase_E_bucket_convergence_cf.csv",
+    "random_long": "outputs/tables/v3_phase_E_random_long_cf.csv",
+    "random_summary": "outputs/tables/v3_phase_E_random_summary_cf.csv",
+    "decomposition": "outputs/tables/v3_phase_E_decomposition_cf.csv",
+    "conservative": "outputs/tables/v3_phase_E_conservative_cf.csv",
+    "scale": "outputs/tables/v3_phase_E_scale_cf.csv",
+    "calibration": "outputs/tables/v3_phase_E_calibration_cf.json"
+  }
+}
+exit=0

@@ -80,9 +80,16 @@
       "target": "outputs/evidence/e_evidence_rep0_b/meta_cf.json",
       "bytes": 4687,
       "sha256": "83a26528c69286b0028021ec06b85c0622f65a623afd04207a110c243f77da0b"
+    },
+    {
+      "kind": "e_log",
+      "source": "out/logs/e_r2_B_20261028_0112.log",
+      "target": "outputs/evidence/e_evidence_rep0_b/run_cf.log",
+      "bytes": 2881,
+      "sha256": "dbf0001d7b9e6904cb61adf5697fc47e232bccf457a0580b7e0084c6e04ffd87"
     }
   ],
-  "total_bytes": 6979358,
+  "total_bytes": 6982239,
   "excluded": [
     {
       "path": "D03 全链路中间产物",

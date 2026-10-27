@@ -15,7 +15,7 @@
 | C 五表/SQL/隔离 | 通过 | `outputs/v3/data_validation/approval.json` |
 | **D02** | **通过（09:45）**，走完「评审判定 → 修复 → 独立复核 PASS」三环 | `docs/v3_phase_D_aa_formal.md` §8；`docs/reviews/v3_phase_D_recheck.md` |
 | D01 | **未证实**：20pilot 三粒度实测与资源计划未做 | — |
-| **D03** | **未证实**：provisional 导出已通（11:30）；**20 rep 诊断完成（12:00，非正式 R）**——选模在 5 个模型间切换（constant 9/20、causal_forest 4/20、dr/s 各 3/20、t 1/20），除 causal_forest 外个体校准斜率中位数 0.02–0.18；0.20 档选模后悔值 −0.101 元/人（事后上界） | `docs/v3_phase_D03_diagnostic.md`；`outputs/tables/v3_phase_D03_diagnostic_{per_rep,policy_grid,summary}`；provisional 元信息 `v3_phase_D03_predictions_provisional_meta.json`；设计 §14 |
+| **D03** | **通过（2026-10-28 05:15 独立复审 PASS）**，走完「评审判定（10-27 20:53 PASS WITH CONDITIONS）→ 修复（P0-1 + P1-1~P1-6，21:02）→ 独立复核 PASS」三环；程序豁免经用户 01:10 批准；复审另提 4 项 P2（全为标签/分母问题、无算术错）已当场修正。**证据是正式 R = 200 rep × n=200 000（12:54–17:14）**：选模 105/71/12/7/5，校准斜率 CF 0.754 / S 0.467 / T 0.114 / DR 0.098，greedy−business 按模型符号分裂。此前的 20 rep 诊断（选模 constant 9/20、cf 4/20、dr/s 各 3/20、t 1/20；0.20 档选模后悔 −0.101 元/人）**只是诊断口径，不是通过依据** | `docs/v3_phase_D03_formal.md`（含 §11 评审闭环、§11.2 复审）；`docs/reviews/v3_phase_D03_review.md`；`docs/reviews/v3_phase_D03_rereview.md`；`outputs/tables/v3_phase_D03_formal_*`（7 表 + meta）；`outputs/evidence/d03_formal/`（15 文件，83/83 快照绑定） |
 | D04 装载优化 | 实现通过，调用点已切换 | `docs/v3_phase_D_loader_switch.md` |
 | E 组件层 | 完成，41 项测试绿 | `src/causal_growth/policy/v3_policy.py`；`docs/v3_phase_E_coverage.md` |
 | E 编排层 | 已抽成 `v3_policy_grid.py`，跑通三次：合成数据、真实 D.3 provisional、**20 rep × 5 模型配对网格（7 200 行）** | `scripts/21_e_policy_run.py`；`outputs/tables/v3_phase_D03_diagnostic_policy_grid.csv` |

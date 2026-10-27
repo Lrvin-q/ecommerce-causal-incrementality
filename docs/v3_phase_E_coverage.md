@@ -1,6 +1,6 @@
 # Phase E 配置覆盖矩阵
 
-> 合成数据 / 已知 DGP。维护时间：**2026-10-27 19:50（北京时间）**。
+> 合成数据 / 已知 DGP。维护时间：**2026-10-28 05:48（北京时间）**（19:50 首版；05:48 按 E 独立复审修正 4 处过期陈述：小池表的家族归属、19:17 运行已被 01:12 / 01:35 两家族取代、"local swap 24/24 完全相同"只在 A 成立、评审状态）。
 > 目的：把 `configs/v3/policy.yaml` 的**每一个键**与实现逐条对上，暴露"配了但没实现"
 > 或"实现了但没测"的缺口。这是 E 阶段的自查表，不是成绩单——缺口必须留在表上。
 
@@ -76,7 +76,7 @@
 | `small_exact.algorithms`（5 个） | 全部实现 | ✅ |
 | `small_exact.cost_integerization: decimal_half_up_to_cent` | `cent_exact_dp` 接收整数分 | ✅ |
 | `small_exact.exactness_claim_target` | 文档与 docstring 明确"仅整数化问题" | ✅ |
-| `small_exact.pool_sizes` | 20 / 100 / 500 | ✅ `v3_phase_E_small_pool.csv` 128 行 |
+| `small_exact.pool_sizes` | 20 / 100 / 500 | ✅ **有效证据是 B 家族** `v3_phase_E_small_pool_cf.csv` 128 行（01:40）。A 家族**无有效小池表**：`v3_phase_E_small_pool.csv`（128 行、10-27 **19:23**）是加退化守卫**之前**那次运行的产物，已被 A 的证据包显式排除并标 `stale_pre_guard`——τ̂ 全等时 5 个求解器必然同解，留着会被当成"互证"（初审 P1-1） |
 | `bucket_convergence`（5 档宽度） | `bucket_convergence_table`（近似桶 DP + 原成本复核回退） | ✅ `v3_phase_E_bucket_convergence.csv` 48 行；**阈值仍由评审看曲线后定** |
 | `large.algorithms` | greedy / local_swap / MILP / LP 全有 | ✅ |
 | `large.milp_time_limit_seconds: 60` | `milp_select` 参数 | ✅ |
@@ -135,11 +135,27 @@
 G 阶段必须每 rep 补 LP 上界，否则不能声称"规模对照已覆盖所有全额 rep"。
 **2026-10-27 19:50（北京时间）更新**：E 证据链已用 D03 正式 rep 0 跑完
 （19:17:51–19:42:28，9 个产物齐），正文见 `docs/v3_phase_E_evidence.md`。
-**E01/E02 仍标"未证实"**，等待独立评审，不因"表已生成"改状态。
+~~**E01/E02 仍标"未证实"**，等待独立评审，不因"表已生成"改状态。~~
+
+**2026-10-28 05:48（北京时间）更新**：上面那次 19:17 运行**已被取代**——A（`constant`）于
+01:12:03–01:35:23、B（`causal_forest`）于 01:35:26–02:04:28 按当前源码各重跑一次
+（两家族同 `git_commit=e0048100…`、`source_sha256` 逐值相同 ⇒ AGENTS §12.6 的跨版本配对缺陷已消除），
+证据在 `outputs/evidence/e_evidence_rep0_{a,b}/`。评审状态：独立评审 PASS WITH CONDITIONS（6 P1）
+→ 主负责修复 → **独立复审 PASS WITH CONDITIONS（05:34，0 P0 + 3 新 P1，无一需要重跑）**。
+3 项新 P1 的修复已于 05:46 落地，但按 AGENTS §7.4 主负责不单方改状态：
+**E01/E02 仍标"未证实"，待复审确认新 P1 已关闭**，不因"表已生成"改状态。
 
 - **规模扫描**（96 行）暴露：60 000 人池 8 档预算中 7 档 `time_limit_no_incumbent`
   （60 s 时限、墙钟 86.8–103.7 s）；唯一 `optimal` 是"全选"的 1.00 档。
   启发式始终贴 LP 上界 0.8% 以内，`greedy_local_swap` 与贪心 24/24 格完全相同。
+  **（05:48 追注）上一条只对 A 家族成立**：A 的 24 格（3 池 × 8 档）在 `n_selected` /
+  `predicted_value_cny` / `predicted_cost_cny` / `lp_upper_bound_cny` / `true_value_per_user` /
+  `actual_spend_cny` / `true_value_per_actual_spend` 七列上逐格相同（只有墙钟 `seconds` 不同，那不是结果）。
+  **B（非退化 τ̂）上 local swap 确实会动**：`predicted_value_cny` 与 `predicted_cost_cny` 各
+  **11/24** 格不同（最大 |差| 0.300311 / 0.164791 元），`true_value_per_user` 与
+  `true_value_per_actual_spend` 各 **5/24**（最大 0.029170 / 0.057792），`actual_spend_cny` **2/24**
+  （最大 10 元）；`n_selected` 与 `lp_upper_bound_cny` 仍 24/24 相同。这正是 P1-1 修复要显示的分离，
+  **不能把 A 的退化结果写成一般结论**（复审 N1 同类问题在正文 §8.1 也已分别陈述）。
 - **契约补强**：`small_pool_solver_table` 原先对 `time_limit_no_incumbent` 会走空 mask，
   产出 0 花费/0 价值的"合法空名单"假象；2026-10-27 19:45 改为整行写 NaN，
   由 `test_small_pool_no_incumbent_rows_are_nan_not_zero` 锁定。规模表原本已是 NaN。
