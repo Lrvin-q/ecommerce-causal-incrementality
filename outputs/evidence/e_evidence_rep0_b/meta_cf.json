@@ -1,0 +1,124 @@
+{
+  "phase": "E_evidence",
+  "status": "evidence_not_formal_R",
+  "created_at": "2026-10-28T01:35:26+08:00",
+  "finished_at": "2026-10-28T02:04:28+08:00",
+  "source": "d03:L1_main:n=200000:rep=0",
+  "scenario": "L1_main",
+  "n_rows": 60000,
+  "rep_id": 0,
+  "chosen_model": "constant",
+  "chosen_model_provenance": "full_model_fit",
+  "models_fitted": [
+    "causal_forest",
+    "constant",
+    "dr_learner",
+    "s_learner",
+    "t_learner"
+  ],
+  "model_fit_restricted": false,
+  "frame_model": "causal_forest",
+  "frame_model_is_chosen": false,
+  "frame_model_is_chosen_in_full_fit": false,
+  "tau_hat_nunique": 59861,
+  "tau_hat_sd_cny": 0.7816467079081016,
+  "frame_path": "out/e_evidence_formal_cf/frame_rep0_cf.csv",
+  "frame_file_sha256": "81866efa463de910e26bfae2d06b9f0f9e4a0f31d8b9a5f07541ec279c665ad2",
+  "frame_dataframe_sha256": "70a1143e305ed01596a498af51f2d5a94840e65807ad70db611f1a69fb5d42df",
+  "frame_dataframe_columns": [
+    "user_id",
+    "is_new",
+    "cart_value",
+    "purchase_propensity",
+    "predicted_profit",
+    "tau_hat",
+    "cost_hat",
+    "tau_true",
+    "cost_true"
+  ],
+  "git_commit": "e0048100233b4c6df5cef1931eda0c2704e63815",
+  "source_sha256": {
+    "src/causal_growth/estimate/v3_models.py": "7de5a364a596cc6dffdc49da970f8934f3997799ee512fa2ca35b7e5b60ae947",
+    "src/causal_growth/policy/v3_policy.py": "ba058f9bbda3cdaaaa7143ea5a00caba62b3f917d400ab4073ecf67c80c72f16",
+    "src/causal_growth/policy/v3_policy_grid.py": "53205262eb20e46fc4c753009be25c4fa467d6afe0d4da661f951523cf65e2bb",
+    "src/causal_growth/policy/v3_policy_evidence.py": "ca29cdbcc57728e134ec284b2ecaf169d0f83f2fb116da2143cca139d4bd8051",
+    "scripts/24_e_evidence.py": "6453db227c0349c0bf4583e730ae318c39eba5aef50a1a9740779c0deeba55cf"
+  },
+  "protocol_config_hash": "30511a32bcee9db55e8f5ec1bbc2b9d63eb63dc2a13aa5c720f948c781eccdbe",
+  "protocol_source_hashes": {
+    "business.yaml": "d1259d2342aba1a4cdcaca5c0de6e4914c8a55b315a80af7c0923757d1ba0e0a",
+    "design.yaml": "d2fd51a1156457257cf7977b32bd5aeb1c9745a10e528d029a877ef1b531fa99",
+    "models.yaml": "19ce3bf5a338ea0e055e3ba0ff676054e8926dde7ce44409ca7699443361bdf2",
+    "policy.yaml": "57ff5721de12af0cc285bb235f320fd7047a06837dc5f2ac00e228690d36958a",
+    "evaluation.yaml": "5f6dfcb2c700bc72831efb1ff94b3b2137bc8dd9680b862981c4b2755c3241d1",
+    "execution.yaml": "dc1c8e9ab147e58d95e1367c2abcd90ba02acf05ca27da11e3dfb84da8631733",
+    "scenarios.yaml": "29a158b046cb91661f2327cc5acbc1dc868a57c17dc0783cfe9d6d41058e9ddb"
+  },
+  "d03_snapshot_combined_sha256": "be0d48f4a10dcafd4ae747a79092f6c1cef635ae862474b33905ce3d611d47fe",
+  "budgets_cny_per_user": [
+    0.04,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.6,
+    0.8,
+    1.0
+  ],
+  "seed_offset": 0,
+  "small_pools_used": [
+    20,
+    100,
+    500
+  ],
+  "bucket_widths_used_cny": [
+    1.0,
+    0.5,
+    0.1,
+    0.05,
+    0.01
+  ],
+  "random_seeds_used": 200,
+  "scale_pools_used": [
+    1000,
+    5000,
+    "full_test"
+  ],
+  "scale_budgets_cny_per_user": [
+    0.04,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.6,
+    0.8,
+    1.0
+  ],
+  "timings_seconds": {
+    "small_pool": 2.999,
+    "bucket": 0.897,
+    "random": 44.721,
+    "decomposition": 1.141,
+    "conservative": 127.61,
+    "scale": 1293.447
+  },
+  "outputs": {
+    "small_pool": "outputs/tables/v3_phase_E_small_pool_cf.csv",
+    "bucket_convergence": "outputs/tables/v3_phase_E_bucket_convergence_cf.csv",
+    "random_long": "outputs/tables/v3_phase_E_random_long_cf.csv",
+    "random_summary": "outputs/tables/v3_phase_E_random_summary_cf.csv",
+    "decomposition": "outputs/tables/v3_phase_E_decomposition_cf.csv",
+    "conservative": "outputs/tables/v3_phase_E_conservative_cf.csv",
+    "scale": "outputs/tables/v3_phase_E_scale_cf.csv",
+    "calibration": "outputs/tables/v3_phase_E_calibration_cf.json"
+  },
+  "notes": [
+    "小池/桶宽/误差分解的预算是 per_user_budget × pool_size，不是全量预算。",
+    "分币 DP 的精确性只对分币整数化问题成立；MILP 只有 gap=0 才可说最优。",
+    "LP 是上界，不是可行策略。",
+    "桶宽收敛只出曲线，未设通过阈值。",
+    "误差分解主口径是 cost_hat（与策略预算一致）；raw cost_true 是 0/10 实现成本敏感性。",
+    "observed_value 需观测结局与 OPE，属 F 阶段；本表只给 DGP 真值审计值。",
+    "frame_model_is_chosen_in_full_fit=True 才表示帧价值向量就是 D03 全模型拟合选中的模型；为 False 时该帧是被强制指定的替代价值向量（敏感性），不是选模结果。"
+  ]
+}

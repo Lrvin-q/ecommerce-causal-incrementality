@@ -91,21 +91,253 @@
     },
     {
       "kind": "f01_freeze",
-      "source": "out/f01_ope/freeze.json",
+      "source": "out/f01_ope_formal_20261028_0253/freeze.json",
       "target": "outputs/evidence/f01_ope/freeze.json",
       "bytes": 12151,
-      "sha256": "e2c8e5cbd5cc18392f1dbfa150312ae10a11148084efc94fb89a0dd81be4f04c",
+      "sha256": "9973376bbddf4719e9eddbf868b736d446cb1f3b73a3306cdc51b4ef4b69bcde",
       "note": "F01 冻结清单：策略掩码/用户顺序/设计概率/预算/源码与配置哈希；只含选人与审计前材料",
-      "freeze_id": "3ab44dcb0bba0c0b89b665a2964f2a08fd89cb3db911580cd93bffd266288fd7"
+      "freeze_id": "b8402f30d82c96af4c0809d25522635c022988fdd817c9956a4ab445706d66f9",
+      "created_at_in_file": "2026-10-28T02:57:03+08:00"
     },
     {
       "kind": "f01_meta",
-      "source": "out/f01_ope/meta.json",
+      "source": "out/f01_ope_formal_20261028_0253/meta.json",
       "target": "outputs/evidence/f01_ope/meta.json",
-      "bytes": 15084,
-      "sha256": "939fae1ccc34954806562759af5631823fa669dda4af3cae2bf01c8f0cab9947",
+      "bytes": 17335,
+      "sha256": "1c89ca9f0b581f06e795fb1f9a57dfeb56434430593951e4673b58c70dea3ec9",
       "note": "F01 单 rep（R=0）运行元数据：表哈希、门禁、nuisance 哈希与时间；formal_repetitions=0"
+    },
+    {
+      "kind": "e_frame",
+      "source": "out/e_evidence_formal/frame_rep0.csv",
+      "target": "outputs/evidence/e_evidence_rep0_a/frame_rep0_constant.csv",
+      "bytes": 6093781,
+      "sha256": "c8fd698ed05b47a62f0bc21883ef3520821fc3e66e14893fc0cf7665b69c54e0"
+    },
+    {
+      "kind": "e_calibration_rows",
+      "source": "out/e_evidence_formal/calibration_validation_treated.csv",
+      "target": "outputs/evidence/e_evidence_rep0_a/calibration_validation_treated_constant.csv",
+      "bytes": 608786,
+      "sha256": "906a5f77b4fb54a59a2250c6db8d36415f86965c2c2bccdf6868fce4f331871b"
+    },
+    {
+      "kind": "e_bucket_convergence",
+      "source": "outputs/tables/v3_phase_E_bucket_convergence.csv",
+      "target": "outputs/evidence/e_evidence_rep0_a/v3_phase_E_bucket_convergence.csv",
+      "bytes": 7848,
+      "sha256": "88141663bd2fe0b212fdd3dd16a759fef6da5e207ee381f093682bfcb191ca55"
+    },
+    {
+      "kind": "e_random_long",
+      "source": "outputs/tables/v3_phase_E_random_long.csv",
+      "target": "outputs/evidence/e_evidence_rep0_a/v3_phase_E_random_long.csv",
+      "bytes": 208871,
+      "sha256": "c29ce1cf4709a694fde688bd99c66bb24ed9da6390a1443535f5434770647632"
+    },
+    {
+      "kind": "e_random_summary",
+      "source": "outputs/tables/v3_phase_E_random_summary.csv",
+      "target": "outputs/evidence/e_evidence_rep0_a/v3_phase_E_random_summary.csv",
+      "bytes": 2522,
+      "sha256": "799fa9598213e0df8810b85c67b5e7c4d2052334fd76ca836044344cacbb7c50"
+    },
+    {
+      "kind": "e_decomposition",
+      "source": "outputs/tables/v3_phase_E_decomposition.csv",
+      "target": "outputs/evidence/e_evidence_rep0_a/v3_phase_E_decomposition.csv",
+      "bytes": 7310,
+      "sha256": "a963372191eb889716385163b4c531fe1283ab0a6c9104904e3108e1b60177dc"
+    },
+    {
+      "kind": "e_conservative",
+      "source": "outputs/tables/v3_phase_E_conservative.csv",
+      "target": "outputs/evidence/e_evidence_rep0_a/v3_phase_E_conservative.csv",
+      "bytes": 18104,
+      "sha256": "8f64c9079d06622b299817ded4f6490da53de300420a6899fba59cbf307b0b16"
+    },
+    {
+      "kind": "e_scale",
+      "source": "outputs/tables/v3_phase_E_scale.csv",
+      "target": "outputs/evidence/e_evidence_rep0_a/v3_phase_E_scale.csv",
+      "bytes": 18034,
+      "sha256": "9973112ff968411286212a0175ef6d49d1f4785636bf2ed40499ac695478cba3"
+    },
+    {
+      "kind": "e_calibration",
+      "source": "outputs/tables/v3_phase_E_calibration.json",
+      "target": "outputs/evidence/e_evidence_rep0_a/v3_phase_E_calibration.json",
+      "bytes": 2053,
+      "sha256": "42532c7c1f64592984dda3a7c37002ac29f921525a5c33db34a256825120ef52"
+    },
+    {
+      "kind": "e_meta",
+      "source": "outputs/tables/v3_phase_E_evidence_meta.json",
+      "target": "outputs/evidence/e_evidence_rep0_a/meta_constant.json",
+      "bytes": 4531,
+      "sha256": "24d625bbb513c27fd135ed2e6692035df7075d12974d6aad42c4d63ed737fc34"
+    },
+    {
+      "kind": "e_log",
+      "source": "out/e_evidence_formal/run.log",
+      "target": "outputs/evidence/e_evidence_rep0_a/run_constant.log",
+      "bytes": 2209,
+      "sha256": "6ac1ea950641e1bc42f1aa6c9c887f0a8ceb73ad35d5b53a244e1852b3b02332"
+    },
+    {
+      "kind": "e_frame",
+      "source": "out/e_evidence_formal_cf/frame_rep0_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/frame_rep0_cf.csv",
+      "bytes": 6076743,
+      "sha256": "81866efa463de910e26bfae2d06b9f0f9e4a0f31d8b9a5f07541ec279c665ad2"
+    },
+    {
+      "kind": "e_calibration_rows",
+      "source": "out/e_evidence_formal_cf/calibration_validation_treated_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/calibration_validation_treated_cf.csv",
+      "bytes": 608786,
+      "sha256": "906a5f77b4fb54a59a2250c6db8d36415f86965c2c2bccdf6868fce4f331871b"
+    },
+    {
+      "kind": "e_small_pool",
+      "source": "outputs/tables/v3_phase_E_small_pool_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_small_pool_cf.csv",
+      "bytes": 23508,
+      "sha256": "1f652cff6e3035da3aef389e40cdb427e5cd3f72bc0b39748f3555ed7f7a37fa"
+    },
+    {
+      "kind": "e_bucket_convergence",
+      "source": "outputs/tables/v3_phase_E_bucket_convergence_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_bucket_convergence_cf.csv",
+      "bytes": 8933,
+      "sha256": "9845e737414bab7b86e1acc462e68f2c2eec5a3ae0cd6bc1654c840a05354c42"
+    },
+    {
+      "kind": "e_random_long",
+      "source": "outputs/tables/v3_phase_E_random_long_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_random_long_cf.csv",
+      "bytes": 208871,
+      "sha256": "c29ce1cf4709a694fde688bd99c66bb24ed9da6390a1443535f5434770647632"
+    },
+    {
+      "kind": "e_random_summary",
+      "source": "outputs/tables/v3_phase_E_random_summary_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_random_summary_cf.csv",
+      "bytes": 2522,
+      "sha256": "799fa9598213e0df8810b85c67b5e7c4d2052334fd76ca836044344cacbb7c50"
+    },
+    {
+      "kind": "e_decomposition",
+      "source": "outputs/tables/v3_phase_E_decomposition_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_decomposition_cf.csv",
+      "bytes": 7763,
+      "sha256": "cf7eb4aae7c828005f9477a3d9f2b095fd79b00feb55647ce9c6aa19c42d2cbf"
+    },
+    {
+      "kind": "e_conservative",
+      "source": "outputs/tables/v3_phase_E_conservative_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_conservative_cf.csv",
+      "bytes": 17738,
+      "sha256": "550445d60c0233c8ba842c98e0cd55496b7a1e9c579e51a2e64adf0b57e165f0"
+    },
+    {
+      "kind": "e_scale",
+      "source": "outputs/tables/v3_phase_E_scale_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_scale_cf.csv",
+      "bytes": 17741,
+      "sha256": "4fad285b2fa8de25950e9d432b23a8534d39489888c93f6039261c46c412895a"
+    },
+    {
+      "kind": "e_calibration",
+      "source": "outputs/tables/v3_phase_E_calibration_cf.json",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_calibration_cf.json",
+      "bytes": 2066,
+      "sha256": "2ac0c68478ccf155a5a31dbc5eca84a2093a1c684d0f0d70164a88cc1ecdffce"
+    },
+    {
+      "kind": "e_meta",
+      "source": "outputs/tables/v3_phase_E_evidence_meta_cf.json",
+      "target": "outputs/evidence/e_evidence_rep0_b/meta_cf.json",
+      "bytes": 4687,
+      "sha256": "83a26528c69286b0028021ec06b85c0622f65a623afd04207a110c243f77da0b"
     }
   ],
-  "total_bytes": 1855700
+  "total_bytes": 15811358,
+  "registry_repairs": [
+    {
+      "at": "2026-10-28 02:38",
+      "dropped_missing_target": [
+        "outputs/evidence/e_evidence_rep0/frame_rep0_cf.csv",
+        "outputs/evidence/e_evidence_rep0/calibration_validation_treated_cf.csv",
+        "outputs/evidence/e_evidence_rep0/v3_phase_E_small_pool_cf.csv",
+        "outputs/evidence/e_evidence_rep0/v3_phase_E_bucket_convergence_cf.csv",
+        "outputs/evidence/e_evidence_rep0/v3_phase_E_random_long_cf.csv",
+        "outputs/evidence/e_evidence_rep0/v3_phase_E_random_summary_cf.csv",
+        "outputs/evidence/e_evidence_rep0/v3_phase_E_decomposition_cf.csv",
+        "outputs/evidence/e_evidence_rep0/v3_phase_E_conservative_cf.csv",
+        "outputs/evidence/e_evidence_rep0/v3_phase_E_scale_cf.csv",
+        "outputs/evidence/e_evidence_rep0/v3_phase_E_calibration_cf.json",
+        "outputs/evidence/e_evidence_rep0/meta_cf.json"
+      ],
+      "refreshed": [
+        {
+          "target": "outputs/evidence/f01_ope/freeze.json",
+          "old_sha256": "e2c8e5cbd5cc18392f1dbfa150312ae10a11148084efc94fb89a0dd81be4f04c",
+          "old_bytes": 12151,
+          "new_sha256": "19af2dbd1580189b2894b3f85f49e1955e76a3d2a909df4fb83815a466ce037a",
+          "new_bytes": 12151
+        },
+        {
+          "target": "outputs/evidence/f01_ope/meta.json",
+          "old_sha256": "939fae1ccc34954806562759af5631823fa669dda4af3cae2bf01c8f0cab9947",
+          "old_bytes": 15084,
+          "new_sha256": "b1a5b178d60054d89a3173348e8809f0da98d0186c9f04c4b066e6b63b1a3a7b",
+          "new_bytes": 17333
+        },
+        {
+          "target": "outputs/evidence/f01_ope/freeze.json",
+          "field": "freeze_id",
+          "old": "3ab44dcb0bba0c0b89b665a2964f2a08fd89cb3db911580cd93bffd266288fd7",
+          "new": "bfb26807b9972685e467b863b11a0c30ca9cc76c398fd4ec62b9d2436d418614"
+        }
+      ],
+      "records_before": 46,
+      "records_after": 35,
+      "total_bytes_before": 22788510,
+      "total_bytes_after": 15811356,
+      "reason": "24 号脚本的顶层合并只清理自身前缀，e_evidence_rep0/ 的旧记录长期滞留；31 号脚本只写目录级 coverage.json，F01 于 2026-10-28 00:47/00:49 重新导出后顶层登记的 freeze.json/meta.json 哈希未跟随更新"
+    },
+    {
+      "at": "2026-10-28 03:06",
+      "dropped_missing_target": [],
+      "refreshed": [
+        {
+          "target": "outputs/evidence/f01_ope/freeze.json",
+          "old_sha256": "19af2dbd1580189b2894b3f85f49e1955e76a3d2a909df4fb83815a466ce037a",
+          "old_bytes": 12151,
+          "new_sha256": "9973376bbddf4719e9eddbf868b736d446cb1f3b73a3306cdc51b4ef4b69bcde",
+          "new_bytes": 12151
+        },
+        {
+          "target": "outputs/evidence/f01_ope/meta.json",
+          "old_sha256": "b1a5b178d60054d89a3173348e8809f0da98d0186c9f04c4b066e6b63b1a3a7b",
+          "old_bytes": 17333,
+          "new_sha256": "1c89ca9f0b581f06e795fb1f9a57dfeb56434430593951e4673b58c70dea3ec9",
+          "new_bytes": 17335
+        },
+        {
+          "target": "outputs/evidence/f01_ope/freeze.json",
+          "field": "freeze_id",
+          "old": "bfb26807b9972685e467b863b11a0c30ca9cc76c398fd4ec62b9d2436d418614",
+          "new": "b8402f30d82c96af4c0809d25522635c022988fdd817c9956a4ab445706d66f9"
+        }
+      ],
+      "records_before": 35,
+      "records_after": 35,
+      "total_bytes_before": 22788510,
+      "total_bytes_after": 15811358,
+      "reason": "24 号脚本的顶层合并只清理自身前缀，e_evidence_rep0/ 的旧记录长期滞留；31 号脚本只写目录级 coverage.json，F01 于 2026-10-28 00:47/00:49 重新导出后顶层登记的 freeze.json/meta.json 哈希未跟随更新"
+    }
+  ],
+  "last_refreshed_at": "2026-10-28T03:13:31+08:00"
 }

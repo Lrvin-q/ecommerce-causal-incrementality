@@ -20,8 +20,10 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
+import subprocess
 import sys
 import time
 from datetime import datetime
@@ -57,6 +59,17 @@ def _say(message: str) -> None:
     print(f"[{_now()}] {message}", flush=True)
 
 
+def _git_commit() -> str:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT,
+            capture_output=True, text=True, encoding="utf-8", check=False,
+        )
+    except OSError:
+        return "unknown"
+    return result.stdout.strip() or "unknown"
+
+
 def _write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -90,6 +103,15 @@ def _write_table(path: Path, frame: pd.DataFrame) -> dict[str, object]:
     }
 
 
+def _write_csv_gz(path: Path, frame: pd.DataFrame) -> None:
+    """写确定性 gzip CSV（``mtime=0``），保证同一帧每次跑出同样字节。"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = frame.to_csv(index=False, encoding="utf-8").encode("utf-8")
+    with path.open("wb") as handle:
+        with gzip.GzipFile(filename="", mode="wb", fileobj=handle, mtime=0) as gz:
+            gz.write(payload)
+
+
 def _budget_list(args: argparse.Namespace, cfg: object, primary: float) -> list[float]:
     if args.budgets:
         values = [float(item) for item in args.budgets.split(",") if item.strip()]
@@ -105,6 +127,246 @@ def _budget_list(args: argparse.Namespace, cfg: object, primary: float) -> list[
     if not deduped or min(deduped) <= 0.0:
         raise ValueError("预算必须为正")
     return deduped
+
+
+def _rel_posix(path: Path) -> str:
+    """登记表里一律存相对 ROOT 的 POSIX 路径，换机器也能复算。"""
+    try:
+        return Path(path).resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return Path(path).as_posix()
+
+
+def _refresh_top_registry(target: Path, *, freeze_path: Path, meta_path: Path) -> int:
+    """把 F01 的 freeze/meta 刷进顶层索引，并对**全表**逐条复算。
+
+    顶层 ``outputs/evidence/coverage.json`` 只收录 freeze/meta 这类登记文件，
+    逐用户大文件由目录级 coverage.json 负责（AGENTS §12.1）。此前顶层索引没人
+    刷新，留下过旧 ``freeze_id`` 与旧 ``source``（指向已被后续运行取代的
+    ``out/f01_ope/``），所以这里除刷新自身前缀外还要复算所有记录：任何文件缺失、
+    sha256 或 bytes 不符都抛错。登记表只准加强，不准削弱（§12.3）。
+    """
+    top_path = ROOT / "outputs" / "evidence" / "coverage.json"
+    if not top_path.is_file():
+        raise FileNotFoundError(f"顶层证据登记表缺失：{top_path}")
+    top = json.loads(top_path.read_text(encoding="utf-8"))
+    records: list[dict[str, object]] = list(top.get("records", []))
+    prefix = _rel_posix(target) + "/"
+
+    upsert: dict[str, dict[str, object]] = {}
+    for source, kind in ((freeze_path, "f01_freeze"), (meta_path, "f01_meta")):
+        if not source.is_file():
+            raise FileNotFoundError(f"运行产物缺失：{source}")
+        destination = target / source.name
+        if not destination.is_file():
+            raise FileNotFoundError(f"证据副本缺失：{destination}")
+        if file_sha256(source) != file_sha256(destination):
+            raise RuntimeError(
+                f"证据副本与运行产物不一致：{source} vs {destination}；"
+                "登记前必须重新导出，不能拿旧副本充当本次运行的证据"
+            )
+        relative = _rel_posix(destination)
+        old = next((r for r in records if r.get("target") == relative), None)
+        record: dict[str, object] = dict(old) if old is not None else {}
+        record["kind"] = kind
+        record["source"] = _rel_posix(source)
+        record["target"] = relative
+        record["bytes"] = destination.stat().st_size
+        record["sha256"] = file_sha256(destination)
+        if kind == "f01_freeze":
+            payload = json.loads(destination.read_text(encoding="utf-8"))
+            record["freeze_id"] = payload["freeze_id"]
+            record["created_at_in_file"] = payload["created_at"]
+        upsert[relative] = record
+
+    stale = 0
+    refreshed = len(upsert)
+    merged: list[dict[str, object]] = []
+    for record in records:
+        target_key = str(record.get("target", ""))
+        if target_key in upsert:
+            merged.append(upsert.pop(target_key))
+        elif target_key.startswith(prefix):
+            stale += 1
+        else:
+            merged.append(record)
+    merged.extend(upsert.values())
+
+    bad: list[str] = []
+    for record in merged:
+        path = Path(str(record["target"]))
+        path = path if path.is_absolute() else ROOT / path
+        if not path.is_file():
+            bad.append(f"{record['target']}: 文件缺失")
+        elif file_sha256(path) != record["sha256"]:
+            bad.append(f"{record['target']}: sha256 不符")
+        elif int(record["bytes"]) != path.stat().st_size:
+            bad.append(f"{record['target']}: bytes 不符")
+    if bad:
+        raise RuntimeError(
+            "顶层证据登记表与磁盘不一致（改登记表必须全表复算，不能只校验自己那部分）：\n  "
+            + "\n  ".join(bad)
+        )
+
+    top["records"] = merged
+    top["total_bytes"] = sum(int(record["bytes"]) for record in merged)
+    top["last_refreshed_at"] = _now()
+    top_path.write_text(json.dumps(top, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    _say(
+        f"更新顶层 coverage.json：{prefix} 下刷新 {refreshed} 条、清理失效 {stale} 条，"
+        f"全表 {len(merged)} 条复算一致，total_bytes={top['total_bytes']}"
+    )
+    return len(merged)
+
+
+def _export_evidence(
+    target: Path,
+    *,
+    out_dir: Path,
+    selection: pd.DataFrame,
+    policy_frames: dict[float, pd.DataFrame],
+    observed: pd.DataFrame,
+    features: np.ndarray,
+    truth: pd.DataFrame,
+    freeze_path: Path,
+    meta_path: Path,
+    table_paths: dict[str, Path],
+) -> Path:
+    """导出可重建 OPE 与审计的逐用户材料，并登记 sha256/行数。
+
+    逐用户大文件以**确定性 gzip**（``mtime=0``）入库，保证重跑字节一致。
+    名单长表只落 ``out/``：它能由选人表 + 冻结配置 + ``rep_id`` 逐位重建，
+    入库会把证据包从 ~10 MB 抬到 ~80 MB。
+    真值文件单独命名并在 coverage 里标注"仅审计"；任何选择/拟合都不得读它。
+    """
+    import shutil
+
+    target.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    records: list[dict[str, object]] = []
+
+    def add(source: Path, relative: str, kind: str, rows: int | None = None) -> None:
+        if not source.is_file():
+            raise FileNotFoundError(f"证据源缺失：{source}")
+        destination = target / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
+        record = {
+            "kind": kind,
+            "source": str(source),
+            "target": str(destination),
+            "in_repository": True,
+            "bytes": destination.stat().st_size,
+            "sha256": file_sha256(destination),
+        }
+        if rows is not None:
+            record["rows"] = int(rows)
+        records.append(record)
+
+    def write_gz(
+        frame: pd.DataFrame,
+        destination: Path,
+        kind: str,
+        *,
+        in_repository: bool,
+        note: str | None = None,
+    ) -> None:
+        _write_csv_gz(destination, frame)
+        record: dict[str, object] = {
+            "kind": kind,
+            "source": "generated_from_frozen_inputs",
+            "target": str(destination),
+            "in_repository": bool(in_repository),
+            "encoding": "utf-8 csv in gzip(mtime=0)",
+            "bytes": destination.stat().st_size,
+            "sha256": file_sha256(destination),
+            "rows": int(len(frame)),
+            "dataframe_sha256": dataframe_sha256(frame),
+        }
+        if note is not None:
+            record["note"] = note
+        records.append(record)
+
+    write_gz(
+        selection.loc[:, list(f01.FREEZE_COLUMNS)],
+        target / "selection_7cols.csv.gz",
+        "f01_selection",
+        in_repository=True,
+    )
+    write_gz(observed, target / "observed.csv.gz", "f01_observed", in_repository=True)
+    feature_frame = pd.DataFrame(
+        np.asarray(features, dtype=float),
+        columns=[f"x{index}" for index in range(np.asarray(features).shape[1])],
+    )
+    feature_frame.insert(0, "user_id", observed["user_id"].to_numpy())
+    write_gz(feature_frame, target / "features.csv.gz", "f01_features", in_repository=True)
+    write_gz(
+        truth.loc[:, ["user_id", "tau_true", "cost_true"]],
+        target / "truth_audit_only.csv.gz",
+        "f01_truth_audit_only",
+        in_repository=True,
+        note="只用于冻结后的 audit_ 对账，不进入任何名单或拟合",
+    )
+    mask_rows = []
+    for per_user, policy_frame in sorted(policy_frames.items()):
+        block = policy_frame.melt(
+            id_vars="user_id", value_vars=list(f01.CANDIDATE_POLICIES),
+            var_name="policy", value_name="mask",
+        )
+        block.insert(0, "per_user_budget_cny", float(per_user))
+        mask_rows.append(block)
+    write_gz(
+        pd.concat(mask_rows, ignore_index=True),
+        out_dir / "policy_masks_long.csv.gz",
+        "f01_masks_derivable",
+        in_repository=False,
+        note=(
+            "不入库：可由 selection_7cols.csv.gz + configs/v3 + rep_id 经 "
+            "f01.build_policies 逐位重建；此处只登记哈希与行数"
+        ),
+    )
+    add(freeze_path, "freeze.json", "f01_freeze")
+    add(meta_path, "meta.json", "f01_meta")
+    for name, path in table_paths.items():
+        add(path, f"tables/{path.name}", f"f01_table_{name}")
+    mask_record = next(record for record in records if record["kind"] == "f01_masks_derivable")
+    coverage = {
+        "phase": "F01",
+        "purpose": "F01 单 rep 历史留出 OPE 证据包：冻结名单、逐用户观测/特征、真值审计与全部表",
+        "created_at": _now(),
+        "records": records,
+        "total_bytes": sum(int(record["bytes"]) for record in records),
+        "in_repository_bytes": sum(
+            int(record["bytes"]) for record in records if record.get("in_repository")
+        ),
+        "rebuild": [
+            "名单：f01.build_policies(read_csv('selection_7cols.csv.gz'), cfg, "
+            "budget_per_user=<网格>, seed_index=rep_id)",
+            "OPE：f01.ope_bundle(read_csv('observed.csv.gz'), features(read_csv('features.csv.gz')), "
+            "policy_frames, cfg, seed_index=rep_id)",
+            "真值审计：f01.truth_audit_table(selection, policy_frames, "
+            "read_csv('truth_audit_only.csv.gz'), freeze_id=freeze.json.freeze_id, manifest=freeze.json)",
+            "随机分布：f01.random_policy_distribution(...)，种子数/偏移见 meta.random_policy_distribution",
+        ],
+        "excluded": [
+            {
+                "path": "policy_masks_long.csv.gz",
+                "reason": (
+                    f"长表 {mask_record['rows']} 行、gzip 后 {int(mask_record['bytes']) / 1e6:.2f} MB；"
+                    "可由选人表 + 冻结配置 + rep_id 逐位重建，只落 out/ 并登记哈希"
+                ),
+            },
+            {
+                "path": "D03 全链路中间产物",
+                "reason": "可由 31 号脚本以同一 rep/n 重建；本包已含其 7 列选人表与观测表",
+            },
+        ],
+        "truth_usage": "truth_audit_only.csv.gz 只用于冻结后的 audit_ 对账，不进入任何名单或拟合",
+    }
+    coverage_path = target / "coverage.json"
+    _write_json(coverage_path, coverage)
+    _refresh_top_registry(target, freeze_path=freeze_path, meta_path=meta_path)
+    return coverage_path
 
 
 def _check_reference_frame(path: Path, selection: pd.DataFrame) -> dict[str, object]:
@@ -139,6 +401,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--tables-dir", type=Path, default=ROOT / "outputs" / "tables")
     parser.add_argument("--evidence-dir", type=Path, default=None)
     parser.add_argument("--reference-frame", type=Path, default=None)
+    parser.add_argument(
+        "--random-seeds", type=int, default=200,
+        help="random_same_budget 的分布种子数（默认 200，冻结臂只是其中一条）",
+    )
+    parser.add_argument("--random-seed-offset", type=int, default=0)
     parser.add_argument("--smoke", action="store_true", help="缩小链路，只验证工程")
     args = parser.parse_args(argv)
     args.out_dir = args.out_dir if args.out_dir.is_absolute() else ROOT / args.out_dir
@@ -148,6 +415,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.smoke:
         args.tables_dir = args.out_dir / "tables"
         args.evidence_dir = args.out_dir / "evidence"
+        args.random_seeds = min(int(args.random_seeds), 20)
         if args.reference_frame is not None:
             parser.error("--smoke 不接受 --reference-frame")
     evidence_dir = (
@@ -309,28 +577,54 @@ def main(argv: list[str] | None = None) -> int:
         policy_frames,
         truth,
         freeze_id=freeze_id,
+        manifest=manifest_reread,
     )
     recon = f01.ope_vs_audit_table(bundle, audit_table, cfg)
+    targeting = f01.targeting_decomposition_table(
+        audit_table, n_users=len(selection)
+    )
+    started = time.perf_counter()
+    random_seeds, random_summary = f01.random_policy_distribution(
+        bundle,
+        observed,
+        selection,
+        policy_frames,
+        truth,
+        cfg,
+        freeze_id=freeze_id,
+        seed_index=int(args.rep_id),
+        manifest=manifest_reread,
+        n_seeds=int(args.random_seeds),
+        seed_offset=int(args.random_seed_offset),
+    )
+    random_seconds = time.perf_counter() - started
+    _say(
+        f"随机策略分布完成：{args.random_seeds} 条 × {len(budgets)} 预算，"
+        f"{random_seconds:.1f}s"
+    )
 
     artifacts: dict[str, dict[str, object]] = {}
     tables = {
         "policy_meta": (args.tables_dir / "v3_phase_F01_policy_meta.csv", policy_meta_frame),
         "value": (args.tables_dir / "v3_phase_F01_value.csv", bundle.value_table),
+        "increment": (args.tables_dir / "v3_phase_F01_increment.csv", bundle.increment_table),
         "contrast": (args.tables_dir / "v3_phase_F01_contrast.csv", bundle.contrast_table),
         "cost": (args.tables_dir / "v3_phase_F01_cost.csv", bundle.cost_table),
         "family": (args.tables_dir / "v3_phase_F01_family.csv", bundle.family),
         "audit": (args.tables_dir / "v3_phase_F01_audit.csv", audit_table),
         "ope_vs_audit": (args.tables_dir / "v3_phase_F01_ope_vs_audit.csv", recon),
+        "targeting": (args.tables_dir / "v3_phase_F01_targeting.csv", targeting),
+        "random_seeds": (args.tables_dir / "v3_phase_F01_random_seeds.csv", random_seeds),
+        "random_summary": (args.tables_dir / "v3_phase_F01_random_summary.csv", random_summary),
     }
     for name, (path, frame) in tables.items():
         artifacts[name] = _write_table(path, frame)
         _say(f"写出 {name}: {path}（{len(frame)} 行）")
 
-    if not args.smoke:
-        _write_json(evidence_dir / "freeze.json", manifest)
-        if file_sha256(evidence_dir / "freeze.json") != freeze_file_sha256:
-            raise RuntimeError("导出到 outputs/evidence 的 freeze.json 字节不一致")
-
+    truth_sha_values = audit_table["audit_truth_sha256"].unique()
+    if len(truth_sha_values) != 1:
+        raise RuntimeError("审计表内的 truth_sha256 不唯一")
+    truth_sha = str(truth_sha_values[0])
     meta = {
         "source_label": SOURCE_LABEL,
         "phase": "F01",
@@ -346,6 +640,9 @@ def main(argv: list[str] | None = None) -> int:
         "rep_id": int(args.rep_id),
         "chosen_model": rep.chosen_model,
         "primary_budget_cny_per_user": primary,
+        "primary_policy": f01.PRIMARY_POLICY,
+        "primary_estimator": f01.PRIMARY_ESTIMATOR,
+        "primary_estimator_frozen_by": "source_hashes（源码哈希；该估计量无 YAML 字段）",
         "budgets_cny_per_user": budgets,
         "family": f01.config_family(cfg),
         "family_alpha_one_sided": float(
@@ -354,7 +651,28 @@ def main(argv: list[str] | None = None) -> int:
         "config_hash": cfg.hash(64),
         "source_hashes": source_hashes,
         "source_hash_combined": source_hash_combined,
+        "git_commit": _git_commit(),
         "reference_frame": reference_meta,
+        "truth_sha256": truth_sha,
+        "random_policy_distribution": {
+            "n_seeds": int(args.random_seeds),
+            "seed_offset": int(args.random_seed_offset),
+            "frozen_seed_index": int(args.rep_id),
+            "stream": "f01.policy.random",
+            "rule": "random_same_budget（同预测预算规则）",
+            "seconds": random_seconds,
+        },
+        "frame_hashes": {
+            "selection_dataframe_sha256": dataframe_sha256(
+                selection.loc[:, list(f01.FREEZE_COLUMNS)]
+            ),
+            "observed_dataframe_sha256": dataframe_sha256(observed),
+            "features_dataframe_sha256": dataframe_sha256(pd.DataFrame(
+                np.asarray(features, dtype=float),
+                columns=[f"x{index}" for index in range(np.asarray(features).shape[1])],
+            )),
+            "truth_dataframe_sha256": truth_sha,
+        },
         "freeze": {
             "path": str(freeze_path),
             "file_sha256": freeze_file_sha256,
@@ -381,15 +699,29 @@ def main(argv: list[str] | None = None) -> int:
             "d03_rebuild": rebuild_seconds,
             "observed_frame": observed_seconds,
             "ope": ope_seconds,
+            "random_policy_distribution": random_seconds,
             "total": time.perf_counter() - total_started,
         },
         "artifacts": artifacts,
     }
     meta_path = args.out_dir / "meta.json"
     _write_json(meta_path, meta)
-    if not args.smoke:
-        _write_json(evidence_dir / "meta.json", meta)
-    _say(f"meta 写出：{meta_path}；总耗时 {meta['stage_seconds']['total']:.1f}s")
+    coverage_path = _export_evidence(
+        evidence_dir,
+        out_dir=args.out_dir,
+        selection=selection,
+        policy_frames=policy_frames,
+        observed=observed,
+        features=features,
+        truth=truth,
+        freeze_path=freeze_path,
+        meta_path=meta_path,
+        table_paths={name: path for name, (path, _) in tables.items()},
+    )
+    _say(
+        f"meta 写出：{meta_path}；证据包 {coverage_path}；"
+        f"总耗时 {meta['stage_seconds']['total']:.1f}s"
+    )
 
     family = bundle.family
     print("\nF01 主预算确证性家族（DR，单侧 Holm）：")

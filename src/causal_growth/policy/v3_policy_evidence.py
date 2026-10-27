@@ -57,28 +57,34 @@ BUCKET_COLUMNS: tuple[str, ...] = (
     "pool_size", "per_user_budget_cny", "budget_cny", "method", "width_cny",
     "n_selected", "predicted_value_cny", "predicted_cost_cny", "within_budget_by_hat",
     "feasible_under_original_cost", "n_dropped_for_feasibility", "gap_to_exact_cny",
-    "gap_per_user_cny", "true_value_per_user", "actual_spend_cny", "seconds",
+    "gap_per_user_cny", "relative_gap_to_exact", "true_value_per_user",
+    "actual_spend_cny", "seconds",
 )
 
 RANDOM_COLUMNS: tuple[str, ...] = (
     "n_total", "per_user_budget_cny", "budget_cny", "seed", "n_selected", "predicted_cost_cny",
     "within_budget_by_hat", "true_value_per_user", "true_total_value_cny",
-    "actual_spend_cny", "within_budget_by_true", "overrun_cny",
+    "actual_spend_cny", "true_value_per_actual_spend", "within_budget_by_true", "overrun_cny",
 )
 
 RANDOM_SUMMARY_COLUMNS: tuple[str, ...] = (
     "n_total", "per_user_budget_cny", "budget_cny", "seeds", "mean_true_value_per_user",
     "sd_true_value_per_user", "mean_se", "q025", "q500", "q975",
-    "overrun_probability", "mean_actual_spend_cny", "max_overrun_cny",
-    "mean_predicted_cost_cny", "mean_n_selected", "interpretation",
+    "overrun_probability", "mean_actual_spend_cny", "mean_value_per_actual_spend",
+    "max_overrun_cny", "mean_predicted_cost_cny", "mean_n_selected", "interpretation",
 )
 
 DECOMPOSITION_COLUMNS: tuple[str, ...] = (
     "pool_size", "per_user_budget_cny", "budget_cny", "actual_solver",
     "learning_error_cny_per_user", "optimization_error_cny_per_user",
     "total_regret_cny_per_user", "identity_residual",
+    "learning_error_cost_hat_basis_cny_per_user",
+    "total_regret_cost_hat_basis_cny_per_user",
+    "identity_residual_cost_hat_basis",
     "true_value_actual", "true_value_oracle_under_hat", "true_value_truth",
+    "true_value_truth_cost_hat_basis",
     "oracle_exactness", "truth_exactness", "truth_solver",
+    "truth_oracle_cost_basis", "truth_feasible_under_cost_hat",
     "truth_milp_status", "truth_milp_relative_gap",
     "truth_milp_bound_cny", "truth_milp_incumbent_cny", "truth_milp_may_claim_optimal",
     "truth_milp_cost_basis", "truth_milp_cost_floor_cny",
@@ -91,14 +97,14 @@ SCALE_COLUMNS: tuple[str, ...] = (
     "feasible_under_original_cost", "status", "incumbent_cny", "bound_cny",
     "relative_gap", "may_claim_optimal", "lp_upper_bound_cny",
     "incumbent_to_lp_ratio", "true_value_per_user", "actual_spend_cny",
-    "within_budget_by_true", "seconds",
+    "true_value_per_actual_spend", "within_budget_by_true", "seconds",
 )
 
 CONSERVATIVE_COLUMNS: tuple[str, ...] = (
     "n_total", "mode", "policy", "per_user_budget_cny", "budget_cny", "mode_budget_cny",
     "seeds", "selected_count_mean", "predicted_cost_mean", "actual_spend_mean",
-    "actual_spend_q025", "actual_spend_q975", "overrun_probability",
-    "overrun_vs_expected_probability",
+    "true_value_per_actual_spend_mean", "actual_spend_q025", "actual_spend_q975",
+    "overrun_probability", "overrun_vs_expected_probability",
     "true_value_per_user_mean", "true_total_value_cny_mean", "audited_value_cny_mean",
     "evidence_basis", "value_basis", "observed_value_status",
 )
@@ -327,6 +333,36 @@ def calibrate_cost_predictions(
         pearson = float("nan")
         slope = float("nan")
         intercept = float("nan")
+
+    # 观测成本是 0/10 的伯努利实现；常数预测器的误差几乎全是不可约噪声。
+    # 不报相对改进，就会把"二元噪声"误读成"模型不排序"。
+    null_mae = float(np.abs(obs - mean_obs).mean())
+    null_rmse = float(np.sqrt(np.mean((obs - mean_obs) ** 2)))
+    unique_obs = np.unique(obs)
+    binary_0_10 = bool(
+        n > 1 and unique_obs.size <= 2
+        and set(float(x) for x in unique_obs).issubset({0.0, 10.0})
+    )
+    signal_sd = float("nan")
+    pearson_calibrated = float("nan")
+    pearson_share = float("nan")
+    pred_over_signal = float("nan")
+    brier = float("nan")
+    brier_null = float("nan")
+    if n > 1 and pred_sd > 0 and obs_sd > 0:
+        covariance = float(np.cov(pred, obs, ddof=1)[0, 1])
+        signal_sd = float(np.sqrt(max(covariance, 0.0)))
+        if signal_sd > 0:
+            # 若预测已校准，cov(pred,Y)=Var(pred)，此时 r=sqrt(cov)/sd_obs；
+            # 它不是任意预测器的上界，只是"同协方差下校准预测"的参考值。
+            pearson_calibrated = float(signal_sd / obs_sd)
+            pearson_share = float(pearson / pearson_calibrated)
+            pred_over_signal = float(pred_sd / signal_sd)
+    if binary_0_10:
+        y = obs / 10.0
+        pred_p = pred / 10.0
+        brier = float(np.mean((pred_p - y) ** 2))
+        brier_null = float(np.mean((mean_obs / 10.0 - y) ** 2))
     return {
         "n": n,
         "mean_predicted_cny": mean_pred,
@@ -341,7 +377,27 @@ def calibrate_cost_predictions(
         "ols_intercept_cny": intercept,
         "predicted_sd_cny": pred_sd,
         "observed_sd_cny": obs_sd,
+        "null_constant_mae_cny": null_mae,
+        "null_constant_rmse_cny": null_rmse,
+        "mae_relative_improvement_vs_constant": (
+            float(1.0 - mae / null_mae) if null_mae > 0 else float("nan")
+        ),
+        "rmse_relative_improvement_vs_constant": (
+            float(1.0 - rmse / null_rmse) if null_rmse > 0 else float("nan")
+        ),
+        "observed_binary_0_10": binary_0_10,
+        "binary_p_hat": float(mean_obs / 10.0) if binary_0_10 else float("nan"),
+        "signal_sd_cny": signal_sd,
+        "pearson_at_calibrated_signal": pearson_calibrated,
+        "pearson_share_of_calibrated_signal": pearson_share,
+        "predicted_sd_over_signal_sd": pred_over_signal,
+        "brier_score_10cny_scale": brier,
+        "brier_null_10cny_scale": brier_null,
         "calibration_basis": "validation_observed_logs_only",
+        "individual_metrics_note": (
+            "observed 是 0/10 实现成本；Pearson/OLS 斜率被伯努利噪声衰减，"
+            "个体排序应看相对常数基准的 MAE/RMSE/Brier 改进与 pearson 占校准信号比例"
+        ),
     }
 
 
@@ -394,6 +450,11 @@ def small_pool_solver_table(
         pool_arrays = _arrays(pool)
         tau_hat = pool_arrays["tau_hat"]
         cost_hat = pool_arrays["cost_hat"]
+        if np.unique(tau_hat).size <= 1 or float(np.std(tau_hat, ddof=1)) <= 0.0:
+            raise ValueError(
+                "tau_hat 在池内恒定，求解器互证会退化为最大基数/最小成本问题；"
+                "请换非退化模型（如 causal_forest）或注入确定性价值变化"
+            )
         for per_user in budgets:
             budget = float(per_user) * len(pool)
 
@@ -454,11 +515,13 @@ def small_pool_solver_table(
             if milp.status == "time_limit_no_incumbent":
                 # 时限内没有可行解：空 mask 的 0 花费/0 价值会被误读成
                 # "合法但无收益的名单"，因此该行所有选中量写 NaN。
+                # relative_gap 也写 NaN：MilpResult 里的 1.0 只是"无 incumbent"的哨兵，
+                # 落到表里会被读成"实测间隙 100%"。bound 保留 LP 上界，它是真数值。
                 add(
                     "milp", milp.selection.mask,
                     exactness="optimal_only_if_gap_zero",
                     status=milp.status, incumbent=float("nan"), bound=milp.bound,
-                    gap=milp.relative_gap, may_claim=False,
+                    gap=float("nan"), may_claim=False,
                     metrics_override={
                         key: float("nan") for key in (
                             "n_selected", "predicted_value_cny", "predicted_cost_cny",
@@ -584,6 +647,7 @@ def bucket_convergence_table(
             "n_dropped_for_feasibility": 0,
             "gap_to_exact_cny": 0.0,
             "gap_per_user_cny": 0.0,
+            "relative_gap_to_exact": 0.0,
             "seconds": _time.perf_counter() - started,
         })
 
@@ -602,6 +666,10 @@ def bucket_convergence_table(
                 "n_dropped_for_feasibility": int(dropped),
                 "gap_to_exact_cny": exact_value - value,
                 "gap_per_user_cny": (exact_value - value) / len(pool),
+                "relative_gap_to_exact": (
+                    (exact_value - value) / exact_value
+                    if abs(exact_value) > 1e-12 else float("nan")
+                ),
                 "seconds": _time.perf_counter() - started,
             })
 
@@ -667,6 +735,10 @@ def random_baseline_table(
                 "true_value_per_user": metrics["true_value_per_user"],
                 "true_total_value_cny": metrics["true_total_value_cny"],
                 "actual_spend_cny": metrics["actual_spend_cny"],
+                "true_value_per_actual_spend": (
+                    metrics["true_total_value_cny"] / metrics["actual_spend_cny"]
+                    if metrics["actual_spend_cny"] > 0.0 else float("nan")
+                ),
                 "within_budget_by_true": metrics["within_budget_by_true"],
                 "overrun_cny": overrun,
             })
@@ -691,6 +763,10 @@ def random_baseline_table(
             "q975": quantile_map[quantiles[2]],
             "overrun_probability": float(np.mean([x > 0 for x in overruns])),
             "mean_actual_spend_cny": float(np.mean(spends)),
+            "mean_value_per_actual_spend": (
+                float(summary["mean"]) * n_total / float(np.mean(spends))
+                if float(np.mean(spends)) > 0.0 else float("nan")
+            ),
             "max_overrun_cny": float(np.max(overruns)),
             "mean_predicted_cost_cny": float(np.mean(predicted_costs)),
             "mean_n_selected": float(np.mean(counts)),
@@ -777,6 +853,13 @@ def error_decomposition_table(
             to_cents_half_up(cost_true),
             int(np.floor(budget * 100 + 1e-9)),
         )
+        # 策略预算只用 cost_hat；真值 oracle 必须同口径，否则低预算档会把
+        # "0/10 实现成本买不到"误记成学习误差。raw cost_true 保留为敏感性。
+        truth_exact_cost_hat = pol.cent_exact_dp(
+            to_signed_cents_half_up(tau_true),
+            to_cents_half_up(cost_hat),
+            int(np.floor(budget * 100 + 1e-9)),
+        )
         # MILP 的共享校验要求成本严格为正；真值成本大量为 0，按冻结下界抬高后再解。
         # 真值精确解本身用 raw cost_true（分币 DP 允许 0），MILP 只用于复核界与 gap。
         truth_milp = pol.milp_select(
@@ -784,14 +867,22 @@ def error_decomposition_table(
         )
         oracle_value = pol.policy_value(oracle.mask, tau_true)
         truth_value = pol.policy_value(truth_exact.mask, tau_true)
+        truth_value_cost_hat = pol.policy_value(truth_exact_cost_hat.mask, tau_true)
         truth_feasible = bool(
             float(cost_true[truth_exact.mask].sum()) <= budget + pol.BUDGET_TOLERANCE
+        )
+        truth_feasible_cost_hat = bool(
+            float(cost_hat[truth_exact_cost_hat.mask].sum())
+            <= budget + pol.BUDGET_TOLERANCE
         )
 
         for solver_name, mask in (("greedy", greedy.mask), ("greedy_local_swap", swap.mask)):
             decomposition = pol.decompose_error(
                 mask, oracle.mask, truth_exact.mask, tau_true
             )
+            actual_value = pol.policy_value(mask, tau_true)
+            learning_cost_hat = truth_value_cost_hat - oracle_value
+            total_cost_hat = truth_value_cost_hat - actual_value
             rows.append({
                 "pool_size": len(pool),
                 "per_user_budget_cny": float(per_user),
@@ -805,12 +896,22 @@ def error_decomposition_table(
                     - decomposition.learning_error
                     - decomposition.optimization_error
                 ),
-                "true_value_actual": pol.policy_value(mask, tau_true),
+                "learning_error_cost_hat_basis_cny_per_user": learning_cost_hat,
+                "total_regret_cost_hat_basis_cny_per_user": total_cost_hat,
+                "identity_residual_cost_hat_basis": (
+                    total_cost_hat - learning_cost_hat - decomposition.optimization_error
+                ),
+                "true_value_actual": actual_value,
                 "true_value_oracle_under_hat": oracle_value,
                 "true_value_truth": truth_value,
+                "true_value_truth_cost_hat_basis": truth_value_cost_hat,
                 "oracle_exactness": "exact_for_cent_integerized_hat_problem",
                 "truth_exactness": "exact_for_cent_integerized_raw_truth_problem",
                 "truth_solver": "cent_exact_dp+MILP",
+                "truth_oracle_cost_basis": (
+                    "cost_hat_primary; raw_realized_cost_true_sensitivity"
+                ),
+                "truth_feasible_under_cost_hat": truth_feasible_cost_hat,
                 "truth_milp_status": truth_milp.status,
                 "truth_milp_relative_gap": truth_milp.relative_gap,
                 "truth_milp_bound_cny": truth_milp.bound,
@@ -910,6 +1011,11 @@ def scale_table(
                         float(incumbent / lp_bound)
                         if np.isfinite(incumbent) and lp_bound > 0 else float("nan")
                     ),
+                    "true_value_per_actual_spend": (
+                        float(metrics["true_total_value_cny"] / metrics["actual_spend_cny"])
+                        if np.isfinite(metrics["actual_spend_cny"])
+                        and metrics["actual_spend_cny"] > 0.0 else float("nan")
+                    ),
                     "seconds": seconds,
                 })
 
@@ -939,6 +1045,8 @@ def scale_table(
                 if milp.status == "time_limit_no_incumbent":
                     # 时限内没有可行解：空 mask 的 0 花费/0 价值会被误读成
                     # "合法但无收益的名单"，因此该行所有选中量写 NaN。
+                    # relative_gap 同写 NaN（MilpResult 的 1.0 是"无 incumbent"哨兵，
+                    # 不是实测间隙）；bound 保留 LP 上界。
                     append_row(
                         "time_limited_milp",
                         {
@@ -953,7 +1061,7 @@ def scale_table(
                             "within_budget_by_true": float("nan"),
                         },
                         status=milp.status, incumbent=float("nan"), bound=milp.bound,
-                        gap=milp.relative_gap, may_claim=False, seconds=elapsed,
+                        gap=float("nan"), may_claim=False, seconds=elapsed,
                     )
                 else:
                     append_row(
@@ -986,6 +1094,7 @@ def scale_table(
                 "true_value_per_user": float("nan"),
                 "true_total_value_cny": float("nan"),
                 "actual_spend_cny": float("nan"),
+                "true_value_per_actual_spend": float("nan"),
                 "within_budget_by_true": float("nan"),
                 "seconds": float("nan"),
             })
@@ -1105,6 +1214,10 @@ def conservative_comparison_table(
                     "selected_count_mean": float(np.mean(counts)),
                     "predicted_cost_mean": float(np.mean(predicted_costs)),
                     "actual_spend_mean": float(spend_array.mean()),
+                    "true_value_per_actual_spend_mean": (
+                        float(true_values.mean()) * n / float(spend_array.mean())
+                        if float(spend_array.mean()) > 0.0 else float("nan")
+                    ),
                     "actual_spend_q025": float(np.quantile(spend_array, 0.025)),
                     "actual_spend_q975": float(np.quantile(spend_array, 0.975)),
                     "overrun_probability": float(overrun.mean()),

@@ -40,17 +40,17 @@
     "src/causal_growth/dgp/v3_probability.py": "773339eb04fe2fbd000e1d16296613d35fc8b04ba65ffac1313ff4ce4d6cd469",
     "src/causal_growth/dgp/v3_semantics.py": "e90b1f445f7072c2096d67caaa64ffc8c653cbd50989e81806cf5336a82b9c1d",
     "src/causal_growth/dgp/v3_timing.py": "fe01d430533d119b26f7c4fdb44bee16c8eef3de951a634e71ca289439287a3c",
-    "src/causal_growth/estimate/v3_models.py": "7d31518b58bfaf0f94eb1fdb8a44419ee7b98a864c4a8ffac4a6d4dc36f328f9",
+    "src/causal_growth/estimate/v3_models.py": "7de5a364a596cc6dffdc49da970f8934f3997799ee512fa2ca35b7e5b60ae947",
     "src/causal_growth/evaluation/v3_aa.py": "95edd77c18f6d33ff2e6e5073c5c9327fb71029f587e54af994b167c28c199a9",
     "src/causal_growth/evaluation/v3_d03_formal.py": "ee527c9036070c9e8a1f53f0e607f0a73a2acf069996ccd579166ac3ee028efa",
     "src/causal_growth/evaluation/v3_data_checks.py": "f823f3856d032f9c9a166b9b81254d4c11570fbb708325c78d6824e65520f75c",
-    "src/causal_growth/evaluation/v3_f01.py": "dec258da2d0522ced8b8d5cc7a58fbbbf5f0448e6ceaa893bd187af12252d30b",
+    "src/causal_growth/evaluation/v3_f01.py": "32b0b668bc78cca9c0cec3bc63f1a7f0b0b1743d76d126b1931ed93707b5bd32",
     "src/causal_growth/evaluation/v3_f02.py": "d9646a34a5b59e8933d7a015130f8457a754f28816e25313b458ef4a1eae6e12",
-    "src/causal_growth/evaluation/v3_f02_formal.py": "a1329c1088157ce9331bb8926dddc7a866a1fc0283e47b009187d2fc49a75fa3",
+    "src/causal_growth/evaluation/v3_f02_formal.py": "79422c8a4f2a8ae1269e15ed15e6f35ff475e3a2b08dbcf0f96a93052fd97ced",
     "src/causal_growth/evaluation/v3_mechanism_checks.py": "2fe6ef554ef4ad961d78dbfe5337c888487464fa9806e30761ea4d0dc4199706",
-    "src/causal_growth/evaluation/v3_ope.py": "40010896918fd1f9092921dd33f7e2dcb67cf522f033f0d86c757a967231f4df",
+    "src/causal_growth/evaluation/v3_ope.py": "f620b36964084fbc3ffe89dce187f294e0ae8dc09000cfb551d23b3ef9c28d56",
     "src/causal_growth/policy/v3_policy.py": "ba058f9bbda3cdaaaa7143ea5a00caba62b3f917d400ab4073ecf67c80c72f16",
-    "src/causal_growth/policy/v3_policy_evidence.py": "e09bfc8ddc140641928a360060736590c47074bf15e140c2a9b83571bc8df6d3",
+    "src/causal_growth/policy/v3_policy_evidence.py": "ca29cdbcc57728e134ec284b2ecaf169d0f83f2fb116da2143cca139d4bd8051",
     "src/causal_growth/policy/v3_policy_grid.py": "53205262eb20e46fc4c753009be25c4fa467d6afe0d4da661f951523cf65e2bb",
     "src/causal_growth/v3_config.py": "63b6584e9eb7f80528312ef5ae4a93c6cf094769ffeca39310a0bbf151784fe7",
     "src/causal_growth/v3_data_config.py": "08fa068b1a7fb889a5bd584294b1549789bbae0bf18fac21e78c4365b732b9d4",
@@ -208,6 +208,6 @@
       "random_same_budget"
     ]
   },
-  "freeze_id": "3ab44dcb0bba0c0b89b665a2964f2a08fd89cb3db911580cd93bffd266288fd7",
-  "created_at": "2026-10-27T20:17:35+08:00"
+  "freeze_id": "b8402f30d82c96af4c0809d25522635c022988fdd817c9956a4ab445706d66f9",
+  "created_at": "2026-10-28T02:57:03+08:00"
 }

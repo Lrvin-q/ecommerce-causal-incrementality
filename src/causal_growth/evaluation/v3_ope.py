@@ -355,8 +355,10 @@ def reliability_gate(
 
     t = np.asarray(treatment, dtype=float)
     e = np.asarray(propensity, dtype=float)
-    w1 = pi / e
-    w0 = (1.0 - pi) / (1.0 - e)
+    # 每臂权重必须带处理指示变量：ESS 分子只在对应臂内求和，
+    # 分母 n_treated / n_control 才是同一口径；否则控制臂 ESS 会被高估约 2 倍。
+    w1 = pi * t / e
+    w0 = (1.0 - pi) * (1.0 - t) / (1.0 - e)
     ess_t = _ess(w1)
     ess_c = _ess(w0)
     n_treated = int((t == 1).sum())

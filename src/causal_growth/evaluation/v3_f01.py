@@ -22,6 +22,10 @@ split 的观测记录 ``(T, Y, C, R)`` 与随机化设计概率，能否把同�
 ``evaluation.decision.benefit_evidence``：定向 − 不发券、定向 − 同预算随机，
 单侧 Holm（α 见配置），两条主张分开陈述，**不合并成一个"推荐"**。
 
+注意：**"主估计量 = DR" 没有对应的 YAML 字段**，它由 :data:`PRIMARY_ESTIMATOR`
+写死在源码里，冻结依据是 ``source_hashes``（源码哈希），不是配置哈希。报告引用
+确证性结论时必须同时说明这两条冻结路径。
+
 预算
 ----
 主预算 ``evaluation.independent_validation.primary_budget_cny_per_user``（0.2 元/人）
@@ -34,6 +38,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Iterable
 from dataclasses import dataclass
 from statistics import NormalDist
 from typing import Any, Mapping, Sequence
@@ -81,6 +86,11 @@ CANDIDATE_POLICIES: tuple[str, ...] = (
 #: E 接口文档 §3 注册的主策略；确证性家族只围绕它构造。
 PRIMARY_POLICY = "greedy_incremental_profit_per_cost"
 
+#: 确证性家族与审计对账使用的估计量。它没有对应的 YAML 字段：
+#: 冻结依据是源码哈希（``source_hashes``），``family_table`` 入口断言它属于
+#: :data:`causal_growth.evaluation.v3_ope.ESTIMATORS`。
+PRIMARY_ESTIMATOR = "dr_increment"
+
 #: 配置家族名 → (策略, 基线)。配置若改名，本模块会显式报错而不是悄悄换对照。
 FAMILY_CONTRASTS: dict[str, tuple[str, str]] = {
     "selected_targeted_minus_no_coupon": (PRIMARY_POLICY, "no_coupon"),
@@ -103,7 +113,7 @@ FAMILY_TABLE_COLUMNS: tuple[str, ...] = (
     "claim_passed", "n",
 )
 AUDIT_TABLE_COLUMNS: tuple[str, ...] = (
-    "per_user_budget_cny", "policy", "audit_freeze_id",
+    "per_user_budget_cny", "policy", "audit_freeze_id", "audit_truth_sha256",
     "audit_n_selected", "audit_increment_vs_no_coupon_cny_per_user",
     "audit_total_increment_cny", "audit_actual_spend_cny",
     "audit_spend_per_user_cny", "audit_budget_cny",
@@ -112,9 +122,36 @@ AUDIT_TABLE_COLUMNS: tuple[str, ...] = (
 OPE_VS_AUDIT_COLUMNS: tuple[str, ...] = (
     "per_user_budget_cny", "comparison", "name",
     "ope_value_cny_per_user", "audit_value_cny_per_user",
-    "value_error_cny_per_user", "ope_spend_per_user_cny",
+    "value_error_cny_per_user", "ope_se_cny_per_user", "ope_z",
+    "ope_one_sided_p_value", "ope_spend_per_user_cny",
     "audit_spend_per_user_cny", "spend_error_cny_per_user",
     "reliability_passed", "holm_rejected", "sign_agrees",
+)
+INCREMENT_TABLE_COLUMNS: tuple[str, ...] = (
+    "per_user_budget_cny", "policy", "estimator", "increment_cny_per_user",
+    "se_increment", "z", "one_sided_p_value", "n",
+)
+TARGETING_COLUMNS: tuple[str, ...] = (
+    "per_user_budget_cny", "policy", "baseline",
+    "audit_n_selected_policy", "audit_n_selected_baseline",
+    "audit_mean_tau_policy", "audit_mean_tau_baseline",
+    "audit_increment_policy", "audit_increment_baseline", "audit_difference",
+    "audit_coverage_effect", "audit_per_user_effect",
+    "audit_coverage_share", "audit_per_user_share",
+)
+RANDOM_DIST_COLUMNS: tuple[str, ...] = (
+    "per_user_budget_cny", "seed", "audit_n_selected", "audit_increment",
+    "audit_actual_spend", "dr_increment", "dr_se",
+)
+RANDOM_DIST_SUMMARY_COLUMNS: tuple[str, ...] = (
+    "per_user_budget_cny", "estimator", "n_seeds", "mean", "sd", "q10", "q50", "q90",
+    "frozen_seed_value", "frozen_seed_rank_low", "frozen_seed_index",
+    "targeted_value", "targeted_minus_mean", "mc_se", "z", "one_sided_p_value",
+    "n_random_at_least_targeted", "equal_spend_target",
+    "equal_spend_predicted_random", "equal_spend_difference",
+    "equal_spend_slope", "equal_spend_slope_se", "equal_spend_slope_t",
+    "equal_spend_intercept", "equal_spend_r2",
+    "equal_spend_target_within_random_spend_range", "note",
 )
 
 _FORBIDDEN_PREFIXES = ("audit_", "truth_", "potential_")
@@ -457,11 +494,17 @@ def build_observed_frame(
 
 
 def require_truth_frame(
-    truth: pd.DataFrame, user_id: NDArray[Any], *, freeze_id: str
+    truth: pd.DataFrame,
+    user_id: NDArray[Any],
+    *,
+    freeze_id: str,
+    manifest: Mapping[str, Any] | None = None,
 ) -> pd.DataFrame:
     """校验审计真值只含 ``tau_true`` / ``cost_true``，且与冻结用户一一对齐。"""
     if not isinstance(freeze_id, str) or len(freeze_id) != 64:
         raise ValueError("审计真值必须绑定一个 64 位 freeze_id")
+    if manifest is not None and manifest.get("freeze_id") != freeze_id:
+        raise ValueError("审计 freeze_id 与 manifest 不一致")
     missing = [column for column in ("user_id", "tau_true", "cost_true")
                if column not in truth.columns]
     if missing:
@@ -477,7 +520,15 @@ def require_truth_frame(
         raise ValueError("审计真值含非有限值")
     if (aligned["cost_true"].to_numpy(dtype=float) < 0.0).any():
         raise ValueError("cost_true 不能为负")
+    aligned.index = pd.Index(user_id, name="user_id")
     return aligned.reset_index()
+
+
+def truth_frame_sha256(aligned: pd.DataFrame) -> str:
+    """对已按 user_id 对齐的审计真值做 dataframe 哈希（绑定审计输入）。"""
+    block = aligned.loc[:, ["user_id", "tau_true", "cost_true"]]
+    ordered = block.sort_values("user_id", kind="stable").reset_index(drop=True)
+    return str(dataframe_sha256(ordered))
 
 
 def truth_audit_table(
@@ -486,6 +537,7 @@ def truth_audit_table(
     truth: pd.DataFrame,
     *,
     freeze_id: str,
+    manifest: Mapping[str, Any] | None = None,
 ) -> pd.DataFrame:
     """冻结后审计：逐预算、逐策略计算真值增量与实际支出。
 
@@ -494,7 +546,10 @@ def truth_audit_table(
     """
     ordered = require_freeze_frame(selection)
     user_id = ordered["user_id"].to_numpy()
-    aligned = require_truth_frame(truth, user_id, freeze_id=freeze_id)
+    aligned = require_truth_frame(
+        truth, user_id, freeze_id=freeze_id, manifest=manifest
+    )
+    truth_sha = truth_frame_sha256(aligned)
     tau = aligned["tau_true"].to_numpy(dtype=float)
     cost = aligned["cost_true"].to_numpy(dtype=float)
     n = len(ordered)
@@ -510,6 +565,7 @@ def truth_audit_table(
                 "per_user_budget_cny": per_user,
                 "policy": name,
                 "audit_freeze_id": freeze_id,
+                "audit_truth_sha256": truth_sha,
                 "audit_n_selected": int(mask.sum()),
                 "audit_increment_vs_no_coupon_cny_per_user": increment,
                 "audit_total_increment_cny": increment * n,
@@ -548,12 +604,13 @@ def _value_table(
     masks: Mapping[str, NDArray[np.float64]],
     cfg: Config,
     confidence: float,
-) -> tuple[pd.DataFrame, dict[str, dict]]:
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, dict]]:
     y = frame["net_profit"].to_numpy(dtype=float)
     t = frame["treatment"].to_numpy(dtype=float)
     e = nuisance.propensity
     rows: list[dict[str, Any]] = []
     gates: dict[str, dict] = {}
+    estimates_by_policy: dict[str, dict[str, tuple[float, NDArray[np.float64]]]] = {}
     for name in CANDIDATE_POLICIES:
         pi = ope.require_policy(masks[name], len(frame), name=f"policy {name}")
         gate = ope.reliability_gate(pi, t, e, cfg)
@@ -563,6 +620,7 @@ def _value_table(
             "dr_increment": ope.policy_value_dr(pi, y, t, nuisance.mu1, nuisance.mu0, e),
             "snips_increment": ope.policy_value_snips(pi, y, t, e),
         }
+        estimates_by_policy[name] = estimates
         for estimator in ope.ESTIMATORS:
             value, influence = estimates[estimator]
             se = influence_se(influence)
@@ -583,7 +641,31 @@ def _value_table(
                 "reliability_passed": bool(gate["passed"]),
                 "reliability_label": gate["label"],
             })
-    return pd.DataFrame(rows).loc[:, list(ope.VALUE_COLUMNS)], gates
+
+    increment_rows: list[dict[str, Any]] = []
+    for estimator in ope.ESTIMATORS:
+        base_value, base_if = estimates_by_policy["no_coupon"][estimator]
+        for name in CANDIDATE_POLICIES:
+            value, influence = estimates_by_policy[name][estimator]
+            diff = value - base_value
+            se = influence_se(influence - base_if)
+            z = diff / se if np.isfinite(se) and se > 0.0 else float("nan")
+            p_one_sided = (
+                float(1.0 - NormalDist().cdf(z)) if np.isfinite(z) else float("nan")
+            )
+            increment_rows.append({
+                "policy": name,
+                "estimator": estimator,
+                "increment_cny_per_user": diff,
+                "se_increment": se,
+                "z": z,
+                "one_sided_p_value": p_one_sided,
+                "n": len(frame),
+            })
+    value_frame = pd.DataFrame(rows).loc[:, list(ope.VALUE_COLUMNS)]
+    # 预算列在 ope_bundle 里统一插入；这里先不按完整契约裁剪。
+    increment_frame = pd.DataFrame(increment_rows)
+    return value_frame, increment_frame, gates
 
 
 def _contrast_table(
@@ -691,7 +773,13 @@ def family_table(contrast_frame: pd.DataFrame, cfg: Config) -> pd.DataFrame:
         raise ValueError(
             f"配置家族 {family} 与本模块登记的 {sorted(FAMILY_CONTRASTS)} 不一致"
         )
-    dr_rows = contrast_frame.loc[contrast_frame["estimator"] == "dr_increment"]
+    if PRIMARY_ESTIMATOR not in ope.ESTIMATORS:
+        raise ValueError(
+            f"主估计量 {PRIMARY_ESTIMATOR} 不在 v3_ope.ESTIMATORS {ope.ESTIMATORS} 内"
+        )
+    dr_rows = contrast_frame.loc[
+        contrast_frame["estimator"] == PRIMARY_ESTIMATOR
+    ]
     p_values: dict[str, float] = {}
     for name in family:
         block_rows = dr_rows.loc[dr_rows["contrast"] == name]
@@ -716,7 +804,7 @@ def family_table(contrast_frame: pd.DataFrame, cfg: Config) -> pd.DataFrame:
             "contrast": name,
             "policy": row["policy"],
             "baseline": row["baseline"],
-            "estimator": "dr_increment",
+            "estimator": PRIMARY_ESTIMATOR,
             "diff_cny_per_user": float(row["diff_cny_per_user"]),
             "se_diff": float(row["se_diff"]),
             "ci_low": float(row["ci_low"]),
@@ -739,10 +827,12 @@ class F01OpeBundle:
     """一次交叉拟合产出的 F01 OPE 表。"""
 
     value_table: pd.DataFrame
+    increment_table: pd.DataFrame
     contrast_table: pd.DataFrame
     cost_table: pd.DataFrame
     family: pd.DataFrame
     gates: dict[float, dict[str, dict]]
+    nuisance: ope.OpeNuisances
     nuisance_diagnostics: dict[str, Any]
     nuisance_sha256: str
     primary_budget_cny_per_user: float
@@ -810,22 +900,30 @@ def ope_bundle(
     )
     confidence = float(cfg.require("evaluation.confidence_level"))
     values: list[pd.DataFrame] = []
+    increments: list[pd.DataFrame] = []
     contrasts: list[pd.DataFrame] = []
     costs: list[pd.DataFrame] = []
     gates: dict[float, dict[str, dict]] = {}
     for per_user in sorted(masks_by_budget):
         masks = masks_by_budget[per_user]
-        value_frame, gate = _value_table(observed, nuisance, masks, cfg, confidence)
+        value_frame, increment_frame, gate = _value_table(
+            observed, nuisance, masks, cfg, confidence
+        )
         value_frame.insert(0, "per_user_budget_cny", per_user)
+        increment_frame.insert(0, "per_user_budget_cny", per_user)
         contrast_frame = _contrast_table(observed, nuisance, masks, confidence)
         contrast_frame.insert(0, "per_user_budget_cny", per_user)
         cost_frame = _cost_table(observed, nuisance, masks, confidence)
         cost_frame.insert(0, "per_user_budget_cny", per_user)
         values.append(value_frame)
+        increments.append(increment_frame)
         contrasts.append(contrast_frame)
         costs.append(cost_frame)
         gates[per_user] = gate
     value_table = pd.concat(values, ignore_index=True)
+    increment_table = pd.concat(increments, ignore_index=True).loc[
+        :, list(INCREMENT_TABLE_COLUMNS)
+    ]
     contrast_table = pd.concat(contrasts, ignore_index=True)
     cost_table = pd.concat(costs, ignore_index=True)
     primary_contrasts = contrast_table.loc[
@@ -834,10 +932,12 @@ def ope_bundle(
     family = family_table(primary_contrasts, cfg)
     return F01OpeBundle(
         value_table=value_table.loc[:, list(VALUE_TABLE_COLUMNS)],
+        increment_table=increment_table.loc[:, list(INCREMENT_TABLE_COLUMNS)],
         contrast_table=contrast_table.loc[:, list(CONTRAST_TABLE_COLUMNS)],
         cost_table=cost_table.loc[:, list(COST_TABLE_COLUMNS)],
         family=family,
         gates=gates,
+        nuisance=nuisance,
         nuisance_diagnostics=nuisance.diagnostics(),
         nuisance_sha256=_nuisance_sha256(nuisance),
         primary_budget_cny_per_user=primary,
@@ -855,7 +955,9 @@ def ope_vs_audit_table(
     """把 OPE 估计与真值审计并排；只作审计对账，不用真值回头修改任何名单。"""
     if set(audit_table["policy"]) != set(CANDIDATE_POLICIES):
         raise ValueError("审计表策略集合与候选名单不一致")
-    dr = bundle.value_table.loc[bundle.value_table["estimator"] == "dr_increment"]
+    dr = bundle.increment_table.loc[
+        bundle.increment_table["estimator"] == PRIMARY_ESTIMATOR
+    ]
     cost = bundle.cost_table.loc[
         bundle.cost_table["component"] == "coupon_cost_total_per_assigned_user"
     ]
@@ -874,9 +976,11 @@ def ope_vs_audit_table(
         ].set_index("policy")
         if set(value_block.index) != set(CANDIDATE_POLICIES):
             raise ValueError(f"预算 {per_user} 的 OPE 价值表缺策略")
-        baseline_value = float(value_block.loc["no_coupon", "value_cny_per_user"])
         for name in CANDIDATE_POLICIES:
-            ope_increment = float(value_block.loc[name, "value_cny_per_user"]) - baseline_value
+            ope_increment = float(value_block.loc[name, "increment_cny_per_user"])
+            ope_se = float(value_block.loc[name, "se_increment"])
+            ope_z = float(value_block.loc[name, "z"])
+            ope_p = float(value_block.loc[name, "one_sided_p_value"])
             audit_increment = float(
                 audit_block.loc[name, "audit_increment_vs_no_coupon_cny_per_user"]
             )
@@ -889,11 +993,14 @@ def ope_vs_audit_table(
                 "ope_value_cny_per_user": ope_increment,
                 "audit_value_cny_per_user": audit_increment,
                 "value_error_cny_per_user": ope_increment - audit_increment,
+                "ope_se_cny_per_user": ope_se,
+                "ope_z": ope_z,
+                "ope_one_sided_p_value": ope_p,
                 "ope_spend_per_user_cny": ope_spend,
                 "audit_spend_per_user_cny": audit_spend,
                 "spend_error_cny_per_user": ope_spend - audit_spend,
                 "reliability_passed": bool(
-                    value_block.loc[name, "reliability_passed"]
+                    bundle.gates[per_user][name]["passed"]
                 ),
                 "holm_rejected": float("nan"),
                 "sign_agrees": bool(np.sign(ope_increment) == np.sign(audit_increment)),
@@ -903,11 +1010,12 @@ def ope_vs_audit_table(
                 bundle.contrast_table["per_user_budget_cny"], per_user,
                 rtol=0.0, atol=1e-12,
             ))
-            & (bundle.contrast_table["estimator"] == "dr_increment")
+            & (bundle.contrast_table["estimator"] == PRIMARY_ESTIMATOR)
         ].set_index("contrast")
         family_block = bundle.family.set_index("contrast")
         for contrast, (policy_name, baseline_name) in FAMILY_CONTRASTS.items():
             ope_diff = float(contrast_block.loc[contrast, "diff_cny_per_user"])
+            ope_diff_se = float(contrast_block.loc[contrast, "se_diff"])
             audit_diff = float(
                 audit_block.loc[policy_name, "audit_increment_vs_no_coupon_cny_per_user"]
                 - audit_block.loc[baseline_name, "audit_increment_vs_no_coupon_cny_per_user"]
@@ -924,16 +1032,332 @@ def ope_vs_audit_table(
                 "ope_value_cny_per_user": ope_diff,
                 "audit_value_cny_per_user": audit_diff,
                 "value_error_cny_per_user": ope_diff - audit_diff,
+                "ope_se_cny_per_user": ope_diff_se,
+                "ope_z": ope_diff / ope_diff_se
+                if np.isfinite(ope_diff_se) and ope_diff_se > 0.0
+                else float("nan"),
+                "ope_one_sided_p_value": float(
+                    contrast_block.loc[contrast, "one_sided_p_value"]
+                ),
                 "ope_spend_per_user_cny": float("nan"),
                 "audit_spend_per_user_cny": float("nan"),
                 "spend_error_cny_per_user": float("nan"),
                 "reliability_passed": bool(
                     bundle.gates[per_user][policy_name]["passed"]
+                    and bundle.gates[per_user][baseline_name]["passed"]
                 ),
                 "holm_rejected": holm_value,
                 "sign_agrees": bool(np.sign(ope_diff) == np.sign(audit_diff)),
             })
     return pd.DataFrame(rows).loc[:, list(OPE_VS_AUDIT_COLUMNS)]
+
+
+# --------------------------------------------------------------------------- #
+# 定向分解（覆盖效应 vs 单位人群效应）与随机策略分布
+# --------------------------------------------------------------------------- #
+def targeting_decomposition_table(
+    audit_table: pd.DataFrame,
+    *,
+    n_users: int,
+) -> pd.DataFrame:
+    """把定向策略相对基线的真值增量拆成"覆盖效应 + 单位人群效应"。
+
+    ``increment = coverage × mean_tau|selected``。于是
+
+    覆盖效应 = (coverage_A − coverage_B) × mean_tau_B
+    单位效应 = coverage_A × (mean_tau_A − mean_tau_B)
+
+    两项之和恰等于两条策略的增量差。该表只回答"定向到底来自多覆盖人还是选对人"，
+    不参与任何选择或拟合。
+    """
+    if n_users <= 0:
+        raise ValueError("n_users 必须为正")
+    rows: list[dict[str, Any]] = []
+    for per_user in sorted(float(value) for value in audit_table["per_user_budget_cny"].unique()):
+        block = audit_table.loc[
+            np.isclose(audit_table["per_user_budget_cny"], per_user, rtol=0.0, atol=1e-12)
+        ].set_index("policy")
+        for contrast, (policy_name, baseline_name) in FAMILY_CONTRASTS.items():
+            row_a = block.loc[policy_name]
+            row_b = block.loc[baseline_name]
+            n_a = int(row_a["audit_n_selected"])
+            n_b = int(row_b["audit_n_selected"])
+            inc_a = float(row_a["audit_increment_vs_no_coupon_cny_per_user"])
+            inc_b = float(row_b["audit_increment_vs_no_coupon_cny_per_user"])
+            coverage_a = n_a / n_users
+            coverage_b = n_b / n_users
+            # increment = mean(mask * tau) = (n_selected/n) * mean_tau|selected
+            mean_tau_a = inc_a / coverage_a if coverage_a > 0.0 else float("nan")
+            mean_tau_b = inc_b / coverage_b if coverage_b > 0.0 else float("nan")
+            # 基线覆盖 0 时（如 no_coupon），覆盖项按极限记为 0，剩余全部归单位效应；
+            # 展示列仍保留 NaN，表示"没有入选者，均值无定义"。
+            mean_tau_b_effect = mean_tau_b if coverage_b > 0.0 else 0.0
+            mean_tau_a_effect = mean_tau_a if coverage_a > 0.0 else 0.0
+            coverage_effect = (coverage_a - coverage_b) * mean_tau_b_effect
+            per_user_effect = coverage_a * (mean_tau_a_effect - mean_tau_b_effect)
+            difference = inc_a - inc_b
+            rows.append({
+                "per_user_budget_cny": per_user,
+                "policy": policy_name,
+                "baseline": baseline_name,
+                "audit_n_selected_policy": n_a,
+                "audit_n_selected_baseline": n_b,
+                "audit_mean_tau_policy": mean_tau_a,
+                "audit_mean_tau_baseline": mean_tau_b,
+                "audit_increment_policy": inc_a,
+                "audit_increment_baseline": inc_b,
+                "audit_difference": difference,
+                "audit_coverage_effect": coverage_effect,
+                "audit_per_user_effect": per_user_effect,
+                "audit_coverage_share": (
+                    coverage_effect / difference
+                    if abs(difference) > 1e-12 else float("nan")
+                ),
+                "audit_per_user_share": (
+                    per_user_effect / difference
+                    if abs(difference) > 1e-12 else float("nan")
+                ),
+            })
+    return pd.DataFrame(rows).loc[:, list(TARGETING_COLUMNS)]
+
+
+def random_policy_masks(
+    selection: pd.DataFrame,
+    cfg: Config,
+    *,
+    budget_per_user: float,
+    seed_indices: Iterable[int],
+) -> dict[int, NDArray[np.float64]]:
+    """复现 ``random_same_budget`` 的多条随机名单（同预算规则、同共同随机数流）。
+
+    与 :func:`build_policies` 用同一 ``f01.policy.random`` 派生流与 ``seed_index``；
+    因此冻结名单里的随机臂必然等于这里 ``seed_indices`` 中的对应一条。
+    """
+    ordered = require_freeze_frame(selection)
+    per_user = float(budget_per_user)
+    if not np.isfinite(per_user) or per_user <= 0.0:
+        raise ValueError("budget_per_user 必须是正有限数")
+    budget = per_user * len(ordered)
+    master = int(cfg.require("project.master_seed"))
+    masks: dict[int, NDArray[np.float64]] = {}
+    for index in seed_indices:
+        seed = int(index)
+        rng = child_rng(master, "f01.policy.random", seed)
+        chosen = run_policy("random_same_budget", ordered, budget, rng)
+        masks[seed] = np.asarray(chosen.mask, dtype=float)
+    return masks
+
+
+def _quantile(sorted_values: NDArray[np.float64], q: float) -> float:
+    if sorted_values.size == 0:
+        return float("nan")
+    return float(np.quantile(sorted_values, q))
+
+
+def random_policy_distribution(
+    bundle: F01OpeBundle,
+    frame: pd.DataFrame,
+    selection: pd.DataFrame,
+    policy_frames: Mapping[float, pd.DataFrame],
+    truth: pd.DataFrame,
+    cfg: Config,
+    *,
+    freeze_id: str,
+    seed_index: int,
+    manifest: Mapping[str, Any] | None = None,
+    n_seeds: int = 200,
+    seed_offset: int = 0,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """在同预算规则下抽 ``n_seeds`` 条随机名单，给"定向 vs 随机"一个分布参照。
+
+    冻结点：随机名单只由选人表与种子派生，先于真值；``seed_index`` 必须是这批种子
+    中的一条，且复现出的 mask 必须与冻结名单里的 ``random_same_budget`` 完全一致。
+    真值只用于 ``audit_`` 列与等实际支出回归，不回流任何选择。
+    返回 (逐种子长表, 汇总表)。
+    """
+    if n_seeds < 10:
+        raise ValueError("随机分布至少需要 10 条种子，否则分位数没有意义")
+    seeds = list(range(int(seed_offset), int(seed_offset) + int(n_seeds)))
+    if int(seed_index) not in seeds:
+        raise ValueError(
+            f"冻结随机种子 {seed_index} 不在 {seeds[0]}..{seeds[-1]} 内"
+        )
+    if "user_id" not in frame.columns or not frame["user_id"].is_monotonic_increasing:
+        raise ValueError("观测表必须已按 user_id 升序")
+    observed = ope.require_observed_frame(frame)
+    ordered = require_freeze_frame(selection)
+    user_id = ordered["user_id"].to_numpy()
+    if not np.array_equal(observed["user_id"].to_numpy(), user_id):
+        raise ValueError("观测表与选人表的用户集合/顺序不一致")
+    aligned = require_truth_frame(truth, user_id, freeze_id=freeze_id, manifest=manifest)
+    tau = aligned["tau_true"].to_numpy(dtype=float)
+    cost = aligned["cost_true"].to_numpy(dtype=float)
+    y = observed["net_profit"].to_numpy(dtype=float)
+    t = observed["treatment"].to_numpy(dtype=float)
+    nuisance = bundle.nuisance
+    e = nuisance.propensity
+    if len(y) != len(e):
+        raise ValueError("nuisance 与观测表行数不一致")
+
+    per_seed_rows: list[dict[str, Any]] = []
+    summary_rows: list[dict[str, Any]] = []
+    for per_user in sorted(bundle.gates):
+        masks = random_policy_masks(
+            selection, cfg, budget_per_user=per_user, seed_indices=seeds
+        )
+        frozen_map = _align_policy_masks(policy_frames[per_user], user_id)
+        frozen_random = frozen_map["random_same_budget"]
+        reproduced = masks[int(seed_index)]
+        if not np.array_equal(frozen_random, reproduced):
+            raise ValueError(
+                f"预算 {per_user}：复现的随机名单与冻结名单不一致，种子/预算口径已漂移"
+            )
+        no_coupon = frozen_map["no_coupon"]
+        base_value, base_if = ope.policy_value_dr(
+            no_coupon, y, t, nuisance.mu1, nuisance.mu0, e
+        )
+        targeted_mask = frozen_map[PRIMARY_POLICY]
+        targeted_audit = float(np.mean(targeted_mask * tau))
+        targeted_dr_value, _ = ope.policy_value_dr(
+            targeted_mask, y, t, nuisance.mu1, nuisance.mu0, e
+        )
+        targeted_dr = float(targeted_dr_value - base_value)
+
+        audit_values: list[float] = []
+        dr_values: list[float] = []
+        spends: list[float] = []
+        for seed in seeds:
+            mask = masks[seed]
+            audit_increment = float(np.mean(mask * tau))
+            spend = float(np.sum(mask * cost))
+            dr_value, dr_if = ope.policy_value_dr(
+                mask, y, t, nuisance.mu1, nuisance.mu0, e
+            )
+            dr_increment = float(dr_value - base_value)
+            dr_se = influence_se(dr_if - base_if)
+            audit_values.append(audit_increment)
+            dr_values.append(dr_increment)
+            spends.append(spend)
+            per_seed_rows.append({
+                "per_user_budget_cny": per_user,
+                "seed": seed,
+                "audit_n_selected": int(mask.sum()),
+                "audit_increment": audit_increment,
+                "audit_actual_spend": spend,
+                "dr_increment": dr_increment,
+                "dr_se": dr_se,
+            })
+
+        audit_array = np.asarray(audit_values, dtype=float)
+        dr_array = np.asarray(dr_values, dtype=float)
+        spend_array = np.asarray(spends, dtype=float)
+        frozen_audit = audit_array[seeds.index(int(seed_index))]
+        frozen_dr = dr_array[seeds.index(int(seed_index))]
+
+        # 等实际支出参照：在随机名单内部回归 audit 增量 ~ 实际支出，
+        # 再外推到定向臂的真实支出。只作描述，不据此改写任何名单。
+        equal_spend: dict[str, float] = {
+            "equal_spend_target": float(np.sum(targeted_mask * cost)),
+            "equal_spend_predicted_random": float("nan"),
+            "equal_spend_difference": float("nan"),
+            "equal_spend_slope": float("nan"),
+            "equal_spend_slope_se": float("nan"),
+            "equal_spend_slope_t": float("nan"),
+            "equal_spend_intercept": float("nan"),
+            "equal_spend_r2": float("nan"),
+            "equal_spend_target_within_random_spend_range": float("nan"),
+        }
+        if spend_array.size >= 3 and float(spend_array.std(ddof=1)) > 0.0:
+            slope, intercept = np.polyfit(spend_array, audit_array, 1)
+            predicted = float(intercept + slope * equal_spend["equal_spend_target"])
+            residual = audit_array - (intercept + slope * spend_array)
+            ss_res = float(np.sum(residual ** 2))
+            ss_tot = float(np.sum((audit_array - audit_array.mean()) ** 2))
+            sxx = float(np.sum((spend_array - spend_array.mean()) ** 2))
+            dof = int(spend_array.size - 2)
+            slope_se = float(np.sqrt(ss_res / dof / sxx)) if dof > 0 and sxx > 0.0 else float("nan")
+            slope_t = (
+                float(slope / slope_se)
+                if np.isfinite(slope_se) and slope_se > 0.0
+                else float("nan")
+            )
+            equal_spend.update({
+                "equal_spend_predicted_random": predicted,
+                "equal_spend_difference": targeted_audit - predicted,
+                "equal_spend_slope": float(slope),
+                "equal_spend_slope_se": slope_se,
+                "equal_spend_slope_t": slope_t,
+                "equal_spend_intercept": float(intercept),
+                "equal_spend_r2": 1.0 - ss_res / ss_tot if ss_tot > 0.0 else float("nan"),
+                # 定向臂支出高于全部随机种子时，"等支出参照"是外推而非插值，必须显式标注。
+                "equal_spend_target_within_random_spend_range": float(
+                    bool(
+                        float(spend_array.min())
+                        <= equal_spend["equal_spend_target"]
+                        <= float(spend_array.max())
+                    )
+                ),
+            })
+
+        for estimator, values, frozen_value, targeted_value in (
+            ("audit", audit_array, frozen_audit, targeted_audit),
+            (PRIMARY_ESTIMATOR, dr_array, frozen_dr, targeted_dr),
+        ):
+            ordered_values = np.sort(values)
+            mean = float(np.mean(values))
+            sd = float(np.std(values, ddof=1))
+            mc_se = sd / np.sqrt(values.size) if values.size > 0 else float("nan")
+            difference = targeted_value - mean
+            z = difference / mc_se if np.isfinite(mc_se) and mc_se > 0.0 else float("nan")
+            p_one_sided = (
+                float(1.0 - NormalDist().cdf(z)) if np.isfinite(z) else float("nan")
+            )
+            # 等实际支出回归只用真值审计列；DR 行没有真值支出，整组留空。
+            if estimator == "audit":
+                spend_block = equal_spend
+            else:
+                spend_block = {key: float("nan") for key in equal_spend}
+                spend_block["equal_spend_target"] = float(np.sum(targeted_mask * cost))
+            row = {
+                "per_user_budget_cny": per_user,
+                "estimator": estimator,
+                "n_seeds": int(values.size),
+                "mean": mean,
+                "sd": sd,
+                "q10": _quantile(ordered_values, 0.10),
+                "q50": _quantile(ordered_values, 0.50),
+                "q90": _quantile(ordered_values, 0.90),
+                "frozen_seed_value": float(frozen_value),
+                "frozen_seed_rank_low": float(np.mean(values < frozen_value)),
+                "frozen_seed_index": int(seed_index),
+                "targeted_value": float(targeted_value),
+                "targeted_minus_mean": float(difference),
+                "mc_se": float(mc_se),
+                "z": float(z),
+                "one_sided_p_value": p_one_sided,
+                "n_random_at_least_targeted": int(
+                    np.sum(values >= targeted_value - 1e-15)
+                ),
+                **spend_block,
+                "note": (
+                    "frozen_seed_value 只是随机名单分布中的一条，不能当随机臂均值；"
+                    "targeted_minus_mean 的对照分布是 random_same_budget 同预算规则；"
+                    "one_sided_p_value 衡量定向名单是否高于随机分布均值，"
+                    "不是「定向显著优于随机」的确证性检验。"
+                    + (
+                        "等实际支出回归只用真值审计列，属描述性参照；"
+                        "斜率必须与 equal_spend_slope_se / slope_t 一起读，"
+                        "equal_spend_target_within_random_spend_range=0 表示定向臂支出"
+                        "落在随机种子的支出范围之外，该参照是外推而不是插值。"
+                        if estimator == "audit"
+                        else "DR 行没有真值支出，等实际支出列留空。"
+                    )
+                ),
+            }
+            summary_rows.append(row)
+    per_seed = pd.DataFrame(per_seed_rows).loc[:, list(RANDOM_DIST_COLUMNS)]
+    summary = pd.DataFrame(summary_rows).loc[:, list(RANDOM_DIST_SUMMARY_COLUMNS)]
+    return per_seed, summary
 
 
 def config_family(cfg: Config) -> list[str]:
@@ -964,7 +1388,11 @@ __all__ = [
     "FREEZE_SCHEMA",
     "OBSERVED_COLUMNS",
     "OPE_VS_AUDIT_COLUMNS",
+    "PRIMARY_ESTIMATOR",
     "PRIMARY_POLICY",
+    "RANDOM_DIST_COLUMNS",
+    "RANDOM_DIST_SUMMARY_COLUMNS",
+    "TARGETING_COLUMNS",
     "VALUE_TABLE_COLUMNS",
     "budget_key",
     "build_freeze_manifest",
@@ -976,8 +1404,12 @@ __all__ = [
     "normal_interval",
     "ope_bundle",
     "ope_vs_audit_table",
+    "random_policy_distribution",
+    "random_policy_masks",
     "require_freeze_frame",
     "require_truth_frame",
+    "targeting_decomposition_table",
     "truth_audit_table",
+    "truth_frame_sha256",
     "verify_freeze_manifest",
 ]

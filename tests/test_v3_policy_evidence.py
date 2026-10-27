@@ -72,6 +72,24 @@ def test_calibrate_cost_predictions_reports_degenerate_correlation() -> None:
     assert np.isnan(report["pearson"])
     assert np.isnan(report["ols_slope"])
     assert report["calibration_basis"] == "validation_observed_logs_only"
+    assert report["null_constant_mae_cny"] == pytest.approx(0.0)
+    assert np.isnan(report["mae_relative_improvement_vs_constant"])
+    assert report["observed_binary_0_10"] is False
+
+
+def test_calibrate_cost_predictions_reports_binary_baseline() -> None:
+    predicted = np.array([1.0, 2.0, 3.0, 4.0])
+    observed = np.array([0.0, 0.0, 10.0, 10.0])
+    report = ev.calibrate_cost_predictions(predicted, observed)
+    assert report["observed_binary_0_10"] is True
+    assert report["binary_p_hat"] == pytest.approx(0.5)
+    assert report["null_constant_mae_cny"] == pytest.approx(5.0)
+    assert report["null_constant_rmse_cny"] == pytest.approx(5.0)
+    assert report["mae_cny"] < report["null_constant_mae_cny"] + 1e-12
+    assert np.isfinite(report["brier_score_10cny_scale"])
+    assert np.isfinite(report["brier_null_10cny_scale"])
+    assert report["pearson_at_calibrated_signal"] > 0.0
+    assert np.isfinite(report["pearson_share_of_calibrated_signal"])
 
 
 def test_lp_upper_bound_handles_free_items() -> None:
@@ -161,10 +179,12 @@ def test_bucket_convergence_repairs_infeasible_masks_and_keeps_truth_isolated(cf
     assert len(table) == 2 * (1 + 3)
     exact = table[table["method"] == "cent_exact_dp"]
     assert (exact["gap_to_exact_cny"] == 0.0).all()
+    assert (exact["relative_gap_to_exact"] == 0.0).all()
     bucket = table[table["method"] == "bucket_dp"]
     assert bucket["feasible_under_original_cost"].all()
     assert (bucket["n_dropped_for_feasibility"] >= 0).all()
     assert np.isfinite(bucket["predicted_value_cny"]).all()
+    assert (bucket["relative_gap_to_exact"] >= 0.0).all()
 
     poisoned = ev.bucket_convergence_table(
         _poison(frame), cfg, pool_size=20, budgets=[0.04, 0.2], widths=[0.5, 0.1, 0.01]
@@ -190,6 +210,9 @@ def test_random_baseline_is_reproducible_and_truth_isolated(cfg) -> None:
     assert (summary_a["q500"] <= summary_a["q975"] + 1e-12).all()
     assert summary_a["overrun_probability"].between(0.0, 1.0).all()
     assert summary_a["mean_se"].notna().all()
+    assert summary_a["mean_value_per_actual_spend"].notna().all()
+    positive_spend = long_a["actual_spend_cny"] > 0.0
+    assert np.isfinite(long_a.loc[positive_spend, "true_value_per_actual_spend"]).all()
     assert summary_a["interpretation"].str.contains("not the CI").all()
     assert (long_a["n_total"] == len(frame)).all()
     assert (summary_a["n_total"] == len(frame)).all()
@@ -227,6 +250,24 @@ def test_error_decomposition_identity_and_truth_bound(cfg) -> None:
     assert (table["truth_exactness"] == "exact_for_cent_integerized_raw_truth_problem").all()
     assert (table["truth_milp_cost_basis"] == "truth_cost_floored_at_cost_floor_cny").all()
     assert np.isfinite(table["total_regret_cny_per_user"]).all()
+    assert table["identity_residual_cost_hat_basis"].abs().max() < 1e-9
+    assert np.allclose(
+        table["total_regret_cost_hat_basis_cny_per_user"],
+        table["learning_error_cost_hat_basis_cny_per_user"]
+        + table["optimization_error_cny_per_user"],
+    )
+    assert table["truth_feasible_under_cost_hat"].all()
+    assert (
+        table["truth_oracle_cost_basis"]
+        == "cost_hat_primary; raw_realized_cost_true_sensitivity"
+    ).all()
+
+
+def test_small_pool_rejects_constant_tau(cfg) -> None:
+    frame = _frame()
+    frame["tau_hat"] = 0.3
+    with pytest.raises(ValueError, match="tau_hat 在池内恒定"):
+        ev.small_pool_solver_table(frame, cfg, pool_sizes=[20], budgets=[0.04])
 
 
 def test_scale_table_contract_and_lp_bound(cfg) -> None:
@@ -326,6 +367,11 @@ def test_small_pool_no_incumbent_rows_are_nan_not_zero(cfg, monkeypatch) -> None
         "within_budget_by_hat", "feasible_under_original_cost",
         "true_value_per_user", "true_total_value_cny",
         "actual_spend_cny", "within_budget_by_true", "incumbent_cny",
+        # MilpResult 里的 relative_gap=1.0 只是"无 incumbent"的哨兵；落到表里
+        # 必须写 NaN，否则会被读成"实测间隙 100%"。
+        "relative_gap",
     ):
         assert pd.isna(milp[column]), column
+    # LP 上界是真数值，不得跟着一起变成 NaN，否则该行什么信息都不剩。
+    assert np.isfinite(float(milp["bound_cny"]))
     assert milp["bound_cny"] > 0.0

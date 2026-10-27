@@ -209,8 +209,36 @@ def test_truth_audit_exact_and_does_not_mutate_inputs() -> None:
     assert greedy["audit_actual_spend_cny"] == pytest.approx(0.1)
     assert greedy["audit_budget_cny"] == pytest.approx(0.8)
     assert bool(greedy["audit_within_budget_by_true"]) is True
+    aligned = truth.set_index("user_id").reindex(
+        pd.Index([1, 2, 3, 4], name="user_id")
+    ).reset_index()
+    assert greedy["audit_truth_sha256"] == f01.truth_frame_sha256(aligned)
     pd.testing.assert_frame_equal(selection, selection_before)
     pd.testing.assert_frame_equal(policy_frame, policy_before)
+
+    # 定向分解恒等式：增量差 = 覆盖效应 + 单位人群效应。
+    targeting = f01.targeting_decomposition_table(table, n_users=4)
+    row = targeting.loc[
+        (targeting["policy"] == f01.PRIMARY_POLICY)
+        & (targeting["baseline"] == "random_same_budget")
+    ].iloc[0]
+    assert row["audit_coverage_effect"] == pytest.approx(0.0)
+    assert row["audit_per_user_effect"] == pytest.approx(-0.25)
+    assert row["audit_difference"] == pytest.approx(-0.25)
+    assert row["audit_coverage_effect"] + row["audit_per_user_effect"] == pytest.approx(
+        row["audit_difference"]
+    )
+    assert row["audit_coverage_share"] == pytest.approx(0.0)
+    assert row["audit_per_user_share"] == pytest.approx(1.0)
+    # 基线 zero-coverage 时覆盖项按 0 处理，全部增量归单位效应。
+    zero_base = targeting.loc[
+        (targeting["policy"] == f01.PRIMARY_POLICY)
+        & (targeting["baseline"] == "no_coupon")
+    ].iloc[0]
+    assert zero_base["audit_coverage_effect"] == pytest.approx(0.0)
+    assert zero_base["audit_per_user_effect"] == pytest.approx(0.25)
+    assert zero_base["audit_difference"] == pytest.approx(0.25)
+    assert np.isnan(zero_base["audit_mean_tau_baseline"])
 
 
 def test_require_truth_frame_rejects_mismatch_and_missing_freeze_id() -> None:
@@ -222,6 +250,11 @@ def test_require_truth_frame_rejects_mismatch_and_missing_freeze_id() -> None:
     with pytest.raises(ValueError, match="用户集合"):
         f01.require_truth_frame(
             wrong, truth["user_id"].to_numpy(), freeze_id="b" * 64
+        )
+    with pytest.raises(ValueError, match="manifest"):
+        f01.require_truth_frame(
+            truth, truth["user_id"].to_numpy(), freeze_id="b" * 64,
+            manifest={"freeze_id": "c" * 64},
         )
 
 
@@ -250,6 +283,38 @@ def test_ope_bundle_matches_public_ope_and_paired_difference() -> None:
     assert set(gates) == set(f01.CANDIDATE_POLICIES)
     for name, gate in gates.items():
         assert gate["passed"] == bundle.gates[0.2][name]["passed"]
+        # ESS 必须按臂内人数归一：任何启用的臂，占比都不能超过 1。
+        if masks[name].sum() > 0:
+            assert 0.0 < gate["ess_fraction_treated"] <= 1.0 + 1e-12
+        if masks[name].sum() < len(masks[name]):
+            assert 0.0 < gate["ess_fraction_control"] <= 1.0 + 1e-12
+
+    assert tuple(bundle.increment_table.columns) == f01.INCREMENT_TABLE_COLUMNS
+    dr_increment = bundle.increment_table.loc[
+        np.isclose(bundle.increment_table["per_user_budget_cny"], 0.2)
+        & (bundle.increment_table["estimator"] == "dr_increment")
+    ].set_index("policy")
+    baseline_value = float(
+        bundle.value_table.loc[
+            np.isclose(bundle.value_table["per_user_budget_cny"], 0.2)
+            & (bundle.value_table["estimator"] == "dr_increment")
+            & (bundle.value_table["policy"] == "no_coupon"),
+            "value_cny_per_user",
+        ].iloc[0]
+    )
+    for name in f01.CANDIDATE_POLICIES:
+        reference_value = float(
+            bundle.value_table.loc[
+                np.isclose(bundle.value_table["per_user_budget_cny"], 0.2)
+                & (bundle.value_table["estimator"] == "dr_increment")
+                & (bundle.value_table["policy"] == name),
+                "value_cny_per_user",
+            ].iloc[0]
+        )
+        assert dr_increment.loc[name, "increment_cny_per_user"] == pytest.approx(
+            reference_value - baseline_value, abs=1e-12
+        )
+    assert dr_increment.loc["no_coupon", "increment_cny_per_user"] == pytest.approx(0.0)
 
     baseline = "no_coupon"
     diff_table, _, _ = ope.paired_policy_differences(
@@ -300,11 +365,113 @@ def test_ope_bundle_matches_public_ope_and_paired_difference() -> None:
         assert row.value_error_cny_per_user == pytest.approx(
             row.ope_value_cny_per_user - row.audit_value_cny_per_user
         )
+        if row.comparison == "policy_vs_no_coupon" and row.name != "no_coupon":
+            assert np.isfinite(row.ope_se_cny_per_user)
+            assert row.ope_z == pytest.approx(
+                row.ope_value_cny_per_user / row.ope_se_cny_per_user
+            )
     contrast_row = recon.loc[
         (recon["comparison"] == "contrast")
         & (recon["name"] == "selected_targeted_minus_no_coupon")
     ].iloc[0]
     assert bool(contrast_row["sign_agrees"]) is True
+    family_row = bundle.family.set_index("contrast").loc[
+        "selected_targeted_minus_no_coupon"
+    ]
+    assert contrast_row["ope_one_sided_p_value"] == pytest.approx(
+        family_row["one_sided_p_value"], abs=1e-12
+    )
+
+
+def test_random_policy_distribution_reproduces_frozen_arm_and_is_deterministic() -> None:
+    selection, inputs, truth = _fixture(n=600, seed=21)
+    cfg = load_v3_protocol().config
+    policy_frame, _ = f01.build_policies(selection, cfg, budget_per_user=0.2, seed_index=3)
+    observed, features = _observed(selection, inputs)
+    bundle = f01.ope_bundle(observed, features, {0.2: policy_frame}, cfg, seed_index=3)
+    freeze_id = "d" * 64
+    calls = dict(
+        freeze_id=freeze_id, seed_index=3, n_seeds=20, seed_offset=0,
+    )
+    per_seed_a, summary_a = f01.random_policy_distribution(
+        bundle, observed, selection, {0.2: policy_frame}, truth, cfg, **calls
+    )
+    per_seed_b, summary_b = f01.random_policy_distribution(
+        bundle, observed, selection, {0.2: policy_frame}, truth, cfg, **calls
+    )
+    pd.testing.assert_frame_equal(per_seed_a, per_seed_b)
+    pd.testing.assert_frame_equal(summary_a, summary_b)
+    assert tuple(per_seed_a.columns) == f01.RANDOM_DIST_COLUMNS
+    assert tuple(summary_a.columns) == f01.RANDOM_DIST_SUMMARY_COLUMNS
+    assert len(per_seed_a) == 20
+    assert len(summary_a) == 2
+
+    audit = f01.truth_audit_table(
+        selection, {0.2: policy_frame}, truth, freeze_id=freeze_id
+    )
+    audit_rows = audit.loc[
+        np.isclose(audit["per_user_budget_cny"], 0.2)
+    ].set_index("policy")
+    frozen = per_seed_a.loc[per_seed_a["seed"] == 3].iloc[0]
+    assert frozen["audit_n_selected"] == audit_rows.loc[
+        "random_same_budget", "audit_n_selected"
+    ]
+    assert frozen["audit_increment"] == pytest.approx(
+        audit_rows.loc[
+            "random_same_budget", "audit_increment_vs_no_coupon_cny_per_user"
+        ],
+        abs=1e-12,
+    )
+    assert frozen["audit_actual_spend"] == pytest.approx(
+        audit_rows.loc["random_same_budget", "audit_actual_spend_cny"], abs=1e-9
+    )
+
+    audit_summary = summary_a.set_index("estimator").loc["audit"]
+    assert audit_summary["frozen_seed_index"] == 3
+    assert audit_summary["frozen_seed_value"] == pytest.approx(
+        frozen["audit_increment"], abs=1e-12
+    )
+    assert audit_summary["targeted_value"] == pytest.approx(
+        audit_rows.loc[
+            f01.PRIMARY_POLICY, "audit_increment_vs_no_coupon_cny_per_user"
+        ],
+        abs=1e-12,
+    )
+    assert 0.0 <= audit_summary["frozen_seed_rank_low"] <= 1.0
+    assert 0 <= audit_summary["n_random_at_least_targeted"] <= 20
+    assert audit_summary["targeted_minus_mean"] == pytest.approx(
+        audit_summary["targeted_value"] - audit_summary["mean"]
+    )
+    assert np.isfinite(audit_summary["equal_spend_slope"])
+    # 斜率标准误必须能用逐种子支出行独立复算，否则"等支出参照"无法判断是否只是噪声。
+    assert np.isfinite(audit_summary["equal_spend_slope_se"])
+    assert audit_summary["equal_spend_slope_se"] > 0.0
+    assert audit_summary["equal_spend_slope_t"] == pytest.approx(
+        audit_summary["equal_spend_slope"] / audit_summary["equal_spend_slope_se"],
+        rel=1e-12,
+    )
+    spends = per_seed_a["audit_actual_spend"].to_numpy(dtype=float)
+    values = per_seed_a["audit_increment"].to_numpy(dtype=float)
+    ref_slope, ref_intercept = np.polyfit(spends, values, 1)
+    ref_ss_res = float(np.sum((values - (ref_intercept + ref_slope * spends)) ** 2))
+    ref_sxx = float(np.sum((spends - spends.mean()) ** 2))
+    ref_se = float(np.sqrt(ref_ss_res / (spends.size - 2) / ref_sxx))
+    assert audit_summary["equal_spend_slope"] == pytest.approx(ref_slope, rel=1e-12)
+    assert audit_summary["equal_spend_slope_se"] == pytest.approx(ref_se, rel=1e-10)
+    target_spend = float(audit_summary["equal_spend_target"])
+    assert bool(
+        audit_summary["equal_spend_target_within_random_spend_range"]
+    ) == (spends.min() <= target_spend <= spends.max())
+    dr_summary = summary_a.set_index("estimator").loc["dr_increment"]
+    assert np.isnan(dr_summary["equal_spend_slope"])
+    assert np.isnan(dr_summary["equal_spend_slope_se"])
+    assert np.isnan(dr_summary["equal_spend_target_within_random_spend_range"])
+    assert np.isfinite(dr_summary["mean"])
+    with pytest.raises(ValueError, match="不在"):
+        f01.random_policy_distribution(
+            bundle, observed, selection, {0.2: policy_frame}, truth, cfg,
+            freeze_id=freeze_id, seed_index=99, n_seeds=20,
+        )
 
 
 def test_family_table_holm_thresholds_and_adjusted_lower_bound() -> None:
@@ -347,6 +514,31 @@ def test_family_table_holm_thresholds_and_adjusted_lower_bound() -> None:
         assert bool(row["holm_rejected"]) == (
             row["holm_adjusted_p_value"] <= row["holm_alpha"]
         )
+
+
+def test_primary_estimator_is_registered_and_drives_family_table() -> None:
+    cfg = load_v3_protocol().config
+    assert f01.PRIMARY_ESTIMATOR in ope.ESTIMATORS
+    rows = []
+    for contrast in f01.FAMILY_CONTRASTS:
+        policy, baseline = f01.FAMILY_CONTRASTS[contrast]
+        rows.append({
+            "contrast": contrast,
+            "policy": policy,
+            "baseline": baseline,
+            "estimator": f01.PRIMARY_ESTIMATOR,
+            "diff_cny_per_user": 2.0,
+            "se_diff": 0.5,
+            "ci_low": 1.0,
+            "ci_high": 3.0,
+            "one_sided_p_value": 0.01,
+            "n": 1000,
+        })
+    table = f01.family_table(pd.DataFrame(rows), cfg)
+    assert set(table["estimator"]) == {f01.PRIMARY_ESTIMATOR}
+    other = pd.DataFrame(rows).assign(estimator="ipw_increment")
+    with pytest.raises(ValueError, match="DR 行应恰为 1"):
+        f01.family_table(other, cfg)
 
 
 def test_ope_bundle_rejects_unsorted_frame_and_missing_primary_budget() -> None:

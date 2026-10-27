@@ -10,6 +10,9 @@
   "rep_id": 0,
   "chosen_model": "constant",
   "primary_budget_cny_per_user": 0.2,
+  "primary_policy": "greedy_incremental_profit_per_cost",
+  "primary_estimator": "dr_increment",
+  "primary_estimator_frozen_by": "source_hashes（源码哈希；该估计量无 YAML 字段）",
   "budgets_cny_per_user": [
     0.04,
     0.1,
@@ -60,33 +63,49 @@
     "src/causal_growth/dgp/v3_probability.py": "773339eb04fe2fbd000e1d16296613d35fc8b04ba65ffac1313ff4ce4d6cd469",
     "src/causal_growth/dgp/v3_semantics.py": "e90b1f445f7072c2096d67caaa64ffc8c653cbd50989e81806cf5336a82b9c1d",
     "src/causal_growth/dgp/v3_timing.py": "fe01d430533d119b26f7c4fdb44bee16c8eef3de951a634e71ca289439287a3c",
-    "src/causal_growth/estimate/v3_models.py": "7d31518b58bfaf0f94eb1fdb8a44419ee7b98a864c4a8ffac4a6d4dc36f328f9",
+    "src/causal_growth/estimate/v3_models.py": "7de5a364a596cc6dffdc49da970f8934f3997799ee512fa2ca35b7e5b60ae947",
     "src/causal_growth/evaluation/v3_aa.py": "95edd77c18f6d33ff2e6e5073c5c9327fb71029f587e54af994b167c28c199a9",
     "src/causal_growth/evaluation/v3_d03_formal.py": "ee527c9036070c9e8a1f53f0e607f0a73a2acf069996ccd579166ac3ee028efa",
     "src/causal_growth/evaluation/v3_data_checks.py": "f823f3856d032f9c9a166b9b81254d4c11570fbb708325c78d6824e65520f75c",
-    "src/causal_growth/evaluation/v3_f01.py": "dec258da2d0522ced8b8d5cc7a58fbbbf5f0448e6ceaa893bd187af12252d30b",
+    "src/causal_growth/evaluation/v3_f01.py": "32b0b668bc78cca9c0cec3bc63f1a7f0b0b1743d76d126b1931ed93707b5bd32",
     "src/causal_growth/evaluation/v3_f02.py": "d9646a34a5b59e8933d7a015130f8457a754f28816e25313b458ef4a1eae6e12",
-    "src/causal_growth/evaluation/v3_f02_formal.py": "a1329c1088157ce9331bb8926dddc7a866a1fc0283e47b009187d2fc49a75fa3",
+    "src/causal_growth/evaluation/v3_f02_formal.py": "79422c8a4f2a8ae1269e15ed15e6f35ff475e3a2b08dbcf0f96a93052fd97ced",
     "src/causal_growth/evaluation/v3_mechanism_checks.py": "2fe6ef554ef4ad961d78dbfe5337c888487464fa9806e30761ea4d0dc4199706",
-    "src/causal_growth/evaluation/v3_ope.py": "40010896918fd1f9092921dd33f7e2dcb67cf522f033f0d86c757a967231f4df",
+    "src/causal_growth/evaluation/v3_ope.py": "f620b36964084fbc3ffe89dce187f294e0ae8dc09000cfb551d23b3ef9c28d56",
     "src/causal_growth/policy/v3_policy.py": "ba058f9bbda3cdaaaa7143ea5a00caba62b3f917d400ab4073ecf67c80c72f16",
-    "src/causal_growth/policy/v3_policy_evidence.py": "e09bfc8ddc140641928a360060736590c47074bf15e140c2a9b83571bc8df6d3",
+    "src/causal_growth/policy/v3_policy_evidence.py": "ca29cdbcc57728e134ec284b2ecaf169d0f83f2fb116da2143cca139d4bd8051",
     "src/causal_growth/policy/v3_policy_grid.py": "53205262eb20e46fc4c753009be25c4fa467d6afe0d4da661f951523cf65e2bb",
     "src/causal_growth/v3_config.py": "63b6584e9eb7f80528312ef5ae4a93c6cf094769ffeca39310a0bbf151784fe7",
     "src/causal_growth/v3_data_config.py": "08fa068b1a7fb889a5bd584294b1549789bbae0bf18fac21e78c4365b732b9d4",
     "src/causal_growth/v3_numerics.py": "a966f81540ab09c168bb958f557a551a2461d08e6cb272a461899953e56d3522"
   },
-  "source_hash_combined": "7012a17b7b7b34f33f436160ed2cd9cb87a7d09a5473d8c47935779539fa0b44",
+  "source_hash_combined": "d3e169f1bd3d782226d2216faa63d3a8ef69d39a8d47e270814aab79eb037bc9",
+  "git_commit": "e0048100233b4c6df5cef1931eda0c2704e63815",
   "reference_frame": {
     "path": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\e_evidence_formal\\frame_rep0.csv",
     "rows": 60000,
     "selection_sha256": "3ef75e0ff76477bbbead946cf85ed9f1acda3a9a4622e257cb3ff9a8a5fb9b8b",
     "frame_sha256": "372a1bcc1345d552a01fcca77c2ac7cb83a4ef82027e0d8fc74bba74007cddb3"
   },
+  "truth_sha256": "da000c1f481ea7a75a8ba5523765e43a24193c4e2208d8ed4ac64c027faf12ad",
+  "random_policy_distribution": {
+    "n_seeds": 200,
+    "seed_offset": 0,
+    "frozen_seed_index": 0,
+    "stream": "f01.policy.random",
+    "rule": "random_same_budget（同预测预算规则）",
+    "seconds": 39.79419709998183
+  },
+  "frame_hashes": {
+    "selection_dataframe_sha256": "3ef75e0ff76477bbbead946cf85ed9f1acda3a9a4622e257cb3ff9a8a5fb9b8b",
+    "observed_dataframe_sha256": "54aef8829db5723b87fbd007a2aaa5d4e7c7563d589a48cede9268fa2e424a1a",
+    "features_dataframe_sha256": "d15cf24d53c3910713456197c3eb3ac9a60b17f03890a34fb093ca75c7b31b7c",
+    "truth_dataframe_sha256": "da000c1f481ea7a75a8ba5523765e43a24193c4e2208d8ed4ac64c027faf12ad"
+  },
   "freeze": {
-    "path": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f01_ope\\freeze.json",
-    "file_sha256": "e2c8e5cbd5cc18392f1dbfa150312ae10a11148084efc94fb89a0dd81be4f04c",
-    "freeze_id": "3ab44dcb0bba0c0b89b665a2964f2a08fd89cb3db911580cd93bffd266288fd7",
+    "path": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f01_ope_formal_20261028_0253\\freeze.json",
+    "file_sha256": "9973376bbddf4719e9eddbf868b736d446cb1f3b73a3306cdc51b4ef4b69bcde",
+    "freeze_id": "b8402f30d82c96af4c0809d25522635c022988fdd817c9956a4ab445706d66f9",
     "selection_sha256": "3ef75e0ff76477bbbead946cf85ed9f1acda3a9a4622e257cb3ff9a8a5fb9b8b",
     "user_id_sha256": "985444514b838fc311e77720b9b42a7367193c351943072d6d68edcb0542304c",
     "design_probability_sha256": "d911776580c325773b3b1ebd96b4310b59b47c557331303cd7e4c0a1993ee854"
@@ -109,25 +128,27 @@
         "passed": true,
         "reasons": [],
         "ess_treated": 0.0,
-        "ess_control": 60000.0
+        "ess_control": 30020.0
       },
       "random_same_budget": {
-        "passed": true,
-        "reasons": [],
-        "ess_treated": 2925.0,
-        "ess_control": 57075.0
+        "passed": false,
+        "reasons": [
+          "处理臂 ESS 1445.0（占比 0.048）低于门禁"
+        ],
+        "ess_treated": 1445.0,
+        "ess_control": 28540.0
       },
       "greedy_incremental_profit_per_cost": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 6907.0,
-        "ess_control": 53093.0
+        "ess_treated": 3446.0,
+        "ess_control": 26559.0
       },
       "greedy_local_swap": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 6907.0,
-        "ess_control": 53093.0
+        "ess_treated": 3446.0,
+        "ess_control": 26559.0
       }
     },
     "0.1": {
@@ -135,25 +156,25 @@
         "passed": true,
         "reasons": [],
         "ess_treated": 0.0,
-        "ess_control": 60000.0
+        "ess_control": 30020.0
       },
       "random_same_budget": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 7254.0,
-        "ess_control": 52746.0
+        "ess_treated": 3628.0,
+        "ess_control": 26394.0
       },
       "greedy_incremental_profit_per_cost": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 13892.0,
-        "ess_control": 46108.0
+        "ess_treated": 7000.0,
+        "ess_control": 23128.0
       },
       "greedy_local_swap": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 13892.0,
-        "ess_control": 46108.0
+        "ess_treated": 7000.0,
+        "ess_control": 23128.0
       }
     },
     "0.2": {
@@ -161,25 +182,25 @@
         "passed": true,
         "reasons": [],
         "ess_treated": 0.0,
-        "ess_control": 60000.0
+        "ess_control": 30020.0
       },
       "random_same_budget": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 14589.0,
-        "ess_control": 45411.0
+        "ess_treated": 7305.0,
+        "ess_control": 22736.0
       },
       "greedy_incremental_profit_per_cost": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 23437.0,
-        "ess_control": 36563.0
+        "ess_treated": 11791.0,
+        "ess_control": 18374.0
       },
       "greedy_local_swap": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 23437.0,
-        "ess_control": 36563.0
+        "ess_treated": 11791.0,
+        "ess_control": 18374.0
       }
     },
     "0.3": {
@@ -187,25 +208,25 @@
         "passed": true,
         "reasons": [],
         "ess_treated": 0.0,
-        "ess_control": 60000.0
+        "ess_control": 30020.0
       },
       "random_same_budget": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 21920.0,
-        "ess_control": 38080.0
+        "ess_treated": 10985.0,
+        "ess_control": 19085.0
       },
       "greedy_incremental_profit_per_cost": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 31687.0,
-        "ess_control": 28313.0
+        "ess_treated": 15814.0,
+        "ess_control": 14147.0
       },
       "greedy_local_swap": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 31687.0,
-        "ess_control": 28313.0
+        "ess_treated": 15814.0,
+        "ess_control": 14147.0
       }
     },
     "0.4": {
@@ -213,25 +234,25 @@
         "passed": true,
         "reasons": [],
         "ess_treated": 0.0,
-        "ess_control": 60000.0
+        "ess_control": 30020.0
       },
       "random_same_budget": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 29268.0,
-        "ess_control": 30732.0
+        "ess_treated": 14686.0,
+        "ess_control": 15438.0
       },
       "greedy_incremental_profit_per_cost": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 39029.0,
-        "ess_control": 20971.0
+        "ess_treated": 19427.0,
+        "ess_control": 10418.0
       },
       "greedy_local_swap": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 39029.0,
-        "ess_control": 20971.0
+        "ess_treated": 19427.0,
+        "ess_control": 10418.0
       }
     },
     "0.6": {
@@ -239,25 +260,25 @@
         "passed": true,
         "reasons": [],
         "ess_treated": 0.0,
-        "ess_control": 60000.0
+        "ess_control": 30020.0
       },
       "random_same_budget": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 43959.0,
-        "ess_control": 16041.0
+        "ess_treated": 22039.0,
+        "ess_control": 8100.0
       },
       "greedy_incremental_profit_per_cost": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 51309.0,
-        "ess_control": 8691.0
+        "ess_treated": 25604.0,
+        "ess_control": 4315.0
       },
       "greedy_local_swap": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 51309.0,
-        "ess_control": 8691.0
+        "ess_treated": 25604.0,
+        "ess_control": 4315.0
       }
     },
     "0.8": {
@@ -265,31 +286,31 @@
         "passed": true,
         "reasons": [],
         "ess_treated": 0.0,
-        "ess_control": 60000.0
+        "ess_control": 30020.0
       },
       "random_same_budget": {
         "passed": false,
         "reasons": [
-          "对照臂 ESS 1418.0（占比 0.047）低于门禁"
+          "对照臂 ESS 708.0（占比 0.024）低于门禁"
         ],
-        "ess_treated": 58582.0,
-        "ess_control": 1418.0
+        "ess_treated": 29270.0,
+        "ess_control": 708.0
       },
       "greedy_incremental_profit_per_cost": {
         "passed": false,
         "reasons": [
-          "对照臂 ESS 424.0（占比 0.014）低于门禁"
+          "对照臂 ESS 215.0（占比 0.007）低于门禁"
         ],
-        "ess_treated": 59576.0,
-        "ess_control": 424.0
+        "ess_treated": 29771.0,
+        "ess_control": 215.0
       },
       "greedy_local_swap": {
         "passed": false,
         "reasons": [
-          "对照臂 ESS 424.0（占比 0.014）低于门禁"
+          "对照臂 ESS 215.0（占比 0.007）低于门禁"
         ],
-        "ess_treated": 59576.0,
-        "ess_control": 424.0
+        "ess_treated": 29771.0,
+        "ess_control": 215.0
       }
     },
     "1": {
@@ -297,33 +318,34 @@
         "passed": true,
         "reasons": [],
         "ess_treated": 0.0,
-        "ess_control": 60000.0
+        "ess_control": 30020.0
       },
       "random_same_budget": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 60000.0,
+        "ess_treated": 29980.0,
         "ess_control": 0.0
       },
       "greedy_incremental_profit_per_cost": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 60000.0,
+        "ess_treated": 29980.0,
         "ess_control": 0.0
       },
       "greedy_local_swap": {
         "passed": true,
         "reasons": [],
-        "ess_treated": 60000.0,
+        "ess_treated": 29980.0,
         "ess_control": 0.0
       }
     }
   },
   "stage_seconds": {
-    "d03_rebuild": 254.6977673000656,
-    "observed_frame": 0.39453300018794835,
-    "ope": 10.887739399913698,
-    "total": 269.6795872999355
+    "d03_rebuild": 242.28609660011716,
+    "observed_frame": 0.42298460006713867,
+    "ope": 10.530276600038633,
+    "random_policy_distribution": 39.79419709998183,
+    "total": 296.9130187998526
   },
   "artifacts": {
     "policy_meta": {
@@ -334,7 +356,12 @@
     "value": {
       "path": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_value.csv",
       "rows": 96,
-      "sha256": "bbf5771bfb94544348883dfb888c16fed15ce56bcb5c96f75ec0e2c9da829b78"
+      "sha256": "8f25f3aa01890000cff7309612b8969b303f144500d8ee83f0f694586e99420c"
+    },
+    "increment": {
+      "path": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_increment.csv",
+      "rows": 96,
+      "sha256": "dd41f2f421200fb5c94e8aaba0346e9b55a840838933f4ee903b50684d5688ad"
     },
     "contrast": {
       "path": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_contrast.csv",
@@ -354,12 +381,27 @@
     "audit": {
       "path": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_audit.csv",
       "rows": 32,
-      "sha256": "e5f172436eae55b2377fbfd18bd077979caabfa9497d3251dbc99e536588095a"
+      "sha256": "fe493b401d1a2471221b03e9f0713ee9f70a0f9ebd648fe2cabb9cd16399e245"
     },
     "ope_vs_audit": {
       "path": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_ope_vs_audit.csv",
       "rows": 48,
-      "sha256": "a793dca371ba2ac50235556ee486e2fc8c1b7bef63b2030fba7115764ae9efbe"
+      "sha256": "554065dcaa8c367473b269285a66ebecbe5d5c10251cf18ceff03d6c7388c144"
+    },
+    "targeting": {
+      "path": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_targeting.csv",
+      "rows": 16,
+      "sha256": "85d5dfa00afd84266404fbd8c98fb98557097dc023d4811a4c6d42362f893842"
+    },
+    "random_seeds": {
+      "path": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_random_seeds.csv",
+      "rows": 1600,
+      "sha256": "832f8d2f2c1e27ab6ab0e140a7e973dc3140daf3441f377038b1047afbefa53f"
+    },
+    "random_summary": {
+      "path": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_random_summary.csv",
+      "rows": 16,
+      "sha256": "3190fa822df6120370c48a0fa11c5f94caacfc1031fc1763932fabb0dd125f08"
     }
   }
 }

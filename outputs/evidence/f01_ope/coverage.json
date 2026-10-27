@@ -1,0 +1,187 @@
+{
+  "phase": "F01",
+  "purpose": "F01 单 rep 历史留出 OPE 证据包：冻结名单、逐用户观测/特征、真值审计与全部表",
+  "created_at": "2026-10-28T02:58:05+08:00",
+  "records": [
+    {
+      "kind": "f01_selection",
+      "source": "generated_from_frozen_inputs",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\selection_7cols.csv.gz",
+      "in_repository": true,
+      "encoding": "utf-8 csv in gzip(mtime=0)",
+      "bytes": 2094525,
+      "sha256": "17502bf0d23002c51fefb8581eaa0028c1bada968ba611a9086e66df361699e3",
+      "rows": 60000,
+      "dataframe_sha256": "3ef75e0ff76477bbbead946cf85ed9f1acda3a9a4622e257cb3ff9a8a5fb9b8b"
+    },
+    {
+      "kind": "f01_observed",
+      "source": "generated_from_frozen_inputs",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\observed.csv.gz",
+      "in_repository": true,
+      "encoding": "utf-8 csv in gzip(mtime=0)",
+      "bytes": 203545,
+      "sha256": "9ebeb0d1335252ea8d16b71f73091c1850225f158def429473382d0f4a43a04c",
+      "rows": 60000,
+      "dataframe_sha256": "54aef8829db5723b87fbd007a2aaa5d4e7c7563d589a48cede9268fa2e424a1a"
+    },
+    {
+      "kind": "f01_features",
+      "source": "generated_from_frozen_inputs",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\features.csv.gz",
+      "in_repository": true,
+      "encoding": "utf-8 csv in gzip(mtime=0)",
+      "bytes": 1471449,
+      "sha256": "23747d69a23b891e57621d888358b5fb7fb6407b4ca66728d2b2303841369262",
+      "rows": 60000,
+      "dataframe_sha256": "6a4289ef55625b9b2b1e77658ff1e2bf87b480c2f7779a3e75f972b64d43654f"
+    },
+    {
+      "kind": "f01_truth_audit_only",
+      "source": "generated_from_frozen_inputs",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\truth_audit_only.csv.gz",
+      "in_repository": true,
+      "encoding": "utf-8 csv in gzip(mtime=0)",
+      "bytes": 174761,
+      "sha256": "99dc903ad3a2e6e35cbcb9b11f8b7275d19c99110cabf0fe60952448057bdff9",
+      "rows": 60000,
+      "dataframe_sha256": "da000c1f481ea7a75a8ba5523765e43a24193c4e2208d8ed4ac64c027faf12ad",
+      "note": "只用于冻结后的 audit_ 对账，不进入任何名单或拟合"
+    },
+    {
+      "kind": "f01_masks_derivable",
+      "source": "generated_from_frozen_inputs",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f01_ope_formal_20261028_0253\\policy_masks_long.csv.gz",
+      "in_repository": false,
+      "encoding": "utf-8 csv in gzip(mtime=0)",
+      "bytes": 5305073,
+      "sha256": "7f7099d21961b12e88a1cf5ba4d1617e39e7f4af967345757a8f31fd1047d541",
+      "rows": 1920000,
+      "dataframe_sha256": "55d5af307e05aa6f4faa14a3b005d8109a511df3fc39ebf5a9dedf79a7ebe347",
+      "note": "不入库：可由 selection_7cols.csv.gz + configs/v3 + rep_id 经 f01.build_policies 逐位重建；此处只登记哈希与行数"
+    },
+    {
+      "kind": "f01_freeze",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f01_ope_formal_20261028_0253\\freeze.json",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\freeze.json",
+      "in_repository": true,
+      "bytes": 12151,
+      "sha256": "9973376bbddf4719e9eddbf868b736d446cb1f3b73a3306cdc51b4ef4b69bcde"
+    },
+    {
+      "kind": "f01_meta",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f01_ope_formal_20261028_0253\\meta.json",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\meta.json",
+      "in_repository": true,
+      "bytes": 17335,
+      "sha256": "1c89ca9f0b581f06e795fb1f9a57dfeb56434430593951e4673b58c70dea3ec9"
+    },
+    {
+      "kind": "f01_table_policy_meta",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_policy_meta.csv",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\tables\\v3_phase_F01_policy_meta.csv",
+      "in_repository": true,
+      "bytes": 2439,
+      "sha256": "268ffb232c18f2871d99e986a0d3be23a4642743ede6578ef87cce8402437a15"
+    },
+    {
+      "kind": "f01_table_value",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_value.csv",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\tables\\v3_phase_F01_value.csv",
+      "in_repository": true,
+      "bytes": 17181,
+      "sha256": "8f25f3aa01890000cff7309612b8969b303f144500d8ee83f0f694586e99420c"
+    },
+    {
+      "kind": "f01_table_increment",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_increment.csv",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\tables\\v3_phase_F01_increment.csv",
+      "in_repository": true,
+      "bytes": 10508,
+      "sha256": "dd41f2f421200fb5c94e8aaba0346e9b55a840838933f4ee903b50684d5688ad"
+    },
+    {
+      "kind": "f01_table_contrast",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_contrast.csv",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\tables\\v3_phase_F01_contrast.csv",
+      "in_repository": true,
+      "bytes": 10178,
+      "sha256": "23eb7773a6780e96344b6a75438114b7bca0b0afdc3aa99754a3ec605bc17b4f"
+    },
+    {
+      "kind": "f01_table_cost",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_cost.csv",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\tables\\v3_phase_F01_cost.csv",
+      "in_repository": true,
+      "bytes": 9032,
+      "sha256": "c2d5eeebf9032abf7dd874f5d1c1f384142ec791a877760052636656f958fa7d"
+    },
+    {
+      "kind": "f01_table_family",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_family.csv",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\tables\\v3_phase_F01_family.csv",
+      "in_repository": true,
+      "bytes": 783,
+      "sha256": "d54886a39894ab9317d435049b2d84604cab735849730d98cb471927107709be"
+    },
+    {
+      "kind": "f01_table_audit",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_audit.csv",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\tables\\v3_phase_F01_audit.csv",
+      "in_repository": true,
+      "bytes": 7236,
+      "sha256": "fe493b401d1a2471221b03e9f0713ee9f70a0f9ebd648fe2cabb9cd16399e245"
+    },
+    {
+      "kind": "f01_table_ope_vs_audit",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_ope_vs_audit.csv",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\tables\\v3_phase_F01_ope_vs_audit.csv",
+      "in_repository": true,
+      "bytes": 9473,
+      "sha256": "554065dcaa8c367473b269285a66ebecbe5d5c10251cf18ceff03d6c7388c144"
+    },
+    {
+      "kind": "f01_table_targeting",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_targeting.csv",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\tables\\v3_phase_F01_targeting.csv",
+      "in_repository": true,
+      "bytes": 3390,
+      "sha256": "85d5dfa00afd84266404fbd8c98fb98557097dc023d4811a4c6d42362f893842"
+    },
+    {
+      "kind": "f01_table_random_seeds",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_random_seeds.csv",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\tables\\v3_phase_F01_random_seeds.csv",
+      "in_repository": true,
+      "bytes": 129105,
+      "sha256": "832f8d2f2c1e27ab6ab0e140a7e973dc3140daf3441f377038b1047afbefa53f"
+    },
+    {
+      "kind": "f01_table_random_summary",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\tables\\v3_phase_F01_random_summary.csv",
+      "target": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\outputs\\evidence\\f01_ope\\tables\\v3_phase_F01_random_summary.csv",
+      "in_repository": true,
+      "bytes": 12621,
+      "sha256": "3190fa822df6120370c48a0fa11c5f94caacfc1031fc1763932fabb0dd125f08"
+    }
+  ],
+  "total_bytes": 9490785,
+  "in_repository_bytes": 4185712,
+  "rebuild": [
+    "名单：f01.build_policies(read_csv('selection_7cols.csv.gz'), cfg, budget_per_user=<网格>, seed_index=rep_id)",
+    "OPE：f01.ope_bundle(read_csv('observed.csv.gz'), features(read_csv('features.csv.gz')), policy_frames, cfg, seed_index=rep_id)",
+    "真值审计：f01.truth_audit_table(selection, policy_frames, read_csv('truth_audit_only.csv.gz'), freeze_id=freeze.json.freeze_id, manifest=freeze.json)",
+    "随机分布：f01.random_policy_distribution(...)，种子数/偏移见 meta.random_policy_distribution"
+  ],
+  "excluded": [
+    {
+      "path": "policy_masks_long.csv.gz",
+      "reason": "长表 1920000 行、gzip 后 5.31 MB；可由选人表 + 冻结配置 + rep_id 逐位重建，只落 out/ 并登记哈希"
+    },
+    {
+      "path": "D03 全链路中间产物",
+      "reason": "可由 31 号脚本以同一 rep/n 重建；本包已含其 7 列选人表与观测表"
+    }
+  ],
+  "truth_usage": "truth_audit_only.csv.gz 只用于冻结后的 audit_ 对账，不进入任何名单或拟合"
+}

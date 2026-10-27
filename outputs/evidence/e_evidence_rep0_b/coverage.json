@@ -1,0 +1,92 @@
+{
+  "phase": "E_evidence",
+  "created_at": "2026-10-28T02:04:29+08:00",
+  "model_label": "cf",
+  "purpose": "E01/E02 证据包：帧、校准逐用户、证据表与 meta，离开 out/ 也可复算",
+  "records": [
+    {
+      "kind": "e_frame",
+      "source": "out/e_evidence_formal_cf/frame_rep0_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/frame_rep0_cf.csv",
+      "bytes": 6076743,
+      "sha256": "81866efa463de910e26bfae2d06b9f0f9e4a0f31d8b9a5f07541ec279c665ad2"
+    },
+    {
+      "kind": "e_calibration_rows",
+      "source": "out/e_evidence_formal_cf/calibration_validation_treated_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/calibration_validation_treated_cf.csv",
+      "bytes": 608786,
+      "sha256": "906a5f77b4fb54a59a2250c6db8d36415f86965c2c2bccdf6868fce4f331871b"
+    },
+    {
+      "kind": "e_small_pool",
+      "source": "outputs/tables/v3_phase_E_small_pool_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_small_pool_cf.csv",
+      "bytes": 23508,
+      "sha256": "1f652cff6e3035da3aef389e40cdb427e5cd3f72bc0b39748f3555ed7f7a37fa"
+    },
+    {
+      "kind": "e_bucket_convergence",
+      "source": "outputs/tables/v3_phase_E_bucket_convergence_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_bucket_convergence_cf.csv",
+      "bytes": 8933,
+      "sha256": "9845e737414bab7b86e1acc462e68f2c2eec5a3ae0cd6bc1654c840a05354c42"
+    },
+    {
+      "kind": "e_random_long",
+      "source": "outputs/tables/v3_phase_E_random_long_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_random_long_cf.csv",
+      "bytes": 208871,
+      "sha256": "c29ce1cf4709a694fde688bd99c66bb24ed9da6390a1443535f5434770647632"
+    },
+    {
+      "kind": "e_random_summary",
+      "source": "outputs/tables/v3_phase_E_random_summary_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_random_summary_cf.csv",
+      "bytes": 2522,
+      "sha256": "799fa9598213e0df8810b85c67b5e7c4d2052334fd76ca836044344cacbb7c50"
+    },
+    {
+      "kind": "e_decomposition",
+      "source": "outputs/tables/v3_phase_E_decomposition_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_decomposition_cf.csv",
+      "bytes": 7763,
+      "sha256": "cf7eb4aae7c828005f9477a3d9f2b095fd79b00feb55647ce9c6aa19c42d2cbf"
+    },
+    {
+      "kind": "e_conservative",
+      "source": "outputs/tables/v3_phase_E_conservative_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_conservative_cf.csv",
+      "bytes": 17738,
+      "sha256": "550445d60c0233c8ba842c98e0cd55496b7a1e9c579e51a2e64adf0b57e165f0"
+    },
+    {
+      "kind": "e_scale",
+      "source": "outputs/tables/v3_phase_E_scale_cf.csv",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_scale_cf.csv",
+      "bytes": 17741,
+      "sha256": "4fad285b2fa8de25950e9d432b23a8534d39489888c93f6039261c46c412895a"
+    },
+    {
+      "kind": "e_calibration",
+      "source": "outputs/tables/v3_phase_E_calibration_cf.json",
+      "target": "outputs/evidence/e_evidence_rep0_b/v3_phase_E_calibration_cf.json",
+      "bytes": 2066,
+      "sha256": "2ac0c68478ccf155a5a31dbc5eca84a2093a1c684d0f0d70164a88cc1ecdffce"
+    },
+    {
+      "kind": "e_meta",
+      "source": "outputs/tables/v3_phase_E_evidence_meta_cf.json",
+      "target": "outputs/evidence/e_evidence_rep0_b/meta_cf.json",
+      "bytes": 4687,
+      "sha256": "83a26528c69286b0028021ec06b85c0622f65a623afd04207a110c243f77da0b"
+    }
+  ],
+  "total_bytes": 6979358,
+  "excluded": [
+    {
+      "path": "D03 全链路中间产物",
+      "reason": "可由 --from-d03 重建；本包已含其输出帧"
+    }
+  ]
+}
