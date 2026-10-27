@@ -18,8 +18,8 @@
 | **D03** | **未证实，但 provisional 导出已通（11:30）**：`export_d03_predictions()` 产出 E 契约 9 列 CSV；n=20 000/单 rep/test 6 000 人；真值只在选人列冻结后合并 | `outputs/tables/v3_phase_D03_predictions_provisional_meta.json`；`docs/v3_phase_D_models.md` §14 |
 | D04 装载优化 | 实现通过，调用点已切换 | `docs/v3_phase_D_loader_switch.md` |
 | E 组件层 | 完成，41 项测试绿 | `src/causal_growth/policy/v3_policy.py`；`docs/v3_phase_E_coverage.md` |
-| E 编排层 | 已跑通两次：合成数据一次；**真实 D.3 provisional 预测一次**（72 行） | `scripts/21_e_policy_run.py`；`out/e_policy_d03_provisional/e_policy_grid.csv` |
-| 推送 | 积压若干 commit（GitHub 502 反复） | `git rev-list --count origin/codex/v3-rebuild..HEAD` |
+| E 编排层 | 已跑通两次：合成数据一次；**真实 D.3 provisional 预测一次**（72 行） | `scripts/21_e_policy_run.py`；`out/e_policy_d03_provisional/e_policy_grid.csv`（`out/` 不入库，可由 CSV 重跑） |
+| 推送 | `codex/d03` 已推送（`80c383d` + 本次文档提交）；`codex/v3-rebuild` 无积压 | `git log --oneline origin/codex/d03 -1` |
 
 ### 二、下一步（按优先级）
 
@@ -29,7 +29,7 @@
    - 命令：`python -m causal_growth.estimate.v3_models --export --scenario L1_main --n 20000 --rep 0`
    - 先用 `--model constant,t_learner` 快速验链路；正式 R 前必须先裁决**跑几次 / 选模指标 / 评估量**
 2. D01 20pilot 三粒度实测与资源计划
-3. 推送积压（本分支 `codex/d03`，待 review 后合入 `codex/v3-rebuild`）
+3. `codex/d03` 已 push，待 review 后合入 `codex/v3-rebuild`
 
 ### 三、接手须知（血泪版）
 
