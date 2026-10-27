@@ -89,6 +89,9 @@ D03 在历史训练数据上按冻结规则选模型，E 在同一模型上给�
 `freeze_id` 的有效绑定是 `freeze.json.source_hashes` 里那 **48 份逐文件哈希**
 （37 `src/**/v3*.py` + 9 `configs/v3/*.yaml` + 2 `sql/v3*.sql`；`scripts/` **不在**这个集合里），
 不是 git commit——commit 相同不代表文件相同。评审时请按 `source_hashes` 对 live 文件逐份复算。
+（补记：02:53 那次运行的工作区改动已于 `a4f06a2` 提交，所以现在 live 文件与
+`source_hashes` 逐字节相符，而 `meta.git_commit` 仍写着 `e0048100233b…`——它只是
+运行时刻的标签，**不是绑定**；不要因为它"落后一个 commit"就判定产物失效。）
 `d15cf24d…` 是 `meta.frame_hashes.features_dataframe_sha256`，只哈希 `x0…xk` 列
 （`scripts/31_f01_ope.py:670`）；§3.2 表里 `features.csv.gz` 的 `6a4289ef…` 是**导出帧**的哈希，
 多一列前置 `user_id`（`scripts/31_f01_ope.py:301`）。两者口径不同，都正确，不要互相核对。
