@@ -151,7 +151,8 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [ ] **F02 正式 200 rep**：`--status formal` 需用户显式授权与登记号；聚合按 rep 配对报告通过率，不合并 p 值
   - [x] **正式前置：两次独立拟合一致性（20:37）**：n=20 000、rep 0 两个独立进程；`freeze.json` 七字段逐位一致（含 `freeze_hash/per_user_hash/decision_hash/guardrail_hash`），五表 manifest 仅时间戳不同
   - [x] **快照运行口径（20:38）**：写入 `docs/v3_phase_F02_validation.md` §5.5——必须连 `scripts/` 一起快照并从快照运行；只设 `PYTHONPATH` 会被脚本的 `sys.path.insert` 绕过
-  - [ ] n=200 000 同口径双跑复核（20:38 启动，后台，约 14 分钟）
+  - [x] **n=200 000 同口径双跑复核（20:52 完成）**：A 20:44、B 20:51:59 各完成一次；`freeze.json` 七字段逐位一致（freeze `5a101174…52cc` / per_user `a6c100e3…2901` / decision `368c1d89…ee42` / guardrail `f6b1bd3c…4d45`）；六个汇总表逐字节相同；`five_tables/` 27 文件中 26 个逐字节相同，仅 manifest 时间戳不同；manifest 仅代表五表路径与其 sha 不同
+  - [x] **快照机制实测（20:48）**：`out/snap_test/` 复制 `src/sql/configs/scripts`，快照内脚本以 n=2 000、rep 0、`--status engineering` 跑通；manifest 48 个 `source_hashes` 与主仓库逐项相同（字典 sha256 `0605947…71bd`），路径字段均指向快照；**相对 `--out-root` 会落到快照根**，正式运行必须绝对路径。冒烟产物不作证据
 - [x] **F02 决策层（18:24 完成）**：两条预声明主张（定向−不发券、定向−同预算随机）各做单侧检验，按 `evaluation.decision.benefit_evidence` 组成 Holm 家族（单侧 α=0.05），输出原始 p/调整阈值/调整 p/通过标记/反演下界；护栏复用 `design/guardrail.py` 的 0.005 非劣效、单侧 0.05，指标 `any_refund_30d_per_assigned_user`；`per_user` 新增 `observed_any_refund_30d`，`arm_summary` 新增退款人数/退款率；`decision.csv / guardrail.csv / decision.json` 与 `freeze.json` 同批先落盘，之后才读真值；F02 11 项测试绿
 - [x] **F01 单 rep 历史留出 OPE（20:17 完成，R=0，未证实）**：`v3_f01.py` + `scripts/31_f01_ope.py`，冻结先于审计（freeze_id `3ab44dcb…`，源码哈希 `7012a17b…`）；D03 rep0 n=200k、chosen=`constant`、test 60k，与 E 的 7 列选人哈希及 0.2 档三项数字逐位一致（23 437 人 / 预测成本 11 999.505475 / 审计 0.085638）；DR 主口径两条家族对比 Holm 均拒绝（调整 p 均 0.033431，下界 +0.005137 / +0.010225），但“定向优于同预算随机”只有 DR 显著（IPW p=0.063、SNIPS p=0.088）；真值审计误差 −0.020174 / −0.074016，随机基线符号相反；实际支出超预测预算 28.4%；证据 `outputs/evidence/f01_ope/`、七表 `outputs/tables/v3_phase_F01_*.csv`、正文 `docs/v3_phase_F01_ope.md`，10 项测试绿
 - [ ] **F01 独立科学评审**：按 `docs/v3_phase_F01_ope.md` §7 检查单；评审前 F01 仍为“未证实”

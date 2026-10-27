@@ -201,8 +201,21 @@ rep 报告实际支出与超支倍数，并把"同预算"限定为"同预测预�
 - `five_tables/manifest.json` 的内容除 `started_at_utc / finished_at_utc` 外**完全一致**。
 
 结论：同一 rep 的选模、名单、观测、决策与护栏在独立进程间可复现，正式分片不必担心
-"隐式随机性导致 200 个 rep 不可比"。这是 **n=20 000 的工程核验**，不是科学证据；
-n=200 000 的同口径双跑另行执行并补充结果。
+"隐式随机性导致 200 个 rep 不可比"。这是 **n=20 000 的工程核验**，不是科学证据。
+
+**n=200 000 同口径双跑（2026-10-27 20:38–20:52，北京时间）**：A 于 20:44 完成、
+B 于 20:44:59–20:51:59 完成，均 `--status engineering`、单 rep 0，产物
+`out/f02_det200k_{a,b}/`（不入库）。比对结果：
+
+| 对象 | 结果 |
+|---|---|
+| `freeze.json` 七字段 | 逐位一致；`freeze_hash` `5a101174…52cc`、`per_user_hash` `a6c100e3…2901`、`decision_hash` `368c1d89…ee42`、`guardrail_hash` `f6b1bd3c…4d45` |
+| `manifest.json` | 仅 `representative_tables_manifest` 路径及其 sha256 不同（目录名 a/b 不同导致），其余字段全同 |
+| `arm_summary / decision / guardrail / itt_contrasts / audit_*` 六表 | 逐字节相同 |
+| `five_tables/` 27 个文件 | 26 个逐字节相同；仅 `manifest.json` 的 `started_at_utc / finished_at_utc` 不同 |
+
+两次运行的两条主张均不通过（调整 p 均 0.5980），与单 rep 主结果一致。该双跑仍是
+**工程核验**：固定单一 rep、无重复，不构成 F02 的 200 rep 证据。
 
 ### 5.3 正式 200 rep（未跑，需用户批准）
 
@@ -278,8 +291,17 @@ python "$snap\scripts\29_f02_formal.py" --scenario L1_main --n 200000 `
 - 快照必须在**所有评审驱动的源码修改落地、测试复跑之后**建立；否则 `--resume` 会因
   `source_hashes` 漂移拒绝复用，或更糟——200 个 rep 绑定到不同源码。
 
+- **快照机制已验证（2026-10-27 20:48，北京时间）**：把 `src/sql/configs/scripts` 复制到
+  `out/snap_test/`，用快照内脚本以 `--status engineering`、n=2 000、rep 0 跑通；
+  manifest 的 `source_hashes` 共 48 个文件，与主仓库 `pipeline_source_hashes()` 逐项相同
+  （字典 sha256 `0605947…71bd`），`representative_tables_manifest` 等路径均指向快照内文件，
+  证明确实由快照导入。**相对 `--out-root` 会解析到快照根**（本次落到
+  `out/snap_test/out/snap_test_run/`），因此正式运行必须用绝对 `--out-root`。
+  该次冒烟产物不作为证据。
+
 **状态**：工具已在 n=2 000、2 rep 上用假登记号冒烟（冒烟产物已删除，不构成证据）；
-8 项聚合/分片测试绿；**正式 200 rep 未运行**，等待用户批准与登记号。
+快照机制已在 n=2 000、1 rep 验证；8 项聚合/分片测试绿；**正式 200 rep 未运行**，
+等待用户批准与登记号。
 
 ## 6. 已知局限
 
