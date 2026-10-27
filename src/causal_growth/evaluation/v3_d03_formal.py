@@ -46,8 +46,8 @@ SELECTION_COLUMNS: tuple[str, ...] = (
 
 CALIBRATION_COLUMNS: tuple[str, ...] = (
     "model", "scope", "n_reps", "mean_bias_cny", "se_bias_cny",
-    "median_relative_bias", "median_calibration_slope",
-    "median_pearson_r", "median_rmse",
+    "median_relative_bias", "max_abs_relative_bias",
+    "median_calibration_slope", "median_pearson_r", "median_rmse",
 )
 
 POLICY_VALUE_COLUMNS: tuple[str, ...] = (
@@ -146,6 +146,7 @@ def calibration_summary(per_rep: pd.DataFrame, *, chosen_only: bool = False) -> 
             "mean_bias_cny": float(group["bias_mean"].mean()),
             "se_bias_cny": _se(group["bias_mean"]),
             "median_relative_bias": float(group["relative_bias"].median()),
+            "max_abs_relative_bias": float(group["relative_bias"].abs().max()),
             "median_calibration_slope": float(group["calibration_slope"].median()),
             "median_pearson_r": float(group["pearson_r"].median()),
             "median_rmse": float(group["rmse"].median()),
@@ -319,11 +320,31 @@ def require_formal_tables(
     if not chosen.eq(1).all():
         raise ValueError("每个 rep 必须恰好一个 chosen")
 
+    if "chosen" not in grid.columns:
+        raise ValueError("网格缺 chosen 列，无法核对线上口径")
+    if not grid["chosen"].isin([0, 1, True, False]).all():
+        raise ValueError("网格的 chosen 必须是 0/1 或布尔")
+    grid_reps = sorted(int(value) for value in grid["rep_id"].unique())
+    if grid_reps != list(range(expected_reps)):
+        raise ValueError(f"网格的 rep 覆盖不是 0..{expected_reps - 1}")
     budgets = sorted(float(value) for value in grid["per_user_budget_cny"].unique())
-    if expected_budgets is not None:
-        expected = sorted(float(value) for value in expected_budgets)
-        if budgets != expected:
-            raise ValueError(f"预算档不一致：{budgets} != {expected}")
+    expected_budgets_list = sorted(float(value) for value in expected_budgets or budgets)
+    if budgets != expected_budgets_list:
+        raise ValueError(f"预算档不一致：{budgets} != {expected_budgets_list}")
+    chosen_models = per_rep.loc[per_rep["chosen"].astype(bool)].set_index("rep_id")["model"]
+    chosen_grid = grid.loc[grid["chosen"].astype(bool)]
+    for rep_id, model in chosen_models.items():
+        block = chosen_grid.loc[chosen_grid["rep_id"] == rep_id]
+        if set(block["model"].astype(str)) != {str(model)}:
+            raise ValueError(f"rep {rep_id} 的网格 chosen 行不属于 {model}")
+        expected_rows = len(expected_budgets_list) * len(expected_policies)
+        if len(block) != expected_rows:
+            raise ValueError(
+                f"rep {rep_id} 的网格 chosen 行数 {len(block)} != {expected_rows}"
+            )
+    if len(chosen_grid) != expected_reps * len(expected_budgets_list) * len(expected_policies):
+        raise ValueError("网格的 chosen 行总数不等于 rep×预算×策略")
+
     if set(grid["model"].unique()) != set(expected_models):
         raise ValueError("网格的模型集合与协议不一致")
     if set(grid["policy"].unique()) != set(expected_policies):

@@ -40,8 +40,9 @@ chosen 覆盖与合规标记；27 在校验 rep 并集、四分片 `config_hash`
 
 来源：`v3_phase_D03_formal_calibration.csv`（`scope=all_models` 与 `chosen_only` 两段）。
 
-`<待填：ATE 偏差均值 ± SE、相对偏差中位数、校准斜率中位数、Pearson r、RMSE。
-必须同时给 all 与 chosen：chosen_only 是线上口径，不能替代方法对照。>`
+`<待填：ATE 偏差均值 ± SE、相对偏差中位数与**最大绝对相对偏差**、校准斜率中位数、
+Pearson r、RMSE。必须同时给 all 与 chosen：chosen_only 是线上口径，不能替代方法对照；
+相对偏差按 AGENTS §12.5 报最差，不只报中位数或最有利的一格。>`
 
 ## 4. 策略层：按模型配对
 
@@ -77,7 +78,7 @@ chosen 覆盖与合规标记；27 在校验 rep 并集、四分片 `config_hash`
 - [ ] 200 rep 恰好各出现一次（rep 0..199，无缺无重）；
 - [ ] 每 rep 5 模型，per-rep 表 1 000 行；
 - [ ] 网格 200 × 5 × 8 × 9 = 72 000 行，每 `(rep, model, budget)` 恰 9 策略；
-- [ ] 每 rep 恰一个 chosen，且 chosen 覆盖该模型整张网格；
+- [ ] 每 rep 恰一个 chosen，且网格 chosen 行恰为该模型 × 8 预算 × 9 策略；
 - [ ] 四分片 `config_hash` 一致，快照哈希与 manifest/绑定一致；
 - [ ] 4 个 `run.err` 全空；
 - [ ] 合并表 sha256 与 summary 一致；`outputs/evidence/d03_formal/coverage.json` 写入成功；

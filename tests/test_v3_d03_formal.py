@@ -108,6 +108,10 @@ def test_calibration_summary_medians_and_chosen_scope() -> None:
     assert np.isclose(chosen.loc["t_learner", "median_calibration_slope"], 0.95)
     assert (chosen["scope"] == "chosen_only").all()
 
+    # §12.5：相对偏差必须同时给最差值，不能只给中位数。
+    assert np.isclose(all_models.loc["constant", "max_abs_relative_bias"], 0.20)
+    assert np.isclose(all_models.loc["t_learner", "max_abs_relative_bias"], 0.30)
+
 
 def test_paired_difference_stays_within_rep_model_budget() -> None:
     grid = _grid()
@@ -231,6 +235,20 @@ def test_require_formal_tables_accepts_complete_fixture() -> None:
     with pytest.raises(ValueError):
         formal.require_formal_tables(
             _per_rep(), broken,
+            expected_reps=2,
+            expected_models=MODELS,
+            expected_policies=POLICIES,
+            expected_budgets=[0.04],
+        )
+
+
+def test_require_formal_tables_rejects_incomplete_chosen_grid() -> None:
+    grid = _grid()
+    first_chosen = grid.index[grid["chosen"].astype(bool)][0]
+    grid.loc[first_chosen, "chosen"] = False
+    with pytest.raises(ValueError, match="chosen"):
+        formal.require_formal_tables(
+            _per_rep(), grid,
             expected_reps=2,
             expected_models=MODELS,
             expected_policies=POLICIES,
