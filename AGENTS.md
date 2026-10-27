@@ -32,6 +32,7 @@ python scripts\run_all.py --round 1         # 第一轮；--round all 全量
 | 可用性 | 全部依赖在 py3.13 有 cp313 官方轮子（numpy/pandas/scipy/sklearn/statsmodels/matplotlib/seaborn/pyarrow/econml 0.17.0/lightgbm 4.7.0） |
 | 版本锁定 | 以 `requirements.txt` 为准；改依赖必须同步更新该文件 |
 | 平台 | Windows；路径含中文，**所有路径用 `pathlib.Path` + 引号包裹** |
+| 长路径 worktree | 本 worktree 的绝对路径已接近 Windows 260 字符上限；跑 pytest **必须带 `--basetemp C:/cg_t`**，否则 `tests/test_v3_data_checks.py` 中 2 项会因 `WinError 3`（路径超限）假失败。此坑于 2026-10-27 11:00（北京时间）实测确认，不是源码或口径问题 |
 
 ---
 

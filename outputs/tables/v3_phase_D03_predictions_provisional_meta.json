@@ -1,0 +1,231 @@
+{
+  "status": "provisional",
+  "formal_r": false,
+  "source_label": "合成数据 / 已知 DGP",
+  "scenario": "L1_main",
+  "level": "L1",
+  "identification_mode": "randomized",
+  "time_mode": "static",
+  "rep_id": 0,
+  "n_total": 20000,
+  "n_train": 10000,
+  "n_validation": 4000,
+  "n_test": 6000,
+  "csv": "outputs/tables/v3_phase_D03_predictions_provisional.csv",
+  "csv_sha256": "b76ce3c1250a13ad71a393195a76cb46e1aea5059cc0b43fb8994cc6b5430fe2",
+  "columns": [
+    "user_id",
+    "is_new",
+    "cart_value",
+    "purchase_propensity",
+    "predicted_profit",
+    "tau_hat",
+    "cost_hat",
+    "tau_true",
+    "cost_true"
+  ],
+  "selection_columns": [
+    "user_id",
+    "is_new",
+    "cart_value",
+    "purchase_propensity",
+    "predicted_profit",
+    "tau_hat",
+    "cost_hat"
+  ],
+  "truth_columns": [
+    "tau_true",
+    "cost_true"
+  ],
+  "truth_isolation": {
+    "producer": "_audit_truth_for_test",
+    "source": "V3Population.audit_potential_orders",
+    "joined_after_selection_columns_frozen": true,
+    "used_for_selection": false,
+    "used_for_model_selection": false
+  },
+  "model_selection": {
+    "scoring": "validation_crossfit_dr_policy_value_lower_confidence_bound",
+    "chosen_model": "causal_forest",
+    "models_fitted": [
+      "constant",
+      "t_learner",
+      "s_learner",
+      "causal_forest",
+      "dr_learner"
+    ],
+    "ranking": [
+      {
+        "model": "causal_forest",
+        "selection_score": -0.11593601487315687,
+        "worst_budget_lcb": -0.2133061349064173,
+        "budgets_cny_per_user": [
+          0.04,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.6,
+          0.8,
+          1.0
+        ],
+        "policy_value_lcb_by_budget": [
+          -0.14424862955002438,
+          -0.16281902652181598,
+          -0.2133061349064173,
+          -0.18087171244045797,
+          -0.06831533292266181,
+          -0.0708682181878883,
+          -0.0446455206306835,
+          -0.0424135438253056
+        ],
+        "validation_n": 4000,
+        "tie_break_index": 4,
+        "rank": 1
+      },
+      {
+        "model": "dr_learner",
+        "selection_score": -0.16353556496387123,
+        "worst_budget_lcb": -0.22825400866794193,
+        "budgets_cny_per_user": [
+          0.04,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.6,
+          0.8,
+          1.0
+        ],
+        "policy_value_lcb_by_budget": [
+          -0.06606250333396696,
+          -0.14821040504417982,
+          -0.16383193761401793,
+          -0.11367164926418605,
+          -0.18674808679769023,
+          -0.21329498168040406,
+          -0.18821094730858276,
+          -0.22825400866794193
+        ],
+        "validation_n": 4000,
+        "tie_break_index": 3,
+        "rank": 2
+      },
+      {
+        "model": "constant",
+        "selection_score": -0.16389731966889237,
+        "worst_budget_lcb": -0.29258073678097374,
+        "budgets_cny_per_user": [
+          0.04,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.6,
+          0.8,
+          1.0
+        ],
+        "policy_value_lcb_by_budget": [
+          -0.11483486827819683,
+          -0.08901290941302406,
+          -0.10619941945968478,
+          -0.13971513538540106,
+          -0.16829288116055613,
+          -0.18214079342396453,
+          -0.29258073678097374,
+          -0.21840181344933798
+        ],
+        "validation_n": 4000,
+        "tie_break_index": 0,
+        "rank": 3
+      },
+      {
+        "model": "s_learner",
+        "selection_score": -0.16490951711693325,
+        "worst_budget_lcb": -0.20575365454123606,
+        "budgets_cny_per_user": [
+          0.04,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.6,
+          0.8,
+          1.0
+        ],
+        "policy_value_lcb_by_budget": [
+          -0.09136686028364174,
+          -0.20575365454123606,
+          -0.14845289245965582,
+          -0.1988800361455523,
+          -0.15400572740369176,
+          -0.15952575594427115,
+          -0.1716227194324451,
+          -0.18966849072497194
+        ],
+        "validation_n": 4000,
+        "tie_break_index": 1,
+        "rank": 4
+      },
+      {
+        "model": "t_learner",
+        "selection_score": -0.2160945054550984,
+        "worst_budget_lcb": -0.24845581797929311,
+        "budgets_cny_per_user": [
+          0.04,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.6,
+          0.8,
+          1.0
+        ],
+        "policy_value_lcb_by_budget": [
+          -0.20234985340689596,
+          -0.17569782406867862,
+          -0.24392079264534422,
+          -0.22938827468482534,
+          -0.24845581797929311,
+          -0.2177929247912247,
+          -0.20226716094546532,
+          -0.2088833951190601
+        ],
+        "validation_n": 4000,
+        "tie_break_index": 2,
+        "rank": 5
+      }
+    ]
+  },
+  "level_baselines": {
+    "purchase_propensity": "LightGBM P(paid_purchase_7d=1|X)，训练集全部用户",
+    "predicted_profit": "purchase_propensity × LightGBM E[net_profit+coupon_cost|X,purchased=1]，负值截 0",
+    "cart_value_missing_filled_zero": 321
+  },
+  "cost_model": {
+    "target": "expected_coupon_cost_given_assigned_coupon_and_observable_features",
+    "fitted_on": "training_only",
+    "cost_hat_min_cny": 0.008562316177492363,
+    "cost_hat_mean_cny": 0.7808624843779828,
+    "cost_hat_max_cny": 7.561207415396967
+  },
+  "predictions": {
+    "tau_hat_mean_test": 0.514147593571428,
+    "tau_hat_sd_test": 0.8974281718737303
+  },
+  "truth": {
+    "tau_true_mean_test": 0.20152833333333334,
+    "tau_true_sd_test": 5.842395462906294,
+    "cost_true_mean_test": 0.7583333333333333
+  },
+  "hashes": {
+    "config_hash": "e1aa4314b8d84b04a26150cb8ccea5a35dbe9b2d514fee724c56570d5b586d75",
+    "observed_hash": "4dd06f4de01c6a9ac0111647cb39bbb451f36f7b738eaa53f589268f769ec3c0",
+    "preprocessor_hash": "68fa36b856f59acf7c59d4e062f9322f9737aefc959d178a0b4f054d02ab51c8",
+    "split_fingerprint": "7345510f8cd7688f6c29315dd12082b0beeaf87c44a710bd94366ae10b02d909",
+    "train_user_key_hash": "9defdce3b358559f1dd956d63023f7c4b4a61b0d754ab26ea63cbea4c756915b",
+    "validation_user_key_hash": "cefcb6d45730498a4a0bfef98b378241c4d09ef0cc42686adafe80993144698f",
+    "test_user_key_hash": "2ba4b0cf04d7e8b030cbd160784838ef0225555f6ae29054eb77ef2505f9dec2"
+  },
+  "written_at_beijing": "2026-10-27T11:29+08:00"
+}

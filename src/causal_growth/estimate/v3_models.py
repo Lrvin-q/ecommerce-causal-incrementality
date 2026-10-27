@@ -65,6 +65,7 @@ import re
 import time
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from statistics import NormalDist
 from typing import Any, Callable
 
@@ -77,10 +78,12 @@ from causal_growth.data.v3_observed import ObservedDataset
 from causal_growth.data.v3_preprocessing import FrozenPreprocessor, fit_preprocessor
 from causal_growth.data.v3_split import user_key_hash
 from causal_growth.policy.selection import greedy_by_ratio
+from causal_growth.policy.v3_policy import fit_cost_model, predict_expected_cost
 from causal_growth.rng import child_rng, child_seed
 from causal_growth.v3_data_config import load_v3_data_config
 
 __all__ = [
+    "D03_EXPORT_COLUMNS",
     "MODEL_NAMES",
     "PROPENSITY_SOURCES",
     "CrossfitDrAte",
@@ -99,6 +102,7 @@ __all__ = [
     "crossfit_dr_ate",
     "crossfit_nuisance",
     "dr_learner_cate",
+    "export_d03_predictions",
     "fit_predict",
     "fit_validation_scorer",
     "identification_mode",
@@ -114,6 +118,20 @@ __all__ = [
     "run_propensity_sensitivity",
     "run_smoke",
 ]
+
+#: D03 交付物：E 阶段编排脚本 ``scripts/21_e_policy_run.py`` 的固定 9 列输入契约。
+#: 前 7 列只由观测表与模型预测构成；后 2 列是 **audit-only** 真值，只供评估。
+D03_EXPORT_COLUMNS: tuple[str, ...] = (
+    "user_id",
+    "is_new",
+    "cart_value",
+    "purchase_propensity",
+    "predicted_profit",
+    "tau_hat",
+    "cost_hat",
+    "tau_true",
+    "cost_true",
+)
 
 #: 全部主模型名。顺序与 ``selection.tie_break_order`` 无关，后者才是排序口径。
 MODEL_NAMES: tuple[str, ...] = ("constant", "t_learner", "s_learner", "causal_forest", "dr_learner")
@@ -1672,10 +1690,14 @@ def learning_curve(
 _SMOKE_MODELS: tuple[str, ...] = MODEL_NAMES
 
 
-def _smoke_observed_dataset(
+def _prepare_dataset(
     scenario: str, n: int, *, rep_id: int
-) -> tuple[Config, ObservedDataset]:
-    """冒烟专用：生成 → 五表清洗 → SQL 观测表，不写 manifest、不跑源码哈希门禁。"""
+) -> tuple[Config, ObservedDataset, Any]:
+    """生成 → 五表清洗 → SQL 观测表；同时返回**仅供审计**的种群对象。
+
+    观测侧只用 ``dataset``；返回的 population 只允许交给
+    :func:`_audit_truth_for_test`，不得进入特征构造或模型选择。
+    """
     from causal_growth.data.v3_dirt import deduplicate_events, inject_dirt
     from causal_growth.data.v3_quality import validate_tables
     from causal_growth.data.v3_sql import run_sql_pipeline
@@ -1709,6 +1731,14 @@ def _smoke_observed_dataset(
     clean.tables["user_outcomes"] = clean_sql.user_outcomes.copy(deep=True)
     dirty.tables["user_outcomes"] = clean_sql.user_outcomes.copy(deep=True)
     validate_tables(clean.tables, cfg, stage="clean", require_outcomes=True)
+    return cfg, dataset, population
+
+
+def _smoke_observed_dataset(
+    scenario: str, n: int, *, rep_id: int
+) -> tuple[Config, ObservedDataset]:
+    """冒烟专用包装：只返回观测侧，真值不进入冒烟链路。"""
+    cfg, dataset, _population_audit = _prepare_dataset(scenario, n, rep_id=rep_id)
     return cfg, dataset
 
 
@@ -1775,6 +1805,276 @@ def run_smoke(
     target.parent.mkdir(parents=True, exist_ok=True)
     frame.to_csv(target, index=False, encoding="utf-8-sig")
     return frame
+
+
+# --------------------------------------------------------------------------- #
+# D03 交付物：逐用户 9 列导出（provisional，供 E 编排消费）
+# --------------------------------------------------------------------------- #
+def _observations_for_keys(
+    dataset: ObservedDataset, keys: pd.DataFrame, columns: Sequence[str]
+) -> pd.DataFrame:
+    """按 ``(run_id, user_id)`` 把观测表对齐到某个切分的行序。"""
+    observations = dataset.observations
+    key_columns = ["run_id", "user_id"]
+    if observations.duplicated(key_columns).any():
+        raise ValueError("观测表的 (run_id, user_id) 必须唯一")
+    wanted = pd.MultiIndex.from_frame(keys.loc[:, key_columns])
+    block = observations.set_index(key_columns).reindex(wanted)
+    # 键没对上时整行为 NaN；列内缺失（例如未加购用户的 cart_value）留给调用方按口径处理。
+    if block.isna().all(axis=1).any():
+        raise ValueError("切分用户未能全部对齐到观测表")
+    return block.loc[:, list(columns)].reset_index(drop=True)
+
+
+def _fit_level_baselines(
+    data: LearningData,
+    train_observed: pd.DataFrame,
+    test_X: NDArray[np.float64],
+    cfg: Config,
+    *,
+    seed_index: int,
+) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """两个**水平量**基线：购买倾向 ``p̂`` 与 ``p̂ × m̂``（不是增量）。
+
+    - ``p̂``：训练集上 LightGBM 分类 ``paid_purchase_7d``；
+    - ``m̂``：训练集**购买者**上回归 ``net_profit + coupon_cost``（券前利润），负值截 0；
+    - ``predicted_profit = p̂ × m̂``，与 E 接口文档的 ``p̂·m̂`` 口径一致。
+    """
+    purchase_label = train_observed["paid_purchase_7d"].to_numpy(dtype=np.int64)
+    if np.unique(purchase_label).size < 2:
+        raise ValueError("训练集购买标签没有变异，无法拟合购买倾向基线")
+    propensity_model = _lightgbm_classifier(
+        cfg, seed=_seed(cfg, "v3.models.d03.purchase", seed_index)
+    ).fit(data.train.X, purchase_label)
+    propensity = np.asarray(propensity_model.predict_proba(test_X)[:, 1], dtype=np.float64)
+
+    buyers = purchase_label == 1
+    if int(buyers.sum()) < 10:
+        raise ValueError(f"训练集购买者只有 {int(buyers.sum())} 人，无法拟合利润水平基线")
+    pre_coupon_profit = data.train.y + train_observed["coupon_cost"].to_numpy(dtype=np.float64)
+    margin_model = _lightgbm_regressor(
+        cfg, seed=_seed(cfg, "v3.models.d03.margin", seed_index)
+    ).fit(data.train.X[buyers], pre_coupon_profit[buyers])
+    margin = np.maximum(np.asarray(margin_model.predict(test_X), dtype=np.float64), 0.0)
+    if not np.isfinite(propensity).all():
+        raise ValueError("购买倾向基线含非有限值")
+    return propensity, propensity * margin
+
+
+def _audit_truth_for_test(
+    population_audit: Any, cfg: Config, test_keys: pd.DataFrame
+) -> pd.DataFrame:
+    """**audit-only**：读取两个潜在世界的已实现账本，返回测试用户的 ``tau_true`` 与 ``cost_true``。
+
+    物理隔离约定：
+
+    - 本函数是唯一允许把真值带出 population 的入口；
+    - 输出只含 ``tau_true`` / ``cost_true``，不带任何特征或预测列；
+    - 调用方必须在**选人列已冻结之后**才允许合并本函数的返回值。
+    """
+    from causal_growth.dgp.v3_engine import audit_realized_worlds
+
+    audit_worlds = audit_realized_worlds(population_audit, cfg)
+    if set(audit_worlds) != {0, 1}:
+        raise ValueError(f"审计世界应恰为 {{0, 1}}，收到 {sorted(audit_worlds)}")
+    audit_treated = audit_worlds[1].set_index("user_id")
+    audit_control = audit_worlds[0].set_index("user_id")
+    if not audit_treated.index.is_unique or not audit_control.index.is_unique:
+        raise ValueError("审计账本的 user_id 必须唯一")
+    audit_user_ids = test_keys["user_id"].to_numpy()
+    missing = ~np.isin(audit_user_ids, audit_treated.index.to_numpy())
+    if missing.any():
+        raise ValueError(f"审计账本缺少 {int(missing.sum())} 个测试用户")
+    tau_true_audit = (
+        audit_treated.loc[audit_user_ids, "net_profit"].to_numpy(dtype=np.float64)
+        - audit_control.loc[audit_user_ids, "net_profit"].to_numpy(dtype=np.float64)
+    )
+    cost_true_audit = audit_treated.loc[audit_user_ids, "coupon_cost"].to_numpy(dtype=np.float64)
+    if not np.isfinite(tau_true_audit).all() or not np.isfinite(cost_true_audit).all():
+        raise ValueError("审计真值含非有限值")
+    return pd.DataFrame({"tau_true": tau_true_audit, "cost_true": cost_true_audit})
+
+
+def export_d03_predictions(
+    *,
+    scenario: str = "L1_main",
+    n: int = 20_000,
+    rep_id: int = 0,
+    out_csv: str | None = None,
+    meta_path: str | None = None,
+    models: Sequence[str] | None = None,
+    time_mode: str = "static",
+) -> dict[str, Any]:
+    """产出 E 阶段固定 9 列 CSV（**provisional**，不是正式 R 的结果）。
+
+    回答"D03 的交付物到底是什么"：不是模型结果表，而是
+    ``user_id, is_new, cart_value, purchase_propensity, predicted_profit,
+    tau_hat, cost_hat, tau_true, cost_true`` 的逐用户表。
+
+    流程固定为：观测表 → 学习数据 → 5 个模型 → 验证集打分选模 →
+    **冻结 7 列选人字段** → 最后才合并 audit-only 真值两列。
+    ``tau_true`` / ``cost_true`` 不参与任何拟合、选模或排序。
+    """
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[3]
+    target = (
+        Path(out_csv)
+        if out_csv is not None
+        else root / "outputs" / "tables" / "v3_phase_D03_predictions_provisional.csv"
+    )
+    meta_target = (
+        Path(meta_path) if meta_path is not None else target.with_name(f"{target.stem}_meta.json")
+    )
+    names = tuple(MODEL_NAMES if models is None else models)
+    if not names:
+        raise ValueError("至少需要一个模型")
+    unknown = [name for name in names if name not in MODEL_NAMES]
+    if unknown:
+        raise ValueError(f"未知模型 {unknown}；可用：{MODEL_NAMES}")
+
+    cfg, dataset, population_audit = _prepare_dataset(scenario, n, rep_id=rep_id)
+    data = prepare_learning_data(dataset, cfg, time_mode=time_mode)
+    scorer = fit_validation_scorer(data, cfg, seed_index=rep_id)
+    predictions = {
+        name: fit_predict(name, data, cfg, time_mode=time_mode, seed_index=rep_id)
+        for name in names
+    }
+    ranking = rank_models(predictions, scorer, cfg)
+    chosen_model = str(ranking[0]["model"])
+    prediction = predictions[chosen_model]
+
+    train_observed = _observations_for_keys(
+        dataset, data.train.keys, ("paid_purchase_7d", "coupon_cost")
+    )
+    test_observed = _observations_for_keys(
+        dataset, data.test.keys, ("is_new", "cart_value")
+    )
+    cart_value_missing = int(test_observed["cart_value"].isna().sum())
+    propensity, predicted_profit = _fit_level_baselines(
+        data, train_observed, data.test.X, cfg, seed_index=rep_id
+    )
+    cost_model = fit_cost_model(
+        data.train.X,
+        data.train.treatment,
+        train_observed["paid_purchase_7d"].to_numpy(dtype=np.int64),
+        train_observed["coupon_cost"].to_numpy(dtype=np.float64),
+        cfg,
+    )
+    cost_hat = np.asarray(predict_expected_cost(cost_model, data.test.X, cfg), dtype=np.float64)
+
+    selection = pd.DataFrame(
+        {
+            "user_id": data.test.keys["user_id"].to_numpy(),
+            "is_new": test_observed["is_new"].to_numpy(dtype=np.int64),
+            # 未加购用户的 cart_value 在观测表里为空；对 E 的规则与预算语义而言等价于 0。
+            "cart_value": test_observed["cart_value"].fillna(0.0).to_numpy(dtype=np.float64),
+            "purchase_propensity": propensity,
+            "predicted_profit": predicted_profit,
+            "tau_hat": prediction.tau_test,
+            "cost_hat": cost_hat,
+        }
+    )
+    selection_columns = list(D03_EXPORT_COLUMNS[:7])
+    truth_columns = list(D03_EXPORT_COLUMNS[7:])
+    if list(selection.columns) != selection_columns:
+        raise ValueError("选人列顺序与 E 契约不一致")
+    if not selection["user_id"].is_unique:
+        raise ValueError("导出表的 user_id 必须唯一")
+    numeric = selection.loc[:, ["cart_value", "purchase_propensity", "predicted_profit", "tau_hat", "cost_hat"]]
+    if not np.isfinite(numeric.to_numpy(dtype=np.float64)).all():
+        raise ValueError("选人列含非有限值")
+    if ((selection["purchase_propensity"] < 0) | (selection["purchase_propensity"] > 1)).any():
+        raise ValueError("purchase_propensity 必须落在 [0, 1]")
+    if (selection["cost_hat"] <= 0).any():
+        raise ValueError("cost_hat 必须严格为正（成本下界失效）")
+
+    # 选人列到此已冻结；真值只在下面这一次合并里出现。
+    truth_audit = _audit_truth_for_test(population_audit, cfg, data.test.keys)
+    frame = selection.copy()
+    for column in truth_columns:
+        frame[column] = truth_audit[column].to_numpy(dtype=np.float64)
+    frame = frame.loc[:, list(D03_EXPORT_COLUMNS)]
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+    frame.to_csv(target, index=False, encoding="utf-8-sig")
+
+    def _label(path: Path) -> str:
+        try:
+            return path.resolve().relative_to(root).as_posix()
+        except ValueError:
+            return str(path)
+
+    written_at = datetime.now(timezone(timedelta(hours=8))).isoformat(timespec="minutes")
+    meta: dict[str, Any] = {
+        "status": "provisional",
+        "formal_r": False,
+        "source_label": "合成数据 / 已知 DGP",
+        "scenario": scenario,
+        "level": data.level,
+        "identification_mode": data.identification_mode,
+        "time_mode": data.time_mode,
+        "rep_id": rep_id,
+        "n_total": int(len(dataset.observations)),
+        "n_train": data.train.n,
+        "n_validation": data.validation.n,
+        "n_test": data.test.n,
+        "csv": _label(target),
+        "csv_sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+        "columns": list(D03_EXPORT_COLUMNS),
+        "selection_columns": selection_columns,
+        "truth_columns": truth_columns,
+        "truth_isolation": {
+            "producer": "_audit_truth_for_test",
+            "source": "V3Population.audit_potential_orders",
+            "joined_after_selection_columns_frozen": True,
+            "used_for_selection": False,
+            "used_for_model_selection": False,
+        },
+        "model_selection": {
+            "scoring": str(cfg.require("models.selection.scoring")),
+            "chosen_model": chosen_model,
+            "models_fitted": list(names),
+            "ranking": ranking,
+        },
+        "level_baselines": {
+            "purchase_propensity": "LightGBM P(paid_purchase_7d=1|X)，训练集全部用户",
+            "predicted_profit": "purchase_propensity × LightGBM E[net_profit+coupon_cost|X,purchased=1]，负值截 0",
+            "cart_value_missing_filled_zero": cart_value_missing,
+        },
+        "cost_model": {
+            "target": str(cost_model.target),
+            "fitted_on": str(cost_model.fitted_on),
+            "cost_hat_min_cny": float(cost_hat.min()),
+            "cost_hat_mean_cny": float(cost_hat.mean()),
+            "cost_hat_max_cny": float(cost_hat.max()),
+        },
+        "predictions": {
+            "tau_hat_mean_test": float(prediction.ate),
+            "tau_hat_sd_test": float(prediction.tau_sd_test),
+        },
+        "truth": {
+            "tau_true_mean_test": float(frame["tau_true"].mean()),
+            "tau_true_sd_test": float(frame["tau_true"].std(ddof=1)),
+            "cost_true_mean_test": float(frame["cost_true"].mean()),
+        },
+        "hashes": {
+            "config_hash": data.config_hash,
+            "observed_hash": data.observed_hash,
+            "preprocessor_hash": data.preprocessor_hash,
+            "split_fingerprint": data.split_fingerprint,
+            "train_user_key_hash": data.train.key_hash,
+            "validation_user_key_hash": data.validation.key_hash,
+            "test_user_key_hash": data.test.key_hash,
+        },
+        "written_at_beijing": written_at,
+    }
+    meta_target.parent.mkdir(parents=True, exist_ok=True)
+    meta_target.write_text(
+        json.dumps(meta, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
+    )
+    meta["meta_path"] = _label(meta_target)
+    return meta
 
 
 # --------------------------------------------------------------------------- #
@@ -1992,7 +2292,51 @@ def _main(argv: Sequence[str] | None = None) -> int:
         help="敏感性对照的场景列表（逗号分隔，需为随机化层）",
     )
     parser.add_argument("--reps", type=int, default=3)
+    parser.add_argument(
+        "--export",
+        action="store_true",
+        help="导出 E 编排所需的 9 列逐用户 CSV（provisional，不是正式 R）",
+    )
+    parser.add_argument("--export-csv", default=None)
+    parser.add_argument("--export-meta", default=None)
+    parser.add_argument(
+        "--model",
+        default=None,
+        help="导出时只用逗号分隔的模型子集（默认全部 5 个；选模仍走验证集打分）",
+    )
+    parser.add_argument("--time-mode", default="static")
     args = parser.parse_args(argv)
+    if args.export:
+        models = (
+            None
+            if not args.model
+            else tuple(piece.strip() for piece in args.model.split(",") if piece.strip())
+        )
+        meta = export_d03_predictions(
+            scenario=args.scenario,
+            n=args.n,
+            rep_id=args.rep,
+            out_csv=args.export_csv,
+            meta_path=args.export_meta,
+            models=models,
+            time_mode=args.time_mode,
+        )
+        print(
+            json.dumps(
+                {
+                    "status": meta["status"],
+                    "scenario": meta["scenario"],
+                    "chosen_model": meta["model_selection"]["chosen_model"],
+                    "n_test": meta["n_test"],
+                    "csv": meta["csv"],
+                    "meta": meta["meta_path"],
+                    "tau_hat_mean_test": meta["predictions"]["tau_hat_mean_test"],
+                    "tau_true_mean_test": meta["truth"]["tau_true_mean_test"],
+                },
+                ensure_ascii=False,
+            )
+        )
+        return 0
     if args.sensitivity:
         frame = run_propensity_sensitivity(
             scenarios=[piece.strip() for piece in args.scenarios.split(",") if piece.strip()],

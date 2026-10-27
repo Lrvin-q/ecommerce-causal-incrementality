@@ -924,3 +924,89 @@ def test_sensitivity_table_reports_efficiency_ratios_without_truth(protocol: V3P
         mean_rows["se_ratio_dr_estimated_over_itt"]
         > mean_rows["se_ratio_dr_known_over_itt"]
     ).all()
+
+
+# --------------------------------------------------------------------------- #
+# D03 交付物：E 契约 9 列、provisional 元信息、真值物理隔离
+# --------------------------------------------------------------------------- #
+def test_d03_export_columns_match_frozen_e_contract() -> None:
+    assert models.D03_EXPORT_COLUMNS == (
+        "user_id", "is_new", "cart_value", "purchase_propensity", "predicted_profit",
+        "tau_hat", "cost_hat", "tau_true", "cost_true",
+    )
+
+
+def test_d03_export_writes_e_contract_and_provisional_metadata(tmp_path) -> None:
+    csv_path = tmp_path / "d03_predictions.csv"
+    meta_path = tmp_path / "d03_predictions_meta.json"
+    meta = models.export_d03_predictions(
+        scenario="L1_main",
+        n=2000,
+        rep_id=0,
+        out_csv=str(csv_path),
+        meta_path=str(meta_path),
+        models=("constant",),
+    )
+    frame = pd.read_csv(csv_path, encoding="utf-8-sig")
+    assert tuple(frame.columns) == models.D03_EXPORT_COLUMNS
+    assert len(frame) == meta["n_test"] > 0
+    assert frame["user_id"].is_unique
+    numeric = frame.drop(columns=["user_id"])
+    assert np.isfinite(numeric.to_numpy(dtype=float)).all()
+    assert (frame["cost_hat"] > 0).all()
+    assert ((frame["purchase_propensity"] >= 0) & (frame["purchase_propensity"] <= 1)).all()
+    assert (frame["cost_true"] >= 0).all()
+    # 真值不是把 tau_hat 复制过去：个体效应必须有真实异质性与负值空间
+    assert not np.allclose(frame["tau_true"], frame["tau_hat"])
+    assert frame["tau_true"].std(ddof=1) > 0
+
+    assert meta["status"] == "provisional"
+    assert meta["formal_r"] is False
+    assert meta["source_label"] == "合成数据 / 已知 DGP"
+    assert meta["selection_columns"] == list(models.D03_EXPORT_COLUMNS[:7])
+    assert meta["truth_columns"] == list(models.D03_EXPORT_COLUMNS[7:])
+    assert meta["truth_isolation"] == {
+        "producer": "_audit_truth_for_test",
+        "source": "V3Population.audit_potential_orders",
+        "joined_after_selection_columns_frozen": True,
+        "used_for_selection": False,
+        "used_for_model_selection": False,
+    }
+    assert meta["model_selection"]["chosen_model"] == "constant"
+    on_disk = json.loads(meta_path.read_text(encoding="utf-8"))
+    assert on_disk["csv_sha256"] == hashlib.sha256(csv_path.read_bytes()).hexdigest()
+
+
+def test_d03_audit_truth_cannot_change_selection_columns(tmp_path, monkeypatch) -> None:
+    baseline_csv = tmp_path / "baseline.csv"
+    models.export_d03_predictions(
+        scenario="L1_main",
+        n=2000,
+        rep_id=0,
+        out_csv=str(baseline_csv),
+        meta_path=str(tmp_path / "baseline_meta.json"),
+        models=("constant",),
+    )
+    baseline = pd.read_csv(baseline_csv, encoding="utf-8-sig")
+
+    original_truth = models._audit_truth_for_test
+
+    def poisoned_truth(population_audit, cfg, test_keys):
+        real = original_truth(population_audit, cfg, test_keys)
+        return real.assign(tau_true=999.0, cost_true=999.0)
+
+    monkeypatch.setattr(models, "_audit_truth_for_test", poisoned_truth)
+    poisoned_csv = tmp_path / "poisoned.csv"
+    models.export_d03_predictions(
+        scenario="L1_main",
+        n=2000,
+        rep_id=0,
+        out_csv=str(poisoned_csv),
+        meta_path=str(tmp_path / "poisoned_meta.json"),
+        models=("constant",),
+    )
+    poisoned = pd.read_csv(poisoned_csv, encoding="utf-8-sig")
+    selection = list(models.D03_EXPORT_COLUMNS[:7])
+    pd.testing.assert_frame_equal(baseline.loc[:, selection], poisoned.loc[:, selection])
+    assert (poisoned["tau_true"] == 999.0).all()
+    assert (poisoned["cost_true"] == 999.0).all()

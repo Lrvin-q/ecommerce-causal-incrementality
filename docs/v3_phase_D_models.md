@@ -569,3 +569,55 @@ ATE 差（均值行）：`L1` estimated **+0.1298**、known **+0.1058**（ITT SE
   `PropensitySourceError`（§2.4 规则 2），所以这里没有也不该有 L3 的 known_design 对照。
 
 > 增补时间：2026-10-25 15:42（北京时间）：按独立科学评审 C8 修正三处表述。
+
+---
+
+## 14. D03 provisional 逐用户导出（2026-10-27 11:30，北京时间）
+
+本节回答"D03 的交付物到底是什么"：**不是模型结果表，而是 E 阶段固定 9 列 CSV**。
+
+### 14.1 契约与真值隔离
+
+`D03_EXPORT_COLUMNS` 与 `scripts/21_e_policy_run.py` 的 `REQUIRED_COLUMNS` 完全一致：
+
+```
+user_id, is_new, cart_value, purchase_propensity, predicted_profit,
+tau_hat, cost_hat, tau_true, cost_true
+```
+
+- 前 7 列只由观测表与模型预测构成，**先冻结**；
+- 后 2 列由 `_audit_truth_for_test()` 从 `V3Population.audit_potential_orders` 读取，
+  **在选人列冻结之后才合并**；函数只返回真值两列，与特征/预测不共享对象。
+- 有一条测试把真值函数替换成常数 999，断言前 7 列逐位不变（`test_d03_audit_truth_cannot_change_selection_columns`）。
+
+`purchase_propensity` = LightGBM `P(paid_purchase_7d=1|X)`；`predicted_profit = p̂ × m̂`，
+`m̂` 是训练集购买者上对 `net_profit + coupon_cost` 的回归并截 0；`cost_hat` 用 `fit_cost_model`
+的期望核销成本口径（不是面额）。
+
+### 14.2 已跑通的 provisional
+
+命令：
+
+```
+python -m causal_growth.estimate.v3_models --export --scenario L1_main --n 20000 --rep 0
+```
+
+结果（**provisional，不是正式 R**）：
+
+| 项 | 值 |
+|---|---|
+| 场景 / rep | L1_main / 0 |
+| n_total / test | 20 000 / 6 000 |
+| 拟合模型 | constant, t_learner, s_learner, causal_forest, dr_learner |
+| 选模 | `causal_forest`（验证集预算网格 LCB 均值 −0.1159；5 个模型 LCB 全为负） |
+| CSV | `outputs/tables/v3_phase_D03_predictions_provisional.csv`（逐用户表，不入库） |
+| 元信息 | `outputs/tables/v3_phase_D03_predictions_provisional_meta.json`（含 sha256、选模排名、全哈希） |
+| E 编排 | 72 行 = 8 预算 × 9 策略；受约束策略按 `cost_hat` 8/8 合规 |
+
+### 14.3 这张 provisional 表不能回答什么
+
+1. **不是正式 R**：单 rep、单场景，`status=provisional`，`formal_r=false`；不能据此写任何模型优劣或策略收益结论。
+2. **τ̂ 有明显高估**：test 集 `tau_hat` 均值 0.514 vs `tau_true` 均值 0.202（约 2.5 倍）。这可能是选模/模型偏差或单 rep 噪声，**必须由正式 R 与多 rep 诊断回答**，不能在这里下判断。
+3. **验证集 LCB 全为负**：说明在该 rep 的验证集上，5 个模型按预算选人的 DR 下界都不支持正收益；这不等于"发券一定亏"，但足以阻止把它写成正结果。
+4. **期望成本不是硬上限**：`greedy` 两策略按 `cost_hat` 8/8 合规、按 `cost_true` 只有 3/8 合规。这正是 `policy.yaml` 里 `hard_cap_claim_allowed: false` 的现场表现，不能把"期望不超"改写成"实际不超"。
+5. **逐用户 CSV 不入库**：按 `.gitignore` 的逐用户表规则只保留 meta（含 sha256）。复现只需上面的命令。

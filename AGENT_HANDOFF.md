@@ -1,7 +1,7 @@
 # AGENT 交接说明 —— v3 重建
 
-> **最新交接时间：2026-10-27 09:45（北京时间）。当前分支：`codex/v3-rebuild`。**
-> **A/B/C/D02 通过；D03 未证实且是 E 的硬前置；E 组件层完成、编排层跑通但只有合成数据。**
+> **最新交接时间：2026-10-27 11:30（北京时间）。当前分支：`codex/d03`（从 `codex/v3-rebuild` 的 `9d05bd6` 切出）。**
+> **A/B/C/D02 通过；D03 仍未证实，但 provisional 逐用户 9 列导出已实现并跑通。E 组件层完成、编排层已消费真实 D.3 预测（仍非正式 R）。**
 > 下文「最新交接」是当前事实；再往下的旧版交接保留施工约束与历史背景。
 
 ## 最新交接：D02 通过，E 被 D03 挡住
@@ -15,21 +15,21 @@
 | C 五表/SQL/隔离 | 通过 | `outputs/v3/data_validation/approval.json` |
 | **D02** | **通过（09:45）**，走完「评审判定 → 修复 → 独立复核 PASS」三环 | `docs/v3_phase_D_aa_formal.md` §8；`docs/reviews/v3_phase_D_recheck.md` |
 | D01 | **未证实**：20pilot 三粒度实测与资源计划未做 | — |
-| **D03** | **未证实，且是 E 的硬前置**：只有冒烟（`v3_phase_D_models_smoke.csv` 5 行），**无逐用户 τ̂ 落盘** | `docs/v3_phase_D_models.md` §6 |
+| **D03** | **未证实，但 provisional 导出已通（11:30）**：`export_d03_predictions()` 产出 E 契约 9 列 CSV；n=20 000/单 rep/test 6 000 人；真值只在选人列冻结后合并 | `outputs/tables/v3_phase_D03_predictions_provisional_meta.json`；`docs/v3_phase_D_models.md` §14 |
 | D04 装载优化 | 实现通过，调用点已切换 | `docs/v3_phase_D_loader_switch.md` |
 | E 组件层 | 完成，41 项测试绿 | `src/causal_growth/policy/v3_policy.py`；`docs/v3_phase_E_coverage.md` |
-| E 编排层 | 跑通：9 策略 × 8 预算 = 72 行（**合成数据**） | `scripts/21_e_policy_run.py`；`out/e_smoke/` |
+| E 编排层 | 已跑通两次：合成数据一次；**真实 D.3 provisional 预测一次**（72 行） | `scripts/21_e_policy_run.py`；`out/e_policy_d03_provisional/e_policy_grid.csv` |
 | 推送 | 积压若干 commit（GitHub 502 反复） | `git rev-list --count origin/codex/v3-rebuild..HEAD` |
 
 ### 二、下一步（按优先级）
 
-1. **D03 正式跑 + 逐用户 τ̂ 导出** —— 唯一挡在 E 前面的活。现成链路：
-   - `_prepare_dataset(scenario, n, rep_id)`（`v3_models.py:1680`）：DGP → 脏化 → 去重 → SQL → `ObservedDataset`
-   - `fit_predict(model_name, dataset, cfg, seed_index=...)`（`:1225`）：返回 **test 集** τ̂（不在训练集上评估）
-   - 真值 τ 从 `population.audit_potential_orders[0/1]` 取（audit-only，**只用于评估，不得进入选人**）
-   - 产出 CSV 直接喂 `scripts/21_e_policy_run.py --input`
+1. **D03 正式 R（仍未启动）** —— provisional 导出链路已通，可直接复用：
+   - `_prepare_dataset(scenario, n, rep_id=...)`：返回 `(cfg, ObservedDataset, population_audit)`；population 只能交审计函数
+   - `export_d03_predictions(...)`：5 模型 → 验证集 LCB 选模 → 冻结 7 列选人字段 → 最后合并 `tau_true/cost_true`
+   - 命令：`python -m causal_growth.estimate.v3_models --export --scenario L1_main --n 20000 --rep 0`
+   - 先用 `--model constant,t_learner` 快速验链路；正式 R 前必须先裁决**跑几次 / 选模指标 / 评估量**
 2. D01 20pilot 三粒度实测与资源计划
-3. 推送积压
+3. 推送积压（本分支 `codex/d03`，待 review 后合入 `codex/v3-rebuild`）
 
 ### 三、接手须知（血泪版）
 
