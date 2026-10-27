@@ -4,7 +4,9 @@
 
 ## 当前状态
 
-**2026-10-27 18:44 更新。A/B/C/D02 通过。D03 正式 R 已完成（200/200，12:54–17:14，stderr 全空），合并与证据导出通过（1 000 行 per-rep / 72 000 行网格，`coverage.json` 10 文件）；**D03 仍标未证实，待独立评审**。F02 决策层（单侧 Holm + 退款率护栏）已完成、11 项测试绿；全量串行 1 228 项两次 exit=0（18:12–18:20 决策层改动前、18:24–18:31 改动后）；**F02 n=200k 单 rep 已跑通（18:32–18:39，exit=0）**，证据在 `outputs/evidence/f02_n200k_rep0/`；新发现预算只约束预测成本、定向臂实际支出 +29.1%，裁决为保留规则并逐 rep 报告（见 F02 预算裁决项）。**
+**2026-10-28 05:25 更新。A/B/C/D02/D03 通过**（D03 于 05:15 经独立复审 PASS 关闭，走完三环）。**E01/E02 与 F01**：评审均 PASS WITH CONDITIONS、修复已落地，独立复审 05:13 / 05:10 起飞未返回，**仍记未证实**。**F02** 正式 200 rep 已于 **03:39** 起跑（05:07 时 20/200、内存 ALARM 0 次，投影 **15:20–17:35** 集齐），合并与证据导出自动收尾。**D01** 20 rep 已批准、排在 F02 之后（约 18:00 起、92 分钟独占）。运行期冻结：四个绑定 glob 与 `scripts/30` 在四分片退出前不得改。详见下方 05:15 节与 `docs/v3_决策与反思日志.md` 05:16 / 05:24 条。
+
+**（以下为 2026-10-27 18:44 的历史快照，保留原文不改写）A/B/C/D02 通过。D03 正式 R 已完成（200/200，12:54–17:14，stderr 全空），合并与证据导出通过（1 000 行 per-rep / 72 000 行网格，`coverage.json` 10 文件）；**D03 仍标未证实，待独立评审**。F02 决策层（单侧 Holm + 退款率护栏）已完成、11 项测试绿；全量串行 1 228 项两次 exit=0（18:12–18:20 决策层改动前、18:24–18:31 改动后）；**F02 n=200k 单 rep 已跑通（18:32–18:39，exit=0）**，证据在 `outputs/evidence/f02_n200k_rep0/`；新发现预算只约束预测成本、定向臂实际支出 +29.1%，裁决为保留规则并逐 rep 报告（见 F02 预算裁决项）。**
 
 **D02 通过**，闭环为：独立评审 PASS WITH CONDITIONS → 3 项文档 P0 修正（4×MDE→4.93×、34%→0.729、相对差 2.3%→7.84% 并改归因为层水平偏移）+ P0-1/E-1~E-3 修复 → **独立复核 PASS**（`docs/reviews/v3_phase_D_recheck.md`）→ 复核抓出的 2 处再修。详见 `docs/v3_phase_D_aa_formal.md` §8。证据包在 `outputs/evidence/`（1.79 MB，仅凭它可重建 FPR 46/1000 与 CP [0.0339,0.0609]）。
 
@@ -146,8 +148,8 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
   - [~] **修复进展（2026-10-27 21:44）**：P1-1 入口断言 + `--frame-model causal_forest`（n=20k 冒烟 unique=5 978、sd=0.8974）；P1-2 同 `cost_hat` 口径真值 oracle（constant 帧 0.04/0.10/0.20 = 0.98436/0.99284/0.91780，恒等式残差 ≤3.5e-17）；P1-3 meta 增加 `git_commit/source_sha256/protocol_*`，新增 `--evidence-dir` 导出与顶层 coverage；P1-4 校准增加零模型/Brier/信号 sd 诊断；P2-1/P2-4/P2-8 补相对 gap、拆分 file/dataframe 哈希、每元价值列
   - [x] **全量 CF 重跑（2026-10-27 21:43:56–22:11:07，exit=0，1 360 秒）**：`--from-d03 --models causal_forest --frame-model causal_forest --n 200000 --tag cf`；chosen=CF，帧 60 000 行、`tau_hat` unique=59 861、sd=0.7816；8 产物 + 证据包 `outputs/evidence/e_evidence_rep0/`（11 条记录 6.08 MB：帧、校准逐用户、7 表、meta、coverage）。**该目录已于 2026-10-28 02:38 移至 `out/attic/e_evidence_rep0_stale/`**（守卫加入前的旧产物，其 11 条顶层 coverage 记录同步删除；6 个文件与 `_a`/`_b` 现行证据逐字节相同，另 5 个是过期版本，仅作历史留存）
   - [x] **CF 结果核验（2026-10-27 22:30）**：① 小池 24/24 分币精确 DP；局部交换最大低于精确解 0.3055 元（pool100@0.10），贪心最大低 0.3110 元；MILP“optimal”因解浮点问题可高于分币精确解最多 0.0809 元，**不能再说 24/24 求解器相等**；LP 上界行按设计整行 NaN；② 桶宽 1.00→0.05 元在 0.04 档把相对 gap 从 12.99% 降到 0.48%，0.01 档因可行性丢弃回升到 0.61%，曲线非单调；③ 校准 MAE/RMSE/Brier 相对常数基准仅改进 1.13%/0.22%/0.45%，Pearson 0.085（校准信号上限 0.109，占 78.5%）；④ **1.00 档随机基线实际支出 50 570 vs 预算 60 000，超支概率 0，P1-5 原表述确认错误**；⑤ 分解恒等式残差 ≤2.8e-17，`truth_oracle_cost_basis=cost_hat_primary`，`truth_feasible_under_cost_hat` 全 True；⑥ 60k 规模扫描 MILP 0.21 秒“optimal”且与贪心同集，需在正文说明这是该帧成本高度离散导致的退化
-- [ ] **E 正文改写（P1-1~P1-6 + P2）**：按 CF 数字重写 `docs/v3_phase_E_evidence.md` §0/§1/§2/§3/§5/§6/§10/§11；明确 constant 旧表只作配对对照，主张只用 CF 帧
-- [ ] **E 修复后复审**：P1 全修并重跑/重写后再次独立评审，才可把 E01/E02 转“已证实”
+- [x] **E 正文改写（P1-1~P1-6 + P2）已完成（`docs/v3_phase_E_evidence.md` 维护时间 2026-10-28 02:46）**：正文现为 **A/B 双家族**结构（A=`constant` 主口径、与 D03 正式选模一致；B=`causal_forest` 非退化敏感性），§1 明确 A 的"逐格完全相等"是**任务退化到无法区分算法**、不是求解器一致性的胜利。与评审 P1-6 的"2×8 表"要求的差别：不是只留 CF 帧，而是**两家族并列**——A 保留是因为它是 D03 的选模结果，删掉它会切断与 D03 正式 R 的口径连续性
+- [~] **E 修复后复审**：P1 全修并重跑/重写后再次独立评审，才可把 E01/E02 转“已证实”。**独立复审已于 2026-10-28 05:13 启动**（后台代理，产出 `docs/reviews/v3_phase_E_rereview.md`），任务书要求逐条核 6 项 P1、复算小池求解器是否真的分离、按 §12.5 报最差相对差、并按 §12.6 验 A/B 是否构成同 rep/同用户/同池/同预算的有效配对
 - [x] `--from-d03` 正式路径小规模验证（14:01，n=2 000、rep=0、600 行 test）：8 个产物 61.1 秒，校准走 validation 处理组 201/400，分解表 `truth_milp_status=optimal`、`truth_milp_cost_basis=truth_cost_floored_at_cost_floor_cny`；产物隔离 `out/e_evidence_fromd03_smoke/`
 - [x] **正式数据**：2026-10-27 19:17:51–19:42:28 用 `--from-d03 --rep-id 0 --n 200000` 跑完（D03 正式 rep 0，`chosen=constant`），9 个产物齐：7 张表 + `v3_phase_E_calibration.json` + `v3_phase_E_evidence_meta.json`；帧 60 000 行、sha256 `c8fd698e…c54e0`；阶段耗时 87.7/1.2/42.3/1.0/117.9/967.3 秒。**规模扫描 60k 有 7 档 `time_limit_no_incumbent`（NaN，非 0）**
 - [x] E 正文报告 `docs/v3_phase_E_evidence.md`：2026-10-27 19:45 落盘（§2 校准、§7 规模扫描已补实数），明确"桶宽阈值由曲线定、不预设"；observed_value 留给 F01；**文首仍标"尚未独立评审、E01/E02 未证实"**
@@ -192,7 +194,7 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
   - [x] **无人值守接力（04:02 起）**：`out/scratch/f02_chain.sh 37612 21460` 每 5 min 用 `Get-Process` 判两个分片 PID 是否存活（**判活/判死都先单独验过**：37612/21460 判活、999999 判死），两者都退出后自动 `bash out/scratch/f02_shard.sh 2` 与 `3` 并 wait，日志 `out/logs/f02_formal_shard{2,3}_*.log`
   - [x] **自动收尾（04:04 起）**：`out/scratch/f02_finalize.sh` 每 5 min 数四个分片目录下 `rep*/freeze.json`（`count` 函数已用真目录验过：shard0=3 / shard1=2 / 未建目录=0），四者各满 50 后自动跑 `scripts/30_merge_f02_formal.py --shard-root ×4 --expected-reps 200 --tables-dir outputs/tables --evidence-dir outputs/evidence/f02_formal`，日志 `out/logs/f02_merge_*.log`，最长等 22 h 后放弃并留话
   - [x] **合并门禁"失败要响"实测（04:03）**：拿当前只有 4 个 rep 的状态跑一次合并，输出重定向到 `out/scratch/merge_gate_test/`（**不碰 `outputs/`**），如预期抛 `ValueError: rep 目录数 4 与 expected_reps=200 不符`（`v3_f02_formal.aggregate_f02:359`），临时目录零文件写入、`git status` 干净 ⇒ 自动收尾即使提前触发也只会留下一条失败记录，不会产出半成品聚合表
-  - [x] **ETA 改为实测投影（04:26，n=10 rep）**：不再用假设的选模频率加权，直接用已完成 10 个 rep 的实测耗时——mean **460.8 s**、sd 64.8 s、min 366.4（constant）、max 524.2（causal_forest）；选中模型 6 causal_forest / 2 s_learner / 1 dr_learner / 1 constant。按 2 并发投影 200 rep = **12.80 h**，mean 的标准误 20.5 s ⇒ 95% 区间 **11.68–13.92 h**，自 03:45 起即 **15:30–17:45 集齐，点估计 ~16:30**。原记的 11–15 h 区间仍成立、收窄为上值；区间下界 11.68 h 与 04:08 那次"D03 选模频率加权 ⇒ 11.7 h"几乎重合，两条独立路径互证。**注意**：n=10 的选模构成（causal_forest 60%）高于 D03 200 rep 的 35.5%（71/200），但按二项 sd 1.51 算只差 +1.6 sd，**不足以断言选模构成变了**；将在第一波 100 rep 完成时用 n=100 重推一次
+  - [x] **ETA 改为实测投影（04:26，n=10 rep）**：不再用假设的选模频率加权，直接用已完成 10 个 rep 的实测耗时——mean **460.8 s**、sd 64.8 s、min 366.4（constant）、max 524.2（causal_forest）；选中模型 6 causal_forest / 2 s_learner / 1 dr_learner / 1 constant。按 2 并发投影 200 rep = **12.80 h**，mean 的标准误 20.5 s ⇒ 95% 区间 **11.68–13.92 h**，自 03:45 起即 **15:30–17:45 集齐，点估计 ~16:30**（**05:22 更正**：起跑实为 **03:39:18**，凭据 `snapshot_binding.json` 的 `created_at=2026-10-28T03:39:04+08:00` 与日志名 `f02_formal_shard0_20261028_0339.log`；窗口应为 **15:20–17:35、点估计 ~16:27**，工期投影 12.80 h 本身未变。原值保留在此不改写，见 `docs/v3_phase_D03_formal.md` §11.2 P2-1）。原记的 11–15 h 区间仍成立、收窄为上值；区间下界 11.68 h 与 04:08 那次"D03 选模频率加权 ⇒ 11.7 h"几乎重合，两条独立路径互证。**注意**：n=10 的选模构成（causal_forest 60%）高于 D03 200 rep 的 35.5%（71/200），但按二项 sd 1.51 算只差 +1.6 sd，**不足以断言选模构成变了**；将在第一波 100 rep 完成时用 n=100 重推一次
   - [x] **顶层证据登记表的同类缺口修复（04:24，即下面 ① 的工具化）**：按 04:07 自记的规则"修机制缺口要 grep 同类脚本"，查出缺口比原记的更宽——`scripts/27_export_d03_evidence.py:255` 与 `scripts/30_merge_f02_formal.py:186` **都只写目录级 coverage.json**，于是 `outputs/evidence/d03_formal/`（含 D03 正式的 `snapshot_binding.json` + `run_manifest.json`）与 `outputs/evidence/f02_n200k_rep0/` 在顶层索引里 **0 条**，而 AA/C3 的 binding 却是登记在案的 ⇒ 评审者从顶层入口找不到 D03 正式的源码绑定，违反 AGENTS §12.1"只用 outputs/evidence/ 就能重建关键数字"。写了 `out/scratch/register_evidence_top.py`：按**可陈述规则**（身份类 JSON = `*binding*.json` / `*manifest*.json` / `freeze.json` / `meta*.json` / `decision.json`，不收 CSV/日志/逐 rep summary）提升，提升前对每个候选**重算 sha256/bytes 并与目录级记录比对**（不符即抛，不拿过期哈希登记），提升后对顶层**全表 41 条**逐条复算，结果 **35 → 41 条、`total_bytes` 15 811 358 → 15 858 444、既有 35 条逐条与顺序均未变（diff 99 增 / 2 删）**，幂等已实测（第二次运行不写盘）。附带白捡一道交叉核验：E 的两个 `meta`、F01 的 freeze/meta 顶层记录与其目录级 coverage.json **哈希逐值相符**。**踩坑两处**：① 目录级 schema 有三种（`files` 是 list / `files` 是 dict / `records` 是 list，且 f01 的 `target` 是**绝对 Windows 路径**），首版只吃两种，靠 `--dry-run` 当场炸出来；② 首版按 target 排序，把 32/35 条既有记录重排成 217/139 行的 diff，改为**只追加**才让 diff 纯增量、评审者能一眼确认其余记录未被动过
   - [x] **查出审计条目里的硬编码"前值"（04:23）**：`registry_repairs[1]`（03:06）的 `total_bytes_before=22 788 510` 与 `reason` 与 `registry_repairs[0]`（02:38）**逐字相同**，而 02:38 之后磁盘上的值已是 15 811 356 ⇒ 该"前值"是假的。根因定位到 `out/scratch/fix_evidence_registry.py:100` 把 `"total_bytes_before": 22788510` 写成常量、`:102` 把 reason 写成常量，脚本跑两次就在审计轨迹里留下一条假前值（`records_before` 用的是 `len(records)`，是真测的，所以只有这两个字段不可信）。处置：**不改写历史条目**（那是带时间戳的审计轨迹），把缺陷连同证据登记进 04:24 条目的 `prior_entry_defects`（记 `recorded_value` / `correct_value=15 811 356` / 佐证文件），并让新脚本的 before 值**一律现读现算 + 与逐条求和交叉校验**，不符就拒绝写盘。新规则：**审计产物里的任何 `*_before` 字段必须是实测，不能是常量；一次性修复脚本一旦被重跑，硬编码的前值就变成假证据**
   - [ ] **合并后待做（不可自动化的部分）**：① 把 **F02 正式证据**登记进顶层 `outputs/evidence/coverage.json`——工具已就绪且**已按 30 号脚本的真实输出形状演练过**（见下条），合并后 `.venv/Scripts/python.exe out/scratch/register_evidence_top.py --dirs f02_formal --dry-run` 再实跑；`scripts/30_merge_f02_formal.py:186` 本身仍**不刷顶层索引**，与 27 号脚本同缺口 ② `snapshot_binding.json` 已复制入库（`outputs/v3/f02_formal/`，sha `2988d069…`、6 920 B）③ 写 `docs/v3_phase_F02_formal.md` 正文与 §11.2 程序豁免记录 ④ 全量串行测试复跑 ⑤ 改完顶层索引后同步 3 处引用（`docs/v3_phase_E_evidence.md:675`、`docs/v3_phase_F01_ope.md:437/468`、本文件 P0-3 条）——**历史记录保留原值、只改现状断言**（04:24 已按此改过一轮）⑥ **机制修复**：让 27/30 号脚本自带顶层刷新（复用 31 号 `_refresh_top_registry` 口径），并把 30 号 evidence `coverage.json` 的记录键从 `{path, source, sha256, bytes}` 补上 `kind`/`target`，同时给 `source` 一个**不指向 `out/`** 的可复算来源（现在 `source` 是 `out/f02_formal/shardX/rep0/...`，`out/` 不入库，评审者跟着它会扑空）——运行期不改脚本，合并后连着 ④ 一起做
@@ -223,6 +225,76 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] **F01 小项（18:24 完成）**：`v3_ope.cost_and_guardrail` 的 `confidence` 默认改为 `None`，运行时读 `evaluation.confidence_level`，不再写死 0.95。
 - [x] 全量串行测试（决策层改动后）1 228 项复跑 exit=0（18:24:43–18:31:47，单进程），日志 `outputs/runs/f02_tests/full_suite_after_decision.log`
 - [ ] 独立科学评审 → F 判定
+
+## 三阶段复审与运行期冻结边界（2026-10-28 05:15，北京时间）
+
+**D03、E、F01 三个阶段曾处在完全相同的状态**：独立评审均为 PASS WITH CONDITIONS，条件已由主负责实现，
+按 AGENTS §7.4「只有独立复审通过才能记为关闭」，三者在 GOAL.md 里都必须保持"未证实"。
+⇒ **复审、不是新工作，是这三项唯一的阻塞**。三份复审已全部在后台起飞；**D03 的已于 05:15 返回 PASS**：
+
+| 阶段 | 原评审 | 原条件 | 复审启动 | 产出 | 复审结果 |
+|---|---|---|---|---|---|
+| D03 | 20:53 PASS WITH CONDITIONS | 1 P0 + 6 P1（已全部实现，见 `docs/v3_phase_D03_formal.md` §11） | 2026-10-28 04:55 | `docs/reviews/v3_phase_D03_rereview.md` | **PASS（05:15）→ GOAL 已改"通过"**；另提 4 项 P2，已全部核实并修正（见下） |
+| F01 | 21:35 PASS WITH CONDITIONS | 3 P0 + 8 P1（`docs/v3_phase_F01_ope.md:6` 记为均已落地） | 2026-10-28 05:10 | `docs/reviews/v3_phase_F01_rereview.md` | 在飞，未返回 |
+| E | 21:27 PASS WITH CONDITIONS | 0 P0 + 6 P1 + 9 P2（数据层已由 A/B 两家族重跑覆盖） | 2026-10-28 05:13 | `docs/reviews/v3_phase_E_rereview.md` | 在飞，未返回 |
+
+三份复审回来之前，**不改 GOAL.md**（复审代理要读它的验收表，且宁愿带着结论一次写对，不写两遍）。
+`TODO.md` 与 `docs/v3_决策与反思日志.md` 不是复审输入，故照常更新。
+
+- [x] **核对 E 的 6 项 P1 在磁盘上的真实状态（05:11，不依赖正文自述）**：
+      P1-1 **已闭**（B 家族 `frame_model=causal_forest`、`tau_hat_nunique=59 861`、`sd=0.781647`；A 家族 `nunique=1`、`sd=1.11e-16` 作为退化对照保留）；
+      P1-2 **数据层已闭**（`v3_phase_E_decomposition.csv` 两家族均新增 `truth_oracle_cost_basis`、`learning_error_cost_hat_basis_cny_per_user`、`total_regret_cost_hat_basis_cny_per_user`、`identity_residual_cost_hat_basis`、`true_value_truth_cost_hat_basis`、`truth_feasible_under_cost_hat`，raw `cost_true` 口径另列作敏感性）；
+      P1-3 **已闭，仅剩 1 个子项**（`outputs/evidence/e_evidence_rep0_{a,b}/` 各 11 条记录、顶层登记表 41 条中 22 条为 E；meta 含 `git_commit=e004810…`、逐文件 `source_sha256`、`protocol_config_hash=30511a32…`、`protocol_source_hashes`、`d03_snapshot_combined_sha256=be0d48f4…`、`frame_file_sha256`、`frame_dataframe_sha256`）；
+      P1-6 **已闭**（A/B 同 rep、同 60 000 用户、同池、同 8 预算档）；
+      P1-4 素材已导出（`calibration_validation_treated_{constant,cf}.csv`，列 `user_id,predicted_cost_cny,observed_coupon_cost_cny`），措辞是否已改由复审判定；
+      P1-5 **原表述确认与表矛盾**：`v3_phase_E_random_summary.csv` 的 1.00 行 `budget_cny=60 000.0`、`mean_actual_spend_cny=50 570.0`、`mean_predicted_cost_cny=49 190.1523`、`overrun_probability=0.0` ⇒ 实际支出低于预算 **9 430 元（−15.72%）**，"等于预算上限"不成立
+- [!] **运行期冻结边界（本轮新核实，此前没写清）**：`src/causal_growth/policy/v3_policy_evidence.py`
+      **落在 F02 的绑定 glob `src/causal_growth/**/v3*.py` 内**。⇒ 任何 P1-2 那类"改真值 oracle 口径"
+      的源码修改，在四个分片全部退出前都不能做，否则 `pipeline_source_hashes()` 前后不一致，
+      作业抛 `RuntimeError: source files changed during the data run`，12 小时报废。
+      `scripts/24_e_evidence.py` 不在绑定 glob 内（`scripts/` 不被哈希），改它不会炸作业，
+      但改完必须重跑两家族才能让 meta 的 `source_sha256` 与 live 文件一致——**重跑是数据作业，
+      与正式运行并行违反 AGENTS §11.2**，故同样推到 F02 之后。
+- [ ] **E 唯一残留子项：meta 缺 `cfg.hash(64)`（=`e1aa4314b8d84b04…`）**。两条路，F02 之后二选一：
+      - **甲（推荐）**：不改冻结的 `meta_*.json`（改它会让目录级 coverage 的 sha256 失配、被登记表校验器正确拒绝），
+        而是往 `outputs/evidence/e_evidence_rep0_{a,b}/` 各加一份**明确标注为补充件**的绑定说明，
+        记 `cfg_hash` 由 `outputs/evidence/d03_formal/shard*_summary.json` 交叉读出，并同步写进目录级 `coverage.json`
+        （否则触发 §12.7 的反向检查："磁盘上有身份类文件、索引未登记"）。代价小、不动冻结证据，但强度弱于"在 meta 里"。
+      - **乙**：改 `scripts/24_e_evidence.py` 并重跑两家族（约 50 分钟/家族）。强度最高，代价是 100 分钟独占机器。
+      评审若判甲不够，再走乙。
+- [ ] **F02 合并后的机器排队顺序（已定）**：① 合并 + 证据登记（自动 + 约 15 分钟人工）→
+      ② **D01 20 rep（约 92 分钟，独占）** → ③ E 的甲/乙路线 → ④ 全量串行测试复跑。
+      **理由**：D01 是 GOAL 的验收项（当前"未证实"），E 的残留只是**一个元数据字段**、
+      且其值已可从 D03 分片摘要交叉读出；先做验收项，后补元数据。
+- [ ] `git push origin codex/d03`：`c98ff35` 仍未推上（`[ahead 1]`）。04:50 与 04:56 两次成功推送之后，
+      **连续 3 次 443 连接失败**（05:08、05:09 各 21 秒超时）。提交在本地安全，下个检查点重试；
+      **不装无人值守的自动重试循环**（网络可见动作 + 无人复核）。推上后仍等用户 review，不自行合并。
+- [x] **D03 独立复审 PASS（2026-10-28 05:15，`docs/reviews/v3_phase_D03_rereview.md`）**：
+      原评审 P0-1 与 P1-1～P1-6「全部真实落地、数字全部独立复现、无残留旧口径」；
+      §11.1 事实锚点逐项为真。**GOAL.md 的 D03 行已于 05:21 改为"通过"**（验收表 + R01 + 交接节点三处），
+      成为继 D02 之后第二个走完"评审判定 → 修复 → 独立复核 PASS"三环的阶段。
+      主负责按 §7.4 复核了复审自身的断言（`snapshot_vs_live` 83/3/0、绑定 48=37+9+2、
+      起跑时间、6 提交对四个 glob 命中 0、§6.1/§6.2 全部数字从 320 行 oracle 表重算），一致。
+  - [x] **复审新提 4 项 P2 已全部核实并当场修正**（05:17–05:20，详见 `docs/v3_phase_D03_formal.md` §11.2）：
+        ① F02 起跑 03:45→**03:39**（`snapshot_binding.json` 的 `created_at=03:39:04`、日志名 `..._0339.log`）
+        ② "03:45 之后两个提交"→**6 个**（`c290b84`/`17a1011`/`111f19b`/`3457f85`/`1da7780`/`c98ff35`，
+        `git log --name-only` 逐个比对四个绑定 glob，**命中 0**）
+        ③ §11 响应表引"决策日志 21:00 条"→**21:02 条**（日志无 21:00 条）
+        ④ **§6.1 混分母**：`share_optimal` 列填的是 0.20 档均值（0.2125/0.1919/0.1250/0.1250/0.1250），
+        而邻列"64 格平均后悔"是 64 格均值；64 格的 share 实为 **0.2608/0.2396/0.1752/0.1854/0.1250**。
+        已改为双列并各自标注分母。**这是 AGENTS §12.5 写成规则一天之后的同类复发**，
+        反省与机制见决策日志 05:24 条
+  - [x] ETA 锚点随 ① 一并更正：自 03:39 起 ⇒ **15:20–17:35 集齐、点估计 ~16:27**（工期 12.80 h 未变）；
+        GOAL.md / AGENT_HANDOFF.md / 本文件三处已同步，历史条目保留原值并标注更正
+- [ ] **合并后待做 ⑦（本轮新增，来自 P2-4 的机制化）**：让**报告表格的每个聚合列自带分母**——
+      改 `scripts/26_d03_formal_tables.py` 及后续 G/H 出表脚本，把"格子数/预算档/rep 数/策略数"
+      由脚本写进列名，不再依赖写正文的人记得；禁止出现不指明范围的"平均""合计"。
+      **理由**：复审找到的 4 项 P2 全是**标注/口径**问题、**无一是算术问题**，
+      说明自查对"算得对不对"有效、对"标签说得对不对"有系统性盲点，只能靠结构性约束。
+      运行期不改脚本，与 ⑥ 一起做。
+- [ ] **合并后待做 ④ 的范围补充**：全量串行测试复跑时，把**日志与 exitcode 落到 `outputs/`（入库）而不是 `out/`**。
+      起因：D03 复审明确声明"1 248 项测试 exit=0"**无法验证**——`out/logs/` 不入库，
+      仓库里只有断言没有原件，这是 AGENTS §12.1 尚未堵上的口子。
 
 ## 收尾交接（2026-10-25 14:40（北京时间））
 
