@@ -499,6 +499,9 @@ def milp_select(value: FloatArray, cost: FloatArray, budget: float,
     status_map = {0: "optimal", 1: "time_limit", 2: "infeasible"}
     status = status_map.get(int(result.status), "error")
     if result.x is None:
+        # 没有解向量时不能把 status 原样传出：HiGHS 偶尔会给出 status=0 但 x=None，
+        # 若保留 optimal，may_claim_optimal 会把空解当成最优。
+        status = "error"
         empty = np.zeros(value.size, dtype=np.bool_)
         selection = _assemble(value, cost, empty, "milp")
         incumbent = 0.0
@@ -543,8 +546,12 @@ def lp_upper_bound(value: FloatArray, cost: FloatArray, budget: float) -> float:
     for index in order:
         if cost[index] <= remaining + BUDGET_TOLERANCE:
             total += float(value[index])
-            remaining -= float(cost[index])
+            # 容差内允许"略微超支"，但剩余预算不能变负：否则下一件按负比例
+            # 扣减价值，上界会低于真实最优（曾用 1e-6 成本复现）。
+            remaining = max(0.0, remaining - float(cost[index]))
         else:
+            if remaining <= 0.0:
+                break
             total += float(value[index]) * (remaining / float(cost[index]))
             break
     return float(total)

@@ -42,7 +42,7 @@ def _poison(frame: pd.DataFrame) -> pd.DataFrame:
 
 def _selection_columns(table: pd.DataFrame) -> list[str]:
     """选人相关列：不含真值评估列、耗时列。"""
-    truth_prefixes = ("true_", "actual_spend", "within_budget_by_true")
+    truth_prefixes = ("true_", "actual_spend", "within_budget_by_true", "overrun", "audited")
     return [
         column for column in table.columns
         if not column.startswith(truth_prefixes) and column != "seconds"
@@ -81,6 +81,33 @@ def test_lp_upper_bound_handles_free_items() -> None:
     )
     assert np.isfinite(bound)
     assert bound == pytest.approx(5.0 + 7.0 * 0.5)
+
+
+def test_lp_upper_bound_never_drops_below_taken_items() -> None:
+    # 第一件允许超支半个容差，剩余预算变负；第二件 value/cost 很大，
+    # 若按负剩余做比例扣减，上界会低于第一件本身（审计复现的缺陷）。
+    tolerance = pol.BUDGET_TOLERANCE
+    value = np.array([5.0, 1e6])
+    cost = np.array([1.0 + 0.5 * tolerance, 1e-6])
+    bound = pol.lp_upper_bound(value, cost, 1.0)
+    assert bound >= value[0] - 1e-9
+    assert np.isfinite(bound)
+
+
+def test_bucket_weights_use_cent_half_up_at_finest_width() -> None:
+    weights = ev._bucket_weights(np.array([1.005, 1.004, 1e-6]), 0.01)
+    assert weights.tolist() == [101, 100, 0]
+    # 权重为 0 的正价值件会被无偿选中；成本为 0 的人不应占预算。
+    mask, dropped, cap = ev._bucket_dp_mask(
+        np.array([2.0, 1.0]), np.array([0.0, 1.005]), budget=0.0, width=0.01
+    )
+    assert cap == 0
+    assert not mask.any()
+    mask, dropped, cap = ev._bucket_dp_mask(
+        np.array([2.0, 1.0]), np.array([0.0, 1.005]), budget=1.0, width=0.01
+    )
+    assert mask[0] and not mask[1]
+    assert dropped == 0
 
 
 def test_small_pool_solver_table_contract_and_dominance(cfg) -> None:
@@ -164,6 +191,10 @@ def test_random_baseline_is_reproducible_and_truth_isolated(cfg) -> None:
     assert summary_a["overrun_probability"].between(0.0, 1.0).all()
     assert summary_a["mean_se"].notna().all()
     assert summary_a["interpretation"].str.contains("not the CI").all()
+    assert (long_a["n_total"] == len(frame)).all()
+    assert (summary_a["n_total"] == len(frame)).all()
+    with pytest.raises(ValueError, match="至少需要 2 个种子"):
+        ev.random_baseline_table(frame, cfg, budgets=[0.04], seeds=1)
 
     long_poisoned, poisoned_summary = ev.random_baseline_table(
         _poison(frame), cfg, budgets=[0.04, 0.2], seeds=5
@@ -183,13 +214,16 @@ def test_error_decomposition_identity_and_truth_bound(cfg) -> None:
     )
     assert tuple(table.columns) == ev.DECOMPOSITION_COLUMNS
     assert len(table) == 4
+    assert (table["pool_size"] == 20).all()
     assert table["identity_residual"].abs().max() < 1e-9
     assert np.allclose(
         table["total_regret_cny_per_user"],
         table["learning_error_cny_per_user"] + table["optimization_error_cny_per_user"],
     )
-    assert set(table["truth_status"]) <= {"optimal", "time_limit", "infeasible", "error"}
-    assert table["truth_bound_cny"].ge(table["truth_incumbent_cny"] - 1e-9).all()
+    assert set(table["truth_milp_status"]) <= {"optimal", "time_limit", "infeasible", "error"}
+    assert table["truth_milp_bound_cny"].ge(table["truth_milp_incumbent_cny"] - 1e-9).all()
+    assert (table["truth_exactness"] == "exact_for_cent_integerized_raw_truth_problem").all()
+    assert (table["truth_milp_cost_basis"] == "truth_cost_floored_at_cost_floor_cny").all()
     assert np.isfinite(table["total_regret_cny_per_user"]).all()
 
 
@@ -223,3 +257,49 @@ def test_conservative_face_mode_cannot_overrun(cfg) -> None:
         assert row.selected_count_mean <= np.floor(row.mode_budget_cny / 10.0) + 1e-9
     assert (table["observed_value_status"] == "deferred_to_F_ope").all()
     assert (table["value_basis"] == "dgp_truth_tau").all()
+    assert (table["n_total"] == len(frame)).all()
+    assert set(table["evidence_basis"]) == {
+        "random_sweep", "single_deterministic_solution"
+    }
+    with pytest.raises(ValueError, match="至少需要 2 个随机种子"):
+        ev.conservative_comparison_table(frame, cfg, budgets=[0.2], seeds=1)
+
+
+def test_scale_and_conservative_selection_do_not_read_truth(cfg) -> None:
+    frame = _frame()
+    poisoned = _poison(frame)
+    clean_scale = ev.scale_table(
+        frame, cfg, pool_sizes=[20], budgets=[0.2], include_milp=False
+    )
+    dirty_scale = ev.scale_table(
+        poisoned, cfg, pool_sizes=[20], budgets=[0.2], include_milp=False
+    )
+    columns = _selection_columns(clean_scale)
+    pd.testing.assert_frame_equal(clean_scale.loc[:, columns], dirty_scale.loc[:, columns])
+
+    clean_conservative = ev.conservative_comparison_table(
+        frame, cfg, budgets=[0.2], seeds=3
+    )
+    dirty_conservative = ev.conservative_comparison_table(
+        poisoned, cfg, budgets=[0.2], seeds=3
+    )
+    columns = _selection_columns(clean_conservative)
+    pd.testing.assert_frame_equal(
+        clean_conservative.loc[:, columns], dirty_conservative.loc[:, columns]
+    )
+
+
+def test_milp_without_solution_never_claims_optimal(monkeypatch) -> None:
+    class _NoSolution:
+        status = 0
+        x = None
+        mip_dual_bound = None
+        mip_gap = 0.0
+
+    monkeypatch.setattr("scipy.optimize.milp", lambda *args, **kwargs: _NoSolution())
+    result = pol.milp_select(
+        np.array([1.0]), np.array([1.0]), budget=1.0,
+        time_limit_seconds=1.0, relative_gap=0.0,
+    )
+    assert result.status == "error"
+    assert not result.may_claim_optimal

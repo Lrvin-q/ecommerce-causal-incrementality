@@ -29,6 +29,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import sys
 import time
 from datetime import datetime
@@ -62,16 +63,37 @@ def _say(message: str) -> None:
     print(f"[E evidence {datetime.now(BEIJING).strftime('%H:%M:%S')}] {message}", flush=True)
 
 
+def _rel(path: Path) -> str:
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def _json_safe(value):
+    """把 NaN/Inf 换成 None，保证写出的是严格 JSON（NaN 不是合法 JSON）。"""
+    if isinstance(value, dict):
+        return {key: _json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(item) for item in value]
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    return value
+
+
 def _write_csv(frame: pd.DataFrame, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     frame.to_csv(path, index=False, encoding="utf-8-sig")
-    _say(f"wrote {path.relative_to(ROOT)} ({len(frame)} rows)")
+    _say(f"wrote {_rel(path)} ({len(frame)} rows)")
 
 
 def _write_json(payload: dict, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    _say(f"wrote {path.relative_to(ROOT)}")
+    path.write_text(
+        json.dumps(_json_safe(payload), ensure_ascii=False, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
+    _say(f"wrote {_rel(path)}")
 
 
 def _sha256(path: Path) -> str:
@@ -171,6 +193,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--scale-milp-time-limit", type=float, default=None)
     parser.add_argument("--smoke", action="store_true", help="缩小网格，只验证链路")
     args = parser.parse_args(argv)
+    if args.input is not None and args.from_d03:
+        parser.error("--input 与 --from-d03 只能二选一")
     args.out_dir = args.out_dir if args.out_dir.is_absolute() else ROOT / args.out_dir
     args.tables_dir = (
         args.tables_dir if args.tables_dir.is_absolute() else ROOT / args.tables_dir
@@ -217,6 +241,11 @@ def main(argv: list[str] | None = None) -> int:
 
     outputs: dict[str, str] = {}
     timings: dict[str, float] = {}
+    small_pools_used: list[int] | None = None
+    widths_used: list[float] | None = None
+    seeds_used: int | None = None
+    scale_pools_used: list[object] | None = None
+    scale_budgets_used: list[float] | None = None
 
     if not args.skip_small_pool:
         pools = _parse_ints(args.small_pools) if args.small_pools else [
@@ -234,9 +263,10 @@ def main(argv: list[str] | None = None) -> int:
             seed_offset=args.seed_offset, include_brute_force=True,
         )
         timings["small_pool"] = time.perf_counter() - started
+        small_pools_used = list(pools)
         path = args.tables_dir / "v3_phase_E_small_pool.csv"
         _write_csv(table, path)
-        outputs["small_pool"] = str(path.relative_to(ROOT))
+        outputs["small_pool"] = _rel(path)
 
     if not args.skip_bucket:
         pool_size = int(cfg.require("policy.optimization.bucket_convergence.pool_size"))
@@ -249,9 +279,13 @@ def main(argv: list[str] | None = None) -> int:
             widths=widths, seed_offset=args.seed_offset,
         )
         timings["bucket"] = time.perf_counter() - started
+        widths_used = (
+            list(widths) if widths is not None
+            else [float(x) for x in cfg.require("policy.optimization.bucket_convergence.widths_cny")]
+        )
         path = args.tables_dir / "v3_phase_E_bucket_convergence.csv"
         _write_csv(table, path)
-        outputs["bucket_convergence"] = str(path.relative_to(ROOT))
+        outputs["bucket_convergence"] = _rel(path)
 
     if not args.skip_random:
         seeds = args.random_seeds
@@ -263,12 +297,16 @@ def main(argv: list[str] | None = None) -> int:
             frame, cfg, budgets=budgets, seeds=seeds, seed_offset=args.seed_offset
         )
         timings["random"] = time.perf_counter() - started
+        seeds_used = (
+            int(seeds) if seeds is not None
+            else int(cfg.require("policy.random_baseline.seeds_per_frozen_dataset_and_budget"))
+        )
         long_path = args.tables_dir / "v3_phase_E_random_long.csv"
         summary_path = args.tables_dir / "v3_phase_E_random_summary.csv"
         _write_csv(long_frame, long_path)
         _write_csv(summary, summary_path)
-        outputs["random_long"] = str(long_path.relative_to(ROOT))
-        outputs["random_summary"] = str(summary_path.relative_to(ROOT))
+        outputs["random_long"] = _rel(long_path)
+        outputs["random_summary"] = _rel(summary_path)
 
     if not args.skip_decomposition:
         pool_size = int(cfg.require("policy.optimization.bucket_convergence.pool_size"))
@@ -282,7 +320,7 @@ def main(argv: list[str] | None = None) -> int:
         timings["decomposition"] = time.perf_counter() - started
         path = args.tables_dir / "v3_phase_E_decomposition.csv"
         _write_csv(table, path)
-        outputs["decomposition"] = str(path.relative_to(ROOT))
+        outputs["decomposition"] = _rel(path)
 
     if not args.skip_conservative:
         seeds = args.random_seeds
@@ -294,9 +332,14 @@ def main(argv: list[str] | None = None) -> int:
             frame, cfg, budgets=budgets, seeds=seeds, seed_offset=args.seed_offset
         )
         timings["conservative"] = time.perf_counter() - started
+        if seeds_used is None:
+            seeds_used = (
+                int(seeds) if seeds is not None
+                else int(cfg.require("policy.random_baseline.seeds_per_frozen_dataset_and_budget"))
+            )
         path = args.tables_dir / "v3_phase_E_conservative.csv"
         _write_csv(table, path)
-        outputs["conservative"] = str(path.relative_to(ROOT))
+        outputs["conservative"] = _rel(path)
 
     if not args.skip_scale:
         pools = _parse_pools(args.scale_pools) if args.scale_pools else list(
@@ -319,13 +362,15 @@ def main(argv: list[str] | None = None) -> int:
             milp_time_limit_seconds=args.scale_milp_time_limit,
         )
         timings["scale"] = time.perf_counter() - started
+        scale_pools_used = list(pools)
+        scale_budgets_used = list(scale_budgets)
         path = args.tables_dir / "v3_phase_E_scale.csv"
         _write_csv(table, path)
-        outputs["scale"] = str(path.relative_to(ROOT))
+        outputs["scale"] = _rel(path)
 
     calibration_path = args.tables_dir / "v3_phase_E_calibration.json"
     _write_json(calibration, calibration_path)
-    outputs["calibration"] = str(calibration_path.relative_to(ROOT))
+    outputs["calibration"] = _rel(calibration_path)
 
     meta = {
         "phase": "E_evidence",
@@ -337,10 +382,15 @@ def main(argv: list[str] | None = None) -> int:
         "n_rows": n_rows,
         "rep_id": args.rep_id,
         "chosen_model": chosen_model,
-        "frame_path": str(frame_path.relative_to(ROOT)),
+        "frame_path": _rel(frame_path),
         "frame_sha256": frame_sha,
         "budgets_cny_per_user": budgets,
         "seed_offset": args.seed_offset,
+        "small_pools_used": small_pools_used,
+        "bucket_widths_used_cny": widths_used,
+        "random_seeds_used": seeds_used,
+        "scale_pools_used": scale_pools_used,
+        "scale_budgets_cny_per_user": scale_budgets_used,
         "timings_seconds": {key: round(value, 3) for key, value in timings.items()},
         "outputs": outputs,
         "notes": [
@@ -354,7 +404,7 @@ def main(argv: list[str] | None = None) -> int:
     meta_path = args.tables_dir / "v3_phase_E_evidence_meta.json"
     _write_json(meta, meta_path)
     _say(f"完成：{len(outputs)} 个产物；总耗时 {sum(timings.values()):.1f}s")
-    print(json.dumps({"meta": str(meta_path.relative_to(ROOT)), "outputs": outputs},
+    print(json.dumps({"meta": _rel(meta_path), "outputs": outputs},
                      ensure_ascii=False, indent=2))
     return 0
 

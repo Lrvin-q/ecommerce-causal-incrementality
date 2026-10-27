@@ -61,26 +61,28 @@ BUCKET_COLUMNS: tuple[str, ...] = (
 )
 
 RANDOM_COLUMNS: tuple[str, ...] = (
-    "per_user_budget_cny", "budget_cny", "seed", "n_selected", "predicted_cost_cny",
+    "n_total", "per_user_budget_cny", "budget_cny", "seed", "n_selected", "predicted_cost_cny",
     "within_budget_by_hat", "true_value_per_user", "true_total_value_cny",
     "actual_spend_cny", "within_budget_by_true", "overrun_cny",
 )
 
 RANDOM_SUMMARY_COLUMNS: tuple[str, ...] = (
-    "per_user_budget_cny", "budget_cny", "seeds", "mean_true_value_per_user",
+    "n_total", "per_user_budget_cny", "budget_cny", "seeds", "mean_true_value_per_user",
     "sd_true_value_per_user", "mean_se", "q025", "q500", "q975",
     "overrun_probability", "mean_actual_spend_cny", "max_overrun_cny",
     "mean_predicted_cost_cny", "mean_n_selected", "interpretation",
 )
 
 DECOMPOSITION_COLUMNS: tuple[str, ...] = (
-    "per_user_budget_cny", "budget_cny", "actual_solver",
+    "pool_size", "per_user_budget_cny", "budget_cny", "actual_solver",
     "learning_error_cny_per_user", "optimization_error_cny_per_user",
     "total_regret_cny_per_user", "identity_residual",
     "true_value_actual", "true_value_oracle_under_hat", "true_value_truth",
-    "oracle_exactness", "truth_solver", "truth_status", "truth_relative_gap",
-    "truth_bound_cny", "truth_incumbent_cny", "truth_may_claim_optimal",
-    "truth_feasible_under_original_cost", "truth_solver_cost_floor_cny", "seconds",
+    "oracle_exactness", "truth_exactness", "truth_solver",
+    "truth_milp_status", "truth_milp_relative_gap",
+    "truth_milp_bound_cny", "truth_milp_incumbent_cny", "truth_milp_may_claim_optimal",
+    "truth_milp_cost_basis", "truth_milp_cost_floor_cny",
+    "truth_feasible_under_original_cost", "seconds",
 )
 
 SCALE_COLUMNS: tuple[str, ...] = (
@@ -93,12 +95,12 @@ SCALE_COLUMNS: tuple[str, ...] = (
 )
 
 CONSERVATIVE_COLUMNS: tuple[str, ...] = (
-    "mode", "policy", "per_user_budget_cny", "budget_cny", "mode_budget_cny",
+    "n_total", "mode", "policy", "per_user_budget_cny", "budget_cny", "mode_budget_cny",
     "seeds", "selected_count_mean", "predicted_cost_mean", "actual_spend_mean",
     "actual_spend_q025", "actual_spend_q975", "overrun_probability",
     "overrun_vs_expected_probability",
     "true_value_per_user_mean", "true_total_value_cny_mean", "audited_value_cny_mean",
-    "value_basis", "observed_value_status",
+    "evidence_basis", "value_basis", "observed_value_status",
 )
 
 
@@ -212,13 +214,27 @@ def _brute_force_mask(value: FloatArray, cost: FloatArray, budget: float) -> tup
     return masks[best].copy(), float(values[best])
 
 
+def _bucket_weights(cost: FloatArray, width: float) -> IntArray:
+    """把原成本换成整数桶权重；``width=0.01`` 精确走分币 half-up。
+
+    其他宽度用浮点 half-up。浮点 ``1.005/0.01`` 会得到 100.4999…，
+    直接 ``floor(x+0.5)`` 会把 1.005 舍成 100 分；分币路径改用 Decimal，
+    避免在最小桶宽上制造假收敛。
+    """
+    values = np.asarray(cost, dtype=np.float64)
+    if np.isclose(width, 0.01, rtol=0.0, atol=1e-12):
+        return to_cents_half_up(values)
+    return np.floor(values / width + 0.5 + 1e-9).astype(np.int64)
+
+
 def _bucket_dp_mask(
     value: FloatArray, cost: FloatArray, budget: float, width: float
 ) -> tuple[BoolArray, int, int]:
     """近似桶宽 DP：成本按 ``width`` 四舍五入成整数桶，再按原成本复核并回退。
 
-    这是近似，**不声称最优**；``width=0.01`` 时桶权重与分币 half-up 一致，
-    可用来观察收敛，但仍与 ``cent_exact_dp`` 的预算取整方式不同。
+    这是近似，**不声称最优**。``width=0.01`` 的权重与分币 half-up 一致，
+    但桶权重为 0 的人（成本不足半桶）会先被无偿选中，再由原成本复核回退，
+    因此仍不保证与 ``cent_exact_dp`` 逐位相同。
     """
     if width <= 0:
         raise ValueError("桶宽必须为正")
@@ -230,12 +246,15 @@ def _bucket_dp_mask(
     if cap <= 0:
         return mask, 0, cap
 
-    weights = np.maximum(1, np.floor(cost / width + 0.5).astype(np.int64))
-    dp = np.zeros(cap + 1, dtype=np.float64)
+    weights = _bucket_weights(cost, width)
+    free = (weights == 0) & (value > 0)
+    mask = free.copy()
+    base = float(value[free].sum())
+    dp = np.full(cap + 1, base, dtype=np.float64)
     take = np.zeros((n, cap + 1), dtype=np.bool_)
     for i in range(n):
         vi, wi = float(value[i]), int(weights[i])
-        if vi <= 0 or wi > cap:
+        if vi <= 0 or wi <= 0 or wi > cap:
             continue
         candidate = dp[: cap + 1 - wi] + vi
         better = candidate > dp[wi:]
@@ -451,7 +470,9 @@ def small_pool_solver_table(
                 "predicted_value_cny": float(lp_bound),
                 "predicted_cost_cny": float("nan"),
                 "within_budget_by_hat": float("nan"),
-                "feasible_under_original_cost": False,
+                # LP 只有分数解上界，没有选人集合；写 False 会被误读成
+                # "该策略不可行"，故与其余无选中量一致写 NaN。
+                "feasible_under_original_cost": float("nan"),
                 "status": "upper_bound_only",
                 "incumbent_cny": float("nan"),
                 "bound_cny": float(lp_bound),
@@ -479,6 +500,9 @@ def small_pool_solver_table(
     table = pd.DataFrame(rows)
     if not set(POOL_COLUMNS).issubset(table.columns):
         raise ValueError("小池求解表列与契约不一致")
+    failed = table.loc[table["status"] == "error"]
+    if len(failed):
+        raise RuntimeError(f"小池求解出现 error 状态：{failed[['pool_size', 'per_user_budget_cny', 'solver']].to_dict('records')}")
     return table.loc[:, list(POOL_COLUMNS)]
 
 
@@ -593,10 +617,11 @@ def random_baseline_table(
         budgets = _per_user_grid(cfg)
     if seeds is None:
         seeds = int(cfg.require("policy.random_baseline.seeds_per_frozen_dataset_and_budget"))
-    if seeds < 1:
-        raise ValueError("随机基线至少需要 1 个种子")
+    if seeds < 2:
+        raise ValueError("随机基线至少需要 2 个种子，否则分位数与超支概率没有变异含义")
     quantiles = [float(q) for q in cfg.require("policy.random_baseline.quantiles")]
     master_seed = _master_seed(cfg)
+    n_total = len(data)
 
     long_rows: list[dict[str, Any]] = []
     summary_rows: list[dict[str, Any]] = []
@@ -612,8 +637,9 @@ def random_baseline_table(
             rng = child_rng(master_seed, stream, int(seed))
             selection = pol.random_under_budget(tau_hat, cost_hat, budget, rng)
             metrics = _mask_metrics(selection.mask, arrays, budget)
-            overrun = max(0.0, metrics["actual_spend_cny"] - budget)
+            overrun = max(0.0, metrics["actual_spend_cny"] - (budget + pol.BUDGET_TOLERANCE))
             long_rows.append({
+                "n_total": n_total,
                 "per_user_budget_cny": float(per_user),
                 "budget_cny": budget,
                 "seed": int(seed),
@@ -635,6 +661,7 @@ def random_baseline_table(
         summary = pol.summarize_random_baseline(values, quantiles)
         quantile_map = summary["quantiles"]
         summary_rows.append({
+            "n_total": n_total,
             "per_user_budget_cny": float(per_user),
             "budget_cny": budget,
             "seeds": int(seeds),
@@ -748,6 +775,7 @@ def error_decomposition_table(
                 mask, oracle.mask, truth_exact.mask, tau_true
             )
             rows.append({
+                "pool_size": len(pool),
                 "per_user_budget_cny": float(per_user),
                 "budget_cny": budget,
                 "actual_solver": solver_name,
@@ -763,19 +791,25 @@ def error_decomposition_table(
                 "true_value_oracle_under_hat": oracle_value,
                 "true_value_truth": truth_value,
                 "oracle_exactness": "exact_for_cent_integerized_hat_problem",
+                "truth_exactness": "exact_for_cent_integerized_raw_truth_problem",
                 "truth_solver": "cent_exact_dp+MILP",
-                "truth_status": truth_milp.status,
-                "truth_relative_gap": truth_milp.relative_gap,
-                "truth_bound_cny": truth_milp.bound,
-                "truth_incumbent_cny": truth_milp.incumbent,
-                "truth_may_claim_optimal": truth_milp.may_claim_optimal,
+                "truth_milp_status": truth_milp.status,
+                "truth_milp_relative_gap": truth_milp.relative_gap,
+                "truth_milp_bound_cny": truth_milp.bound,
+                "truth_milp_incumbent_cny": truth_milp.incumbent,
+                "truth_milp_may_claim_optimal": truth_milp.may_claim_optimal,
+                # MILP 求的是把 0 成本抬到 cost_floor 后的**收紧问题**：
+                # 它的 bound/incumbent 不是 raw truth 问题的界，只能看 status/gap。
+                "truth_milp_cost_basis": "truth_cost_floored_at_cost_floor_cny",
+                "truth_milp_cost_floor_cny": cost_floor,
                 "truth_feasible_under_original_cost": truth_feasible,
-                "truth_solver_cost_floor_cny": cost_floor,
                 "seconds": _time.perf_counter() - started,
             })
     table = pd.DataFrame(rows)
     if not set(DECOMPOSITION_COLUMNS).issubset(table.columns):
         raise ValueError("误差分解表列与契约不一致")
+    if (table["truth_milp_status"] == "error").any():
+        raise RuntimeError("真值 MILP 出现 error 状态，不能把该表当证据")
     return table.loc[:, list(DECOMPOSITION_COLUMNS)]
 
 
@@ -900,7 +934,9 @@ def scale_table(
                 "predicted_value_cny": float(lp_bound),
                 "predicted_cost_cny": float("nan"),
                 "within_budget_by_hat": float("nan"),
-                "feasible_under_original_cost": False,
+                # LP 只有分数解上界，没有选人集合；写 False 会被误读成
+                # "该策略不可行"，故与其余无选中量一致写 NaN。
+                "feasible_under_original_cost": float("nan"),
                 "status": "upper_bound_only",
                 "incumbent_cny": float("nan"),
                 "bound_cny": float(lp_bound),
@@ -917,6 +953,9 @@ def scale_table(
     table = pd.DataFrame(rows)
     if not set(SCALE_COLUMNS).issubset(table.columns):
         raise ValueError("规模扫描表列与契约不一致")
+    failed = table.loc[table["status"] == "error"]
+    if len(failed):
+        raise RuntimeError(f"规模扫描出现 error 状态：{failed[['pool_size', 'per_user_budget_cny', 'solver']].to_dict('records')}")
     return table.loc[:, list(SCALE_COLUMNS)]
 
 
@@ -962,6 +1001,8 @@ def conservative_comparison_table(
                 "policy.budget.conservative_comparison.random_seeds_per_dataset_budget_mode"
             )
         )
+    if int(seeds) < 2:
+        raise ValueError("保守比较至少需要 2 个随机种子，否则超支概率没有变异含义")
     max_passes = int(cfg.require("policy.optimization.local_swap.max_passes"))
     candidate_limit = int(cfg.require("policy.optimization.local_swap.exchange_candidate_limit"))
     master_seed = _master_seed(cfg)
@@ -1015,6 +1056,7 @@ def conservative_comparison_table(
                 overrun = spend_array > mode_budget + pol.BUDGET_TOLERANCE
                 overrun_expected = spend_array > expected + pol.BUDGET_TOLERANCE
                 rows.append({
+                    "n_total": n,
                     "mode": mode,
                     "policy": policy_name,
                     "per_user_budget_cny": float(per_user),
@@ -1031,6 +1073,10 @@ def conservative_comparison_table(
                     "true_value_per_user_mean": float(true_values.mean()),
                     "true_total_value_cny_mean": float(true_values.mean()) * n,
                     "audited_value_cny_mean": float(true_values.mean()) * n,
+                    "evidence_basis": (
+                        "random_sweep" if policy_name == "random_same_budget"
+                        else "single_deterministic_solution"
+                    ),
                     "value_basis": "dgp_truth_tau",
                     "observed_value_status": "deferred_to_F_ope",
                 })

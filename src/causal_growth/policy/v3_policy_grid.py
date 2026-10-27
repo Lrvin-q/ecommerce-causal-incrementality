@@ -62,6 +62,8 @@ def require_grid_frame(frame: pd.DataFrame) -> None:
         "cart_value", "purchase_propensity", "predicted_profit",
         "tau_hat", "cost_hat", "tau_true", "cost_true",
     ]
+    if not frame["user_id"].is_unique:
+        raise ValueError("user_id 必须唯一；重复行会让配对与预算口径同时失真")
     values = frame.loc[:, numeric].to_numpy(dtype=np.float64)
     if not np.isfinite(values).all():
         raise ValueError("策略输入含非有限值")
@@ -145,6 +147,9 @@ def evaluate_policy_grid(
     的随机流由 ``rng`` 决定；不传时使用固定的 ``e.policy.random`` 派生流，
     与脚本的历史行为一致。
     """
+    # 随机名单按行序抽人、贪心按行序 tie-break：必须先固定成 user_id 升序，
+    # 否则同一批用户换个行序就会得到不同的策略名单。
+    frame = frame.sort_values("user_id", kind="stable").reset_index(drop=True)
     require_grid_frame(frame)
     if rng is None:
         rng = child_rng(int(cfg.require("project.master_seed")), "e.policy.random", 0)
