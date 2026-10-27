@@ -64,8 +64,11 @@ def test_assignment_has_one_arm_per_user_and_control_never_issues() -> None:
     assert counts.min() > len(assignment) / 5
     for arm in ARM_NAMES:
         assert info["arms"][arm]["n_assigned"] == int(counts.get(arm, 0))
-    assert info["full_cohort_lists"]["targeted_n"] > 0
+    assert info["arm_lists"]["targeted_n"] > 0
+    assert info["arm_lists"]["random_n"] > 0
+    assert info["audit_full_lists"]["targeted_n"] > 0
     assert info["budget_cny_per_user"] == pytest.approx(0.2)
+    assert info["budget_basis"] == "same_per_assigned_user_in_each_active_arm"
 
 
 def test_assignment_is_deterministic_and_respects_budget_by_hat() -> None:
@@ -79,17 +82,18 @@ def test_assignment_is_deterministic_and_respects_budget_by_hat() -> None:
     )
     pd.testing.assert_frame_equal(first, second)
     assert info_first["arms"] == info_second["arms"]
-    lists = info_first["full_cohort_lists"]
-    assert lists["targeted_within_budget"] and lists["random_within_budget"]
-    # 预算分母是全体目标用户；交付臂只是随机三分之一，故臂内支出允许小幅抽样偏差。
+    assert info_first["audit_full_lists"] == info_second["audit_full_lists"]
+    # 每个活跃臂按臂内人数获得 0.2 元/人预算，实际支出不得超出该臂预算（容差内）。
+    cost = scored.frame.set_index("user_id")["cost_hat"]
     for arm in (f02.TARGETED_ARM, f02.RANDOM_ARM):
         block = first.loc[first["assigned_policy_arm"] == arm]
-        spend = scored.frame.set_index("user_id").loc[
-            block.loc[block["issued_action"] == 1, "user_id"], "cost_hat"
-        ].sum()
+        spend = cost.loc[block.loc[block["issued_action"] == 1, "user_id"]].sum()
         budget = info_first["budget_cny_per_user"] * len(block)
-        # n≈1000 时名单落臂的二项抽样本身就有几个百分点的波动，不能按 0 偏差断言。
-        assert abs(spend - budget) <= 0.10 * budget
+        assert spend <= budget + 1e-9
+        assert block["issued_action"].mean() > 0.1
+    # 全队列交付名单只用于审计，同样不得超预算。
+    assert info_first["audit_full_lists"]["targeted_within_budget"]
+    assert info_first["audit_full_lists"]["random_within_budget"]
 
 
 def test_assignment_rejects_non_actionable_policy() -> None:
@@ -141,6 +145,41 @@ def test_freeze_observed_strips_truth_and_is_value_sensitive() -> None:
         changed, selected_policy="incremental_profit_rank", model="constant"
     )
     assert digest_changed != digest
+
+
+def test_audit_policy_values_align_by_user_id_not_row_order() -> None:
+    ids = np.arange(1, 7)
+    worlds = {
+        0: pd.DataFrame({
+            "user_id": ids,
+            "net_profit": np.array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0]),
+            "coupon_cost": np.zeros(6),
+        }),
+        1: pd.DataFrame({
+            "user_id": ids,
+            "net_profit": np.array([10.0, 11.0, 12.0, 13.0, 14.0, 15.0]),
+            "coupon_cost": np.ones(6),
+        }),
+    }
+    targeted = np.array([1, 3, 5])
+    random_ids = np.array([2, 4])
+    ordered, table = f02.audit_policy_values(
+        None, _cfg(), targeted_ids=targeted, random_ids=random_ids,
+        user_ids=ids, worlds=worlds,
+    )
+    _, reversed_table = f02.audit_policy_values(
+        None, _cfg(), targeted_ids=targeted, random_ids=random_ids,
+        user_ids=ids[::-1], worlds=worlds,
+    )
+    values = table.set_index("component")["value_cny_per_user"]
+    assert np.isclose(values.loc["value_targeted_policy"], np.mean([10, 1, 12, 3, 14, 5]))
+    assert np.isclose(values.loc["value_random_same_budget"], np.mean([0, 11, 2, 13, 4, 5]))
+    pd.testing.assert_frame_equal(
+        table.set_index("component").sort_index(),
+        reversed_table.set_index("component").sort_index(),
+    )
+    assert table["n_selected"].tolist() == [3, 2, 0]
+    assert ordered["user_id"].tolist() == ids.tolist()
 
 
 def test_formal_status_requires_approval() -> None:

@@ -25,9 +25,13 @@ D03 在历史数据上选出一个模型，E 在它之上选出一个策略。�
 
 预算口径
 --------
-三臂共用 ``evaluation.independent_validation.primary_budget_cny_per_user``。
-定向臂按**全体新用户**的预算冻结名单（与 E 的策略规则一致），随机臂在本臂内按
-本臂预算随机装填；两者都记录预测支出与真值支出，不把期望成本当硬上限。
+每个活跃臂按 ``evaluation.independent_validation.primary_budget_cny_per_user``
+（0.2 元）乘以**该臂分配人数**冻结发券名单：定向臂在臂内按冻结策略选人，随机臂在
+臂内随机装填，对照臂不发。这对应配置的
+``budget_basis: same_per_assigned_user_in_each_active_arm``，因此每个臂的实际预测
+支出都以臂内预算为上限（容差内）。
+另算两张**全队列交付**名单（同样 0.2 元/人）只用于冻结后的审计价值对照，不参与
+交付，也不参与任何选择；它们回答"如果策略部署到全部目标用户"的真值。
 """
 
 from __future__ import annotations
@@ -246,20 +250,33 @@ def build_validation_assignment(
     targeted_rng = child_rng(
         int(cfg.require("project.master_seed")), "f02.targeted", int(rep_id)
     )
-    targeted = run_policy(policy, frame, budget * n, targeted_rng)
+    in_targeted = labels == TARGETED_ARM
+    targeted_frame = frame.loc[in_targeted].reset_index(drop=True)
+    targeted = run_policy(
+        policy, targeted_frame, budget * int(in_targeted.sum()), targeted_rng
+    )
 
-    # 随机名单也在**全体目标用户**上按同一每用户预算冻结，再只在本臂交付；
-    # 三臂是交付方式的随机化，不是三份不同的预算分母（协议 §预算专题）。
     random_rng = child_rng(
         int(cfg.require("project.master_seed")), "f02.random", int(rep_id)
     )
+    in_random = labels == RANDOM_ARM
     random_selection = pol.random_under_budget(
-        tau_hat, cost_hat, budget * n, random_rng
+        tau_hat[in_random], cost_hat[in_random], budget * int(in_random.sum()), random_rng
     )
 
     issued = np.zeros(n, dtype=np.int64)
-    issued[(labels == TARGETED_ARM) & targeted.mask] = 1
-    issued[(labels == RANDOM_ARM) & random_selection.mask] = 1
+    issued[in_targeted] = targeted.mask.astype(np.int64)
+    issued[in_random] = random_selection.mask.astype(np.int64)
+
+    # 全队列交付名单只进审计：不参与交付，也不参与任何选择。
+    audit_targeted_rng = child_rng(
+        int(cfg.require("project.master_seed")), "f02.audit_targeted", int(rep_id)
+    )
+    audit_targeted = run_policy(policy, frame, budget * n, audit_targeted_rng)
+    audit_random_rng = child_rng(
+        int(cfg.require("project.master_seed")), "f02.audit_random", int(rep_id)
+    )
+    audit_random = pol.random_under_budget(tau_hat, cost_hat, budget * n, audit_random_rng)
     probabilities = dict(zip(
         ARMS,
         (float(value) for value in cfg.require("evaluation.independent_validation.arm_probabilities")),
@@ -276,21 +293,23 @@ def build_validation_assignment(
     if not assignment["user_id"].is_unique:
         raise ValueError("分配表 user_id 必须唯一")
 
-    def _arm_spend(mask: np.ndarray, arm: str) -> dict[str, float]:
+    def _arm_spend(selected: np.ndarray, arm: str) -> dict[str, float]:
         in_arm = labels == arm
         n_arm = int(in_arm.sum())
-        spend = float(cost_hat[mask & in_arm].sum())
+        spend = float(cost_hat[in_arm][selected].sum())
         return {
             "n_assigned": n_arm,
-            "n_issued": int((mask & in_arm).sum()),
+            "n_issued": int(selected.sum()),
             "predicted_spend_cny": spend,
             "predicted_spend_per_assigned_cny": spend / n_arm,
             "budget_deviation_cny": spend - budget * n_arm,
         }
 
+    n_targeted = int(in_targeted.sum())
+    n_random = int(in_random.sum())
     info = {
         "budget_cny_per_user": budget,
-        "budget_basis": "full_target_users_with_randomized_delivery",
+        "budget_basis": "same_per_assigned_user_in_each_active_arm",
         "policy": policy,
         "arms": {
             TARGETED_ARM: _arm_spend(targeted.mask, TARGETED_ARM),
@@ -300,16 +319,25 @@ def build_validation_assignment(
                           "predicted_spend_cny": 0.0, "predicted_spend_per_assigned_cny": 0.0,
                           "budget_deviation_cny": 0.0},
         },
-        "full_cohort_lists": {
+        "arm_lists": {
             "targeted_n": int(targeted.mask.sum()),
             "targeted_predicted_spend_cny": float(targeted.predicted_cost),
-            "targeted_within_budget": float(targeted.predicted_cost) <= budget * n + pol.BUDGET_TOLERANCE,
+            "targeted_within_budget": float(targeted.predicted_cost) <= budget * n_targeted + pol.BUDGET_TOLERANCE,
             "random_n": int(random_selection.mask.sum()),
             "random_predicted_spend_cny": float(random_selection.predicted_cost),
-            "random_within_budget": float(random_selection.predicted_cost) <= budget * n + pol.BUDGET_TOLERANCE,
+            "random_within_budget": float(random_selection.predicted_cost) <= budget * n_random + pol.BUDGET_TOLERANCE,
         },
-        "targeted_full_mask": targeted.mask.copy(),
-        "audit_random_full_mask": random_selection.mask.copy(),
+        "audit_full_lists": {
+            "budget_cny": budget * n,
+            "targeted_n": int(audit_targeted.mask.sum()),
+            "targeted_predicted_spend_cny": float(audit_targeted.predicted_cost),
+            "targeted_within_budget": float(audit_targeted.predicted_cost) <= budget * n + pol.BUDGET_TOLERANCE,
+            "random_n": int(audit_random.mask.sum()),
+            "random_predicted_spend_cny": float(audit_random.predicted_cost),
+            "random_within_budget": float(audit_random.predicted_cost) <= budget * n + pol.BUDGET_TOLERANCE,
+        },
+        "audit_targeted_ids": frame["user_id"].to_numpy()[audit_targeted.mask].copy(),
+        "audit_random_ids": frame["user_id"].to_numpy()[audit_random.mask].copy(),
     }
     return assignment, info
 
@@ -326,7 +354,7 @@ def _materialize_validation_dataset(
     stream = f"v3.f02.{scenario}"
     raw = build_raw_tables(
         users, assignments, orders, cfg,
-        run_id=f"f02:{scenario}", rep_id=int(rep_id), stream_prefix=stream,
+        run_id=f"f02:{scenario}:rep{int(rep_id)}", rep_id=int(rep_id), stream_prefix=stream,
     )
     dirty = inject_dirt(raw, cfg, rep_id=int(rep_id), stream_prefix=stream)
     clean = deduplicate_events(dirty.tables, cfg)
@@ -433,12 +461,15 @@ def audit_policy_values(
     population: Any,
     cfg: Config,
     *,
-    targeted_mask: np.ndarray,
-    random_mask: np.ndarray,
+    targeted_ids: np.ndarray,
+    random_ids: np.ndarray,
     user_ids: np.ndarray,
     worlds: Mapping[int, pd.DataFrame] | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """冻结后解锁真值：逐用户 ``tau_true/cost_true`` 与全队列策略真值。"""
+    """冻结后解锁真值：逐用户 ``tau_true/cost_true`` 与全队列策略真值。
+
+    名单按 ``user_id`` 对齐，不按行位置；``observed`` 是 SQL 输出，行序不可假设。
+    """
     worlds = audit_realized_worlds(population, cfg) if worlds is None else worlds
     if set(worlds) != {0, 1}:
         raise ValueError(f"审计世界应恰为 {{0, 1}}，收到 {sorted(worlds)}")
@@ -447,6 +478,8 @@ def audit_policy_values(
     if not world1.index.is_unique or not world0.index.is_unique:
         raise ValueError("审计账本 user_id 必须唯一")
     ids = np.asarray(user_ids)
+    if np.unique(ids).size != ids.size:
+        raise ValueError("observed.user_id 必须唯一")
     missing = ~np.isin(ids, world1.index.to_numpy())
     if missing.any():
         raise ValueError(f"审计账本缺少 {int(missing.sum())} 个验证用户")
@@ -458,20 +491,25 @@ def audit_policy_values(
         "tau_true": y1 - y0,
         "cost_true": cost1,
     })
+    targeted_ids = np.asarray(targeted_ids)
+    random_ids = np.asarray(random_ids)
+    for name, chosen in (("targeted", targeted_ids), ("random", random_ids)):
+        if not np.isin(chosen, ids).all():
+            raise ValueError(f"{name} 名单含不在观测分母里的用户")
 
-    def _value(mask: np.ndarray) -> float:
-        mask = np.asarray(mask, dtype=bool)
-        return float(np.mean(np.where(mask, y1, y0)))
+    def _value(chosen: np.ndarray) -> float:
+        return float(np.mean(np.where(np.isin(ids, chosen), y1, y0)))
 
     values = {
-        "value_targeted_policy": _value(targeted_mask),
-        "value_random_same_budget": _value(random_mask),
+        "value_targeted_policy": _value(targeted_ids),
+        "value_random_same_budget": _value(random_ids),
         "value_no_coupon": float(np.mean(y0)),
     }
     audit_policy = pd.DataFrame({
         "component": list(values),
         "value_cny_per_user": list(values.values()),
         "n": int(ids.size),
+        "n_selected": [targeted_ids.size, random_ids.size, 0],
     })
     return audit_users, audit_policy
 
@@ -593,8 +631,8 @@ def run_f02_rep(
     worlds = audit_realized_worlds(population, cfg)
     audit_users, audit_policy = audit_policy_values(
         population, cfg,
-        targeted_mask=assignment_info["targeted_full_mask"],
-        random_mask=assignment_info["audit_random_full_mask"],
+        targeted_ids=assignment_info["audit_targeted_ids"],
+        random_ids=assignment_info["audit_random_ids"],
         user_ids=observed["user_id"].to_numpy(),
         worlds=worlds,
     )
@@ -618,7 +656,8 @@ def run_f02_rep(
         "selected_policy": policy,
         "budget_cny_per_user": assignment_info["budget_cny_per_user"],
         "arms": assignment_info["arms"],
-        "full_cohort_lists": assignment_info["full_cohort_lists"],
+        "arm_lists": assignment_info["arm_lists"],
+        "audit_full_lists": assignment_info["audit_full_lists"],
         "preprocessor_hash": scored.preprocessor_hash,
         "config_hash": cfg.hash(64),
         "freeze_hash": freeze_hash,
