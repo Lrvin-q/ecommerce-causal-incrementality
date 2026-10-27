@@ -122,7 +122,8 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] 真值隔离：所有 mask 先冻结，`tau_true/cost_true` 只进 `true_*` / `actual_*` 列；毒化测试覆盖 5 张表
 - [x] 修复 `lp_upper_bound` 的免费券除零缺口（真值成本有大量 0；共享校验仍要求成本严格为正，故真值 MILP 先按 `cost_floor=1e-6` 抬高并单列 `truth_milp_cost_floor_cny`）
 - [x] 10 项新测试（`tests/test_v3_policy_evidence.py`）+ 既有策略 54 项全绿
-- [x] n=900 冒烟：7 张表 + 校准 JSON，2.7 秒；产物隔离 `out/e_evidence_smoke/`，已清掉误写进 `outputs/tables/` 的冒烟副本
+- [x] n=900 CSV 冒烟：7 张表 + 校准 JSON，2.7 秒；产物隔离 `out/e_evidence_smoke/`，已清掉误写进 `outputs/tables/` 的冒烟副本
+- [x] `--from-d03` 正式路径小规模验证（14:01，n=2 000、rep=0、600 行 test）：8 个产物 61.1 秒，校准走 validation 处理组 201/400，分解表 `truth_milp_status=optimal`、`truth_milp_cost_basis=truth_cost_floored_at_cost_floor_cny`；产物隔离 `out/e_evidence_fromd03_smoke/`
 - [ ] **正式数据**：D03 R 结束后 `scripts/24_e_evidence.py --from-d03 --rep-id 0 --n 200000`，产物进 `outputs/tables/`
 - [ ] E 正文报告 `docs/v3_phase_E_evidence.md`：必须写清"桶宽阈值由曲线定、不预设"；observed_value/audited_value 的 OPE 部分留给 F
 - [!] **LP 每 rep 上界缺口**：`policy.optimization.every_full_rep_required` 要求 `lp_relaxation` 在每个 full rep 上都有，但 D03 的 200 rep 网格只有 9 个策略、没有 LP 行；E 证据层只在代表 rep 上补。**G 阶段必须每 rep 补 LP 上界**，否则"规模对照覆盖所有 rep"不成立
