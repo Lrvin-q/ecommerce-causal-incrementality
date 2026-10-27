@@ -1,0 +1,77 @@
+{
+  "phase": "F02_n200k_rep0_engineering",
+  "status": "engineering_single_rep_not_formal_evidence",
+  "source_run": "out/f02_n200k_rep0 (per_user.csv 15.4 MB stays in out/, gitignored)",
+  "reproduce": "python scripts/28_f02_validation.py --scenario L1_main --n 200000 --rep 0 --policy greedy_incremental_profit_per_cost --out-dir out/f02_n200k_rep0 --status engineering",
+  "design": {
+    "n_users": 200000,
+    "rep_id": 0,
+    "selected_model": "constant",
+    "selected_policy": "greedy_incremental_profit_per_cost"
+  },
+  "hashes": {
+    "freeze_hash": "5a101174282d89e3a925b462e76873d348806d70f9956770880686c106a752cc",
+    "per_user_hash": "a6c100e33d44df10fb6726ef27c5032f59782e6d43c22a05d8551ed5fa042901",
+    "decision_hash": "368c1d89fd5f5b717bf31e843d3d0d389d3d874b88b1a609e07d57439cecee42",
+    "guardrail_hash": "f6b1bd3cf6ba29a4fb7a6197af6d8ee7dae21233c6f864e96b01725ad91e4d45",
+    "observed_sql_hash": "648c8f6e64629e68529c549e06625f6e9f3bc018d854a5f2622f9791cf2a2cf7"
+  },
+  "checks": {
+    "freeze_files_before_audit": "freeze_files_written_then_audit_realized_worlds",
+    "decision_recomputed_from_per_user": true,
+    "guardrail_recomputed_from_per_user": true,
+    "per_user_hash_verified": true,
+    "decision_guardrail_hash_verified": true,
+    "representative_five_tables": true,
+    "five_tables_checks": {
+      "full_denominator": true,
+      "two_windows_per_user": true,
+      "source_hashes_unchanged": true,
+      "sql_quality_passed": true,
+      "formal_repetitions_completed": 0
+    },
+    "five_tables_split_test_rows": 200000
+  },
+  "files": {
+    "arm_summary.csv": {
+      "sha256": "b90854ad70c4af6b0e9b20ae28829f19ed0f94dd1dd3a6914779a8066e0dddca",
+      "bytes": 530,
+      "rows": 3,
+      "truth_columns": []
+    },
+    "decision.csv": {
+      "sha256": "0414a0d5fc599d07b2387cd21aa1fa2ba4ef138ad40191425becca87827257a3",
+      "bytes": 677,
+      "rows": 2,
+      "truth_columns": []
+    },
+    "decision.json": {
+      "sha256": "8af344dc404a0b67e7456619177a7d5b5bb9d8c4922363d488c3136fdbeac3db",
+      "bytes": 2237
+    },
+    "five_tables/manifest.json": {
+      "sha256": "b3a61c2e0c31eb771aa426b853f69cffe444d3605f7f607d132d8ec766a1d0d3",
+      "bytes": 25016
+    },
+    "freeze.json": {
+      "sha256": "77c1d81e77bd89ba66ad13fa6a3cca43ef877940135000210c852e0576bfede8",
+      "bytes": 482
+    },
+    "guardrail.csv": {
+      "sha256": "ca014dc8d4a9203eb942f0937f56943e06e2677a3f03c392a214c14f0ef244ee",
+      "bytes": 418,
+      "rows": 1,
+      "truth_columns": []
+    },
+    "itt_contrasts.csv": {
+      "sha256": "8d9be5a5aa5854d53f85739c13a212f8a3695525c1e3ccb6bd26f72b400a65b7",
+      "bytes": 545,
+      "rows": 3,
+      "truth_columns": []
+    },
+    "manifest.json": {
+      "sha256": "e26ce0cf764091dc18e33c45158947557262f454eb4ba4c6f059b3051906e691",
+      "bytes": 8799
+    }
+  }
+}

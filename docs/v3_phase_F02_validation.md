@@ -1,8 +1,8 @@
 # F02 独立三臂随机验证：设计与验收
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-27 18:24（北京时间）。
-> 本文只描述机制与验收口径；**n=200 000 单 rep 与正式 200 rep 尚未运行**，文中任何
-> 冒烟数字都不是证据，不得据此下策略结论。
+> 合成数据 / 已知 DGP。维护时间：2026-10-27 18:42（北京时间）。
+> 本文只描述机制与验收口径；**n=200 000 单 rep 已于 18:32–18:39 跑通（工程状态），
+> 正式 200 rep 尚未运行**。单 rep 与冒烟数字都不是证据，不得据此下策略结论。
 
 ## 0. 状态
 
@@ -14,7 +14,7 @@
 | CLI | 完成 | `scripts/28_f02_validation.py` |
 | n=2 000 冒烟（含决策层） | 完成（仅工程） | `out/f02_decision_smoke/`（不入库） |
 | 全量串行测试 | 1 228 项 exit=0（18:12:54–18:20:00） | `outputs/runs/f02_tests/full_suite.log` |
-| n=200 000 单 rep | **未跑** | — |
+| n=200 000 单 rep（工程状态） | 完成，18:32:41–18:39:21，exit=0 | `outputs/evidence/f02_n200k_rep0/` |
 | 正式 200 rep | **未跑，需用户批准** | — |
 | 独立科学评审 | **未做** | — |
 
@@ -146,17 +146,43 @@ F02 三臂是**用户级独立随机**，两条差各用 `sqrt(se_l²+se_r²)`�
 - [x] 全量串行 1 228 项 **exit=0**（2026-10-27 18:12:54–18:20:00，单进程、无并发写盘），
       日志 `outputs/runs/f02_tests/full_suite.log`。
 
-### 5.2 n=200 000 单 rep（未跑）
+### 5.2 n=200 000 单 rep（已完成，工程状态）
 
-- [ ] 三臂各约 66 667 人，无空臂；
-- [ ] 每臂预测支出 ≤ 0.2 × 臂人数 + 容差；
-- [ ] 观测表行数 = 200 000 且 `user_id` 唯一；
-- [ ] `freeze.json / decision.json` 先于 `audit_*` 生成，manifest 记录解锁顺序；
-- [ ] `decision.csv` 恰两行、`guardrail.csv` 恰一行，α=0.05、界值=0.005 与配置一致；
-- [ ] 用 `per_user.csv` 手工复算两主张的单侧 p 与 Holm 调整 p，和 `decision.csv` 一致；
-- [ ] 用 `per_user.csv` 手工复算护栏的 `diff/se/上界`，和 `guardrail.csv` 一致；
-- [ ] `five_tables/manifest.json` 通过且 `population_kind=validation`、split 全为 test；
-- [ ] 把冻结文件与 manifest 导出到 `outputs/evidence/` 前，确认不含真值。
+命令：`python scripts/28_f02_validation.py --scenario L1_main --n 200000 --rep 0
+--policy greedy_incremental_profit_per_cost --out-dir out/f02_n200k_rep0 --status engineering`
+（18:32:41–18:39:21，exit=0）。选中模型 `constant`，策略 `greedy_incremental_profit_per_cost`。
+
+- [x] 三臂 66,594（定向）/ 66,713（随机）/ 66,693（对照），无空臂；
+- [x] **预测**支出 13,318.53 / 13,342.56 ≤ 0.2 × 臂人数，偏差 −0.27 / −0.04 CNY；
+- [x] 观测表 200,000 行、`user_id` 唯一，split 全为 test，`population_kind=validation`；
+- [x] `freeze.json / decision.json` 先于 `audit_*` 生成，`audit_unlock_order=freeze_files_written_then_audit_realized_worlds`；
+- [x] `decision.csv` 恰两行、`guardrail.csv` 恰一行，α=0.05、界值=0.005 与配置一致；
+- [x] 用 `per_user.csv` 复算两主张单侧 p 与 Holm 调整 p、护栏 `diff/se/上界`，与落盘表逐位一致；
+- [x] `five_tables/manifest.json` 五项检查全过，manifest sha256 与 `freeze.json` 一致；
+- [x] 导出包不含**逐用户**真值（`audit_truth.csv` 与 15.4 MB 的 `per_user.csv` 留在
+  gitignored `out/`）；`manifest.json` 保留冻结后生成的**聚合**审计真值
+  `audit_true_arm_means`，仅作审计对照，不可能反向污染已落盘的冻结/决策文件。
+
+**决策层（单 rep，仅工程核验，不是证据）**
+
+| 主张 | 差值（CNY/人） | SE | 单侧 p | Holm α | 调整 p | 通过 | 调整下界 |
+|---|---|---|---|---|---|---|---|
+| `coupon_worth_issuing`（定向−不发） | +0.01850 | 0.05532 | 0.3690 | 0.05 | 0.5980 | 否 | −0.07249 |
+| `targeting_better_than_random`（定向−随机） | +0.02911 | 0.05521 | 0.2990 | 0.025 | 0.5980 | 否 | −0.07910 |
+
+两条主张点估计为正，但 SE≈0.055 远大于效应本身，单 rep 无法区分于 0；第三条
+`random_same_budget − no_coupon` = −0.01061（SE 0.05491，双侧 p 0.8468）。正式结论只能来自
+200 rep 的配对聚合，且需另行批准。
+
+**护栏（单 rep）**：定向 638/66,594 = 0.9580%，对照 520/66,693 = 0.7797%，
+差 +0.1784pp，SE 0.0508pp，单侧上界 0.2620pp < 0.5pp，**通过**。这是单 rep 的
+机制核验，不构成正式非劣效结论。
+
+**预算口径缺口（18:42 核对，正式 R 前需裁决）**：预算只约束**预测**支出。实际券成本
+定向臂 17,200 CNY（预测 13,318.53，+29.1%），随机臂 13,300 CNY（预测 13,342.56，−0.3%）。
+按预测成本挑人会系统性低估所选人群的实际支出，"同预算"在实现层面不严格成立；
+正式 200 rep 前必须决定：改用实际成本做预算约束、收紧选择边际，或把该偏差作为预声明
+局限并在报告中量化逐 rep 分布。未裁决前不得启动正式 R。
 
 ### 5.3 正式 200 rep（未跑，需用户批准）
 
@@ -172,6 +198,10 @@ F02 三臂是**用户级独立随机**，两条差各用 `sqrt(se_l²+se_r²)`�
 
 - 仍是合成数据与已知 DGP，结论不能外推到真实业务；
 - ITT 区间用正态近似；样本量足够大，但极端重尾下应改用 bootstrap 复核；
+- 预算约束作用于**预测**支出而非实际券成本：单 rep 定向臂实际支出比预测高 29.1%，
+  随机臂基本吻合（−0.3%）。模型成本校准在全体上无偏、在"按增量利润/成本挑选"的子集上
+  有系统性低估；这既是实现缺口，也是 OPE 在真实部署中会遇到的选择偏差，正式 R 前必须裁决；
+- 单 rep 的 p 值与护栏判定只用于核验机制，不能当作 1/200 的"证据"或提前预判正式结论；
 - 一个 rep 只验证一个预算档（0.2 元/人）；其他预算只做历史 OPE 与真值审计；
 - 定向臂只验证 E 冻结的单一策略，不验证策略选择过程本身；
 - 全队列审计价值使用真值世界，不能当作可部署的决策依据；
@@ -190,7 +220,7 @@ python scripts/28_f02_validation.py --scenario L1_main --n 2000 --rep 0 `
   --policy greedy_incremental_profit_per_cost --models constant `
   --out-dir out/f02_smoke --status provisional
 
-# n=200 000 单 rep（D03 正式 R 结束后执行）
+# n=200 000 单 rep（已于 2026-10-27 18:32–18:39 执行，工程状态）
 python scripts/28_f02_validation.py --scenario L1_main --n 200000 --rep 0 `
   --policy greedy_incremental_profit_per_cost `
   --out-dir out/f02_n200k_rep0 --status engineering
