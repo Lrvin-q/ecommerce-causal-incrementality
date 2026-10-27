@@ -197,6 +197,43 @@ rep 报告实际支出与超支倍数，并把"同预算"限定为"同预测预�
 - [ ] 护栏在每个 rep 内单独判定，聚合层报告通过率与差值的 MC 分布；
 - [ ] 先冻结 OPE/随机验证结果，再解封审计；审计数字不反流选模/选策略。
 
+### 5.4 正式 200 rep 的编排与聚合（工具已就绪，未运行）
+
+| 件 | 路径 | 职责 |
+|---|---|---|
+| 分片入口 | `scripts/29_f02_formal.py` | 按 `--rep-start/--rep-stop` 串行跑指定 rep，逐 rep 落盘并重写分片 `summary.json` |
+| 合并入口 | `scripts/30_merge_f02_formal.py` | 合并多个分片根 → 逐 rep 表 + 聚合表 + 代表 rep 证据包 |
+| 聚合层 | `src/causal_growth/evaluation/v3_f02_formal.py` | 只读逐 rep 产物，做 rep 级通过率/CP 区间/MC 标准误 |
+
+**分片纪律**：`--status formal` 必须带用户批准的 `--formal-approval`，脚本不猜登记号；
+分片只切 `rep_id`，不切 `n`、策略或模型；每完成一个 rep 重写一次 summary，进程崩溃
+能定位到具体 rep；`--resume` 只在登记号、`config_hash`、`source_hashes`、`n_users`
+全部一致时复用已有 rep，任一漂移抛错（防止 200 个 rep 混入不同协议）。
+
+**合并门禁**（任何一条不过即抛错，不写"部分聚合"）：
+
+1. 每个分片 summary 的 `phase=F02_formal_shard`、`status=formal`、`failures` 为空；
+2. 全部 rep 目录的 `rep_id` 恰好覆盖 `0..R-1`，缺失、重复、越界都拒收；
+3. `formal_approval`、`config_hash`、`source_hashes`、`n_users` 跨 rep 唯一
+   （运行期间改过 `src/` 会在这里暴露）；
+4. 每个 rep 通过 `load_formal_rep` 六件套校验：`decision.csv` 恰两行且主张别名、
+   左右臂人数与 `arm_summary.csv` 一致；`guardrail.csv` 恰一行且界值/α 合法；
+   `itt_contrasts.csv` 恰三行；`decision.json` / `freeze.json` 均标记
+   `truth_columns_present=false`；`freeze.json` 的 decision/guardrail 哈希与
+   `manifest.json` 一致。
+
+**聚合口径**：两条预声明主张各自报告 rep 级通过率与 Clopper–Pearson 95% 区间；
+差值报均值与 MC 标准误（`sd/√R`）；逐 rep p 值只作描述统计（均值、中位调整 p），
+**不把 200 个 p 值合并成一个"总显著"**。护栏同理单独报告通过率与差值分布。
+
+**产物**：7 张表（per-rep claims/guardrail/itt + 聚合 claims/guardrail/itt/spend，
+均含 `freeze_hash` 等绑定列）、`v3_phase_F02_formal_summary.json`、代表 rep 证据包
+（`coverage.json` 列出文件哈希与排除项；`per_user.csv` 与 `audit_truth.csv` 因体积和
+逐用户真值被显式排除，聚合不依赖它们）。
+
+**状态**：工具已在 n=2 000、2 rep 上用假登记号冒烟（冒烟产物已删除，不构成证据）；
+8 项聚合/分片测试绿；**正式 200 rep 未运行**，等待用户批准与登记号。
+
 ## 6. 已知局限
 
 - 仍是合成数据与已知 DGP，结论不能外推到真实业务；
@@ -235,6 +272,18 @@ python scripts/28_f02_validation.py --scenario L1_main --n 200000 --rep 0 `
 python scripts/28_f02_validation.py --scenario L1_main --n 200000 --rep 0 `
   --policy greedy_incremental_profit_per_cost `
   --out-dir out/f02_formal/rep0 --status formal --formal-approval "<登记号>"
+
+# 正式 200 rep 分片（4 个独立进程，各写各的根；运行期间源码只读）
+python scripts/29_f02_formal.py --scenario L1_main --n 200000 `
+  --rep-start 0 --rep-stop 49 --out-root out/f02_formal/shard0 `
+  --status formal --formal-approval "<登记号>"
+# shard1: 50-99；shard2: 100-149；shard3: 150-199（同参数，仅换区间与 out-root）
+
+# 合并 + 证据导出
+python scripts/30_merge_f02_formal.py `
+  --shard-root out/f02_formal/shard0 --shard-root out/f02_formal/shard1 `
+  --shard-root out/f02_formal/shard2 --shard-root out/f02_formal/shard3 `
+  --expected-reps 200 --evidence-dir outputs/evidence/f02_formal_rep0
 ```
 
 ## 8. 评审要点
