@@ -533,9 +533,13 @@ def lp_upper_bound(value: FloatArray, cost: FloatArray, budget: float) -> float:
     if eligible.size == 0:
         return 0.0
 
-    order = eligible[np.argsort(-(value[eligible] / cost[eligible]), kind="stable")]
+    # 真值成本里有大量 0（未核销）：这些券不占预算，必须先全额计入，
+    # 否则下一行 value/cost 会除零，且它们本来就在任何最优解里。
+    free = eligible[cost[eligible] <= BUDGET_TOLERANCE]
+    paid = eligible[cost[eligible] > BUDGET_TOLERANCE]
+    total = float(value[free].sum())
     remaining = float(budget)
-    total = 0.0
+    order = paid[np.argsort(-(value[paid] / cost[paid]), kind="stable")]
     for index in order:
         if cost[index] <= remaining + BUDGET_TOLERANCE:
             total += float(value[index])

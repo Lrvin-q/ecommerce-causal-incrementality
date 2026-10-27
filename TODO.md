@@ -1,10 +1,10 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-27 12:52（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-27 13:05（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
 
-**2026-10-27 12:52 更新。A/B/C/D02 通过。D03 的 3 rep × n=200 000 试点已完成，正式 R（200 rep）已启动。**
+**2026-10-27 13:05 更新。A/B/C/D02 通过。D03 正式 R（200 rep）正在跑（13:04 时四分片各完成 1/50 rep）；E 证据层已实现并通过冒烟，正式数据待 D03 R 结束后跑。**
 
 **D02 通过**，闭环为：独立评审 PASS WITH CONDITIONS → 3 项文档 P0 修正（4×MDE→4.93×、34%→0.729、相对差 2.3%→7.84% 并改归因为层水平偏移）+ P0-1/E-1~E-3 修复 → **独立复核 PASS**（`docs/reviews/v3_phase_D_recheck.md`）→ 复核抓出的 2 处再修。详见 `docs/v3_phase_D_aa_formal.md` §8。证据包在 `outputs/evidence/`（1.79 MB，仅凭它可重建 FPR 46/1000 与 CP [0.0339,0.0609]）。
 
@@ -13,6 +13,7 @@
 - **D01 未证实**：20pilot 三粒度实测与资源计划。
 
 **E 的进度**：组件层已完成（成本模型 / 5 个求解器 / 预算三口径 / 误差分解 / 排序组件，41 项测试绿）；编排层已抽成可复用模块 `v3_policy_grid.py` 并跑通三次（`scripts/21_e_policy_run.py`，9 策略 × 8 预算 = 72 行）：合成数据、真实 D.3 provisional 预测、**20 rep × 5 模型配对网格（7 200 行）**。关键现象：受约束策略按 `cost_hat` 全部 160/160 合规，但 greedy 按 `cost_true` 在 0.04 档只有 0–2/20 rep 全合规（实际支出 1.82–3.59 倍预算）——期望成本口径不等于硬上限。**没有一次是正式 R，不能下策略结论。**
+**E 证据层（13:05 新增）**：`v3_policy_evidence.py` + `scripts/24_e_evidence.py` 已实现成本校准、小池 5 求解器互证、桶宽收敛、200 种子随机基线、误差分解、规模扫描、三预算口径共 7 张表；10 项新测试绿，策略全套 54 项绿。n=900 冒烟跑通（2.7 秒），产物隔离在 `out/e_evidence_smoke/`；正式数据待 D03 R 结束后用 `--from-d03` 跑。**冒烟数字不是证据。**
 
 **三个值得记住的观察**：
 - `local_swap` 在 0.60 预算的真值比 greedy 低 0.00008（合成数据）；20 rep × 5 模型网格里也有 26/800 格为负、最大绝对差 0.0052——它保证的是**预测目标**不降，**真值可以降**。
@@ -107,9 +108,22 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] 3 rep × n=200 000 试点（`out/d03_pilot/`，快照 `67d842ae…`）：墙钟 13 分 49 秒，≈276 秒/rep（5 模型 + 5 份 9×8 网格）
 - [x] 试点关键值：选模 constant 1 / causal_forest 2；cf 校准斜率 0.79–0.84；0.20 档 business − greedy 在 cf 上 −0.0189 ± 0.0075、s 打平、constant/t/dr 仍 business 更好；greedy 实际支出 0.04 档 1.31 倍预算；local_swap 120 格中 4 格真值为负（最小 −0.00075）
 - [x] 分片与可观测性：`--rep-start/--rep-stop/--formal-r`、逐 rep 耗时日志；分片只切 `rep_id`，随机流不变
-- [~] 正式 R：200 rep × n=200 000 × 5 模型，L1_main；快照 `out/d03_formal_snapshot/`，4 个独立进程写 `out/d03_formal/shard{0..3}/`
+- [~] 正式 R：200 rep × n=200 000 × 5 模型，L1_main；快照 `out/d03_formal_snapshot/`，4 个独立进程写 `out/d03_formal/shard{0..3}/`；**13:04 进度 4/200（每分片 1/50），≈308 秒/rep，预计 17:10 前后完成**
 - [ ] 合并分片 → `outputs/tables/v3_phase_D03_formal_*`；校验 1 000 行 per-rep、72 000 行网格、每 rep 恰一个 chosen
 - [ ] 独立评审（方法对照、选模频率、配对网格、双口径合规）→ D03 判定
+
+## E 证据层（2026-10-27 13:05，北京时间）
+
+> 覆盖 `docs/v3_phase_E_coverage.md` §8 的 12 个编排层缺口；**正式结果仍未产生**。
+
+- [x] `src/causal_growth/policy/v3_policy_evidence.py`：成本校准（validation 处理组）/ 小池 20·100·500 的 5 求解器互证 + 浮点穷举参照 / 桶宽 5 档收敛 / 200 种子随机基线 / learning-optimization 误差分解 / 规模 1000·5000·full_test / 三预算口径
+- [x] 真值隔离：所有 mask 先冻结，`tau_true/cost_true` 只进 `true_*` / `actual_*` 列；毒化测试覆盖 5 张表
+- [x] 修复 `lp_upper_bound` 的免费券除零缺口（真值成本有大量 0；共享校验仍要求成本严格为正，故真值 MILP 先按 `cost_floor=1e-6` 抬高并单列 `truth_solver_cost_floor_cny`）
+- [x] 10 项新测试（`tests/test_v3_policy_evidence.py`）+ 既有策略 54 项全绿
+- [x] n=900 冒烟：7 张表 + 校准 JSON，2.7 秒；产物隔离 `out/e_evidence_smoke/`，已清掉误写进 `outputs/tables/` 的冒烟副本
+- [ ] **正式数据**：D03 R 结束后 `scripts/24_e_evidence.py --from-d03 --rep-id 0 --n 200000`，产物进 `outputs/tables/`
+- [ ] E 正文报告 `docs/v3_phase_E_evidence.md`：必须写清"桶宽阈值由曲线定、不预设"；observed_value/audited_value 的 OPE 部分留给 F
+- [!] **LP 每 rep 上界缺口**：`policy.optimization.every_full_rep_required` 要求 `lp_relaxation` 在每个 full rep 上都有，但 D03 的 200 rep 网格只有 9 个策略、没有 LP 行；E 证据层只在代表 rep 上补。**G 阶段必须每 rep 补 LP 上界**，否则"规模对照覆盖所有 rep"不成立
 
 ## 收尾交接（2026-10-25 14:40（北京时间））
 

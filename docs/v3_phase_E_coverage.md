@@ -27,16 +27,16 @@
 |---|---|---|
 | `basis: expected_redemption_cost` | `predict_expected_cost` 输出期望核销成本 | ✅ |
 | `base_per_user_cny` | `build_budget_plan` 的 `expected = base × n` | ✅ |
-| `per_user_grid_cny`（8 点） | 预算扫描循环 | ⏳ 编排层 |
+| `per_user_grid_cny`（8 点） | 预算扫描循环 | ⏳ 网格已跑通（72 行），正式 E 数据待 R 后 |
 | `total_rule` | `expected = base × n_target` | ✅ |
 | `freeze_using_observed_data_only` | 文档约束；`CostModel.fitted_on` 标 `training_only` | ⏳ 需运行期断言 |
 | `actual_spend_overrun_reported` | `audit_budget.within_expected` | ✅ |
 | `hard_cap_claim_allowed: false` | `audit_budget` 返回 `hard_cap_claim_allowed: False`，编码进返回值 | ✅ |
 | `conservative_comparison.modes.buffered_expected` | `BudgetPlan.buffered = expected × multiplier` | ✅ |
 | `conservative_comparison.modes.worst_case_face` | `BudgetPlan.worst_case` + `max_recipients_face` | ✅ |
-| `conservative_comparison.policies` | 三策略组合 | ⏳ 编排层 |
-| `random_seeds_per_dataset_budget_mode: 200` | 种子循环 | ⏳ 编排层 |
-| `report`（6 项） | 已有 `selected_count` / `predicted_cost` / `observed_cost_total` / `within_expected` / `within_buffered` / `face_bound_respected` | ⏳ 缺 `actual_spend_overrun_probability`（需多次随机） |
+| `conservative_comparison.policies` | 三策略组合 | ⏳ 已实现（`conservative_comparison_table`），待正式数据 |
+| `random_seeds_per_dataset_budget_mode: 200` | 种子循环 | ⏳ 已实现，待正式数据 |
+| `report`（6 项） | 已有 `selected_count` / `predicted_cost` / `observed_cost_total` / `within_expected` / `within_buffered` / `face_bound_respected` | ⏳ 已补 `actual_spend_overrun_probability`（多次随机）；`observed_value` 留 F |
 
 ## 3. `cost_model`
 
@@ -46,7 +46,7 @@
 | `primary: two_stage_purchase_and_conditional_redemption_amount` | `fit_cost_model` 两阶段 | ✅ |
 | `auxiliary: direct_cost_regression` | `CostModel.auxiliary_direct` | ✅ |
 | `trained_only_on: training_observed_logs` | `fitted_on="training_only"` + 只用 `treatment=1` | ✅ |
-| `calibration_only_on: validation_observed_logs` | — | ❌ 需真实 validation，属 E 正文 |
+| `calibration_only_on: validation_observed_logs` | `calibrate_cost_predictions`（只吃 validation 处理组） | ⏳ 已实现，待正式 rep |
 | `prediction_bias_multiplier: 1.0` | `_require_supported_cost_options` | 🚫 非 1.0 即抛 `NotImplementedError` |
 | `multiplicative_noise_log_sd: 0.0` | 同上 | 🚫 非 0.0 即抛 |
 | `noise_expectation_normalized_to_one` | 噪声为 0 时无意义 | 🚫 与上一条绑定 |
@@ -76,17 +76,17 @@
 | `small_exact.algorithms`（5 个） | 全部实现 | ✅ |
 | `small_exact.cost_integerization: decimal_half_up_to_cent` | `cent_exact_dp` 接收整数分 | ✅ |
 | `small_exact.exactness_claim_target` | 文档与 docstring 明确"仅整数化问题" | ✅ |
-| `small_exact.pool_sizes` | 20 / 100 / 500 | ⏳ 编排层 |
-| `bucket_convergence`（5 档宽度） | — | ❌ 需真实数据出曲线，阈值不能先拍 |
+| `small_exact.pool_sizes` | 20 / 100 / 500 | ⏳ 已实现，待正式数据 |
+| `bucket_convergence`（5 档宽度） | `bucket_convergence_table`（近似桶 DP + 原成本复核回退） | ⏳ 已实现，待正式曲线；**阈值仍由评审看曲线后定** |
 | `large.algorithms` | greedy / local_swap / MILP / LP 全有 | ✅ |
 | `large.milp_time_limit_seconds: 60` | `milp_select` 参数 | ✅ |
 | `large.milp_relative_gap_tolerance: 0.001` | 同上 | ✅ |
 | `large.require_incumbent_bound_gap_and_status` | `MilpResult` 四个字段 | ✅ |
-| `large.pool_sizes` | 1000 / 5000 / full_test | ⏳ 编排层 |
+| `large.pool_sizes` | 1000 / 5000 / full_test | ⏳ 已实现，待正式数据 |
 | `local_swap.max_passes: 10` | 参数透传 | ✅ |
 | `local_swap.exchange_candidate_limit: 500` | 未选者按价值降序截断 | ✅ |
 | `exact_counterexample` | `test_frozen_counterexample_greedy_loses_a_third` | ✅ |
-| `comparison_frequency` / `every_full_rep_required` | — | ⏳ 编排层 |
+| `comparison_frequency` / `every_full_rep_required` | 代表 rep 全预算已实现；greedy/local_swap 每 rep 已有，LP 仅代表 rep | ⏳ **LP 每 rep 仍缺，G 阶段补齐** |
 
 ## 6. `oracle_audit`
 
@@ -101,7 +101,7 @@
 
 | 键 | 实现 | 状态 |
 |---|---|---|
-| `seeds_per_frozen_dataset_and_budget: 200` | 种子循环 | ⏳ 编排层 |
+| `seeds_per_frozen_dataset_and_budget: 200` | 种子循环 | ⏳ 已实现，待正式数据 |
 | `summary`（mean / sd / 分位数） | `summarize_random_baseline` | ✅ |
 | `quantiles: [0.025, 0.5, 0.975]` | 参数化传入 | ✅ |
 | `interpretation: variability_not_CI_for_mean` | 返回值里同时给 `mean_se`，并在 `interpretation` 字段写明 | ✅ |
@@ -121,6 +121,13 @@
 2. `optimization.bucket_convergence` → 需要真实数据画收敛曲线，**阈值不能先拍**。
 3. `oracle_audit.stage`（冻结门禁）→ 依赖 F 阶段的 manifest，属 F。
 4. `oracle_audit.candidates`（真值策略）→ 只能在真值解封后，属 F。
+
+**2026-10-27 13:05（北京时间）更新**：第 1、2 项已由
+`src/causal_growth/policy/v3_policy_evidence.py` / `scripts/24_e_evidence.py` 实现并有测试，
+状态由 ❌ 降为 ⏳，正式数据等 D03 R 结束后的 n=200 000 代表 rep；第 3、4 项仍属 F。
+**新暴露的缺口**：`every_full_rep_required` 要求 LP 上界在每个 full rep 上都有，
+但 D03 的 200 rep 网格只含 9 个策略，没有 LP 行；E 证据层只在代表 rep 上补 LP，
+G 阶段必须每 rep 补 LP 上界，否则不能声称"规模对照已覆盖所有全额 rep"。
 
 ## 9. 这套矩阵怎么用
 
