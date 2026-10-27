@@ -315,9 +315,23 @@
       "sha256": "e26ce0cf764091dc18e33c45158947557262f454eb4ba4c6f059b3051906e691",
       "status": "engineering_single_rep_not_formal_evidence",
       "note": "F02 **工程验证**单 rep（n=200 000，R=0）的身份文件，status=engineering_single_rep_not_formal_evidence，**不是**正式证据；正式证据在 outputs/evidence/f02_formal/（200 rep，登记号 F02-FORMAL-20261028-R200）。"
+    },
+    {
+      "kind": "full_suite_serial_test_log",
+      "source": "out/logs/pytest_full_20261028_0321.log",
+      "target": "outputs/evidence/test_runs/pytest_full_20261028_0321.log",
+      "bytes": 1527,
+      "sha256": "dd241c18e5c02a76bc9a58a125aeb1c2712d706eea2adff0c02f40efaeefc406"
+    },
+    {
+      "kind": "test_log_sidecar",
+      "source": "generated_at_registration",
+      "target": "outputs/evidence/test_runs/pytest_full_20261028_0321.json",
+      "bytes": 2571,
+      "sha256": "7c50c11e80524aff9b699dd25baa96c7ebc63d22b8a63f7b3738c7af11f0e0c3"
     }
   ],
-  "total_bytes": 15861713,
+  "total_bytes": 15865811,
   "registry_repairs": [
     {
       "at": "2026-10-28 02:38",
@@ -449,7 +463,15 @@
       "consistency_check": "导出前断言日志首行 [E evidence HH:MM:SS] 与 meta.created_at 的时分秒逐字相同，不符即中止（A 01:12:03、B 01:35:26 均通过）。该断言目前只在本次修复中执行，尚未写进 scripts/24_e_evidence.py（该文件被 E 的 source_sha256 逐文件绑定，改它须重跑两家族），已登记为 F02 之后与 cfg.hash(64) 一并处理的待办。",
       "records_after": 42,
       "total_bytes_after": 15861713
+    },
+    {
+      "at": "2026-10-28 06:28",
+      "what": "把 AGENTS §11.4 要求的全量串行测试凭据提升为入库证据（复审 N-10）",
+      "why": "两份 pytest 日志此前都不在仓库里：out/ 整体不入库，而 outputs/runs/ 被 .gitignore:29 忽略（git ls-files outputs/runs 计数 = 0）——正文与 TODO 却把它当\"入库那份\"引用。03:21 那份（1264 项、EXIT=0、03:21:18–03:27:42）经 find -newermt 确认描述的正是 F02 绑定的冻结树，故复制进 outputs/evidence/test_runs/ 并连同命令行、条数来源、起止时间与冻结树检查一起登记。",
+      "records_added": 2,
+      "records_before": 42,
+      "records_after": 44
     }
   ],
-  "last_refreshed_at": "2026-10-28T05:44:00+08:00"
+  "last_refreshed_at": "2026-10-28T06:45:24+08:00"
 }
