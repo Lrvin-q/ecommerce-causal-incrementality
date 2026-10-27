@@ -1,175 +1,220 @@
-# D03 正式 R：200 rep × n=200 000（L1_main）
+# D03 正式重复（200 rep）：模型比较、选模与策略价值
 
-> 合成数据 / 已知 DGP。**状态：正式 R 已跑完、合并与证据已导出（2026-10-27 17:15，北京时间）；D03 在独立评审通过前仍标“未证实”，本文只陈述证据，不写“通过”。**
+> **合成数据 / 已知 DGP**｜scenario `L1_main`（L1，randomized，static）｜R = 200｜n = 200 000/rep
+> （train 100 000 / validation 40 000 / test 60 000）｜config_hash `e1aa4314b8d84b04a26150cb8ccea5a35dbe9b2d514fee724c56570d5b586d75`
+> 维护时间：2026-10-27 19:25（北京时间）。
+> **状态：正式 R 已跑完、证据已导出；D03 仍未证实，等待独立评审。** 本文件只陈述数字，
+> 不代替评审结论。
 
-本文件回答 GOAL D03 的三件事：五类估计器的方法对照是否成立、选模在 rep 间是否稳定、
-策略层的比较是否按同一 rep/同一批用户/同一预算配对。所有数字必须能从
-`outputs/tables/v3_phase_D03_formal_*.csv` 复算；运行证据在
-`outputs/evidence/d03_formal/`。
+## 0. 结论先行
 
-## 0. 一句话结论
-
-正式 R 的 200 个 rep 全部跑完且内部校验全过：平均 ATE 偏差小且不显著，但**个体校准
-普遍很弱**（除 causal_forest 外斜率中位数 0.10–0.47）；策略层“greedy 对 business”的
-符号**按模型分裂**（CF/S 为正，constant/T/DR 为负），聚合结论会被选模构成决定；
-按真实支出的预算合规率远低于按预测成本的合规率。**这些是“未证实”阶段的结果陈述，
-不是 D03 通过判定。**
+1. **选模高度不稳定**：5 个候选模型都当过第一名。200 个 rep 的分布是
+   `causal_forest` 105、`s_learner` 71、`dr_learner` 12、`constant` 7、`t_learner` 5。
+   任何"固定用某个模型"的写法都会与冻结规则不一致。
+2. **群体平均无偏，但个体排序能力弱**：五个模型的均值偏差都在 ±0.005 元/人以内，
+   但个体 Pearson 相关系数中位数只有 0.039–0.103，`causal_forest` 的校准斜率中位数
+   0.754，`t_learner`/`dr_learner` 只有 0.114/0.098。**"平均无偏"不能替代"个体可用"。**
+3. **策略结论按模型分裂**：0.20 元/人档位、同一 rep 同一批用户配对比较，
+   `greedy_incremental_profit_per_cost − business_rule` 在 `causal_forest` 上
+   +0.0216 元/人（183/200 rep 胜）、`s_learner` +0.0079（146/200 胜）；
+   在 `dr_learner` −0.0462、`t_learner` −0.0588、`constant` −0.1951。
+4. **选模后悔远小于"事后最优"**：同一 rep 上"选中模型 − 5 模型事后最优"的贪心策略，
+   0.20 档为 −0.0193 元/人（SE 0.0030，n=200）。诊断阶段（20 rep × n=20 000）的
+   −0.1007 不能外推到正式 R。
+5. **"同预测预算"不等于"同实际支出"**：按 `cost_hat` 合规 160/160 格；
+   按 `cost_true` 在 0.20 档的 rep 级合规率：`t_learner` 39.0%、`dr_learner` 26.5%、
+   `s_learner` 13.0%、`causal_forest` 11.0%、`constant` 0%。
 
 ## 1. 运行事实
 
 | 项 | 值 |
 |---|---|
-| 设计 | 200 rep × n=200 000（test 60 000）× 5 模型 × 8 预算 × 9 策略 |
-| 场景 | L1_main，`time_mode=static` |
-| 选模规则（冻结） | `validation_crossfit_dr_policy_value_lower_confidence_bound` |
-| 快照 | `out/d03_formal_snapshot/`，combined sha256 `be0d48f4a10d…`，83 文件，git commit `130a309` |
-| 启动 | 2026-10-27 12:54:18（北京时间），4 个独立进程，每分片 50 rep |
-| 完成 | 2026-10-27 17:13:36–17:14:48（四分片），墙钟约 **4 小时 20 分**；4 个 `run.err` 均为 0 字节 |
-| 合并 | 200 rep / 1 000 行 per-rep / 72 000 行网格；`config_hash=e1aa4314…` 四分片一致 |
-| 证据 | `outputs/evidence/d03_formal/coverage.json`（10 个文件，含 manifest、快照绑定、分片 summary/log） |
+| 分片 | 4 个独立进程，各 50 rep（rep 0–49 / 50–99 / 100–149 / 150–199） |
+| 状态 | 每片 `status=formal_r`、`reps=50`、`config_hash` 一致 |
+| 起止 | 2026-10-27 12:54 启动；四分片 17:13–17:14 写完（北京时间），墙钟约 4 小时 20 分 |
+| 单 rep 耗时 | rep 0 为 308.1 s，rep 199 为 303.2 s |
+| 产物 | `v3_phase_D03_formal_per_rep.csv` 1 000 行 = 200×5；`v3_phase_D03_formal_policy_grid.csv` 72 000 行 = 200×5×9×8 |
+| 绑定 | 快照 `out/d03_formal_snapshot/`（83 文件）；证据包 `outputs/evidence/d03_formal/`（10 文件，含四分片 run.log/summary 与 snapshot_binding） |
+| 源码只读 | 四个 `run.err` 全空；运行期间未改 `src/`、`sql/`、`configs/v3*` |
 
-复现顺序：`scripts/25_merge_d03_formal.py` → `scripts/26_d03_formal_tables.py` →
-`scripts/27_export_d03_evidence.py`。25 在写盘前校验 rep 覆盖/去重、网格形状、
-chosen 覆盖与合规标记；27 在校验 rep 并集、四分片 `config_hash`、`run.err` 全空、
-合并表哈希后才写 coverage。
+选模规则（A 阶段冻结）：在 validation 上用交叉拟合 DR 策略价值下置信界排序，
+每个 rep 独立选出 `chosen=True` 的模型；真值只在选模完成后用于评估。
 
-## 2. 选模频率
+## 2. 选模频率与分差
 
-来源：`v3_phase_D03_formal_selection.csv`（分母 = 200 rep）。
+`outputs/tables/v3_phase_D03_formal_selection.csv`
 
-| 模型 | 被选次数 | 占比 | 平均排名 | 选模分数中位数 |
+| 模型 | 被选次数 | 占比 | 平均名次 | 选择分数中位数 |
 |---|---:|---:|---:|---:|
-| causal_forest | 105 | 0.525 | 1.710 | +0.0605 |
-| s_learner | 71 | 0.355 | 1.855 | +0.0490 |
-| dr_learner | 12 | 0.060 | 3.385 | +0.0164 |
+| causal_forest | 105 | 0.525 | 1.710 | 0.0605 |
+| s_learner | 71 | 0.355 | 1.855 | 0.0490 |
+| dr_learner | 12 | 0.060 | 3.385 | 0.0164 |
 | constant | 7 | 0.035 | 4.505 | −0.0183 |
-| t_learner | 5 | 0.025 | 3.545 | +0.0140 |
+| t_learner | 5 | 0.025 | 3.545 | 0.0140 |
 
-20 rep 诊断里 constant 被选 9/20，正式 R 只有 7/200（3.5%），说明那主要是小样本波动；
-但“五个模型都当过第一名”仍成立，且 88% 的 rep 由 CF/S 两个模型包揽。**后续策略结论
-必须按模型配对呈现，不能只报 chosen 或全模型平均。**
+诊断阶段（20 rep、n=20 000）是 constant 9/20、CF 4/20；正式规模下 constant 只赢 7/200。
+**规模改变选模频率**，把诊断频率当正式结论会直接错。
 
-## 3. 偏差与校准
+## 3. 模型校准
 
-来源：`v3_phase_D03_formal_calibration.csv`。`mean_bias_cny` 是 ATE 估计减真值的
-rep 均值，SE 是 rep 间 SE；`median_calibration_slope` 是个体 τ̂ 对 τ_true 的回归斜率，
-1 表示个体排序与幅度都可信。
+`outputs/tables/v3_phase_D03_formal_calibration.csv`。相对偏差的分母是**同一 rep 的
+`mean(tau_true)`**；`max_abs_relative_bias` 是 200 个 rep 里最差的那一个，不是均值。
 
-| 模型 | 范围 | n | mean_bias ± SE（元/人） | 相对偏差中位数 | **最大绝对相对偏差** | 校准斜率中位数 | Pearson r 中位数 | RMSE 中位数 |
-|---|---|---:|---:|---:|---:|---:|---:|---:|
-| constant | all | 200 | −0.00431 ± 0.00440 | −0.0189 | **0.702** | — | — | 6.178 |
-| t_learner | all | 200 | −0.00096 ± 0.00459 | −0.0054 | **0.803** | 0.114 | 0.043 | 6.496 |
-| s_learner | all | 200 | +0.00224 ± 0.00436 | −0.0119 | **0.846** | 0.467 | 0.078 | 6.184 |
-| causal_forest | all | 200 | −0.00017 ± 0.00447 | −0.0111 | **0.801** | 0.754 | 0.103 | 6.149 |
-| dr_learner | all | 200 | −0.00081 ± 0.00468 | −0.0109 | **0.817** | 0.098 | 0.039 | 6.561 |
-| causal_forest | chosen_only | 105 | −0.00600 ± 0.00603 | −0.0325 | 0.595 | 0.762 | 0.103 | 6.150 |
-| s_learner | chosen_only | 71 | +0.01006 ± 0.00798 | +0.0146 | 0.846 | 0.451 | 0.076 | 6.177 |
-| dr_learner | chosen_only | 12 | −0.00672 ± 0.01742 | −0.0699 | 0.336 | 0.101 | 0.042 | 6.551 |
-| constant | chosen_only | 7 | +0.01701 ± 0.03035 | +0.0526 | 0.518 | — | — | 6.077 |
-| t_learner | chosen_only | 5 | −0.02046 ± 0.02440 | −0.0539 | 0.280 | 0.121 | 0.044 | 6.497 |
+### 3.1 全部 200 rep（每模型都评估）
 
-解读：
+| 模型 | 均值偏差（元/人） | SE | 相对偏差中位数 | 最差绝对相对偏差 | 校准斜率中位数 | Pearson 中位数 | RMSE 中位数 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| constant | −0.0043 | 0.0044 | −0.0189 | 0.7022 | — | — | 6.178 |
+| t_learner | −0.0010 | 0.0046 | −0.0054 | 0.8034 | 0.1141 | 0.0426 | 6.496 |
+| s_learner | +0.0022 | 0.0044 | −0.0119 | 0.8456 | 0.4666 | 0.0778 | 6.184 |
+| causal_forest | −0.0002 | 0.0045 | −0.0111 | 0.8014 | 0.7541 | 0.1029 | 6.149 |
+| dr_learner | −0.0008 | 0.0047 | −0.0109 | 0.8167 | 0.0976 | 0.0392 | 6.561 |
 
-1. **平均 ATE 没有显著偏差**：五个模型的 |mean_bias| ≤ 0.0044 元/人，均小于 1 个 SE；
-   这是“平均处理效应估得准”，不是“个体 τ̂ 可信”。
-2. **个体校准弱**：除 CF（0.754）外，斜率中位数只有 0.098–0.467，Pearson r 0.04–0.10；
-   chosen_only 也没有改善。策略排序依赖个体预测，这是 F01 OPE 与 F02 验证的主要风险点。
-3. **相对偏差要报最差**（AGENTS §12.5）：最大绝对相对偏差 0.70–0.85，出现在真值接近 0
-   的 rep；不能只报 −0.005 到 −0.019 的中位数。分母是真值 ATE 的 rep 绝对值。
+### 3.2 仅被选中时（chosen_only）
 
-## 4. 策略层：按模型配对
+| 模型 | n | 均值偏差 | SE | 相对偏差中位数 | 最差绝对相对偏差 | 斜率中位数 |
+|---|---:|---:|---:|---:|---:|---:|
+| constant | 7 | −0.0170 | 0.0303 | +0.0526 | 0.5178 | — |
+| t_learner | 5 | −0.0205 | 0.0244 | −0.0539 | 0.2799 | 0.1215 |
+| s_learner | 71 | +0.0101 | 0.0080 | +0.0146 | 0.8456 | 0.4509 |
+| causal_forest | 105 | −0.0060 | 0.0060 | −0.0325 | 0.5953 | 0.7621 |
+| dr_learner | 12 | −0.0067 | 0.0174 | −0.0699 | 0.3359 | 0.1008 |
 
-来源：`v3_phase_D03_formal_policy_value.csv`、`_paired_diff.csv`、
-`_paired_diff_chosen.csv`、`_oracle.csv`。每条配对差都在同一
-`(rep_id, model, per_user_budget_cny)` 内计算策略 − `business_rule_new_user_then_cart`，
-跨 rep 聚合给出 `n_pairs`、SE 与胜/负/平（AGENTS §12.6）。
+读法：`causal_forest` 被选中时斜率中位数 0.762，是五个模型里最接近 1 的；
+但"最差 rep"仍可到 0.595 的绝对相对偏差。**不要只报中位数。**
 
-**0.2 元档、all_models（每格 200 rep 配对）：**
+## 4. 真值策略价值（0.20 元/人档）
 
-| 模型 | greedy − business（元/人） | SE | 胜/负（rep 数） | 8 档中差值为正的档数 |
-|---|---:|---:|---:|---:|
-| causal_forest | **+0.0216** | 0.0011 | 183 / 17 | 7 |
-| s_learner | **+0.0079** | 0.0011 | 146 / 54 | 6 |
-| dr_learner | −0.0462 | 0.0011 | 0 / 200 | 2 |
-| t_learner | −0.0588 | 0.0011 | 0 / 200 | 2 |
-| constant | −0.1951 | 0.0013 | 0 / 200 | 1 |
+`outputs/tables/v3_phase_D03_formal_policy_value.csv`（200 rep 的均值，元/人；
+`no_coupon` 恒为 0）。
 
-**chosen_only 同档**（线上口径子集）：CF +0.0236（99/6）、S +0.0049（42/29）、
-DR −0.0469（0/12）、T −0.0628（0/5）、constant −0.1900（0/7）。符号与 all_models 一致，
-说明差异不是选模频率造成的；但**“greedy 更好”只在 CF/S 上成立**，在另外三个模型上
-方向相反且幅度更大。任何跨模型聚合（例如“平均 +0.02”）都会被模型构成翻转，禁止使用。
+| 模型 | random | business_rule | greedy | local_swap | predicted_profit_rank | all_coupon（无预算参考） |
+|---|---:|---:|---:|---:|---:|---:|
+| causal_forest | 0.0680 | 0.2718 | **0.2934** | 0.2934 | 0.0934 | 0.2841 |
+| s_learner | 0.0680 | 0.2718 | 0.2796 | 0.2796 | 0.0934 | 0.2841 |
+| dr_learner | 0.0680 | 0.2718 | 0.2256 | 0.2256 | 0.0934 | 0.2841 |
+| t_learner | 0.0680 | 0.2718 | 0.2129 | 0.2129 | 0.0934 | 0.2841 |
+| constant | 0.0680 | 0.2718 | 0.0767 | 0.0767 | 0.0934 | 0.2841 |
 
-**事后最优（oracle，0.2 元档，按模型等权平均 200 rep）：**
+- `business_rule`、`random`、`predicted_profit_rank`、`all_coupon` 不依赖 CATE 模型，
+  所以跨模型同值；`greedy`/`local_swap` 依赖模型。
+- 0.20 档 `all_coupon`（0.2841）低于 `causal_forest` 的贪心（0.2934）：定向避开了
+  负效应用户，而无预算参考给所有人发券会包含负值。
+- `purchase_propensity_rank` 在 0.20 档为 −0.0005（低于不发券），与诊断一致：
+  **propensity 不是 uplift。**
 
-| 策略 | 平均后悔（元/人） | 夺魁率 |
-|---|---:|---:|
-| business_rule_new_user_then_cart | **0.0066** | 66.8% |
-| greedy_incremental_profit_per_cost | 0.0607 | 28.3% |
-| greedy_local_swap | 0.0607 | 29.3% |
-| incremental_profit_rank | 0.0793 | 0.3% |
-| predicted_profit_rank | 0.1850 | 0.0% |
-| random_same_budget | 0.2103 | 0.0% |
+## 5. 配对差（同一 rep、同一批用户）
 
-oracle 只在受预算约束的策略中取最优（`all_coupon_unconstrained_reference` 不参与）。
-这里 business 的平均后悔更低，是因为它在 constant/T/DR 这三个“greedy 会选错人”的模型上
-接近最优；**不能据此说 business 全面优于 greedy**，也不能把 oracle 后悔当线上可得收益。
+基线 = `business_rule_new_user_then_cart`；`outputs/tables/v3_phase_D03_formal_paired_diff.csv`。
+`wins/losses` 是 200 个 rep 中该策略优于/劣于基线的次数。
 
-`greedy_local_swap` 与 greedy 的配对差在 8 档上逐档相同（表中未单列），说明本场景下
-局部交换没有改变名单；这是结果，不是实现被跳过——两者 `n_selected` 与真实价值一致。
+### 5.1 0.20 元/人档，贪心 − 业务规则
 
-## 5. 双口径预算合规
+| 模型 | 差值（元/人） | SE | 胜/负（rep） |
+|---|---:|---:|---:|
+| causal_forest | +0.0216 | 0.0011 | 183 / 17 |
+| s_learner | +0.0079 | 0.0011 | 146 / 54 |
+| dr_learner | −0.0462 | 0.0011 | 0 / 200 |
+| t_learner | −0.0588 | 0.0011 | 0 / 200 |
+| constant | −0.1951 | 0.0013 | 0 / 200 |
 
-来源：`v3_phase_D03_formal_compliance.csv`。`by_hat` 用冻结的预测成本判断，
-`by_true` 用事后真实券成本判断；两者不可互相替代。
+### 5.2 跨预算档的符号
 
-**0.2 元档：**
+贪心 − 业务规则（元/人）：
 
-| 模型 | greedy by_hat | greedy by_true | business by_true | 随机 by_true |
-|---|---:|---:|---:|---:|
-| causal_forest | 1.000 | **0.110** | 0.680 | 0.640 |
-| s_learner | 1.000 | **0.130** | 0.600 | 0.620 |
-| dr_learner | 1.000 | 0.265 | 0.520 | 0.575 |
-| t_learner | 1.000 | 0.390 | 0.545 | 0.600 |
-| constant | 1.000 | **0.000** | 0.465 | 0.555 |
+| 模型 | 0.04 | 0.10 | 0.20 | 0.30 | 0.40 | 0.60 | 0.80 | 1.00 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| causal_forest | +0.0007 | −0.0111 | +0.0216 | +0.0381 | +0.0351 | +0.0335 | +0.1131 | +0.1138 |
+| s_learner | −0.0129 | −0.0245 | +0.0079 | +0.0228 | +0.0176 | +0.0115 | +0.0910 | +0.0918 |
+| dr_learner | −0.0388 | −0.0699 | −0.0462 | −0.0335 | −0.0380 | −0.0398 | +0.0398 | +0.0406 |
+| t_learner | −0.0378 | −0.0747 | −0.0588 | −0.0482 | −0.0532 | −0.0542 | +0.0254 | +0.0261 |
+| constant | −0.0892 | −0.1687 | −0.1951 | −0.1944 | −0.1838 | −0.1118 | +0.0033 | 0.0000 |
 
-**0.04 元档**：greedy 的 by_true 合规率 0–20%，constant 的 `max_spend_to_budget_ratio`
-达到 **1.92 倍**；business 为 41.5%–100%，随机为 50.5%–100%（全体模型/预算汇总范围）。
-`all_coupon_unconstrained_reference` 不是可执行策略，其支出比约 20.6 倍只作参照。
+**结论只能按模型说**：`causal_forest` 在 0.30 以上稳定胜出；`s_learner` 在 0.20 以上胜出；
+`dr_learner`/`t_learner` 直到 0.80 才转正；`constant` 只有 0.80 以上不输。
+这正是 AGENTS §12.6 要求"按模型配对"的原因：只评"被选中模型"会被选模频率带偏。
 
-结论：**预测成本口径的 100% 合规不能当支出上限**。F 阶段的“预算可行”建议必须同时
-报告真实支出合规率与超支风险；不能承诺硬上限。
+## 6. 事后最优与选模后悔
 
-## 6. 判定门槛与检查项
+`outputs/tables/v3_phase_D03_formal_oracle.csv`（每模型 × 预算 × 策略的 rep 均值）：
 
-正式 R 结束时必须逐条全绿，才能进入独立评审：
+| 模型 | 平均后悔（元/人） | SE | 0.20 档 share_optimal |
+|---|---:|---:|---:|
+| causal_forest | 0.1143 | 0.0009 | 0.212 |
+| s_learner | 0.1066 | 0.0009 | 0.192 |
+| t_learner | 0.1047 | 0.0009 | 0.125 |
+| dr_learner | 0.1037 | 0.0009 | 0.125 |
+| constant | 0.1317 | 0.0009 | 0.125 |
 
-- [x] 200 rep 恰好各出现一次（rep 0..199，无缺无重）；
-- [x] 每 rep 5 模型，per-rep 表 1 000 行；
-- [x] 网格 200 × 5 × 8 × 9 = 72 000 行，每 `(rep, model, budget)` 恰 9 策略；
-- [x] 每 rep 恰一个 chosen，且网格 chosen 行恰为该模型 × 8 预算 × 9 策略；
-- [x] 四分片 `config_hash` 一致，快照哈希与 manifest/绑定一致；
-- [x] 4 个 `run.err` 全空；
-- [x] 合并表 sha256 与 summary 一致；`outputs/evidence/d03_formal/coverage.json` 写入成功；
-- [ ] 至少一项独立评审复核：方法对照、选模频率、配对网格、双口径合规。
+"选模后悔"（同一 rep，选中模型的贪心价值 − 5 个模型事后最优）：
+0.04 档 −0.0114（SE 0.0014）、0.10 −0.0162（0.0023）、0.20 −0.0193（0.0030）、
+0.40 −0.0205（0.0031）、0.80 −0.0188（0.0022），n=200。
 
-## 7. 局限与结论失效条件
+这是**事后上界**：真实部署不可能知道哪个模型最好。它说明的只是"冻结选模规则离事后
+最优有多远"，不能反过来指导选模。
 
-- 合成数据、单一场景（L1_main）、单一时间模式（static）；结论不外推到真实业务或
-  其他 DGP 层。
-- 选模规则是冻结的单一规则；换规则会改变 chosen 分布，进而改变线上口径的策略结论。
-- 真值只用于评估；`tau_true/cost_true` 不参与训练、选模与种子派生。
-- 策略结论以 8 档预算为限；预算档之间的最优策略可能切换，不能线性外推。
-- 平均 ATE 无偏不代表个体 τ̂ 可信；本文的策略结论只对应“用该模型打分后的名单”，
-  不对应“真实个体增量”。
-- 行为结论文本一旦与 `outputs/tables/` 中的数字不一致，以表为准并重修文档。
+## 7. 双口径预算合规
 
-## 8. 产物与复现
+`outputs/tables/v3_phase_D03_formal_compliance.csv`，`greedy_incremental_profit_per_cost`。
+`share_within_budget_by_hat` 按预测成本判定，`share_within_budget_by_true` 按真值成本判定；
+数值是 200 个 rep 的均值（0–1）。
 
-| 产物 | 路径 |
+| 模型 | 口径 | 0.04 | 0.10 | 0.20 | 0.30 | 0.40 | 0.60 | 0.80 | 1.00 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| causal_forest | hat | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 |
+| causal_forest | true | 0.000 | 0.005 | 0.110 | 0.290 | 0.490 | 1.000 | 1.000 | 1.000 |
+| s_learner | true | 0.045 | 0.050 | 0.130 | 0.230 | 0.415 | 1.000 | 1.000 | 1.000 |
+| dr_learner | true | 0.200 | 0.200 | 0.265 | 0.430 | 0.640 | 1.000 | 1.000 | 1.000 |
+| t_learner | true | 0.185 | 0.250 | 0.390 | 0.570 | 0.700 | 1.000 | 1.000 | 1.000 |
+| constant | true | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 | 0.345 | 1.000 |
+
+所有模型的 `hat` 口径都是 1.000；差异全部来自"预测成本 ≠ 实际核销成本"。
+0.80 以上真值成本也基本用不完预算，所以合规率自然到 1。
+**正文只能写"期望预算合规"，不能写"实际支出不超预算"。**
+
+## 8. 局限与结论失效条件
+
+- 合成数据、已知 DGP；只跑了 `L1_main`（L0/L2/L3 未进入本表），结论不能外推到其他层。
+- `time_mode=static`；时间成熟机制变化会改变订单与退款分布。
+- 策略比较的预算档是**每用户期望成本**，实际支出可超；第 7 节已给出逐格合规率。
+- `all_coupon_unconstrained_reference` 不参与事后最优（无预算约束），不能当"更优策略"。
+- 每个 rep 只有一个 test split；rep 之间的用户批不同，配对只发生在同一 rep 内。
+- `causal_forest` 的个体校准斜率仍显著小于 1；即使它在 0.20 档胜出，也不能说
+  "CATE 已校准"。
+- 选模规则是 A 阶段冻结的，不允许在看到正式结果后改成"固定 causal_forest"或
+  "事后最优模型"。
+- **D03 是否通过由独立评审判定**；本文件不写"通过"。
+
+## 9. 产物与复现
+
+| 件 | 路径 |
 |---|---|
-| 合并逐 rep | `outputs/tables/v3_phase_D03_formal_per_rep.csv` |
-| 合并网格 | `outputs/tables/v3_phase_D03_formal_policy_grid.csv` |
-| 合并 summary | `outputs/tables/v3_phase_D03_formal_summary.json` |
-| 报告表（7 张 + meta） | `outputs/tables/v3_phase_D03_formal_{selection,calibration,policy_value,paired_diff,paired_diff_chosen,oracle,compliance}.csv` / `_report_meta.json` |
-| 运行证据 | `outputs/evidence/d03_formal/`（manifest、快照绑定、4 分片 summary/log、coverage.json） |
+| 合并后逐 rep 表 | `outputs/tables/v3_phase_D03_formal_per_rep.csv`（1 000 行） |
+| 策略网格 | `outputs/tables/v3_phase_D03_formal_policy_grid.csv`（72 000 行） |
+| 报告表 | `selection / calibration / policy_value / paired_diff / paired_diff_chosen / oracle / compliance` 七张 CSV |
+| 合并元数据 | `outputs/tables/v3_phase_D03_formal_summary.json`、`v3_phase_D03_formal_report_meta.json` |
+| 证据包 | `outputs/evidence/d03_formal/`（`coverage.json` 10 文件） |
 
+```powershell
+$env:PYTHONUTF8='1'; $env:PYTHONIOENCODING='utf-8'
+# 合并四分片（只读逐 rep 产物）
+.\.venv\Scripts\python.exe scripts\25_merge_d03_formal.py `
+  --shard-root out/d03_formal/shard0 --shard-root out/d03_formal/shard1 `
+  --shard-root out/d03_formal/shard2 --shard-root out/d03_formal/shard3 `
+  --expected-reps 200
+# 报告表（依赖合并表）
+.\.venv\Scripts\python.exe scripts\26_d03_formal_tables.py
+# 证据导出（manifest/快照绑定/run.log）
+.\.venv\Scripts\python.exe scripts\27_export_d03_evidence.py --out-dir outputs/evidence/d03_formal
+```
+
+## 10. 评审要点
+
+1. 复算选模频率（105/71/12/7/5）与 `chosen_model_counts` 是否一致；
+2. 用 `per_rep.csv` 复算校准斜率中位数与**最差绝对相对偏差**，分母必须是同 rep 的 `mean(tau_true)`；
+3. 用 `policy_grid.csv` 复算 0.20 档按 `(rep, model, budget)` 配对的贪心 − 业务规则，
+   检查 183/17 等胜负数；
+4. 检查 `share_within_budget_by_hat` 是否恒为 1，且 `by_true` 与 `actual_spend_cny` 一致；
+5. 检查 `oracle` 表是否排除了 `all_coupon_unconstrained_reference`；
+6. 检查证据包 `coverage.json` 的 10 个文件哈希与 `outputs/evidence/d03_formal/` 实际文件一致；
+7. 确认运行期间 `src/` 未改动（`snapshot_binding.json` 与四分片 run.err 为空）。
