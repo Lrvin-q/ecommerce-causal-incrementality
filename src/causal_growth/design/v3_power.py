@@ -1976,8 +1976,10 @@ def build_mde_rows(
                                     "mde_pp": mde * 100.0 if is_proportion else None,
                                     "control_mean": control_mean,
                                     "mde_relative_pct": _relative_percent(mde, control_mean),
-                                    "sigma_treatment": profile.profit_sd_treatment,
-                                    "sigma_control": profile.profit_sd_control,
+                                    "sigma_treatment": (math.sqrt(p1 * (1.0 - p1)) if is_proportion
+                                                        else profile.profit_sd_treatment),
+                                    "sigma_control": (math.sqrt(p0 * (1.0 - p0)) if is_proportion
+                                                      else profile.profit_sd_control),
                                     "p0_baseline": p0,
                                     "p1_at_mde": p1,
                                     "analytic_power": power,

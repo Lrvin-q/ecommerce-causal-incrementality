@@ -39,11 +39,16 @@ OBSOLETE_PREFIXES = (
 )
 
 #: 永不删除（正在跑的作业或唯一证据）。
+#: 注意：这里的名字同时作为**前缀**参与保护（见 ``is_obsolete``），因为 run-root
+#: 常带 ``_r2`` / ``_nc20w`` / ``_det`` 等分段后缀，精确匹配会漏掉它们。
 PROTECTED_NAMES = {
-    "v3_phase_d_aa_formal",   # 正式 AA 运行中
+    "v3_phase_d_aa_formal",   # 正式 AA（含 _r2 / _r2_det 等分段）
+    "v3_phase_d_aa_nc",       # 负对照：含作废的 n=10000 与 20 万重跑（保留不引用）
+    "v3_phase_d_local_power", # 15 格功效正式跑（三路 formal_L0/L1/L2）
     "review_d_science",       # 科学评审的验证脚本，唯一副本
     "review_d_eng",           # 工程评审的脚本（大件已单独清过）
     "aa_snapshot",            # 正式 AA 的源码快照，产物绑定的依据
+    "c3_snapshot",            # 15 格功效的源码快照
     "v3_phase_a", "v3_phase_b", "v3_phase_c",   # 各阶段证据
     "v3_phase_d", "v3_phase_d_switch", "v3_phase_d_mde", "v3_phase_d_mde_kappa",
 }
@@ -63,6 +68,10 @@ def dir_size(path: Path) -> int:
 
 def is_obsolete(name: str) -> bool:
     if name in PROTECTED_NAMES:
+        return False
+    # 前缀保护：run-root 常带 _r2 / _nc20w / _det 后缀，精确匹配会漏掉唯一证据。
+    # 宁可少删，也不能把合并所依赖的目录删掉——删错不可逆。
+    if any(name.startswith(protected) for protected in PROTECTED_NAMES):
         return False
     return any(name == p or name.startswith(p) for p in OBSOLETE_PREFIXES)
 

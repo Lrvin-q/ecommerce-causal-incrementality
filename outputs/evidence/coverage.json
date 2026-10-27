@@ -1,0 +1,87 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "purpose": "D 阶段门禁证据的可交接副本（原始证据在 out/，被 .gitignore 排除）",
+  "note": "逐 rep 表用于独立重建 FPR/CP/SE；manifest 记录 DGP 参数与产物哈希；binding 记录源码快照指纹。",
+  "records": [
+    {
+      "kind": "aa_repetitions_merged",
+      "source": "v3_phase_d_aa_formal + v3_phase_d_aa_formal_r2 + v3_phase_d_aa_formal_r2_det + v3_phase_d_aa_formal_r3 + v3_phase_d_aa_formal_r3_det",
+      "target": "outputs/evidence/aa/all_repetitions.csv",
+      "bytes": 1650065,
+      "sha256": "77a2a386bcdd6be52052530a605ca52395e05180ba5747df0c726144bdb5ae29",
+      "rows_raw": 1384,
+      "rows_deduped": 1000
+    },
+    {
+      "kind": "raw",
+      "source": "out/v3_phase_d_aa_nc20w_r2/aa_repetitions.csv",
+      "target": "outputs/evidence/negctl/aa_repetitions.csv",
+      "bytes": 129470,
+      "sha256": "2eb6f6afac18a50902aed4b29747fd088ce80628d70f1403a4dd48bd7d2ff975"
+    },
+    {
+      "kind": "raw",
+      "source": "out/v3_phase_d_local_power/formal_L0/local_power_summary.csv",
+      "target": "outputs/evidence/local_power/L0_summary.csv",
+      "bytes": 6652,
+      "sha256": "5a6ebbe19a51100a9d03f65a39ada427ee6db93a900c9609476550fb722ff1e2"
+    },
+    {
+      "kind": "raw",
+      "source": "out/v3_phase_d_local_power/formal_L1/local_power_summary.csv",
+      "target": "outputs/evidence/local_power/L1_summary.csv",
+      "bytes": 6752,
+      "sha256": "e9ed15cb4fd1caf12dc23b6aa86a8780e318a2d957fbfa53ae6978b1e9594134"
+    },
+    {
+      "kind": "raw",
+      "source": "out/v3_phase_d_local_power/formal_L2/local_power_summary.csv",
+      "target": "outputs/evidence/local_power/L2_summary.csv",
+      "bytes": 6774,
+      "sha256": "4bcac8248e9c471c8d322fac1ed2891f42540cb50e9bda3577bbd1f45a070bdf"
+    },
+    {
+      "kind": "raw",
+      "source": "out/aa_snapshot_binding.json",
+      "target": "outputs/evidence/bindings/aa_snapshot_binding.json",
+      "bytes": 2004,
+      "sha256": "164b3581fd1a0ccb21fbc7f9dee8258559dbe893fad0625c7e34d5d7e97222a5"
+    },
+    {
+      "kind": "raw",
+      "source": "out/c3_snapshot_binding.json",
+      "target": "outputs/evidence/bindings/c3_snapshot_binding.json",
+      "bytes": 4578,
+      "sha256": "fa3cc39d9156d7b66c0884d00220f5aefb9277a17413202deb3c4cf2f5ffd5b2"
+    },
+    {
+      "kind": "manifest",
+      "source": "out/v3_phase_d_aa_formal_r2/L0/tmp/true_aa_L0_AA_rep48_n200000/manifest.json",
+      "target": "outputs/evidence/aa/manifest_L0.json",
+      "bytes": 5834,
+      "sha256": "09cc9a488d5ad9820a5175b44c49216012b765fb365f3cacd8d666dc2b66d0f8"
+    },
+    {
+      "kind": "manifest",
+      "source": "out/v3_phase_d_aa_formal_r2/L1/tmp/true_aa_L1_AA_rep48_n200000/manifest.json",
+      "target": "outputs/evidence/aa/manifest_L1.json",
+      "bytes": 5834,
+      "sha256": "413d06e1c8cfe6346ae8c8b403761f7e83b1c556a22bb6786d0bf302275a2d1d"
+    },
+    {
+      "kind": "manifest",
+      "source": "out/v3_phase_d_aa_formal_r2/L2/tmp/true_aa_L2_AA_rep48_n200000/manifest.json",
+      "target": "outputs/evidence/aa/manifest_L2.json",
+      "bytes": 5834,
+      "sha256": "070b379af5aa49bf7575d133829b5039c08cfb429d52c0c46a8c444f83b81445"
+    },
+    {
+      "kind": "manifest",
+      "source": "out/v3_phase_d_aa_formal_r2/L3/tmp/true_aa_L3_AA_rep39_n200000/manifest.json",
+      "target": "outputs/evidence/aa/manifest_L3.json",
+      "bytes": 5834,
+      "sha256": "f1040cde8646bbc8adc32b0222826a0cb90e12896a2200b6835a2ed4af7455a4"
+    }
+  ],
+  "total_bytes": 1829631
+}
