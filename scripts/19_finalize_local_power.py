@@ -46,6 +46,10 @@ EXPECTED_LAYERS = ("L0", "L1", "L2")
 EXPECTED_MULTIPLIERS = (0.0, 0.5, 1.0, 1.5, 2.0)
 FORMAL_REPS = 100
 TARGET_TOLERANCE = 1e-6
+#: 注册规模与显著性水平：被篡改时校验必须拒绝，不能靠"看起来像"。
+EXPECTED_CELLS = 15
+EXPECTED_N_TOTAL = 200_000
+FORMAL_ALPHA = 0.05
 OUT_CSV = ROOT / "outputs" / "tables" / "v3_phase_D_local_power_formal.csv"
 OUT_JSON = ROOT / "outputs" / "tables" / "v3_phase_D_local_power_formal.json"
 SOURCE_LABEL = "合成数据 / 已知 DGP"
@@ -70,7 +74,21 @@ def load_summaries(roots: list[Path]) -> tuple[pd.DataFrame, list[dict[str, str]
 
 
 def validate(frame: pd.DataFrame) -> list[str]:
-    """返回所有问题；空列表才算通过。"""
+    """返回所有问题；空列表才算通过。
+
+    覆盖 10 类篡改（前 5 类来自 2026-10-27 独立评审的实测缺口）：
+
+    1. 缺格 / 多余格（含 L3）/ 重复 cell_id
+    2. ``n_reps`` 不等于注册 R
+    3. ``achieved_effect_analytic`` 偏离 target
+    4. 关键列缺失
+    5. **行数不等于 15**（格数按 ``(level, multiplier)`` 集合比对，拦不住"同格异 id"）
+    6. **``n_total`` 被换成别的注册规模**
+    7. **``alpha`` 被改**
+    8. **``rejection_rate`` 与 ``rejections / n_reps`` 不一致**（防线：防止把结论对调）
+    9. **``rejections`` 越界或非整数**
+    10. ``cell_id`` 在表内不唯一
+    """
     problems: list[str] = []
 
     expected = {(layer, mult) for layer in EXPECTED_LAYERS for mult in EXPECTED_MULTIPLIERS}
@@ -98,6 +116,37 @@ def validate(frame: pd.DataFrame) -> list[str]:
         blank = frame[frame[column].isna()]["cell_id"].tolist()
         if blank:
             problems.append(f"{column} 为空: {blank}")
+
+    # 5) 行数：格集合比对拦不住"同 (level,mult) 但换 cell_id 的重复行"
+    if len(frame) != EXPECTED_CELLS:
+        problems.append(f"行数 {len(frame)} ≠ {EXPECTED_CELLS}")
+    if frame["cell_id"].nunique() != len(frame):
+        problems.append("cell_id 不唯一（存在同格异 id）")
+
+    # 6) 注册规模不能被悄悄换掉
+    totals = set(frame["n_total"].astype(int).tolist())
+    if len(totals) != 1:
+        problems.append(f"n_total 不一致: {sorted(totals)}")
+    elif totals.pop() != EXPECTED_N_TOTAL:
+        problems.append(f"n_total 与注册规模 {EXPECTED_N_TOTAL} 不符")
+
+    # 7) alpha 不能改
+    off_alpha = frame.loc[(frame["alpha"].astype(float) - FORMAL_ALPHA).abs() > 1e-12, "cell_id"].tolist()
+    if off_alpha:
+        problems.append(f"alpha 不等于 {FORMAL_ALPHA}: {off_alpha}")
+
+    # 8)+9) 拒绝数与拒绝率必须自洽——把 rate 改成 1-rate 是最隐蔽的"结论对调"
+    if "rejections" in frame.columns:
+        implied = frame["rejections"].astype(float) / frame["n_reps"].astype(float)
+        mismatch = frame.loc[(frame["rejection_rate"].astype(float) - implied).abs() > 1e-9, "cell_id"].tolist()
+        if mismatch:
+            problems.append(f"rejection_rate 与 rejections/n_reps 不一致: {mismatch}")
+        out_of_range = frame.loc[(frame["rejections"] < 0)
+                                 | (frame["rejections"] > frame["n_reps"]), "cell_id"].tolist()
+        if out_of_range:
+            problems.append(f"rejections 越界: {out_of_range}")
+    else:
+        problems.append("缺少 rejections 列，无法校验拒绝率自洽")
     return problems
 
 
