@@ -1,0 +1,213 @@
+{
+  "schema": "f01-freeze-v1",
+  "scenario": "L1_main",
+  "n_dgp": 200000,
+  "n_users": 60000,
+  "rep_id": 0,
+  "chosen_model": "constant",
+  "config_hash": "52c0eb41974c90d5a7979d9fcc70d8e80500b143eeaa46b06f010c5f54824bef",
+  "source_hashes": {
+    "configs/v3/business.yaml": "d1259d2342aba1a4cdcaca5c0de6e4914c8a55b315a80af7c0923757d1ba0e0a",
+    "configs/v3/design.yaml": "d2fd51a1156457257cf7977b32bd5aeb1c9745a10e528d029a877ef1b531fa99",
+    "configs/v3/evaluation.yaml": "5f6dfcb2c700bc72831efb1ff94b3b2137bc8dd9680b862981c4b2755c3241d1",
+    "configs/v3/execution.yaml": "dc1c8e9ab147e58d95e1367c2abcd90ba02acf05ca27da11e3dfb84da8631733",
+    "configs/v3/models.yaml": "19ce3bf5a338ea0e055e3ba0ff676054e8926dde7ce44409ca7699443361bdf2",
+    "configs/v3/policy.yaml": "57ff5721de12af0cc285bb235f320fd7047a06837dc5f2ac00e228690d36958a",
+    "configs/v3/scenarios.yaml": "29a158b046cb91661f2327cc5acbc1dc868a57c17dc0783cfe9d6d41058e9ddb",
+    "configs/v3_data.yaml": "93a85fe6a45d92adc987ca7091b04b40da91678acbfbc2cd0674df890f5de131",
+    "configs/v3_numerics.yaml": "e183b6ec852e5d42e7020ab60a6614bcf6a21b777b7aedfd77441e603ae67332",
+    "sql/v3_analytics.sql": "c08756a1e0a602743e360c7b8c96e5051db69b6f829837a55f3542a5282f3df7",
+    "sql/v3_schema.sql": "11a7fd50e0216a98eda89e405867321ad02bf846163f8eb49fef1fc49e9519bc",
+    "src/causal_growth/data/v3_dirt.py": "e1b89bc7bf2f56dcea1ea840f31fb500f2b19fb08266dc65317360220790c31b",
+    "src/causal_growth/data/v3_local_power_pipeline.py": "237d09d7f2d3fe0eaa401f0e8a6035a67aea839a051605c321326c3807c14a23",
+    "src/causal_growth/data/v3_observed.py": "849d50ecdacaf45bf8952ac620a727ed1d31306ed2fcb278a56bc10e79e407f7",
+    "src/causal_growth/data/v3_pipeline.py": "db985c9b31f82df5795b4d5d507162a74b3e4512e32b05b395625f4b2fcce3bc",
+    "src/causal_growth/data/v3_preprocessing.py": "7f34672de883a2a721c0cf60d2a364c6a1c6ef2a4882d141537bb20a5d24d9e4",
+    "src/causal_growth/data/v3_quality.py": "24125bae1668a7be2cead0731d5d3f78a43ca3b430b86b087c7c8d2bf5281d22",
+    "src/causal_growth/data/v3_split.py": "2fbcdfc0180691121e3d805d2ff7e4ab63fe663c60709f64c4d6c6ddc7736281",
+    "src/causal_growth/data/v3_sql.py": "e1fb074550742891b99fc09f4fa1cb98c756afc96c3a65f6e476a5bbaab6f4fc",
+    "src/causal_growth/data/v3_sql_fast.py": "7cfa6299416acd25c12335423ccec277340c4908294d9723180d0acc11ce3a41",
+    "src/causal_growth/data/v3_storage.py": "8d1f4b273986940a7740f2aef0ce4c7ca63bc46ac8a5d11036b357f3f36922f2",
+    "src/causal_growth/data/v3_tables.py": "1d8cadde7bdbcb5d6bbefd14c2c27dfc9a9ed83ccb2840251f99fafe628b5451",
+    "src/causal_growth/design/v3_power.py": "dcde2ec6b423944e4bb82d099469b9f0302f6ef6e9263ececec47f54651c794e",
+    "src/causal_growth/dgp/v3_amounts.py": "0f0332a02b7973f58c46f4b238ec901d77bda2820fb0c194a3fc0da8e309a3ac",
+    "src/causal_growth/dgp/v3_archive.py": "4a7fd8df81a21fae412406e348e3765d9385bdfa6e7b25c07ad7aa77cca193ce",
+    "src/causal_growth/dgp/v3_controls.py": "ba3ff495464f162a62a9cfdf015ae511568875b431792f2f7a0dd47139645627",
+    "src/causal_growth/dgp/v3_covariates.py": "a53c2926e8a2e673e076a1019c10f4f696f1ca6b56236efd44109cdccda89c84",
+    "src/causal_growth/dgp/v3_engine.py": "f8f3c886c8ec014b651a7397926a95734dd94cc49f606b2b633792ec14adfd24",
+    "src/causal_growth/dgp/v3_ledger.py": "1168d6b16ea53ee03c2bff8c9a0c9af420410d623d8356fdca6f84aefe7ce16c",
+    "src/causal_growth/dgp/v3_local_power.py": "6a48294d6543151500bb03d03f1148f07d7e417d7fb22cdaab97527bf9025f3e",
+    "src/causal_growth/dgp/v3_probability.py": "773339eb04fe2fbd000e1d16296613d35fc8b04ba65ffac1313ff4ce4d6cd469",
+    "src/causal_growth/dgp/v3_semantics.py": "e90b1f445f7072c2096d67caaa64ffc8c653cbd50989e81806cf5336a82b9c1d",
+    "src/causal_growth/dgp/v3_timing.py": "fe01d430533d119b26f7c4fdb44bee16c8eef3de951a634e71ca289439287a3c",
+    "src/causal_growth/estimate/v3_models.py": "7d31518b58bfaf0f94eb1fdb8a44419ee7b98a864c4a8ffac4a6d4dc36f328f9",
+    "src/causal_growth/evaluation/v3_aa.py": "95edd77c18f6d33ff2e6e5073c5c9327fb71029f587e54af994b167c28c199a9",
+    "src/causal_growth/evaluation/v3_d03_formal.py": "ee527c9036070c9e8a1f53f0e607f0a73a2acf069996ccd579166ac3ee028efa",
+    "src/causal_growth/evaluation/v3_data_checks.py": "f823f3856d032f9c9a166b9b81254d4c11570fbb708325c78d6824e65520f75c",
+    "src/causal_growth/evaluation/v3_f01.py": "dec258da2d0522ced8b8d5cc7a58fbbbf5f0448e6ceaa893bd187af12252d30b",
+    "src/causal_growth/evaluation/v3_f02.py": "d9646a34a5b59e8933d7a015130f8457a754f28816e25313b458ef4a1eae6e12",
+    "src/causal_growth/evaluation/v3_f02_formal.py": "a1329c1088157ce9331bb8926dddc7a866a1fc0283e47b009187d2fc49a75fa3",
+    "src/causal_growth/evaluation/v3_mechanism_checks.py": "2fe6ef554ef4ad961d78dbfe5337c888487464fa9806e30761ea4d0dc4199706",
+    "src/causal_growth/evaluation/v3_ope.py": "40010896918fd1f9092921dd33f7e2dcb67cf522f033f0d86c757a967231f4df",
+    "src/causal_growth/policy/v3_policy.py": "ba058f9bbda3cdaaaa7143ea5a00caba62b3f917d400ab4073ecf67c80c72f16",
+    "src/causal_growth/policy/v3_policy_evidence.py": "e09bfc8ddc140641928a360060736590c47074bf15e140c2a9b83571bc8df6d3",
+    "src/causal_growth/policy/v3_policy_grid.py": "53205262eb20e46fc4c753009be25c4fa467d6afe0d4da661f951523cf65e2bb",
+    "src/causal_growth/v3_config.py": "63b6584e9eb7f80528312ef5ae4a93c6cf094769ffeca39310a0bbf151784fe7",
+    "src/causal_growth/v3_data_config.py": "08fa068b1a7fb889a5bd584294b1549789bbae0bf18fac21e78c4365b732b9d4",
+    "src/causal_growth/v3_numerics.py": "a966f81540ab09c168bb958f557a551a2461d08e6cb272a461899953e56d3522"
+  },
+  "selection_columns": [
+    "user_id",
+    "is_new",
+    "cart_value",
+    "purchase_propensity",
+    "predicted_profit",
+    "tau_hat",
+    "cost_hat"
+  ],
+  "selection_sha256": "3ef75e0ff76477bbbead946cf85ed9f1acda3a9a4622e257cb3ff9a8a5fb9b8b",
+  "user_id_sha256": "985444514b838fc311e77720b9b42a7367193c351943072d6d68edcb0542304c",
+  "design_probability_sha256": "d911776580c325773b3b1ebd96b4310b59b47c557331303cd7e4c0a1993ee854",
+  "budgets": {
+    "0.04": {
+      "per_user_budget_cny": 0.04,
+      "budget_cny": 2400.0,
+      "policy_sha256": {
+        "no_coupon": "22b2072f265c2240eb0e82d5e78afa22b575f9e4cd685f7965c8e0bcc6e86893",
+        "random_same_budget": "b3ffa6ca17ee15bf59a7eb8517e57f75b8bd86a4ebcb75c183b3afcc03aa8fe5",
+        "greedy_incremental_profit_per_cost": "7c6a6c91d38cab3f6639f476cb1311700f92d6e61b8a77b81a4984c89e959d49",
+        "greedy_local_swap": "7c6a6c91d38cab3f6639f476cb1311700f92d6e61b8a77b81a4984c89e959d49"
+      },
+      "n_selected": {
+        "no_coupon": 0,
+        "random_same_budget": 2925,
+        "greedy_incremental_profit_per_cost": 6907,
+        "greedy_local_swap": 6907
+      }
+    },
+    "0.1": {
+      "per_user_budget_cny": 0.1,
+      "budget_cny": 6000.0,
+      "policy_sha256": {
+        "no_coupon": "22b2072f265c2240eb0e82d5e78afa22b575f9e4cd685f7965c8e0bcc6e86893",
+        "random_same_budget": "fd5f9d27b718441d3f211b6ae8f3bb55016be925a3d709b5833743ad3e4a0fbc",
+        "greedy_incremental_profit_per_cost": "d7949c8e0b67649569fe97a69d1502e6518d1f38b510548cce4f67caa87eac59",
+        "greedy_local_swap": "d7949c8e0b67649569fe97a69d1502e6518d1f38b510548cce4f67caa87eac59"
+      },
+      "n_selected": {
+        "no_coupon": 0,
+        "random_same_budget": 7254,
+        "greedy_incremental_profit_per_cost": 13892,
+        "greedy_local_swap": 13892
+      }
+    },
+    "0.2": {
+      "per_user_budget_cny": 0.2,
+      "budget_cny": 12000.0,
+      "policy_sha256": {
+        "no_coupon": "22b2072f265c2240eb0e82d5e78afa22b575f9e4cd685f7965c8e0bcc6e86893",
+        "random_same_budget": "85c06be2c83af2127cd653ce4d4f0488773a99b44128696d857665b66c2f9349",
+        "greedy_incremental_profit_per_cost": "74d9b80c1ae11baff5fff45355aa5b005ab7229f3419eed151ec89d0ae020887",
+        "greedy_local_swap": "74d9b80c1ae11baff5fff45355aa5b005ab7229f3419eed151ec89d0ae020887"
+      },
+      "n_selected": {
+        "no_coupon": 0,
+        "random_same_budget": 14589,
+        "greedy_incremental_profit_per_cost": 23437,
+        "greedy_local_swap": 23437
+      }
+    },
+    "0.3": {
+      "per_user_budget_cny": 0.3,
+      "budget_cny": 18000.0,
+      "policy_sha256": {
+        "no_coupon": "22b2072f265c2240eb0e82d5e78afa22b575f9e4cd685f7965c8e0bcc6e86893",
+        "random_same_budget": "aafb4ed04dbfabb69378f362b73c4954f5e80a88a05708f1cdfd654ee8ff65a0",
+        "greedy_incremental_profit_per_cost": "58696cdc89e227a5edacd98a0d923d6090031cb3125478346e8ee616cb7b0321",
+        "greedy_local_swap": "58696cdc89e227a5edacd98a0d923d6090031cb3125478346e8ee616cb7b0321"
+      },
+      "n_selected": {
+        "no_coupon": 0,
+        "random_same_budget": 21920,
+        "greedy_incremental_profit_per_cost": 31687,
+        "greedy_local_swap": 31687
+      }
+    },
+    "0.4": {
+      "per_user_budget_cny": 0.4,
+      "budget_cny": 24000.0,
+      "policy_sha256": {
+        "no_coupon": "22b2072f265c2240eb0e82d5e78afa22b575f9e4cd685f7965c8e0bcc6e86893",
+        "random_same_budget": "6fed17e265b7f02f85adea6bb84847ae53e917a61f4278e8737c486ef5a74102",
+        "greedy_incremental_profit_per_cost": "b459ff4262912b178089d6e09372d16c5797e52e3946c2f22eb3f583c94322fe",
+        "greedy_local_swap": "b459ff4262912b178089d6e09372d16c5797e52e3946c2f22eb3f583c94322fe"
+      },
+      "n_selected": {
+        "no_coupon": 0,
+        "random_same_budget": 29268,
+        "greedy_incremental_profit_per_cost": 39029,
+        "greedy_local_swap": 39029
+      }
+    },
+    "0.6": {
+      "per_user_budget_cny": 0.6,
+      "budget_cny": 36000.0,
+      "policy_sha256": {
+        "no_coupon": "22b2072f265c2240eb0e82d5e78afa22b575f9e4cd685f7965c8e0bcc6e86893",
+        "random_same_budget": "4c4bb5c1020304d42b29fd416a01a0d5d5cb3534268e95cdeec7694a807cde87",
+        "greedy_incremental_profit_per_cost": "a00f9838f5906e81057b38cafdec6f5c2218d5ffbc64a1fbf4179fe32de0ed13",
+        "greedy_local_swap": "a00f9838f5906e81057b38cafdec6f5c2218d5ffbc64a1fbf4179fe32de0ed13"
+      },
+      "n_selected": {
+        "no_coupon": 0,
+        "random_same_budget": 43959,
+        "greedy_incremental_profit_per_cost": 51309,
+        "greedy_local_swap": 51309
+      }
+    },
+    "0.8": {
+      "per_user_budget_cny": 0.8,
+      "budget_cny": 48000.0,
+      "policy_sha256": {
+        "no_coupon": "22b2072f265c2240eb0e82d5e78afa22b575f9e4cd685f7965c8e0bcc6e86893",
+        "random_same_budget": "88685102b71a27e44dc42c8069034a0614a953a795395113267d6b17bd1c1fcd",
+        "greedy_incremental_profit_per_cost": "3976015b196c4820f99a72fdb185f9fef46cc6742b1932fd3b975a8d5286b552",
+        "greedy_local_swap": "3976015b196c4820f99a72fdb185f9fef46cc6742b1932fd3b975a8d5286b552"
+      },
+      "n_selected": {
+        "no_coupon": 0,
+        "random_same_budget": 58582,
+        "greedy_incremental_profit_per_cost": 59576,
+        "greedy_local_swap": 59576
+      }
+    },
+    "1": {
+      "per_user_budget_cny": 1.0,
+      "budget_cny": 60000.0,
+      "policy_sha256": {
+        "no_coupon": "22b2072f265c2240eb0e82d5e78afa22b575f9e4cd685f7965c8e0bcc6e86893",
+        "random_same_budget": "75aeba1918314ca47602569c5690b1e5df53018c9ebdd9b7dbf9e33944ed1b3c",
+        "greedy_incremental_profit_per_cost": "75aeba1918314ca47602569c5690b1e5df53018c9ebdd9b7dbf9e33944ed1b3c",
+        "greedy_local_swap": "75aeba1918314ca47602569c5690b1e5df53018c9ebdd9b7dbf9e33944ed1b3c"
+      },
+      "n_selected": {
+        "no_coupon": 0,
+        "random_same_budget": 60000,
+        "greedy_incremental_profit_per_cost": 60000,
+        "greedy_local_swap": 60000
+      }
+    }
+  },
+  "family_contrasts": {
+    "selected_targeted_minus_no_coupon": [
+      "greedy_incremental_profit_per_cost",
+      "no_coupon"
+    ],
+    "selected_targeted_minus_same_budget_random": [
+      "greedy_incremental_profit_per_cost",
+      "random_same_budget"
+    ]
+  },
+  "freeze_id": "3ab44dcb0bba0c0b89b665a2964f2a08fd89cb3db911580cd93bffd266288fd7",
+  "created_at": "2026-10-27T20:17:35+08:00"
+}

@@ -88,7 +88,24 @@
       "target": "outputs/evidence/aa/manifest_L3.json",
       "bytes": 5834,
       "sha256": "f1040cde8646bbc8adc32b0222826a0cb90e12896a2200b6835a2ed4af7455a4"
+    },
+    {
+      "kind": "f01_freeze",
+      "source": "out/f01_ope/freeze.json",
+      "target": "outputs/evidence/f01_ope/freeze.json",
+      "bytes": 12151,
+      "sha256": "e2c8e5cbd5cc18392f1dbfa150312ae10a11148084efc94fb89a0dd81be4f04c",
+      "note": "F01 冻结清单：策略掩码/用户顺序/设计概率/预算/源码与配置哈希；只含选人与审计前材料",
+      "freeze_id": "3ab44dcb0bba0c0b89b665a2964f2a08fd89cb3db911580cd93bffd266288fd7"
+    },
+    {
+      "kind": "f01_meta",
+      "source": "out/f01_ope/meta.json",
+      "target": "outputs/evidence/f01_ope/meta.json",
+      "bytes": 15084,
+      "sha256": "939fae1ccc34954806562759af5631823fa669dda4af3cae2bf01c8f0cab9947",
+      "note": "F01 单 rep（R=0）运行元数据：表哈希、门禁、nuisance 哈希与时间；formal_repetitions=0"
     }
   ],
-  "total_bytes": 1828465
+  "total_bytes": 1855700
 }

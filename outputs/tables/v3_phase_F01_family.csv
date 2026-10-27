@@ -1,0 +1,3 @@
+﻿contrast,policy,baseline,estimator,diff_cny_per_user,se_diff,ci_low,ci_high,one_sided_p_value,adjusted_alpha,holm_adjusted_p_value,holm_alpha,holm_rejected,holm_lower_bound_cny_per_user,holm_confidence_level,claim_passed,n
+selected_targeted_minus_no_coupon,greedy_incremental_profit_per_cost,no_coupon,dr_increment,0.06546337111676204,0.030779163572350887,0.005137319040687122,0.12578942319283695,0.016715319537461193,0.025,0.033430639074922386,0.05,True,0.005137319040687122,0.975,True,60000
+selected_targeted_minus_same_budget_random,greedy_incremental_profit_per_cost,random_same_budget,dr_increment,0.08571447247475605,0.04589454848153425,-0.004237189635778488,0.1756661345852906,0.03090616701245641,0.05,0.033430639074922386,0.05,True,0.010224657947604299,0.95,True,60000
