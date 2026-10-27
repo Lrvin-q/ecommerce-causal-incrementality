@@ -1,0 +1,25 @@
+{
+  "run": "D03 formal R: 200 reps x 5 models x 9 policies x 8 budgets",
+  "design": {
+    "scenario": "L1_main",
+    "n_per_rep": 200000,
+    "reps": 200,
+    "models": [
+      "constant",
+      "t_learner",
+      "s_learner",
+      "causal_forest",
+      "dr_learner"
+    ],
+    "shards": 4,
+    "reps_per_shard": 50,
+    "selection_rule": "validation_crossfit_dr_policy_value_lower_confidence_bound"
+  },
+  "started_at": "2026-10-27T12:54:18+08:00",
+  "git_commit": "130a309103b0614a9f3d52ec472ab4a5dc24806f",
+  "snapshot_binding": "out/d03_formal_snapshot_binding.json",
+  "snapshot_combined_sha256": "be0d48f4a10dcafd4ae747a79092f6c1cef635ae862474b33905ce3d611d47fe",
+  "snapshot_files": 83,
+  "source_readonly_rule": "run bound to snapshot; live repo may change without affecting the run",
+  "command_template": ".venv python -m causal_growth.estimate.v3_models --diagnostic --formal-r --scenario L1_main --n 200000 --diagnostic-reps 50 --rep-start <0|50|100|150> --diag-dir out/d03_formal/shard<N> (PYTHONPATH=out/d03_formal_snapshot/src)"
+}

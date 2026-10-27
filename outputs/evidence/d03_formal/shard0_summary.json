@@ -1,0 +1,4443 @@
+{
+  "status": "formal_r",
+  "formal_r": true,
+  "purpose": "正式 R：同一场景逐 rep 拟合全部候选模型，验证集 LCB 选模，真值仅在选模后用于评估；策略网格按模型配对",
+  "source_label": "合成数据 / 已知 DGP",
+  "scenario": "L1_main",
+  "level": "L1",
+  "identification_mode": "randomized",
+  "time_mode": "static",
+  "n_per_rep": 200000,
+  "reps": 50,
+  "rep_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49
+  ],
+  "selection_rule": "validation_crossfit_dr_policy_value_lower_confidence_bound",
+  "truth_isolation": {
+    "producer": "_audit_truth_for_test",
+    "source": "V3Population.audit_potential_orders",
+    "used_for_selection": false,
+    "used_for_model_selection": false,
+    "used_for_evaluation": true
+  },
+  "chosen_model_counts": {
+    "constant": 2,
+    "causal_forest": 32,
+    "s_learner": 15,
+    "t_learner": 1
+  },
+  "models": {
+    "constant": {
+      "n_reps": 50,
+      "chosen_count": 2,
+      "tau_hat_mean_mean": 0.2765193555552094,
+      "tau_hat_mean_sd": 0.06255712323708687,
+      "tau_hat_mean_min": 0.14013341030970494,
+      "tau_hat_mean_max": 0.4199855410717559,
+      "bias_mean_mean": -0.0063501111114572725,
+      "bias_mean_sd": 0.06797149986325265,
+      "bias_mean_min": -0.15381975635696193,
+      "bias_mean_max": 0.16663084743025688,
+      "relative_bias_mean": -0.013629557912755157,
+      "relative_bias_sd": 0.2441610354216161,
+      "relative_bias_min": -0.5232798071244747,
+      "relative_bias_max": 0.702192917411063,
+      "calibration_slope_mean": null,
+      "calibration_slope_sd": null,
+      "calibration_slope_min": null,
+      "calibration_slope_max": null,
+      "calibration_intercept_mean": null,
+      "calibration_intercept_sd": null,
+      "calibration_intercept_min": null,
+      "calibration_intercept_max": null,
+      "pearson_r_mean": null,
+      "pearson_r_sd": null,
+      "pearson_r_min": null,
+      "pearson_r_max": null,
+      "rmse_mean": 6.167568950308526,
+      "rmse_sd": 0.09437708742908749,
+      "rmse_min": 5.979600553070454,
+      "rmse_max": 6.397861716587672,
+      "mae_mean": 1.8384212529205226,
+      "mae_sd": 0.060697107745916315,
+      "mae_min": 1.7194960603453708,
+      "mae_max": 1.9736656361875609,
+      "error_q10_mean": 0.2765193555552094,
+      "error_q10_sd": 0.06255712323708687,
+      "error_q10_min": 0.14013341030970494,
+      "error_q10_max": 0.4199855410717559,
+      "error_q50_mean": 0.2765193555552094,
+      "error_q50_sd": 0.06255712323708687,
+      "error_q50_min": 0.14013341030970494,
+      "error_q50_max": 0.4199855410717559,
+      "error_q90_mean": 0.2765193555552094,
+      "error_q90_sd": 0.06255712323708687,
+      "error_q90_min": 0.14013341030970494,
+      "error_q90_max": 0.4199855410717559,
+      "bias_mean_ci95": [
+        -0.02566739763592211,
+        0.012967175413007567
+      ],
+      "positive_bias_reps": 23,
+      "worst_abs_relative_bias": 0.702192917411063,
+      "relative_bias_denominator": "同一 rep 的 mean(tau_true)",
+      "slope_defined_reps": 0,
+      "calibration_slope_median": null,
+      "slope_below_one_reps": 0,
+      "slope_denominator": "仅有限斜率 rep（τ̂ 有变异）"
+    },
+    "t_learner": {
+      "n_reps": 50,
+      "chosen_count": 1,
+      "tau_hat_mean_mean": 0.28212858039161864,
+      "tau_hat_mean_sd": 0.06400646104048938,
+      "tau_hat_mean_min": 0.1864671363979098,
+      "tau_hat_mean_max": 0.45354794024836553,
+      "bias_mean_mean": -0.0007408862750480902,
+      "bias_mean_sd": 0.0701841609491075,
+      "bias_mean_min": -0.12970140951552414,
+      "bias_mean_max": 0.14699543952286512,
+      "relative_bias_mean": 0.007385595745366898,
+      "relative_bias_sd": 0.2476737600249324,
+      "relative_bias_min": -0.4042782045365449,
+      "relative_bias_max": 0.6194480680888595,
+      "calibration_slope_mean": 0.11072728580774051,
+      "calibration_slope_sd": 0.026756259333775123,
+      "calibration_slope_min": 0.0508303757718585,
+      "calibration_slope_max": 0.17434572363014095,
+      "calibration_intercept_mean": 0.2514110173080808,
+      "calibration_intercept_sd": 0.028222748526129045,
+      "calibration_intercept_min": 0.18323150139445754,
+      "calibration_intercept_max": 0.3047717094302658,
+      "pearson_r_mean": 0.041368279955102685,
+      "pearson_r_sd": 0.010041726448293969,
+      "pearson_r_min": 0.019083492389324677,
+      "pearson_r_max": 0.06675258149808348,
+      "rmse_mean": 6.494883424823634,
+      "rmse_sd": 0.0937474030742106,
+      "rmse_min": 6.271338745094064,
+      "rmse_max": 6.717956892476074,
+      "mae_mean": 2.591185157448357,
+      "mae_sd": 0.043320161557569264,
+      "mae_min": 2.484104857472541,
+      "mae_max": 2.6835566280491587,
+      "error_q10_mean": -1.5358480723856998,
+      "error_q10_sd": 0.11666119439799037,
+      "error_q10_min": -1.8310616306757956,
+      "error_q10_max": -1.2232647651447701,
+      "error_q50_mean": 0.144769525918232,
+      "error_q50_sd": 0.040294917872356194,
+      "error_q50_min": 0.07964841544640355,
+      "error_q50_max": 0.23493798925183362,
+      "error_q90_mean": 3.167074962304826,
+      "error_q90_sd": 0.20619219232870467,
+      "error_q90_min": 2.8123286263364586,
+      "error_q90_max": 3.7366108107517655,
+      "bias_mean_ci95": [
+        -0.02068700412239064,
+        0.019205231572294458
+      ],
+      "positive_bias_reps": 25,
+      "worst_abs_relative_bias": 0.6194480680888595,
+      "relative_bias_denominator": "同一 rep 的 mean(tau_true)",
+      "slope_defined_reps": 50,
+      "calibration_slope_median": 0.106749226372479,
+      "slope_below_one_reps": 50,
+      "slope_denominator": "仅有限斜率 rep（τ̂ 有变异）"
+    },
+    "s_learner": {
+      "n_reps": 50,
+      "chosen_count": 15,
+      "tau_hat_mean_mean": 0.2860176084704196,
+      "tau_hat_mean_sd": 0.06117163724803169,
+      "tau_hat_mean_min": 0.18005447646123338,
+      "tau_hat_mean_max": 0.4533955605577698,
+      "bias_mean_mean": 0.0031481418037529853,
+      "bias_mean_sd": 0.06675999631414502,
+      "bias_mean_min": -0.1218462771920789,
+      "bias_mean_max": 0.13679534773519844,
+      "relative_bias_mean": 0.020437985841696066,
+      "relative_bias_sd": 0.23491090493469205,
+      "relative_bias_min": -0.3874722340875161,
+      "relative_bias_max": 0.5764642369393473,
+      "calibration_slope_mean": 0.4691525228472367,
+      "calibration_slope_sd": 0.0926301271526092,
+      "calibration_slope_min": 0.3247422350223382,
+      "calibration_slope_max": 0.6569867821084373,
+      "calibration_intercept_mean": 0.15004657260642737,
+      "calibration_intercept_sd": 0.04204234085472749,
+      "calibration_intercept_min": 0.05970855962663507,
+      "calibration_intercept_max": 0.2446540976023739,
+      "pearson_r_mean": 0.07614817845331939,
+      "pearson_r_sd": 0.011671992760437953,
+      "pearson_r_min": 0.052127670858781054,
+      "pearson_r_max": 0.10216357057342489,
+      "rmse_mean": 6.174911473458577,
+      "rmse_sd": 0.09559374015492854,
+      "rmse_min": 5.962930772683323,
+      "rmse_max": 6.389770585861532,
+      "mae_mean": 2.0782312619536767,
+      "mae_sd": 0.05806288703575852,
+      "mae_min": 1.954150416688082,
+      "mae_max": 2.221637358809112,
+      "error_q10_mean": -0.5286406372681666,
+      "error_q10_sd": 0.11749513434064976,
+      "error_q10_min": -0.8644655918204379,
+      "error_q10_max": -0.3167092239469546,
+      "error_q50_mean": 0.16408334885049514,
+      "error_q50_sd": 0.03781579210285271,
+      "error_q50_min": 0.06092918703343386,
+      "error_q50_max": 0.2502075846826888,
+      "error_q90_mean": 1.772984622212861,
+      "error_q90_sd": 0.25175850296630337,
+      "error_q90_min": 1.3500037512251082,
+      "error_q90_max": 2.493344653288725,
+      "bias_mean_ci95": [
+        -0.015824839221633545,
+        0.022121122829139514
+      ],
+      "positive_bias_reps": 24,
+      "worst_abs_relative_bias": 0.5764642369393473,
+      "relative_bias_denominator": "同一 rep 的 mean(tau_true)",
+      "slope_defined_reps": 50,
+      "calibration_slope_median": 0.4636058235603137,
+      "slope_below_one_reps": 50,
+      "slope_denominator": "仅有限斜率 rep（τ̂ 有变异）"
+    },
+    "causal_forest": {
+      "n_reps": 50,
+      "chosen_count": 32,
+      "tau_hat_mean_mean": 0.2828252391713453,
+      "tau_hat_mean_sd": 0.06465391125709838,
+      "tau_hat_mean_min": 0.16527332329919997,
+      "tau_hat_mean_max": 0.4628243737805954,
+      "bias_mean_mean": -4.422749532139558e-05,
+      "bias_mean_sd": 0.07022246777837818,
+      "bias_mean_min": -0.14051884336746673,
+      "bias_mean_max": 0.1428332071139287,
+      "relative_bias_mean": 0.009313099667779523,
+      "relative_bias_sd": 0.2474224492028175,
+      "relative_bias_min": -0.45952401233561163,
+      "relative_bias_max": 0.5952649846786242,
+      "calibration_slope_mean": 0.7578096287510516,
+      "calibration_slope_sd": 0.08008574665535691,
+      "calibration_slope_min": 0.5667997026591686,
+      "calibration_slope_max": 0.9361178892159103,
+      "calibration_intercept_mean": 0.07126677357165737,
+      "calibration_intercept_sd": 0.04697957882993595,
+      "calibration_intercept_min": -0.023155865309218537,
+      "calibration_intercept_max": 0.17283035269096297,
+      "pearson_r_mean": 0.1011243127228598,
+      "pearson_r_sd": 0.006684610873431781,
+      "pearson_r_min": 0.08641530186754438,
+      "pearson_r_max": 0.11723088459550757,
+      "rmse_mean": 6.139968044019573,
+      "rmse_sd": 0.0938931872139272,
+      "rmse_min": 5.947969901145609,
+      "rmse_max": 6.370472399957994,
+      "mae_mean": 2.1223409913534645,
+      "mae_sd": 0.056957762226207506,
+      "mae_min": 2.0038944405829375,
+      "mae_max": 2.2802835563334907,
+      "error_q10_mean": -0.6658382445848116,
+      "error_q10_sd": 0.09930083778319902,
+      "error_q10_min": -0.9581574009208504,
+      "error_q10_max": -0.4945484482330277,
+      "error_q50_mean": 0.1543131179111523,
+      "error_q50_sd": 0.05564939936799481,
+      "error_q50_min": 0.043239861475766986,
+      "error_q50_max": 0.2756143725411357,
+      "error_q90_mean": 1.8490551540019933,
+      "error_q90_sd": 0.2559244145254627,
+      "error_q90_min": 1.4693053545465515,
+      "error_q90_max": 2.6638298964984863,
+      "bias_mean_ci95": [
+        -0.020001232023086683,
+        0.01991277703244389
+      ],
+      "positive_bias_reps": 23,
+      "worst_abs_relative_bias": 0.5952649846786242,
+      "relative_bias_denominator": "同一 rep 的 mean(tau_true)",
+      "slope_defined_reps": 50,
+      "calibration_slope_median": 0.7730183335118043,
+      "slope_below_one_reps": 50,
+      "slope_denominator": "仅有限斜率 rep（τ̂ 有变异）"
+    },
+    "dr_learner": {
+      "n_reps": 50,
+      "chosen_count": 0,
+      "tau_hat_mean_mean": 0.28242394464943227,
+      "tau_hat_mean_sd": 0.06383447538983955,
+      "tau_hat_mean_min": 0.18649483505749326,
+      "tau_hat_mean_max": 0.4619363301734407,
+      "bias_mean_mean": -0.0004455220172344046,
+      "bias_mean_sd": 0.06924187730307625,
+      "bias_mean_min": -0.12123678474889168,
+      "bias_mean_max": 0.14332569467380066,
+      "relative_bias_mean": 0.0078080289952267646,
+      "relative_bias_sd": 0.24344726469423636,
+      "relative_bias_min": -0.37789404020469813,
+      "relative_bias_max": 0.6039835314711883,
+      "calibration_slope_mean": 0.09444871810096041,
+      "calibration_slope_sd": 0.026557592753565118,
+      "calibration_slope_min": 0.03897971201262922,
+      "calibration_slope_max": 0.16539636543459518,
+      "calibration_intercept_mean": 0.25598313004992646,
+      "calibration_intercept_sd": 0.02774554935998071,
+      "calibration_intercept_min": 0.18926368870021515,
+      "calibration_intercept_max": 0.31035577422821375,
+      "pearson_r_mean": 0.03803540007703051,
+      "pearson_r_sd": 0.010687495578959098,
+      "pearson_r_min": 0.015476724852034896,
+      "pearson_r_max": 0.06375104884938404,
+      "rmse_mean": 6.560998742154498,
+      "rmse_sd": 0.09969064526881487,
+      "rmse_min": 6.341842980817472,
+      "rmse_max": 6.777790688331869,
+      "mae_mean": 2.549093518407142,
+      "mae_sd": 0.049203095663862675,
+      "mae_min": 2.4535902546418016,
+      "mae_max": 2.6704109444413286,
+      "error_q10_mean": -1.3410447056861656,
+      "error_q10_sd": 0.111834178571739,
+      "error_q10_min": -1.5936132115510442,
+      "error_q10_max": -1.0097778118550205,
+      "error_q50_mean": 0.14426377991980055,
+      "error_q50_sd": 0.05055797984518185,
+      "error_q50_min": 0.04743830958047786,
+      "error_q50_max": 0.23489749352092576,
+      "error_q90_mean": 2.9106938542176692,
+      "error_q90_sd": 0.21504991427327275,
+      "error_q90_min": 2.524214534416017,
+      "error_q90_max": 3.440178266096151,
+      "bias_mean_ci95": [
+        -0.020123845815389823,
+        0.019232801780921013
+      ],
+      "positive_bias_reps": 26,
+      "worst_abs_relative_bias": 0.6039835314711883,
+      "relative_bias_denominator": "同一 rep 的 mean(tau_true)",
+      "slope_defined_reps": 50,
+      "calibration_slope_median": 0.09179971783154728,
+      "slope_below_one_reps": 50,
+      "slope_denominator": "仅有限斜率 rep（τ̂ 有变异）"
+    }
+  },
+  "chosen_model_rows": {
+    "constant": {
+      "n_reps": 2,
+      "chosen_count": 2,
+      "tau_hat_mean_mean": 0.24998469719954136,
+      "tau_hat_mean_sd": 0.06196869956541878,
+      "tau_hat_mean_min": 0.20616620951552186,
+      "tau_hat_mean_max": 0.29380318488356083,
+      "bias_mean_mean": -0.03037205280045843,
+      "bias_mean_sd": 0.06369745779428951,
+      "bias_mean_min": -0.07541295715114445,
+      "bias_mean_max": 0.01466885155022759,
+      "relative_bias_mean": -0.10763514099506374,
+      "relative_bias_sd": 0.22653773329366467,
+      "relative_bias_min": -0.26782150840164354,
+      "relative_bias_max": 0.05255122641151604,
+      "calibration_slope_mean": null,
+      "calibration_slope_sd": null,
+      "calibration_slope_min": null,
+      "calibration_slope_max": null,
+      "calibration_intercept_mean": null,
+      "calibration_intercept_sd": null,
+      "calibration_intercept_min": null,
+      "calibration_intercept_max": null,
+      "pearson_r_mean": null,
+      "pearson_r_sd": null,
+      "pearson_r_min": null,
+      "pearson_r_max": null,
+      "rmse_mean": 6.113467578109824,
+      "rmse_sd": 0.14211158983684652,
+      "rmse_min": 6.012979509250989,
+      "rmse_max": 6.213955646968659,
+      "mae_mean": 1.8163040184945705,
+      "mae_sd": 0.09491550532784374,
+      "mae_min": 1.7491886210375043,
+      "mae_max": 1.8834194159516366,
+      "error_q10_mean": 0.24998469719954142,
+      "error_q10_sd": 0.061968699565418846,
+      "error_q10_min": 0.2061662095155219,
+      "error_q10_max": 0.29380318488356094,
+      "error_q50_mean": 0.24998469719954142,
+      "error_q50_sd": 0.061968699565418846,
+      "error_q50_min": 0.2061662095155219,
+      "error_q50_max": 0.29380318488356094,
+      "error_q90_mean": 0.24998469719954142,
+      "error_q90_sd": 0.061968699565418846,
+      "error_q90_min": 0.2061662095155219,
+      "error_q90_max": 0.29380318488356094,
+      "bias_mean_ci95": [
+        -0.6026710049827364,
+        0.5419268993818196
+      ],
+      "positive_bias_reps": 1,
+      "worst_abs_relative_bias": 0.26782150840164354,
+      "relative_bias_denominator": "同一 rep 的 mean(tau_true)",
+      "slope_defined_reps": 0,
+      "calibration_slope_median": null,
+      "slope_below_one_reps": 0,
+      "slope_denominator": "仅有限斜率 rep（τ̂ 有变异）"
+    },
+    "causal_forest": {
+      "n_reps": 32,
+      "chosen_count": 32,
+      "tau_hat_mean_mean": 0.28009865391488764,
+      "tau_hat_mean_sd": 0.0649184902848339,
+      "tau_hat_mean_min": 0.16527332329919997,
+      "tau_hat_mean_max": 0.42453587227354084,
+      "bias_mean_mean": -0.002402304418445734,
+      "bias_mean_sd": 0.07176135442629819,
+      "bias_mean_min": -0.14051884336746673,
+      "bias_mean_max": 0.14125677770756065,
+      "relative_bias_mean": 0.0010373910910000082,
+      "relative_bias_sd": 0.25414835613463826,
+      "relative_bias_min": -0.45952401233561163,
+      "relative_bias_max": 0.5952649846786242,
+      "calibration_slope_mean": 0.7723976866773611,
+      "calibration_slope_sd": 0.072372579523791,
+      "calibration_slope_min": 0.6345258151884404,
+      "calibration_slope_max": 0.9361178892159103,
+      "calibration_intercept_mean": 0.06827240969361562,
+      "calibration_intercept_sd": 0.05211936924295137,
+      "calibration_intercept_min": -0.023155865309218537,
+      "calibration_intercept_max": 0.17283035269096297,
+      "pearson_r_mean": 0.10166074950052362,
+      "pearson_r_sd": 0.00705252405909799,
+      "pearson_r_min": 0.08641530186754438,
+      "pearson_r_max": 0.11465089663770192,
+      "rmse_mean": 6.13478269652285,
+      "rmse_sd": 0.09533222538401481,
+      "rmse_min": 5.947969901145609,
+      "rmse_max": 6.370472399957994,
+      "mae_mean": 2.111375209807959,
+      "mae_sd": 0.05678382215969101,
+      "mae_min": 2.0038944405829375,
+      "mae_max": 2.251825441376187,
+      "error_q10_mean": -0.6474292977917666,
+      "error_q10_sd": 0.08106911732285849,
+      "error_q10_min": -0.8314070634302742,
+      "error_q10_max": -0.4945484482330277,
+      "error_q50_mean": 0.1598712420701235,
+      "error_q50_sd": 0.0566772580404297,
+      "error_q50_min": 0.043239861475766986,
+      "error_q50_max": 0.2756143725411357,
+      "error_q90_mean": 1.8054955167881719,
+      "error_q90_sd": 0.23673172112353613,
+      "error_q90_min": 1.4693053545465515,
+      "error_q90_max": 2.4354312572652725,
+      "bias_mean_ci95": [
+        -0.028275031702728704,
+        0.023470422865837236
+      ],
+      "positive_bias_reps": 16,
+      "worst_abs_relative_bias": 0.5952649846786242,
+      "relative_bias_denominator": "同一 rep 的 mean(tau_true)",
+      "slope_defined_reps": 32,
+      "calibration_slope_median": 0.7825134579422339,
+      "slope_below_one_reps": 32,
+      "slope_denominator": "仅有限斜率 rep（τ̂ 有变异）"
+    },
+    "s_learner": {
+      "n_reps": 15,
+      "chosen_count": 15,
+      "tau_hat_mean_mean": 0.2992723363607984,
+      "tau_hat_mean_sd": 0.06844683882345111,
+      "tau_hat_mean_min": 0.18005447646123338,
+      "tau_hat_mean_max": 0.4533955605577698,
+      "bias_mean_mean": 0.016346358583020623,
+      "bias_mean_sd": 0.06963564547644552,
+      "bias_mean_min": -0.1138986902054333,
+      "bias_mean_max": 0.13340439389110315,
+      "relative_bias_mean": 0.06679135809478393,
+      "relative_bias_sd": 0.24398257819943778,
+      "relative_bias_min": -0.3874722340875161,
+      "relative_bias_max": 0.41690023909338064,
+      "calibration_slope_mean": 0.4416455911399114,
+      "calibration_slope_sd": 0.09658154921945632,
+      "calibration_slope_min": 0.3397845099671005,
+      "calibration_slope_max": 0.6329978387145305,
+      "calibration_intercept_mean": 0.15433098331010076,
+      "calibration_intercept_sd": 0.03491212115269221,
+      "calibration_intercept_min": 0.09978913656136246,
+      "calibration_intercept_max": 0.23043157174490508,
+      "pearson_r_mean": 0.07456920635071188,
+      "pearson_r_sd": 0.013346764693811469,
+      "pearson_r_min": 0.052127670858781054,
+      "pearson_r_max": 0.10216357057342489,
+      "rmse_mean": 6.190056131055826,
+      "rmse_sd": 0.09259387510504585,
+      "rmse_min": 6.04469072161966,
+      "rmse_max": 6.348993855116107,
+      "mae_mean": 2.0993349042258576,
+      "mae_sd": 0.05456063321529809,
+      "mae_min": 2.0323638044177543,
+      "mae_max": 2.221637358809112,
+      "error_q10_mean": -0.5737199112523614,
+      "error_q10_sd": 0.15363048669594467,
+      "error_q10_min": -0.8644655918204379,
+      "error_q10_max": -0.3174954018623129,
+      "error_q50_mean": 0.16514598995639315,
+      "error_q50_sd": 0.03390662256685293,
+      "error_q50_min": 0.08936760826312573,
+      "error_q50_max": 0.22243942121664317,
+      "error_q90_mean": 1.9015727425351787,
+      "error_q90_sd": 0.2675045255173993,
+      "error_q90_min": 1.5134889796206712,
+      "error_q90_max": 2.493344653288725,
+      "bias_mean_ci95": [
+        -0.02221657651679,
+        0.05490929368283125
+      ],
+      "positive_bias_reps": 9,
+      "worst_abs_relative_bias": 0.41690023909338064,
+      "relative_bias_denominator": "同一 rep 的 mean(tau_true)",
+      "slope_defined_reps": 15,
+      "calibration_slope_median": 0.4007121013968639,
+      "slope_below_one_reps": 15,
+      "slope_denominator": "仅有限斜率 rep（τ̂ 有变异）"
+    },
+    "t_learner": {
+      "n_reps": 1,
+      "chosen_count": 1,
+      "tau_hat_mean_mean": 0.21520444332765043,
+      "tau_hat_mean_sd": null,
+      "tau_hat_mean_min": 0.21520444332765043,
+      "tau_hat_mean_max": 0.21520444332765043,
+      "bias_mean_mean": -0.08363505667234958,
+      "bias_mean_sd": null,
+      "bias_mean_min": -0.08363505667234958,
+      "bias_mean_max": -0.08363505667234958,
+      "relative_bias_mean": -0.2798661377506975,
+      "relative_bias_sd": null,
+      "relative_bias_min": -0.2798661377506975,
+      "relative_bias_max": -0.2798661377506975,
+      "calibration_slope_mean": 0.12367374458137578,
+      "calibration_slope_sd": null,
+      "calibration_slope_min": 0.12367374458137578,
+      "calibration_slope_max": 0.12367374458137578,
+      "calibration_intercept_mean": 0.27222436064311906,
+      "calibration_intercept_sd": null,
+      "calibration_intercept_min": 0.27222436064311906,
+      "calibration_intercept_max": 0.27222436064311906,
+      "pearson_r_mean": 0.044105289028348996,
+      "pearson_r_sd": null,
+      "pearson_r_min": 0.044105289028348996,
+      "pearson_r_max": 0.044105289028348996,
+      "rmse_mean": 6.5571312211769035,
+      "rmse_sd": null,
+      "rmse_min": 6.5571312211769035,
+      "rmse_max": 6.5571312211769035,
+      "mae_mean": 2.5962553160580772,
+      "mae_sd": null,
+      "mae_min": 2.5962553160580772,
+      "mae_max": 2.5962553160580772,
+      "error_q10_mean": -1.5177176939376154,
+      "error_q10_sd": null,
+      "error_q10_min": -1.5177176939376154,
+      "error_q10_max": -1.5177176939376154,
+      "error_q50_mean": 0.08498212821673956,
+      "error_q50_sd": null,
+      "error_q50_min": 0.08498212821673956,
+      "error_q50_max": 0.08498212821673956,
+      "error_q90_mean": 3.09534655471384,
+      "error_q90_sd": null,
+      "error_q90_min": 3.09534655471384,
+      "error_q90_max": 3.09534655471384,
+      "bias_mean_ci95": null,
+      "positive_bias_reps": 0,
+      "worst_abs_relative_bias": 0.2798661377506975,
+      "relative_bias_denominator": "同一 rep 的 mean(tau_true)",
+      "slope_defined_reps": 1,
+      "calibration_slope_median": 0.12367374458137578,
+      "slope_below_one_reps": 1,
+      "slope_denominator": "仅有限斜率 rep（τ̂ 有变异）"
+    }
+  },
+  "policy_grid": {
+    "budgets_cny_per_user": [
+      0.04,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.6,
+      0.8,
+      1.0
+    ],
+    "policies": [
+      "no_coupon",
+      "all_coupon_unconstrained_reference",
+      "random_same_budget",
+      "business_rule_new_user_then_cart",
+      "purchase_propensity_rank",
+      "predicted_profit_rank",
+      "incremental_profit_rank",
+      "greedy_incremental_profit_per_cost",
+      "greedy_local_swap"
+    ],
+    "mean_true_value_per_user": {
+      "no_coupon": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "all_coupon_unconstrained_reference": [
+        0.2828694666666667,
+        0.2828694666666667,
+        0.2828694666666667,
+        0.2828694666666667,
+        0.2828694666666667,
+        0.2828694666666667,
+        0.2828694666666667,
+        0.2828694666666667
+      ],
+      "random_same_budget": [
+        0.01264731,
+        0.03603144333333333,
+        0.06914906,
+        0.10556972999999999,
+        0.13571548333333333,
+        0.20693694333333335,
+        0.2765105466666667,
+        0.2828694666666667
+      ],
+      "business_rule_new_user_then_cart": [
+        0.09934752666666666,
+        0.20188743333333334,
+        0.27232562,
+        0.31949958333333334,
+        0.3546638433333333,
+        0.36295292333333334,
+        0.28246434666666664,
+        0.2828694666666667
+      ],
+      "purchase_propensity_rank": [
+        -0.01212483,
+        -0.0155666,
+        -0.0010663966666666666,
+        0.034085246666666666,
+        0.08264537,
+        0.19220208333333333,
+        0.28193732,
+        0.2828694666666667
+      ],
+      "predicted_profit_rank": [
+        0.010979026666666667,
+        0.038548856666666666,
+        0.09454846666666666,
+        0.15142205666666667,
+        0.20656691333333335,
+        0.30166567666666666,
+        0.29893797666666666,
+        0.2854773033333333
+      ],
+      "incremental_profit_rank": [
+        0.06469544666666667,
+        0.14905134,
+        0.2547399733333333,
+        0.32562288333333334,
+        0.3672272233333333,
+        0.3815191633333333,
+        0.3843808033333333,
+        0.38491022333333336
+      ],
+      "greedy_incremental_profit_per_cost": [
+        0.08741119666666666,
+        0.17162500333333333,
+        0.2753811,
+        0.3393055233333333,
+        0.37285637,
+        0.3838097633333334,
+        0.38515146333333333,
+        0.38491022333333336
+      ],
+      "greedy_local_swap": [
+        0.08739043333333334,
+        0.17162723,
+        0.27534264666666664,
+        0.3392793733333333,
+        0.3728315466666667,
+        0.3838097633333334,
+        0.38515146333333333,
+        0.38491022333333336
+      ]
+    },
+    "sd_true_value_per_user": {
+      "no_coupon": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "all_coupon_unconstrained_reference": [
+        0.02679795950910206,
+        0.02679795950910206,
+        0.02679795950910206,
+        0.02679795950910206,
+        0.02679795950910206,
+        0.02679795950910206,
+        0.02679795950910206,
+        0.02679795950910206
+      ],
+      "random_same_budget": [
+        0.004422037831450312,
+        0.008436989029231722,
+        0.010704581694263492,
+        0.01813700011852001,
+        0.01868777874060085,
+        0.022870448994533884,
+        0.028618995389304215,
+        0.02679795950910206
+      ],
+      "business_rule_new_user_then_cart": [
+        0.011729870746783012,
+        0.014246850879112039,
+        0.015347441306353732,
+        0.019971208466928965,
+        0.02186157672507544,
+        0.024020826802878557,
+        0.026477520317789518,
+        0.02679795950910206
+      ],
+      "purchase_propensity_rank": [
+        0.0057834065003007605,
+        0.009134431258367005,
+        0.014498070918705733,
+        0.01739392593248986,
+        0.02214212577197914,
+        0.02477623326035885,
+        0.026323899019489002,
+        0.02679795950910206
+      ],
+      "predicted_profit_rank": [
+        0.00834099141336195,
+        0.012866635280662524,
+        0.016613066001714565,
+        0.01797678803811621,
+        0.021047563071872343,
+        0.025244892759848404,
+        0.025724336352546066,
+        0.02678781608038981
+      ],
+      "incremental_profit_rank": [
+        0.018521391865775737,
+        0.031116144143413665,
+        0.043538357957082476,
+        0.05343228302365964,
+        0.054733714991705144,
+        0.04691946446959871,
+        0.03625347535792939,
+        0.03456215596071257
+      ],
+      "greedy_incremental_profit_per_cost": [
+        0.021466974239137092,
+        0.03513283936594441,
+        0.04394444844871138,
+        0.047883883174327235,
+        0.04731474824141892,
+        0.03836412730755642,
+        0.03384434513327637,
+        0.03456215596071257
+      ],
+      "greedy_local_swap": [
+        0.021481725937502513,
+        0.03513878215611408,
+        0.043967613769172735,
+        0.047861417469087716,
+        0.0472972696997279,
+        0.03836412730755642,
+        0.03384434513327637,
+        0.03456215596071257
+      ]
+    },
+    "mean_n_selected": {
+      "no_coupon": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "all_coupon_unconstrained_reference": [
+        60000.0,
+        60000.0,
+        60000.0,
+        60000.0,
+        60000.0,
+        60000.0,
+        60000.0,
+        60000.0
+      ],
+      "random_same_budget": [
+        2928.26,
+        7299.88,
+        14607.34,
+        21909.84,
+        29220.14,
+        43824.12,
+        58388.42,
+        60000.0
+      ],
+      "business_rule_new_user_then_cart": [
+        2371.74,
+        6744.42,
+        15394.16,
+        21017.46,
+        26616.36,
+        40622.76,
+        58386.76,
+        60000.0
+      ],
+      "purchase_propensity_rank": [
+        1157.92,
+        3528.48,
+        8511.74,
+        14503.14,
+        21320.92,
+        37187.3,
+        57022.94,
+        60000.0
+      ],
+      "predicted_profit_rank": [
+        1265.9,
+        3800.66,
+        9005.68,
+        15107.28,
+        22018.3,
+        38030.16,
+        57445.06,
+        59734.04
+      ],
+      "incremental_profit_rank": [
+        2063.66,
+        5812.88,
+        12774.78,
+        20231.84,
+        28115.24,
+        36565.6,
+        37148.94,
+        37215.18
+      ],
+      "greedy_incremental_profit_per_cost": [
+        3364.2,
+        7877.58,
+        15196.2,
+        22466.62,
+        29630.76,
+        36867.8,
+        37196.12,
+        37215.18
+      ],
+      "greedy_local_swap": [
+        3364.2,
+        7877.58,
+        15196.2,
+        22466.62,
+        29630.76,
+        36867.8,
+        37196.12,
+        37215.18
+      ]
+    },
+    "mean_actual_spend_cny": {
+      "no_coupon": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "all_coupon_unconstrained_reference": [
+        49513.98360000001,
+        49513.98360000001,
+        49513.98360000001,
+        49513.98360000001,
+        49513.98360000001,
+        49513.98360000001,
+        49513.98360000001,
+        49513.98360000001
+      ],
+      "random_same_budget": [
+        2427.9456,
+        5954.0262,
+        12071.7422,
+        18147.835600000002,
+        24018.8952,
+        36163.1976,
+        48174.8062,
+        49513.98360000001
+      ],
+      "business_rule_new_user_then_cart": [
+        2435.2,
+        6061.0,
+        12109.4,
+        18191.5158,
+        24215.1158,
+        36301.315800000004,
+        48232.9376,
+        49513.98360000001
+      ],
+      "purchase_propensity_rank": [
+        2270.4,
+        5777.7556,
+        11693.3216,
+        17650.7216,
+        23593.6638,
+        35505.4096,
+        47930.1934,
+        49513.98360000001
+      ],
+      "predicted_profit_rank": [
+        2349.0,
+        5906.2,
+        11901.5978,
+        17838.5978,
+        23878.9412,
+        35948.3398,
+        48119.3096,
+        49356.2136
+      ],
+      "incremental_profit_rank": [
+        2312.4,
+        5834.9926000000005,
+        11714.9926,
+        17808.9346,
+        23835.3346,
+        30068.2504,
+        30561.8504,
+        30611.8504
+      ],
+      "greedy_incremental_profit_per_cost": [
+        3019.5926,
+        6814.3912,
+        12806.5912,
+        18675.9044,
+        24375.504399999998,
+        30180.8504,
+        30573.8504,
+        30611.8504
+      ],
+      "greedy_local_swap": [
+        3019.9926,
+        6814.7912,
+        12805.191200000001,
+        18676.504399999998,
+        24377.1044,
+        30180.8504,
+        30573.8504,
+        30611.8504
+      ]
+    },
+    "compliance": {
+      "no_coupon": {
+        "n_budgets": 8,
+        "reps": 50,
+        "by_hat": {
+          "mean_compliant_budgets": 8.0,
+          "min_compliant_budgets": 8,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 50
+        },
+        "by_true": {
+          "mean_compliant_budgets": 8.0,
+          "min_compliant_budgets": 8,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 50
+        }
+      },
+      "all_coupon_unconstrained_reference": {
+        "n_budgets": 8,
+        "reps": 50,
+        "by_hat": {
+          "mean_compliant_budgets": 1.06,
+          "min_compliant_budgets": 1,
+          "max_compliant_budgets": 2,
+          "reps_all_compliant": 0
+        },
+        "by_true": {
+          "mean_compliant_budgets": 1.0,
+          "min_compliant_budgets": 1,
+          "max_compliant_budgets": 1,
+          "reps_all_compliant": 0
+        }
+      },
+      "random_same_budget": {
+        "n_budgets": 8,
+        "reps": 50,
+        "by_hat": {
+          "mean_compliant_budgets": 8.0,
+          "min_compliant_budgets": 8,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 50
+        },
+        "by_true": {
+          "mean_compliant_budgets": 4.32,
+          "min_compliant_budgets": 1,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 7
+        }
+      },
+      "business_rule_new_user_then_cart": {
+        "n_budgets": 8,
+        "reps": 50,
+        "by_hat": {
+          "mean_compliant_budgets": 8.0,
+          "min_compliant_budgets": 8,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 50
+        },
+        "by_true": {
+          "mean_compliant_budgets": 3.88,
+          "min_compliant_budgets": 1,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 4
+        }
+      },
+      "purchase_propensity_rank": {
+        "n_budgets": 8,
+        "reps": 50,
+        "by_hat": {
+          "mean_compliant_budgets": 8.0,
+          "min_compliant_budgets": 8,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 50
+        },
+        "by_true": {
+          "mean_compliant_budgets": 6.24,
+          "min_compliant_budgets": 2,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 19
+        }
+      },
+      "predicted_profit_rank": {
+        "n_budgets": 8,
+        "reps": 50,
+        "by_hat": {
+          "mean_compliant_budgets": 8.0,
+          "min_compliant_budgets": 8,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 50
+        },
+        "by_true": {
+          "mean_compliant_budgets": 5.02,
+          "min_compliant_budgets": 1,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 10
+        }
+      },
+      "incremental_profit_rank": {
+        "n_budgets": 8,
+        "reps": 50,
+        "by_hat": {
+          "mean_compliant_budgets": 8.0,
+          "min_compliant_budgets": 8,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 50
+        },
+        "by_true": {
+          "mean_compliant_budgets": 6.26,
+          "min_compliant_budgets": 1,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 22
+        }
+      },
+      "greedy_incremental_profit_per_cost": {
+        "n_budgets": 8,
+        "reps": 50,
+        "by_hat": {
+          "mean_compliant_budgets": 8.0,
+          "min_compliant_budgets": 8,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 50
+        },
+        "by_true": {
+          "mean_compliant_budgets": 3.6,
+          "min_compliant_budgets": 1,
+          "max_compliant_budgets": 6,
+          "reps_all_compliant": 0
+        }
+      },
+      "greedy_local_swap": {
+        "n_budgets": 8,
+        "reps": 50,
+        "by_hat": {
+          "mean_compliant_budgets": 8.0,
+          "min_compliant_budgets": 8,
+          "max_compliant_budgets": 8,
+          "reps_all_compliant": 50
+        },
+        "by_true": {
+          "mean_compliant_budgets": 3.6,
+          "min_compliant_budgets": 1,
+          "max_compliant_budgets": 6,
+          "reps_all_compliant": 0
+        }
+      }
+    }
+  },
+  "policy_grid_by_model": {
+    "constant": {
+      "budgets_cny_per_user": [
+        0.04,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.6,
+        0.8,
+        1.0
+      ],
+      "policies": [
+        "no_coupon",
+        "all_coupon_unconstrained_reference",
+        "random_same_budget",
+        "business_rule_new_user_then_cart",
+        "purchase_propensity_rank",
+        "predicted_profit_rank",
+        "incremental_profit_rank",
+        "greedy_incremental_profit_per_cost",
+        "greedy_local_swap"
+      ],
+      "mean_true_value_per_user": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667
+        ],
+        "random_same_budget": [
+          0.01264731,
+          0.03603144333333333,
+          0.06914906,
+          0.10556972999999999,
+          0.13571548333333333,
+          0.20693694333333335,
+          0.2765105466666667,
+          0.2828694666666667
+        ],
+        "business_rule_new_user_then_cart": [
+          0.09934752666666666,
+          0.20188743333333334,
+          0.27232562,
+          0.31949958333333334,
+          0.3546638433333333,
+          0.36295292333333334,
+          0.28246434666666664,
+          0.2828694666666667
+        ],
+        "purchase_propensity_rank": [
+          -0.01212483,
+          -0.0155666,
+          -0.0010663966666666666,
+          0.034085246666666666,
+          0.08264537,
+          0.19220208333333333,
+          0.28193732,
+          0.2828694666666667
+        ],
+        "predicted_profit_rank": [
+          0.010979026666666667,
+          0.038548856666666666,
+          0.09454846666666666,
+          0.15142205666666667,
+          0.20656691333333335,
+          0.30166567666666666,
+          0.29893797666666666,
+          0.2854773033333333
+        ],
+        "incremental_profit_rank": [
+          0.013819926666666666,
+          0.03387203,
+          0.06807366333333334,
+          0.10235139333333333,
+          0.13719867,
+          0.20506570666666668,
+          0.27511607,
+          0.2828694666666667
+        ],
+        "greedy_incremental_profit_per_cost": [
+          0.006380286666666667,
+          0.030667156666666667,
+          0.07411216000000001,
+          0.12366171333333334,
+          0.16886725000000002,
+          0.25373806666666665,
+          0.28684394999999996,
+          0.2828694666666667
+        ],
+        "greedy_local_swap": [
+          0.006380286666666667,
+          0.030667156666666667,
+          0.07411216000000001,
+          0.12366171333333334,
+          0.16886725000000002,
+          0.25373806666666665,
+          0.28684394999999996,
+          0.2828694666666667
+        ]
+      },
+      "sd_true_value_per_user": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206
+        ],
+        "random_same_budget": [
+          0.004422037831450312,
+          0.008436989029231722,
+          0.010704581694263492,
+          0.01813700011852001,
+          0.01868777874060085,
+          0.022870448994533884,
+          0.028618995389304215,
+          0.02679795950910206
+        ],
+        "business_rule_new_user_then_cart": [
+          0.011729870746783012,
+          0.014246850879112039,
+          0.015347441306353732,
+          0.019971208466928965,
+          0.02186157672507544,
+          0.024020826802878557,
+          0.026477520317789518,
+          0.02679795950910206
+        ],
+        "purchase_propensity_rank": [
+          0.0057834065003007605,
+          0.009134431258367005,
+          0.014498070918705733,
+          0.01739392593248986,
+          0.02214212577197914,
+          0.02477623326035885,
+          0.026323899019489002,
+          0.02679795950910206
+        ],
+        "predicted_profit_rank": [
+          0.00834099141336195,
+          0.012866635280662524,
+          0.016613066001714565,
+          0.01797678803811621,
+          0.021047563071872343,
+          0.025244892759848404,
+          0.025724336352546066,
+          0.02678781608038981
+        ],
+        "incremental_profit_rank": [
+          0.00581649810723548,
+          0.00896585796341079,
+          0.01429369269856019,
+          0.018567327558425297,
+          0.019162590496744084,
+          0.02411824187429944,
+          0.02764607363900276,
+          0.02679795950910206
+        ],
+        "greedy_incremental_profit_per_cost": [
+          0.007209740476319034,
+          0.011908972019804733,
+          0.014773708708644934,
+          0.017631075177670825,
+          0.02064985533974603,
+          0.023718872239196352,
+          0.02586073344300261,
+          0.02679795950910206
+        ],
+        "greedy_local_swap": [
+          0.007209740476319034,
+          0.011908972019804733,
+          0.014773708708644934,
+          0.017631075177670825,
+          0.02064985533974603,
+          0.023718872239196352,
+          0.02586073344300261,
+          0.02679795950910206
+        ]
+      },
+      "mean_n_selected": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0
+        ],
+        "random_same_budget": [
+          2928.26,
+          7299.88,
+          14607.34,
+          21909.84,
+          29220.14,
+          43824.12,
+          58388.42,
+          60000.0
+        ],
+        "business_rule_new_user_then_cart": [
+          2371.74,
+          6744.42,
+          15394.16,
+          21017.46,
+          26616.36,
+          40622.76,
+          58386.76,
+          60000.0
+        ],
+        "purchase_propensity_rank": [
+          1157.92,
+          3528.48,
+          8511.74,
+          14503.14,
+          21320.92,
+          37187.3,
+          57022.94,
+          60000.0
+        ],
+        "predicted_profit_rank": [
+          1265.9,
+          3800.66,
+          9005.68,
+          15107.28,
+          22018.3,
+          38030.16,
+          57445.06,
+          59734.04
+        ],
+        "incremental_profit_rank": [
+          2926.24,
+          7310.62,
+          14612.88,
+          21908.86,
+          29204.66,
+          43819.8,
+          58391.18,
+          60000.0
+        ],
+        "greedy_incremental_profit_per_cost": [
+          6687.76,
+          13766.46,
+          23526.54,
+          31893.02,
+          39256.26,
+          51391.18,
+          59508.84,
+          60000.0
+        ],
+        "greedy_local_swap": [
+          6687.76,
+          13766.46,
+          23526.54,
+          31893.02,
+          39256.26,
+          51391.18,
+          59508.84,
+          60000.0
+        ]
+      },
+      "mean_actual_spend_cny": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001
+        ],
+        "random_same_budget": [
+          2427.9456,
+          5954.0262,
+          12071.7422,
+          18147.835600000002,
+          24018.8952,
+          36163.1976,
+          48174.8062,
+          49513.98360000001
+        ],
+        "business_rule_new_user_then_cart": [
+          2435.2,
+          6061.0,
+          12109.4,
+          18191.5158,
+          24215.1158,
+          36301.315800000004,
+          48232.9376,
+          49513.98360000001
+        ],
+        "purchase_propensity_rank": [
+          2270.4,
+          5777.7556,
+          11693.3216,
+          17650.7216,
+          23593.6638,
+          35505.4096,
+          47930.1934,
+          49513.98360000001
+        ],
+        "predicted_profit_rank": [
+          2349.0,
+          5906.2,
+          11901.5978,
+          17838.5978,
+          23878.9412,
+          35948.3398,
+          48119.3096,
+          49356.2136
+        ],
+        "incremental_profit_rank": [
+          2410.374,
+          6031.687199999999,
+          12106.0782,
+          18090.4458,
+          24098.4058,
+          36169.3556,
+          48190.7836,
+          49513.98360000001
+        ],
+        "greedy_incremental_profit_per_cost": [
+          3926.3428,
+          8500.7858,
+          15303.358999999999,
+          21594.282000000003,
+          27546.9476,
+          38608.2242,
+          48582.5896,
+          49513.98360000001
+        ],
+        "greedy_local_swap": [
+          3926.3428,
+          8500.7858,
+          15303.358999999999,
+          21594.282000000003,
+          27546.9476,
+          38608.2242,
+          48582.5896,
+          49513.98360000001
+        ]
+      },
+      "compliance": {
+        "no_coupon": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          }
+        },
+        "all_coupon_unconstrained_reference": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 1.06,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 2,
+            "reps_all_compliant": 0
+          },
+          "by_true": {
+            "mean_compliant_budgets": 1.0,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 1,
+            "reps_all_compliant": 0
+          }
+        },
+        "random_same_budget": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 4.32,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 7
+          }
+        },
+        "business_rule_new_user_then_cart": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 3.88,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 4
+          }
+        },
+        "purchase_propensity_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 6.24,
+            "min_compliant_budgets": 2,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 19
+          }
+        },
+        "predicted_profit_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 5.02,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 10
+          }
+        },
+        "incremental_profit_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 4.0,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 6
+          }
+        },
+        "greedy_incremental_profit_per_cost": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 1.3,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 2,
+            "reps_all_compliant": 0
+          }
+        },
+        "greedy_local_swap": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 1.3,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 2,
+            "reps_all_compliant": 0
+          }
+        }
+      }
+    },
+    "t_learner": {
+      "budgets_cny_per_user": [
+        0.04,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.6,
+        0.8,
+        1.0
+      ],
+      "policies": [
+        "no_coupon",
+        "all_coupon_unconstrained_reference",
+        "random_same_budget",
+        "business_rule_new_user_then_cart",
+        "purchase_propensity_rank",
+        "predicted_profit_rank",
+        "incremental_profit_rank",
+        "greedy_incremental_profit_per_cost",
+        "greedy_local_swap"
+      ],
+      "mean_true_value_per_user": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667
+        ],
+        "random_same_budget": [
+          0.01264731,
+          0.03603144333333333,
+          0.06914906,
+          0.10556972999999999,
+          0.13571548333333333,
+          0.20693694333333335,
+          0.2765105466666667,
+          0.2828694666666667
+        ],
+        "business_rule_new_user_then_cart": [
+          0.09934752666666666,
+          0.20188743333333334,
+          0.27232562,
+          0.31949958333333334,
+          0.3546638433333333,
+          0.36295292333333334,
+          0.28246434666666664,
+          0.2828694666666667
+        ],
+        "purchase_propensity_rank": [
+          -0.01212483,
+          -0.0155666,
+          -0.0010663966666666666,
+          0.034085246666666666,
+          0.08264537,
+          0.19220208333333333,
+          0.28193732,
+          0.2828694666666667
+        ],
+        "predicted_profit_rank": [
+          0.010979026666666667,
+          0.038548856666666666,
+          0.09454846666666666,
+          0.15142205666666667,
+          0.20656691333333335,
+          0.30166567666666666,
+          0.29893797666666666,
+          0.2854773033333333
+        ],
+        "incremental_profit_rank": [
+          0.038118863333333336,
+          0.09797922666666667,
+          0.18870598666666666,
+          0.25648509999999997,
+          0.29655113666666666,
+          0.30813746,
+          0.30813746,
+          0.30813746
+        ],
+        "greedy_incremental_profit_per_cost": [
+          0.05796636,
+          0.12367576333333334,
+          0.20944109,
+          0.2668365766666667,
+          0.29882677,
+          0.30813746,
+          0.30813746,
+          0.30813746
+        ],
+        "greedy_local_swap": [
+          0.05795081333333333,
+          0.12370175666666666,
+          0.2094364,
+          0.26684133666666665,
+          0.2988187166666667,
+          0.30813746,
+          0.30813746,
+          0.30813746
+        ]
+      },
+      "sd_true_value_per_user": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206
+        ],
+        "random_same_budget": [
+          0.004422037831450312,
+          0.008436989029231722,
+          0.010704581694263492,
+          0.01813700011852001,
+          0.01868777874060085,
+          0.022870448994533884,
+          0.028618995389304215,
+          0.02679795950910206
+        ],
+        "business_rule_new_user_then_cart": [
+          0.011729870746783012,
+          0.014246850879112039,
+          0.015347441306353732,
+          0.019971208466928965,
+          0.02186157672507544,
+          0.024020826802878557,
+          0.026477520317789518,
+          0.02679795950910206
+        ],
+        "purchase_propensity_rank": [
+          0.0057834065003007605,
+          0.009134431258367005,
+          0.014498070918705733,
+          0.01739392593248986,
+          0.02214212577197914,
+          0.02477623326035885,
+          0.026323899019489002,
+          0.02679795950910206
+        ],
+        "predicted_profit_rank": [
+          0.00834099141336195,
+          0.012866635280662524,
+          0.016613066001714565,
+          0.01797678803811621,
+          0.021047563071872343,
+          0.025244892759848404,
+          0.025724336352546066,
+          0.02678781608038981
+        ],
+        "incremental_profit_rank": [
+          0.011120062057154954,
+          0.01484866486839398,
+          0.019678183957434446,
+          0.02231841762778363,
+          0.023923529413351297,
+          0.023566881680060048,
+          0.023566881680060048,
+          0.023566881680060048
+        ],
+        "greedy_incremental_profit_per_cost": [
+          0.01003362133953716,
+          0.014490408812304808,
+          0.018764918165582532,
+          0.02114331678841876,
+          0.023136237972012808,
+          0.023566881680060048,
+          0.023566881680060048,
+          0.023566881680060048
+        ],
+        "greedy_local_swap": [
+          0.01004179963694613,
+          0.014494398801698777,
+          0.01878537868500399,
+          0.021148310245630804,
+          0.023118590920437644,
+          0.023566881680060048,
+          0.023566881680060048,
+          0.023566881680060048
+        ]
+      },
+      "mean_n_selected": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0
+        ],
+        "random_same_budget": [
+          2928.26,
+          7299.88,
+          14607.34,
+          21909.84,
+          29220.14,
+          43824.12,
+          58388.42,
+          60000.0
+        ],
+        "business_rule_new_user_then_cart": [
+          2371.74,
+          6744.42,
+          15394.16,
+          21017.46,
+          26616.36,
+          40622.76,
+          58386.76,
+          60000.0
+        ],
+        "purchase_propensity_rank": [
+          1157.92,
+          3528.48,
+          8511.74,
+          14503.14,
+          21320.92,
+          37187.3,
+          57022.94,
+          60000.0
+        ],
+        "predicted_profit_rank": [
+          1265.9,
+          3800.66,
+          9005.68,
+          15107.28,
+          22018.3,
+          38030.16,
+          57445.06,
+          59734.04
+        ],
+        "incremental_profit_rank": [
+          1658.28,
+          5044.78,
+          11816.44,
+          19451.06,
+          27670.84,
+          33964.94,
+          33964.94,
+          33964.94
+        ],
+        "greedy_incremental_profit_per_cost": [
+          2418.28,
+          6442.68,
+          13605.06,
+          20988.8,
+          28456.74,
+          33964.94,
+          33964.94,
+          33964.94
+        ],
+        "greedy_local_swap": [
+          2418.28,
+          6442.68,
+          13605.06,
+          20988.8,
+          28456.74,
+          33964.94,
+          33964.94,
+          33964.94
+        ]
+      },
+      "mean_actual_spend_cny": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001
+        ],
+        "random_same_budget": [
+          2427.9456,
+          5954.0262,
+          12071.7422,
+          18147.835600000002,
+          24018.8952,
+          36163.1976,
+          48174.8062,
+          49513.98360000001
+        ],
+        "business_rule_new_user_then_cart": [
+          2435.2,
+          6061.0,
+          12109.4,
+          18191.5158,
+          24215.1158,
+          36301.315800000004,
+          48232.9376,
+          49513.98360000001
+        ],
+        "purchase_propensity_rank": [
+          2270.4,
+          5777.7556,
+          11693.3216,
+          17650.7216,
+          23593.6638,
+          35505.4096,
+          47930.1934,
+          49513.98360000001
+        ],
+        "predicted_profit_rank": [
+          2349.0,
+          5906.2,
+          11901.5978,
+          17838.5978,
+          23878.9412,
+          35948.3398,
+          48119.3096,
+          49356.2136
+        ],
+        "incremental_profit_rank": [
+          2207.2,
+          5621.342,
+          11424.534599999999,
+          17450.102,
+          23518.302000000003,
+          27979.0256,
+          27979.0256,
+          27979.0256
+        ],
+        "greedy_incremental_profit_per_cost": [
+          2623.5346000000004,
+          6304.134599999999,
+          12233.1346,
+          18055.302,
+          23818.8278,
+          27979.0256,
+          27979.0256,
+          27979.0256
+        ],
+        "greedy_local_swap": [
+          2623.5346000000004,
+          6304.334599999999,
+          12232.534599999999,
+          18054.102,
+          23818.227799999997,
+          27979.0256,
+          27979.0256,
+          27979.0256
+        ]
+      },
+      "compliance": {
+        "no_coupon": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          }
+        },
+        "all_coupon_unconstrained_reference": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 1.06,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 2,
+            "reps_all_compliant": 0
+          },
+          "by_true": {
+            "mean_compliant_budgets": 1.0,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 1,
+            "reps_all_compliant": 0
+          }
+        },
+        "random_same_budget": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 4.32,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 7
+          }
+        },
+        "business_rule_new_user_then_cart": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 3.88,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 4
+          }
+        },
+        "purchase_propensity_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 6.24,
+            "min_compliant_budgets": 2,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 19
+          }
+        },
+        "predicted_profit_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 5.02,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 10
+          }
+        },
+        "incremental_profit_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 7.38,
+            "min_compliant_budgets": 4,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 34
+          }
+        },
+        "greedy_incremental_profit_per_cost": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 4.66,
+            "min_compliant_budgets": 3,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 3
+          }
+        },
+        "greedy_local_swap": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 4.66,
+            "min_compliant_budgets": 3,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 3
+          }
+        }
+      }
+    },
+    "s_learner": {
+      "budgets_cny_per_user": [
+        0.04,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.6,
+        0.8,
+        1.0
+      ],
+      "policies": [
+        "no_coupon",
+        "all_coupon_unconstrained_reference",
+        "random_same_budget",
+        "business_rule_new_user_then_cart",
+        "purchase_propensity_rank",
+        "predicted_profit_rank",
+        "incremental_profit_rank",
+        "greedy_incremental_profit_per_cost",
+        "greedy_local_swap"
+      ],
+      "mean_true_value_per_user": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667
+        ],
+        "random_same_budget": [
+          0.01264731,
+          0.03603144333333333,
+          0.06914906,
+          0.10556972999999999,
+          0.13571548333333333,
+          0.20693694333333335,
+          0.2765105466666667,
+          0.2828694666666667
+        ],
+        "business_rule_new_user_then_cart": [
+          0.09934752666666666,
+          0.20188743333333334,
+          0.27232562,
+          0.31949958333333334,
+          0.3546638433333333,
+          0.36295292333333334,
+          0.28246434666666664,
+          0.2828694666666667
+        ],
+        "purchase_propensity_rank": [
+          -0.01212483,
+          -0.0155666,
+          -0.0010663966666666666,
+          0.034085246666666666,
+          0.08264537,
+          0.19220208333333333,
+          0.28193732,
+          0.2828694666666667
+        ],
+        "predicted_profit_rank": [
+          0.010979026666666667,
+          0.038548856666666666,
+          0.09454846666666666,
+          0.15142205666666667,
+          0.20656691333333335,
+          0.30166567666666666,
+          0.29893797666666666,
+          0.2854773033333333
+        ],
+        "incremental_profit_rank": [
+          0.05717280333333333,
+          0.14594254333333334,
+          0.25748609333333333,
+          0.32801654999999996,
+          0.36924495333333335,
+          0.3743304366666667,
+          0.3743304366666667,
+          0.3743304366666667
+        ],
+        "greedy_incremental_profit_per_cost": [
+          0.08255325,
+          0.17222343333333334,
+          0.27701768666666665,
+          0.3375371966666667,
+          0.36957091666666664,
+          0.3743304366666667,
+          0.3743304366666667,
+          0.3743304366666667
+        ],
+        "greedy_local_swap": [
+          0.08253364333333334,
+          0.1722259966666667,
+          0.27698232333333334,
+          0.33753531000000003,
+          0.36955614,
+          0.3743304366666667,
+          0.3743304366666667,
+          0.3743304366666667
+        ]
+      },
+      "sd_true_value_per_user": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206
+        ],
+        "random_same_budget": [
+          0.004422037831450312,
+          0.008436989029231722,
+          0.010704581694263492,
+          0.01813700011852001,
+          0.01868777874060085,
+          0.022870448994533884,
+          0.028618995389304215,
+          0.02679795950910206
+        ],
+        "business_rule_new_user_then_cart": [
+          0.011729870746783012,
+          0.014246850879112039,
+          0.015347441306353732,
+          0.019971208466928965,
+          0.02186157672507544,
+          0.024020826802878557,
+          0.026477520317789518,
+          0.02679795950910206
+        ],
+        "purchase_propensity_rank": [
+          0.0057834065003007605,
+          0.009134431258367005,
+          0.014498070918705733,
+          0.01739392593248986,
+          0.02214212577197914,
+          0.02477623326035885,
+          0.026323899019489002,
+          0.02679795950910206
+        ],
+        "predicted_profit_rank": [
+          0.00834099141336195,
+          0.012866635280662524,
+          0.016613066001714565,
+          0.01797678803811621,
+          0.021047563071872343,
+          0.025244892759848404,
+          0.025724336352546066,
+          0.02678781608038981
+        ],
+        "incremental_profit_rank": [
+          0.013040951369951325,
+          0.01861039426041612,
+          0.019782185420769968,
+          0.020497109203435553,
+          0.02221045808914179,
+          0.02287095594030687,
+          0.02287095594030687,
+          0.02287095594030687
+        ],
+        "greedy_incremental_profit_per_cost": [
+          0.012068806270602556,
+          0.016709057429709868,
+          0.01751675490811383,
+          0.019556465516975576,
+          0.021371548291995793,
+          0.02287095594030687,
+          0.02287095594030687,
+          0.02287095594030687
+        ],
+        "greedy_local_swap": [
+          0.012112896932880559,
+          0.01672195492494503,
+          0.01758857807540879,
+          0.019531017373385015,
+          0.02136617321138301,
+          0.02287095594030687,
+          0.02287095594030687,
+          0.02287095594030687
+        ]
+      },
+      "mean_n_selected": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0
+        ],
+        "random_same_budget": [
+          2928.26,
+          7299.88,
+          14607.34,
+          21909.84,
+          29220.14,
+          43824.12,
+          58388.42,
+          60000.0
+        ],
+        "business_rule_new_user_then_cart": [
+          2371.74,
+          6744.42,
+          15394.16,
+          21017.46,
+          26616.36,
+          40622.76,
+          58386.76,
+          60000.0
+        ],
+        "purchase_propensity_rank": [
+          1157.92,
+          3528.48,
+          8511.74,
+          14503.14,
+          21320.92,
+          37187.3,
+          57022.94,
+          60000.0
+        ],
+        "predicted_profit_rank": [
+          1265.9,
+          3800.66,
+          9005.68,
+          15107.28,
+          22018.3,
+          38030.16,
+          57445.06,
+          59734.04
+        ],
+        "incremental_profit_rank": [
+          1892.7,
+          5607.74,
+          12617.66,
+          20295.66,
+          28481.62,
+          39342.26,
+          39342.26,
+          39342.26
+        ],
+        "greedy_incremental_profit_per_cost": [
+          2892.24,
+          7277.16,
+          14736.48,
+          22352.52,
+          29897.08,
+          39342.26,
+          39342.26,
+          39342.26
+        ],
+        "greedy_local_swap": [
+          2892.24,
+          7277.16,
+          14736.48,
+          22352.52,
+          29897.08,
+          39342.26,
+          39342.26,
+          39342.26
+        ]
+      },
+      "mean_actual_spend_cny": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001
+        ],
+        "random_same_budget": [
+          2427.9456,
+          5954.0262,
+          12071.7422,
+          18147.835600000002,
+          24018.8952,
+          36163.1976,
+          48174.8062,
+          49513.98360000001
+        ],
+        "business_rule_new_user_then_cart": [
+          2435.2,
+          6061.0,
+          12109.4,
+          18191.5158,
+          24215.1158,
+          36301.315800000004,
+          48232.9376,
+          49513.98360000001
+        ],
+        "purchase_propensity_rank": [
+          2270.4,
+          5777.7556,
+          11693.3216,
+          17650.7216,
+          23593.6638,
+          35505.4096,
+          47930.1934,
+          49513.98360000001
+        ],
+        "predicted_profit_rank": [
+          2349.0,
+          5906.2,
+          11901.5978,
+          17838.5978,
+          23878.9412,
+          35948.3398,
+          48119.3096,
+          49356.2136
+        ],
+        "incremental_profit_rank": [
+          2258.6,
+          5812.5926,
+          11721.736,
+          17786.1346,
+          23778.1346,
+          31525.0898,
+          31525.0898,
+          31525.0898
+        ],
+        "greedy_incremental_profit_per_cost": [
+          2862.5926,
+          6637.5926,
+          12665.7346,
+          18608.1044,
+          24314.977400000003,
+          31525.0898,
+          31525.0898,
+          31525.0898
+        ],
+        "greedy_local_swap": [
+          2862.9926,
+          6637.9926000000005,
+          12665.534599999999,
+          18609.504399999998,
+          24315.977400000003,
+          31525.0898,
+          31525.0898,
+          31525.0898
+        ]
+      },
+      "compliance": {
+        "no_coupon": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          }
+        },
+        "all_coupon_unconstrained_reference": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 1.06,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 2,
+            "reps_all_compliant": 0
+          },
+          "by_true": {
+            "mean_compliant_budgets": 1.0,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 1,
+            "reps_all_compliant": 0
+          }
+        },
+        "random_same_budget": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 4.32,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 7
+          }
+        },
+        "business_rule_new_user_then_cart": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 3.88,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 4
+          }
+        },
+        "purchase_propensity_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 6.24,
+            "min_compliant_budgets": 2,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 19
+          }
+        },
+        "predicted_profit_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 5.02,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 10
+          }
+        },
+        "incremental_profit_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 6.6,
+            "min_compliant_budgets": 3,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 24
+          }
+        },
+        "greedy_incremental_profit_per_cost": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 3.54,
+            "min_compliant_budgets": 3,
+            "max_compliant_budgets": 6,
+            "reps_all_compliant": 0
+          }
+        },
+        "greedy_local_swap": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 3.54,
+            "min_compliant_budgets": 3,
+            "max_compliant_budgets": 6,
+            "reps_all_compliant": 0
+          }
+        }
+      }
+    },
+    "causal_forest": {
+      "budgets_cny_per_user": [
+        0.04,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.6,
+        0.8,
+        1.0
+      ],
+      "policies": [
+        "no_coupon",
+        "all_coupon_unconstrained_reference",
+        "random_same_budget",
+        "business_rule_new_user_then_cart",
+        "purchase_propensity_rank",
+        "predicted_profit_rank",
+        "incremental_profit_rank",
+        "greedy_incremental_profit_per_cost",
+        "greedy_local_swap"
+      ],
+      "mean_true_value_per_user": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667
+        ],
+        "random_same_budget": [
+          0.01264731,
+          0.03603144333333333,
+          0.06914906,
+          0.10556972999999999,
+          0.13571548333333333,
+          0.20693694333333335,
+          0.2765105466666667,
+          0.2828694666666667
+        ],
+        "business_rule_new_user_then_cart": [
+          0.09934752666666666,
+          0.20188743333333334,
+          0.27232562,
+          0.31949958333333334,
+          0.3546638433333333,
+          0.36295292333333334,
+          0.28246434666666664,
+          0.2828694666666667
+        ],
+        "purchase_propensity_rank": [
+          -0.01212483,
+          -0.0155666,
+          -0.0010663966666666666,
+          0.034085246666666666,
+          0.08264537,
+          0.19220208333333333,
+          0.28193732,
+          0.2828694666666667
+        ],
+        "predicted_profit_rank": [
+          0.010979026666666667,
+          0.038548856666666666,
+          0.09454846666666666,
+          0.15142205666666667,
+          0.20656691333333335,
+          0.30166567666666666,
+          0.29893797666666666,
+          0.2854773033333333
+        ],
+        "incremental_profit_rank": [
+          0.06968146333333333,
+          0.15643909,
+          0.26568673,
+          0.34176776,
+          0.38354479999999996,
+          0.3984217433333333,
+          0.3984217433333333,
+          0.3984217433333333
+        ],
+        "greedy_incremental_profit_per_cost": [
+          0.09558040333333333,
+          0.1842266966666667,
+          0.28704972666666667,
+          0.35381535666666664,
+          0.3889808433333334,
+          0.3984217433333333,
+          0.3984217433333333,
+          0.3984217433333333
+        ],
+        "greedy_local_swap": [
+          0.09553983333333332,
+          0.18425328,
+          0.28703167,
+          0.35381682,
+          0.38895712000000005,
+          0.3984217433333333,
+          0.3984217433333333,
+          0.3984217433333333
+        ]
+      },
+      "sd_true_value_per_user": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206
+        ],
+        "random_same_budget": [
+          0.004422037831450312,
+          0.008436989029231722,
+          0.010704581694263492,
+          0.01813700011852001,
+          0.01868777874060085,
+          0.022870448994533884,
+          0.028618995389304215,
+          0.02679795950910206
+        ],
+        "business_rule_new_user_then_cart": [
+          0.011729870746783012,
+          0.014246850879112039,
+          0.015347441306353732,
+          0.019971208466928965,
+          0.02186157672507544,
+          0.024020826802878557,
+          0.026477520317789518,
+          0.02679795950910206
+        ],
+        "purchase_propensity_rank": [
+          0.0057834065003007605,
+          0.009134431258367005,
+          0.014498070918705733,
+          0.01739392593248986,
+          0.02214212577197914,
+          0.02477623326035885,
+          0.026323899019489002,
+          0.02679795950910206
+        ],
+        "predicted_profit_rank": [
+          0.00834099141336195,
+          0.012866635280662524,
+          0.016613066001714565,
+          0.01797678803811621,
+          0.021047563071872343,
+          0.025244892759848404,
+          0.025724336352546066,
+          0.02678781608038981
+        ],
+        "incremental_profit_rank": [
+          0.013573046508373474,
+          0.01688839616598317,
+          0.017154329031149707,
+          0.020529824225924278,
+          0.023327713038572322,
+          0.023246689638476075,
+          0.023246689638476075,
+          0.023246689638476075
+        ],
+        "greedy_incremental_profit_per_cost": [
+          0.010467946557599302,
+          0.015817120275987195,
+          0.016479973221032285,
+          0.019508233718983334,
+          0.02161247052608349,
+          0.023246689638476075,
+          0.023246689638476075,
+          0.023246689638476075
+        ],
+        "greedy_local_swap": [
+          0.010445964938348078,
+          0.015825940100372853,
+          0.01655284740802866,
+          0.019458870354250715,
+          0.021602195502110042,
+          0.023246689638476075,
+          0.023246689638476075,
+          0.023246689638476075
+        ]
+      },
+      "mean_n_selected": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0
+        ],
+        "random_same_budget": [
+          2928.26,
+          7299.88,
+          14607.34,
+          21909.84,
+          29220.14,
+          43824.12,
+          58388.42,
+          60000.0
+        ],
+        "business_rule_new_user_then_cart": [
+          2371.74,
+          6744.42,
+          15394.16,
+          21017.46,
+          26616.36,
+          40622.76,
+          58386.76,
+          60000.0
+        ],
+        "purchase_propensity_rank": [
+          1157.92,
+          3528.48,
+          8511.74,
+          14503.14,
+          21320.92,
+          37187.3,
+          57022.94,
+          60000.0
+        ],
+        "predicted_profit_rank": [
+          1265.9,
+          3800.66,
+          9005.68,
+          15107.28,
+          22018.3,
+          38030.16,
+          57445.06,
+          59734.04
+        ],
+        "incremental_profit_rank": [
+          2088.0,
+          5807.68,
+          12702.72,
+          20083.26,
+          27874.74,
+          34885.1,
+          34885.1,
+          34885.1
+        ],
+        "greedy_incremental_profit_per_cost": [
+          3421.22,
+          7876.84,
+          14968.94,
+          21943.98,
+          28910.22,
+          34885.1,
+          34885.1,
+          34885.1
+        ],
+        "greedy_local_swap": [
+          3421.22,
+          7876.84,
+          14968.94,
+          21943.98,
+          28910.22,
+          34885.1,
+          34885.1,
+          34885.1
+        ]
+      },
+      "mean_actual_spend_cny": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001
+        ],
+        "random_same_budget": [
+          2427.9456,
+          5954.0262,
+          12071.7422,
+          18147.835600000002,
+          24018.8952,
+          36163.1976,
+          48174.8062,
+          49513.98360000001
+        ],
+        "business_rule_new_user_then_cart": [
+          2435.2,
+          6061.0,
+          12109.4,
+          18191.5158,
+          24215.1158,
+          36301.315800000004,
+          48232.9376,
+          49513.98360000001
+        ],
+        "purchase_propensity_rank": [
+          2270.4,
+          5777.7556,
+          11693.3216,
+          17650.7216,
+          23593.6638,
+          35505.4096,
+          47930.1934,
+          49513.98360000001
+        ],
+        "predicted_profit_rank": [
+          2349.0,
+          5906.2,
+          11901.5978,
+          17838.5978,
+          23878.9412,
+          35948.3398,
+          48119.3096,
+          49356.2136
+        ],
+        "incremental_profit_rank": [
+          2328.4,
+          5843.1926,
+          11737.3926,
+          17776.7346,
+          23805.1346,
+          29029.5346,
+          29029.5346,
+          29029.5346
+        ],
+        "greedy_incremental_profit_per_cost": [
+          3047.5926,
+          6827.9912,
+          12705.9912,
+          18483.3346,
+          24132.5346,
+          29029.5346,
+          29029.5346,
+          29029.5346
+        ],
+        "greedy_local_swap": [
+          3047.5926,
+          6828.7912,
+          12704.191200000001,
+          18483.7346,
+          24134.1346,
+          29029.5346,
+          29029.5346,
+          29029.5346
+        ]
+      },
+      "compliance": {
+        "no_coupon": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          }
+        },
+        "all_coupon_unconstrained_reference": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 1.06,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 2,
+            "reps_all_compliant": 0
+          },
+          "by_true": {
+            "mean_compliant_budgets": 1.0,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 1,
+            "reps_all_compliant": 0
+          }
+        },
+        "random_same_budget": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 4.32,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 7
+          }
+        },
+        "business_rule_new_user_then_cart": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 3.88,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 4
+          }
+        },
+        "purchase_propensity_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 6.24,
+            "min_compliant_budgets": 2,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 19
+          }
+        },
+        "predicted_profit_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 5.02,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 10
+          }
+        },
+        "incremental_profit_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 6.28,
+            "min_compliant_budgets": 3,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 20
+          }
+        },
+        "greedy_incremental_profit_per_cost": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 3.82,
+            "min_compliant_budgets": 3,
+            "max_compliant_budgets": 6,
+            "reps_all_compliant": 0
+          }
+        },
+        "greedy_local_swap": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 3.82,
+            "min_compliant_budgets": 3,
+            "max_compliant_budgets": 6,
+            "reps_all_compliant": 0
+          }
+        }
+      }
+    },
+    "dr_learner": {
+      "budgets_cny_per_user": [
+        0.04,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.6,
+        0.8,
+        1.0
+      ],
+      "policies": [
+        "no_coupon",
+        "all_coupon_unconstrained_reference",
+        "random_same_budget",
+        "business_rule_new_user_then_cart",
+        "purchase_propensity_rank",
+        "predicted_profit_rank",
+        "incremental_profit_rank",
+        "greedy_incremental_profit_per_cost",
+        "greedy_local_swap"
+      ],
+      "mean_true_value_per_user": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667,
+          0.2828694666666667
+        ],
+        "random_same_budget": [
+          0.01264731,
+          0.03603144333333333,
+          0.06914906,
+          0.10556972999999999,
+          0.13571548333333333,
+          0.20693694333333335,
+          0.2765105466666667,
+          0.2828694666666667
+        ],
+        "business_rule_new_user_then_cart": [
+          0.09934752666666666,
+          0.20188743333333334,
+          0.27232562,
+          0.31949958333333334,
+          0.3546638433333333,
+          0.36295292333333334,
+          0.28246434666666664,
+          0.2828694666666667
+        ],
+        "purchase_propensity_rank": [
+          -0.01212483,
+          -0.0155666,
+          -0.0010663966666666666,
+          0.034085246666666666,
+          0.08264537,
+          0.19220208333333333,
+          0.28193732,
+          0.2828694666666667
+        ],
+        "predicted_profit_rank": [
+          0.010979026666666667,
+          0.038548856666666666,
+          0.09454846666666666,
+          0.15142205666666667,
+          0.20656691333333335,
+          0.30166567666666666,
+          0.29893797666666666,
+          0.2854773033333333
+        ],
+        "incremental_profit_rank": [
+          0.03804598333333333,
+          0.10128041666666666,
+          0.20249913333333333,
+          0.2747718,
+          0.31445009,
+          0.32466144999999996,
+          0.32466144999999996,
+          0.32466144999999996
+        ],
+        "greedy_incremental_profit_per_cost": [
+          0.05652250333333333,
+          0.12747852999999998,
+          0.2235246966666667,
+          0.28373681666666667,
+          0.3159199366666667,
+          0.32466144999999996,
+          0.32466144999999996,
+          0.32466144999999996
+        ],
+        "greedy_local_swap": [
+          0.05653309333333333,
+          0.12749966333333332,
+          0.22352366333333332,
+          0.28374089333333335,
+          0.3159154766666667,
+          0.32466144999999996,
+          0.32466144999999996,
+          0.32466144999999996
+        ]
+      },
+      "sd_true_value_per_user": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206,
+          0.02679795950910206
+        ],
+        "random_same_budget": [
+          0.004422037831450312,
+          0.008436989029231722,
+          0.010704581694263492,
+          0.01813700011852001,
+          0.01868777874060085,
+          0.022870448994533884,
+          0.028618995389304215,
+          0.02679795950910206
+        ],
+        "business_rule_new_user_then_cart": [
+          0.011729870746783012,
+          0.014246850879112039,
+          0.015347441306353732,
+          0.019971208466928965,
+          0.02186157672507544,
+          0.024020826802878557,
+          0.026477520317789518,
+          0.02679795950910206
+        ],
+        "purchase_propensity_rank": [
+          0.0057834065003007605,
+          0.009134431258367005,
+          0.014498070918705733,
+          0.01739392593248986,
+          0.02214212577197914,
+          0.02477623326035885,
+          0.026323899019489002,
+          0.02679795950910206
+        ],
+        "predicted_profit_rank": [
+          0.00834099141336195,
+          0.012866635280662524,
+          0.016613066001714565,
+          0.01797678803811621,
+          0.021047563071872343,
+          0.025244892759848404,
+          0.025724336352546066,
+          0.02678781608038981
+        ],
+        "incremental_profit_rank": [
+          0.010362431332375488,
+          0.01607436468704503,
+          0.020680902035425476,
+          0.022521435229284303,
+          0.023764146123540057,
+          0.024127898178161893,
+          0.024127898178161893,
+          0.024127898178161893
+        ],
+        "greedy_incremental_profit_per_cost": [
+          0.010652314447952666,
+          0.01401583353245984,
+          0.020090351520586608,
+          0.02251457771289199,
+          0.0235839370311157,
+          0.024127898178161893,
+          0.024127898178161893,
+          0.024127898178161893
+        ],
+        "greedy_local_swap": [
+          0.010672000666873177,
+          0.013991917246583803,
+          0.020098407451702726,
+          0.022497725822528566,
+          0.023566574929846044,
+          0.024127898178161893,
+          0.024127898178161893,
+          0.024127898178161893
+        ]
+      },
+      "mean_n_selected": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0,
+          60000.0
+        ],
+        "random_same_budget": [
+          2928.26,
+          7299.88,
+          14607.34,
+          21909.84,
+          29220.14,
+          43824.12,
+          58388.42,
+          60000.0
+        ],
+        "business_rule_new_user_then_cart": [
+          2371.74,
+          6744.42,
+          15394.16,
+          21017.46,
+          26616.36,
+          40622.76,
+          58386.76,
+          60000.0
+        ],
+        "purchase_propensity_rank": [
+          1157.92,
+          3528.48,
+          8511.74,
+          14503.14,
+          21320.92,
+          37187.3,
+          57022.94,
+          60000.0
+        ],
+        "predicted_profit_rank": [
+          1265.9,
+          3800.66,
+          9005.68,
+          15107.28,
+          22018.3,
+          38030.16,
+          57445.06,
+          59734.04
+        ],
+        "incremental_profit_rank": [
+          1668.78,
+          5093.86,
+          12035.34,
+          19684.68,
+          27844.0,
+          34624.58,
+          34624.58,
+          34624.58
+        ],
+        "greedy_incremental_profit_per_cost": [
+          2352.96,
+          6509.96,
+          13810.82,
+          21204.56,
+          28664.12,
+          34624.58,
+          34624.58,
+          34624.58
+        ],
+        "greedy_local_swap": [
+          2352.96,
+          6509.96,
+          13810.82,
+          21204.56,
+          28664.12,
+          34624.58,
+          34624.58,
+          34624.58
+        ]
+      },
+      "mean_actual_spend_cny": {
+        "no_coupon": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_coupon_unconstrained_reference": [
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001,
+          49513.98360000001
+        ],
+        "random_same_budget": [
+          2427.9456,
+          5954.0262,
+          12071.7422,
+          18147.835600000002,
+          24018.8952,
+          36163.1976,
+          48174.8062,
+          49513.98360000001
+        ],
+        "business_rule_new_user_then_cart": [
+          2435.2,
+          6061.0,
+          12109.4,
+          18191.5158,
+          24215.1158,
+          36301.315800000004,
+          48232.9376,
+          49513.98360000001
+        ],
+        "purchase_propensity_rank": [
+          2270.4,
+          5777.7556,
+          11693.3216,
+          17650.7216,
+          23593.6638,
+          35505.4096,
+          47930.1934,
+          49513.98360000001
+        ],
+        "predicted_profit_rank": [
+          2349.0,
+          5906.2,
+          11901.5978,
+          17838.5978,
+          23878.9412,
+          35948.3398,
+          48119.3096,
+          49356.2136
+        ],
+        "incremental_profit_rank": [
+          2235.8,
+          5707.6,
+          11608.356399999999,
+          17580.9564,
+          23648.7336,
+          28456.9252,
+          28456.9252,
+          28456.9252
+        ],
+        "greedy_incremental_profit_per_cost": [
+          2616.1911999999998,
+          6387.9912,
+          12398.758600000001,
+          18268.1388,
+          23982.331400000003,
+          28456.9252,
+          28456.9252,
+          28456.9252
+        ],
+        "greedy_local_swap": [
+          2616.5912,
+          6388.5912,
+          12399.1586,
+          18267.9388,
+          23982.9314,
+          28456.9252,
+          28456.9252,
+          28456.9252
+        ]
+      },
+      "compliance": {
+        "no_coupon": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          }
+        },
+        "all_coupon_unconstrained_reference": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 1.06,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 2,
+            "reps_all_compliant": 0
+          },
+          "by_true": {
+            "mean_compliant_budgets": 1.0,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 1,
+            "reps_all_compliant": 0
+          }
+        },
+        "random_same_budget": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 4.32,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 7
+          }
+        },
+        "business_rule_new_user_then_cart": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 3.88,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 4
+          }
+        },
+        "purchase_propensity_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 6.24,
+            "min_compliant_budgets": 2,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 19
+          }
+        },
+        "predicted_profit_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 5.02,
+            "min_compliant_budgets": 1,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 10
+          }
+        },
+        "incremental_profit_rank": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 7.0,
+            "min_compliant_budgets": 3,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 31
+          }
+        },
+        "greedy_incremental_profit_per_cost": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 4.26,
+            "min_compliant_budgets": 3,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 2
+          }
+        },
+        "greedy_local_swap": {
+          "n_budgets": 8,
+          "reps": 50,
+          "by_hat": {
+            "mean_compliant_budgets": 8.0,
+            "min_compliant_budgets": 8,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 50
+          },
+          "by_true": {
+            "mean_compliant_budgets": 4.24,
+            "min_compliant_budgets": 3,
+            "max_compliant_budgets": 8,
+            "reps_all_compliant": 1
+          }
+        }
+      }
+    }
+  },
+  "reps_meta": [
+    {
+      "rep_id": 0,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "constant",
+      "observed_hash": "34f9f9cf9f37432f3e2b75b875562c994c98f1160b39c396b5bdc67c89e31cd5",
+      "split_fingerprint": "23c281e8511e4580b9633c660c1e0814f1ec6435e1078d1233d3efc3df78cd79",
+      "test_user_key_hash": "4312bcc63a922b82716a1b2f16fd0d8524d319a4e0eb24e15e58d00b7cb85c74",
+      "elapsed_seconds": 308.126
+    },
+    {
+      "rep_id": 1,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "c52d59d168a8b3f6af0476df4e22c0630bf3d2f481252c1c3a2699cb5d639a89",
+      "split_fingerprint": "0af5d29a01f4ade9133613a894286b97cd30bb1adddda4fb699ca67ac0109e11",
+      "test_user_key_hash": "065f687e2a0814013e06baa0d6b0899105905b5f71f5390698c822fc463e26c7",
+      "elapsed_seconds": 355.409
+    },
+    {
+      "rep_id": 2,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "cad4a7af478733e5cb5676d655891f5bbfe04a125bffa630db7112f882108aea",
+      "split_fingerprint": "f8ab8f4c30f9425752268b6e467715d9873921602118e3a4ac14011c37ad2a45",
+      "test_user_key_hash": "68349da149d296911477b48da433d5e563a7a9cfb070b9075aaec936c0242d34",
+      "elapsed_seconds": 300.831
+    },
+    {
+      "rep_id": 3,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "9f8bebb504a5fb16246976aeb511c1f3257d34b6d056b228620f67ec01eb11ad",
+      "split_fingerprint": "783bcc058343134341a70ecbc4eefaf025d02c9cd8ce420b51e028e6b82b3872",
+      "test_user_key_hash": "4dc7153ee65534c25f3b62ebd8f2c30488ce08152f0e2f8560faa60745851a05",
+      "elapsed_seconds": 339.876
+    },
+    {
+      "rep_id": 4,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "a462ab697d8f3b2a2594e1e754bf22e99202583501b76a51f3525082bbbfa292",
+      "split_fingerprint": "65c80fb844b4dbc4874207fbf0c9d32c5cfd45cbd64fa52247282ce9587d3a1a",
+      "test_user_key_hash": "c7d5231c5d3288b40a4eca3d1100467e96967e74c79e9dbcca038c4ca36b4fa4",
+      "elapsed_seconds": 306.533
+    },
+    {
+      "rep_id": 5,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "8ff980548c2ca9b693b461761296df9f168f4e6f77490fa154ff7dcf92300220",
+      "split_fingerprint": "d3b4279a1a27a86635be3e2c6122c3eea3b43cd0f0f8383b7b3bd6b9a0921598",
+      "test_user_key_hash": "5579e80b31a8b74e7ed501844512bda16670b84ca37ce1b6b06c780bdf1a848c",
+      "elapsed_seconds": 316.301
+    },
+    {
+      "rep_id": 6,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "e7643902ed36a9934fda5e2226d8b4b3296b8f5d7a58208c6924df3f800a37da",
+      "split_fingerprint": "2f8e68d2fcb64fc410c1a4c1d9b5c67aa3ec0195044e41c2a935a6e21dc2ec8d",
+      "test_user_key_hash": "6b079f9ff49bfc36bd63f4e4c13a2d52f9be4a29cc44955fa042e8f2b870ba24",
+      "elapsed_seconds": 288.941
+    },
+    {
+      "rep_id": 7,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "52f8a95bf67c34204c4fb29e9ce0975f98154c737f89a251f6d7f03236795481",
+      "split_fingerprint": "4982652339e6a9cc567279eef82cd28bccfa3e43748d8c11f269727d7ebd9598",
+      "test_user_key_hash": "66a29e974f70bec10c09babeab062d20292f912e1267029c5fd9ad0c6aee1ea6",
+      "elapsed_seconds": 300.765
+    },
+    {
+      "rep_id": 8,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "9b2a22569dbb7ec0268513f34ec219481258ac1cff4c0d220bcdaad316bdb150",
+      "split_fingerprint": "ce4fed46122ee848b4138d137826cfd7c1361718ec25f09af9f58cd059160fcf",
+      "test_user_key_hash": "45b19489032490331dba880c033f580223bd2a48f458a941ef507ce35f940d3e",
+      "elapsed_seconds": 299.13
+    },
+    {
+      "rep_id": 9,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "b7a553abccb422d63bc5de5e09e57278f7cb49fc2674bfd12b2d0f7cfac3f27b",
+      "split_fingerprint": "8e7d1445985702d943c94dcc6fc3f21ddce00e1631b1369cb12d01be194e1bee",
+      "test_user_key_hash": "44f11ce22e9125c2df0ecdd0069c1b7ac3b1c5257c27f36f1d8a9387b061eeca",
+      "elapsed_seconds": 298.341
+    },
+    {
+      "rep_id": 10,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "1651595fed954aca92207a8123f459fbe966abaa1159e68a9ea869f69fc2c9b0",
+      "split_fingerprint": "d2233f38c3062d760911934d35b508bffae351ba2ff65cd7cb395986c6475133",
+      "test_user_key_hash": "ef8f55571ba600b4c72cad7c56e23eb826a5e259304c1f1a41e524308c16e4f4",
+      "elapsed_seconds": 293.687
+    },
+    {
+      "rep_id": 11,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "d6e03b3409994ffb0e4306256ebb7cb4cfa49b8d4a71678b239244604fe76fb0",
+      "split_fingerprint": "d1b438f42c919dc33fb806ae4c153826d255048c6621729d76886b56ce5ff36a",
+      "test_user_key_hash": "26d17645ed521d36bf3fab85a8741e44ea8f2504c6164ee103d0a35cbea87800",
+      "elapsed_seconds": 298.544
+    },
+    {
+      "rep_id": 12,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "8eca6128099528712ed89f16fd9ef9e016e6041abc79f48a57e8edb67d71ad5d",
+      "split_fingerprint": "b47a0539452ff2d50129445236cc05bf340085175d7ec85e4bc144e2ead5e58e",
+      "test_user_key_hash": "483d99065dbf863c7f624970668465fcd5dc826452f465e2388eb222a2f542d0",
+      "elapsed_seconds": 300.325
+    },
+    {
+      "rep_id": 13,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "206d347daf7842dbfe738c8ef2a8c3699f15b66054af63e8c3986915b77c9239",
+      "split_fingerprint": "0c3446b31cd50840ee1386d5079b4a18042e95700186f83c595d05ea2fb93ae2",
+      "test_user_key_hash": "3a05df047edd55fbfbdfa237db45777b92708d6c6be59e992085ae965a9e313c",
+      "elapsed_seconds": 298.581
+    },
+    {
+      "rep_id": 14,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "63ad2efffebb1f1fd51eb175f09a59840c3e56c53d59c9e5c788d8fd739d5b32",
+      "split_fingerprint": "c27a26c490c0df51b4435898902dba8ac9577c5cddbdc7476d72ef8fdbbe4540",
+      "test_user_key_hash": "eaba83453cf77056cba19f5eb33ed4b834c4661a8082ab9b41e22431d1f4bac7",
+      "elapsed_seconds": 295.649
+    },
+    {
+      "rep_id": 15,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "ba3479c5865429f4a7e41a182d57c3d6a677d0392703b626ba558f6cdc210d20",
+      "split_fingerprint": "93b8760c28858a93d4ae59974ad7e6454843b64a55a43db157fe6a4f79100c04",
+      "test_user_key_hash": "b4fd21188fe9bd9f0aacf419a95cdf80c8a36b24d3b1fbcc5abd9ed4447bf3f1",
+      "elapsed_seconds": 296.275
+    },
+    {
+      "rep_id": 16,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "c6ed14f29822bff404d15f916ca5cb33ba02c424d41bb0bb8c1f645d7e0b7093",
+      "split_fingerprint": "32667e92a181d57a62103bc4099366d0a465d07a270eea812b7e52d7f41d045c",
+      "test_user_key_hash": "25c5200b423bd309e7e9a091c7720d92dc3a02165697641e948e34a447b31d16",
+      "elapsed_seconds": 301.318
+    },
+    {
+      "rep_id": 17,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "4eca0ff02b88947cc68cd468e521bac3a12d84aefbc45d128ea9c0eca7647bd1",
+      "split_fingerprint": "f0d4253c4309ac3f0096be7e9a0d06310a463eb26dea2a1ae4cec0703783ef44",
+      "test_user_key_hash": "15c6d0e2260e60786a07e0b75832ef62c6a50e7e40bc418413277be4574d42f2",
+      "elapsed_seconds": 299.228
+    },
+    {
+      "rep_id": 18,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "40f717a44e6e8e1510f11fb1c099f85f146cb78d938cf335337a8f4e868e9fb8",
+      "split_fingerprint": "90a9f60f393116fc81d173921b58148418a46b67202df7b1c3f415578c477838",
+      "test_user_key_hash": "b9ac64c0a6c90abf37d4c7bc9536f96322486e84fded9388414503619c49bf25",
+      "elapsed_seconds": 298.123
+    },
+    {
+      "rep_id": 19,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "3b5bf469a4d25c48c5846070198467bdff9b1efd7a02afc49cec43d4d2f7b771",
+      "split_fingerprint": "db2f4df2f0a55f2be85714e4393748c67694a0edc81a74eb1c08cb189ceb93e4",
+      "test_user_key_hash": "9c24635a5b32b0d414a70676cffb0be125ead87061059169e32e72b7d01deeb1",
+      "elapsed_seconds": 300.628
+    },
+    {
+      "rep_id": 20,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "2d34babdee5f393acece15db8faa67f40e84d0e94714c3aa4124de760582048e",
+      "split_fingerprint": "2d39db6c00721bab8e64153337d088be6221230d0477c88890a3ef5787707913",
+      "test_user_key_hash": "64fa0a1b420f2d65c7399e680acec18ce68e2de1412096201951326dc3dd7a27",
+      "elapsed_seconds": 305.887
+    },
+    {
+      "rep_id": 21,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "2bc4542f59973f543e36cc5f19b04118992ff181946d14453f4d083a93e1d098",
+      "split_fingerprint": "cd101e304221c9bbac2df3ffa418ce813e852ad1ba7b968de11c4da6ef35b974",
+      "test_user_key_hash": "2564eb0d40d7e4c43765857d8c23fa72c637228b640534be0c32dcec37dc3a99",
+      "elapsed_seconds": 298.532
+    },
+    {
+      "rep_id": 22,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "a6f0db28c770fca25c16e5b1cd2ec8dd0c90c3715df34f81338a8e9d791b92e9",
+      "split_fingerprint": "fd311e47755eab0d7d02befab3c11f978a99781bca7600703805805d91009c8d",
+      "test_user_key_hash": "a14cd88eedb400d1a3ea6b18655e6b3fe64497562017db1fd9bd4911cc0f3678",
+      "elapsed_seconds": 296.829
+    },
+    {
+      "rep_id": 23,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "d151ac04c045cb6a2d88849386991538684eeb242ee6c3afd92b5c7e2803601b",
+      "split_fingerprint": "e9c69a50db495ea1c7632e692d63abbacc232ca78ec06de456bf0d0b3e922659",
+      "test_user_key_hash": "fe240173dda1f07333b31513330a0b225da17c48874bfacf35232b43514a8634",
+      "elapsed_seconds": 295.475
+    },
+    {
+      "rep_id": 24,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "2976ee2fb40284955c50e23630904839061798e1827560de9c4d3aa7f64e7428",
+      "split_fingerprint": "1b29ce58bdab04f18c05edf22fdc9b1b5376c9c8dbcd3436c3d77e768f3d1a80",
+      "test_user_key_hash": "c423bfb39c9ca9b93caf575bbb18a865568ab8453ff83066931e5389fe257197",
+      "elapsed_seconds": 299.184
+    },
+    {
+      "rep_id": 25,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "10b45e657f85ac87efe0cd9084f418dfa14ada877578726cf380263c2a65b0ec",
+      "split_fingerprint": "324ba853be33aacd3eacb8f5c2bcbd4f65487a541004a0efec4bcfc2a07bdf99",
+      "test_user_key_hash": "38eba00ebb1853c2bd6e0129e3b3ff78eb5782e37b968981ec6ca0a6f13820fe",
+      "elapsed_seconds": 304.483
+    },
+    {
+      "rep_id": 26,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "3137ff4434230f12e30b8a8e99080e18db5e4f062562de737850f694f0047268",
+      "split_fingerprint": "7192e03cb03914f4db52abb60bf0f80c7fb954df274f0366aa27dc8d8e561d49",
+      "test_user_key_hash": "3dda59b06fd76ee7401ace6ee9ee381c02192bca9a89fa8cf2aea482e2b73aea",
+      "elapsed_seconds": 307.154
+    },
+    {
+      "rep_id": 27,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "constant",
+      "observed_hash": "853500a3fbe658887389f1ae85aa4f80b61f6808df2d7a09a1511f58a55885a3",
+      "split_fingerprint": "a94810e76862367c331598001d8e1a5cfb49a06abb4c2195b3d0f05556902617",
+      "test_user_key_hash": "bd40883a29feab4dcc37244f991deb789abf6544b2e7f8c9c0366a75ec21600e",
+      "elapsed_seconds": 299.8
+    },
+    {
+      "rep_id": 28,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "t_learner",
+      "observed_hash": "2b633969d13cc3a97d2ed9a9b4738fad46a650c2493f109a4ac79b3a5e41f4a5",
+      "split_fingerprint": "f7135ebc45375dd274e99743eb1f2d7f716eded5930a42d762d5d1f0f0df7a0f",
+      "test_user_key_hash": "66d84df7934ab6fd302dec4a2705c2f4a88b0ecbb6dbe589b5c63164a90210bf",
+      "elapsed_seconds": 293.097
+    },
+    {
+      "rep_id": 29,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "41db952597e9197447ae4928ba5eab9a3cd14c1517720dab8c2f0d8da7445880",
+      "split_fingerprint": "68355166068b9c19fede3d31903a8265e42d787f2cc15c31d7ffbbfcb9328f76",
+      "test_user_key_hash": "d75dd9cb567039e0edda5c815080d46796a4e1e653e374344cf793969e6f562d",
+      "elapsed_seconds": 291.522
+    },
+    {
+      "rep_id": 30,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "b39e12e44861e5946287056dc5fff8e9c62373269c1a532c08a969f85ef5da6e",
+      "split_fingerprint": "c5c56d3404cf761e879df89f05cc3320075f7ba612ec6a095547151e1f34396f",
+      "test_user_key_hash": "8339c210e10458ad99db47e8b6b6667a1e7e1329dd78987adc26d1c6cc84e7d6",
+      "elapsed_seconds": 293.56
+    },
+    {
+      "rep_id": 31,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "c730b4d13e78535d29ac60e61369702ad16eab486d5a161f8d5f3bd26b7befa6",
+      "split_fingerprint": "4b01e65a6952567c602821e99ca838e459771dac4fe7def594cbf08eedaf709a",
+      "test_user_key_hash": "5e2e7b2bfaaea8c1eca41af03f320205c3fdd121837bfd250d5965b8bf2a4677",
+      "elapsed_seconds": 292.579
+    },
+    {
+      "rep_id": 32,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "76c289ae4ae2d95eafa0c64941d3ad50063d9632ad759e488615622d2ce9eaa8",
+      "split_fingerprint": "133a8ab1723d31503f1e88e5624416ad23ede56157e8e6935146ced2361e50af",
+      "test_user_key_hash": "757029a8ebd59badfa4c00a5f1aa0f8099f3856a3e88483bf63e9cd801b1081e",
+      "elapsed_seconds": 291.45
+    },
+    {
+      "rep_id": 33,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "e2fea17d84c40463b2074108ba52d0fd8cbf327f34690656a39de3112dad7516",
+      "split_fingerprint": "4dd96e81620f3d3406ab754faa7675a10b6115cbedc3a196b182ade8c89cc12a",
+      "test_user_key_hash": "ac5413a6e243d8f9bae6cfddf674dc37ed844833c53e22720274c43c8b5a2895",
+      "elapsed_seconds": 296.363
+    },
+    {
+      "rep_id": 34,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "85ac573302d1510b4c5a6eb4c68c9b91996d7a12f6e4d3ca1b3c5c5a5b929962",
+      "split_fingerprint": "dd2d852221f46cefbeafa90db861664079f49df0cce6c0e34bab0ed5d28ed0b3",
+      "test_user_key_hash": "4c9dec61ee24124687b24d2c96ff3c30a5fe84dd5d288cd8178f24b4209054a5",
+      "elapsed_seconds": 291.685
+    },
+    {
+      "rep_id": 35,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "1b986a0dae3d9a07f4450c01acfd0642c61b16ba475e01d489c82608b16bd656",
+      "split_fingerprint": "4ee9c2301bd467432ac63a264db9497b882b9da134cbd00b15703f4e0bbe5d28",
+      "test_user_key_hash": "0956ce127b04e0dfd1713654af12b0c796d4aba84243a741afa4363fee223fbc",
+      "elapsed_seconds": 318.862
+    },
+    {
+      "rep_id": 36,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "2e0b45f9962d2a467d7727324bb945760d5813ae91948c8edfdfabd7b816fd91",
+      "split_fingerprint": "295a876c1b9662cb9e3006bd60d7d542e0db89794ecefe09d854a93192fc17f3",
+      "test_user_key_hash": "efbe889e3777093c9d81bff6145d9bca9c20dcdd3902ceac639d0f91160d3421",
+      "elapsed_seconds": 398.51
+    },
+    {
+      "rep_id": 37,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "3c992ccd2d1a363abb998a67d8b35bc943a047c98ff15a8b1176450e22933374",
+      "split_fingerprint": "10bea9a84ebe364c9e1f42afd11b2d488c212e88c29ddc82d820ef60393e1080",
+      "test_user_key_hash": "6b68c4ed5942cbc2af4bbe226ccfc915cc15d3450285ae699b315a1c2d1f484f",
+      "elapsed_seconds": 402.892
+    },
+    {
+      "rep_id": 38,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "db9ba523d4b059be74e9b67507f90ef6bf6d62b0bd355cc2bfe00d4d2161a8ec",
+      "split_fingerprint": "1172d07cc93d3200032be72546ec1de2ccdf01cf29129abcaaada8ad0674ce37",
+      "test_user_key_hash": "c8caf3030a53d9e7ca6e9ef20808e1985166b53bd6e453a308ba397aee6f12d1",
+      "elapsed_seconds": 384.986
+    },
+    {
+      "rep_id": 39,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "88827e985056600fed39a12b90e687205a0568cef405a214cae50fdc785de50b",
+      "split_fingerprint": "513fe0baba619f36eef3e226b8a7856d50cbba00c416776ecdefd347be41ef19",
+      "test_user_key_hash": "34b2ed89756c5e302e2c9709658fbc9e9afed4695dbbc793503d055718fa1e5f",
+      "elapsed_seconds": 391.099
+    },
+    {
+      "rep_id": 40,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "2dfd502e480f741ae81c3620c6b6bdf0352dab91e2430692105c119c6777d144",
+      "split_fingerprint": "5fb47bd390a23e119cd988735fc2138204f72f359c31e6ccdc38eb950c622753",
+      "test_user_key_hash": "75b468869302e8ec65e54d6d3173cbfcc6dcf250ae23cdc0b484532006343d79",
+      "elapsed_seconds": 360.502
+    },
+    {
+      "rep_id": 41,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "868505ae675bd89ab4a18c47b7bf6909993f91976fe0e0805f0d7b68aed6fde7",
+      "split_fingerprint": "93564a527d4de00e2f68c31661a3c6f18fd8a50fb95cd26df19900cbe38395a5",
+      "test_user_key_hash": "9877e6888a3bd0cfde2a02d1f947c05186c569798b7ea56a7747c6deedca42a3",
+      "elapsed_seconds": 305.752
+    },
+    {
+      "rep_id": 42,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "38645caff6c78782e29a2fdc1fd677e3369173ae31a8f8211e684b6b36e4e01d",
+      "split_fingerprint": "606d0b33cf89c56c29808b0939cad4e6e9c0e66ef08aca4300e56cbabeb50739",
+      "test_user_key_hash": "a9676ec8b8fc58b88be1da9469c8bb1f516cef1720a192f659a22826401b6729",
+      "elapsed_seconds": 351.3
+    },
+    {
+      "rep_id": 43,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "44c246c1a1d84b560876c9de340b120623a2039de5316fba3e918cc409177bde",
+      "split_fingerprint": "c229e46d3db530767ef61948b06593716b64f256e59384234ff8a905a4e8ff32",
+      "test_user_key_hash": "9b47937482d2d5b102dc178e2d4a1bed7b734aa05d13c51bd973be31545ce57c",
+      "elapsed_seconds": 291.382
+    },
+    {
+      "rep_id": 44,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "89f4018d14adf9857b611deac577b49acd3d561b0eff9c121737c4dbd748b1bd",
+      "split_fingerprint": "fee7a215614a6e6ae4ac11a72883dd374f5aeda4f0264d0714945972438ffcb7",
+      "test_user_key_hash": "d2f875e44ec99861be1931bdbe61e98c0d44825c316fcacf5bea6394b8ca0c2a",
+      "elapsed_seconds": 372.882
+    },
+    {
+      "rep_id": 45,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "9b1d509efef874134cefd27b5e6ab685fb687cfacf7f4a4a3ff4b338737dc1a5",
+      "split_fingerprint": "31f71d3bfdfb91a3603d5760e3e30d428810dba2ab6487ce25b2af25ece93851",
+      "test_user_key_hash": "6bda2f15338a15901c8253799d9cb6dac414d91f61a8cd3c7cdc0d1fd86e8601",
+      "elapsed_seconds": 296.097
+    },
+    {
+      "rep_id": 46,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "2023aea172ae48fd05ffe1bdbab5de6520313f9fb683f1516eb9d06d7ccbfd59",
+      "split_fingerprint": "16a9383fdda993f3a31ceea25ae91c3fc1d5630d5df9e4ff1b04033c6a87fb86",
+      "test_user_key_hash": "9075f5d70eac42badce5dcf51618122d7c1ee835856cc313ac56139d540e4024",
+      "elapsed_seconds": 288.501
+    },
+    {
+      "rep_id": 47,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "s_learner",
+      "observed_hash": "74759d7fcea1451f69103acfbe53005f592bd4ee57e566926d4f9d0d41d4ffa3",
+      "split_fingerprint": "6cad7e73e6d4a83bca00e53df308b6827e2a22d062adecf4d13eac896f5828f0",
+      "test_user_key_hash": "5083c42f52fe9d2e468355577b8cf8c78eedeafa0845e66083f412afb3d25095",
+      "elapsed_seconds": 283.823
+    },
+    {
+      "rep_id": 48,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "763c38362f25b6924c843bdf8bbfc4b15ef0b99e1b9764e213ebb9125935b687",
+      "split_fingerprint": "f71b165210c33593bd69549fa005e88f36870180dd9d9b696219a7a5e48f6e0b",
+      "test_user_key_hash": "21da7e600d06c1f0030cfb97489afcf560262b1c76dadf9244cdd9bd4a2803b5",
+      "elapsed_seconds": 297.103
+    },
+    {
+      "rep_id": 49,
+      "n_total": 200000,
+      "n_train": 100000,
+      "n_validation": 40000,
+      "n_test": 60000,
+      "chosen_model": "causal_forest",
+      "observed_hash": "eca918c70e0188c136766002ef1cb0f31c630f830eab6488a50c11007741d175",
+      "split_fingerprint": "8c86c39bfccd7b402a266aefe1dc750f7fafd12bd576eb33efbbcc58edfc0f8d",
+      "test_user_key_hash": "af5f3a30a910b527e44212800d07fd353980d9dd1550e32d4343c88b25347e1b",
+      "elapsed_seconds": 306.339
+    }
+  ],
+  "config_hash": "e1aa4314b8d84b04a26150cb8ccea5a35dbe9b2d514fee724c56570d5b586d75",
+  "written_at_beijing": "2026-10-27T17:14+08:00",
+  "outputs": {
+    "per_rep": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\d03_formal\\shard0\\v3_phase_D03_diagnostic_per_rep.csv",
+    "policy_grid": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\d03_formal\\shard0\\v3_phase_D03_diagnostic_policy_grid.csv",
+    "summary": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\d03_formal\\shard0\\v3_phase_D03_diagnostic_summary.json"
+  }
+}
