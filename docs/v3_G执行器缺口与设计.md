@@ -187,3 +187,27 @@ G03 的验收状态里，不能等跑完再解释。
   8 物理核下 6 路比 4 路只慢约 5%。**每条 lane 必须是独立 out-root**，否则 `layer_runs` 与
   `<layer>/aa_repetitions.csv` 会互相覆盖。
 - 每次正式跑前重新生成快照（源码一改，旧快照的 `_verify_snapshot` 会拒绝启动）。
+
+### 6.6 G02 补丁锚点（2026-10-28 22:50 只读核实，冻结窗口结束后按此落地）
+
+三处事实，决定 B 的补丁**只是把守卫换成登记**，不是新增"全预算编排"：
+
+1. `src/causal_growth/evaluation/v3_f02.py:282-283`：验证臂的预算取自冻结配置
+   `evaluation.independent_validation.primary_budget_cny_per_user`，**不存在预算参数**。
+   即当前 bootstrap 天然只在主预算档上做，与裁决 B 完全一致。
+2. `src/causal_growth/evaluation/v3_g_matrix.py:900-903`：`bootstrap_resamples>0` 只允许 `rep==0`。
+3. 同文件 `:904-908`：`status=="formal"` 且 `bootstrap_resamples>0` **硬拒绝**；`:1043-1046`
+   的 manifest 已经把该情形标成 `representative_rep_primary_budget_only`。
+
+补丁内容（改 `src/`，必须在 G01 退出后、重跑全量绿灯前完成）：
+
+- `run_g_cell` / `run_g_rep` 增加参数 `bootstrap_budget_scope: str = "primary_0.2"`；
+- 把 `:904-908` 的拒绝改为：`formal` 且 `bootstrap_resamples>0` 时，**要求**
+  `bootstrap_budget_scope == "primary_0.2"`，否则照旧抛错；同时把 scope 写进行/manifest；
+- 断言 `fixed_bootstrap.csv` 的 `budget_cny_per_user` 唯一且等于配置主预算（`0.2`）；
+- 不得删掉 `rep==0` 守卫，也不得允许未声明 scope 的 formal 跑。
+
+**报告口径**：`src/causal_growth/v3_config.py:143` 的 `fixed_bootstrap_resamples` 是
+"学习格 × 8 预算 × 1000"的计划数（全预算口径）。G02 实际执行 1 000 次（主预算），
+报告必须同时写计划数与执行数，并引用 `budget_scope=primary_0.2`，不得让读者以为 8 档都跑了。
+
