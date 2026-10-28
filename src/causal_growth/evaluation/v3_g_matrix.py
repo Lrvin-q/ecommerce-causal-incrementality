@@ -114,6 +114,9 @@ ROW_TAIL: tuple[str, ...] = (
     "validation_n", "validation_targeted_n", "validation_random_n",
     "validation_predicted_spend_per_user", "validation_budget_per_user",
     "validation_freeze_hash", "validation_observed_hash",
+    "validation_bootstrap_resamples", "validation_bootstrap_point_diff",
+    "validation_bootstrap_se", "validation_bootstrap_ci_low",
+    "validation_bootstrap_ci_high",
     "status", "provisional",
 )
 
@@ -615,6 +618,61 @@ def _audit_truth(
     }
 
 
+def two_sample_bootstrap_diff(
+    targeted: np.ndarray,
+    random_arm: np.ndarray,
+    *,
+    resamples: int,
+    master_seed: int,
+    index: int,
+) -> dict[str, float | int]:
+    """已选/随机两臂净利的双样本 bootstrap（各自有放回重抽），统计量为均值差。
+
+    协议 §7 要求对「已选策略 − 随机策略」做 1000 次重抽样；``metrics.bootstrap_se``
+    只支持单样本均值，不能直接用于两臂差，故单列此函数。不重拟合，只重抽已实现利润。
+    """
+    if int(resamples) <= 0:
+        raise ValueError("bootstrap 次数必须为正")
+    t = np.asarray(targeted, dtype=float)
+    r = np.asarray(random_arm, dtype=float)
+    if t.size == 0 or r.size == 0:
+        raise ValueError("两臂样本都不能为空")
+    from causal_growth.rng import child_rng
+
+    rng = child_rng(int(master_seed), "g.fixed_bootstrap", int(index))
+    diffs = np.empty(int(resamples), dtype=float)
+    for draw in range(int(resamples)):
+        diffs[draw] = (
+            t[rng.integers(0, t.size, t.size)].mean()
+            - r[rng.integers(0, r.size, r.size)].mean()
+        )
+    low, high = np.percentile(diffs, [2.5, 97.5])
+    return {
+        "resamples": int(resamples),
+        "n_targeted": int(t.size),
+        "n_random": int(r.size),
+        "point_diff": float(t.mean() - r.mean()),
+        "bootstrap_mean_diff": float(diffs.mean()),
+        "bootstrap_se": float(diffs.std(ddof=1)) if diffs.size > 1 else float("nan"),
+        "ci_low": float(low),
+        "ci_high": float(high),
+    }
+
+
+def _bootstrap_scalar(
+    validation: Mapping[str, Any] | None,
+    key: str,
+    default: float | int = float("nan"),
+) -> float | int:
+    """从验证臂返回值里取 bootstrap 标量；未跑 bootstrap 时给显式默认值。"""
+    if not validation:
+        return default
+    payload = validation.get("validation_fixed_bootstrap")
+    if not payload:
+        return default
+    return payload[key]
+
+
 def run_validation_arm(
     fit: HistoryFit,
     cfg: Config,
@@ -623,6 +681,7 @@ def run_validation_arm(
     n_validation: int,
     policy: str,
     target_dir: str | Path | None = None,
+    bootstrap_resamples: int = 0,
 ) -> dict[str, Any]:
     """独立 20 万队列：三臂 → 冻结名单 → 之后才读真值，并返回逐 rep 摘要。"""
     target = None if target_dir is None else Path(target_dir)
@@ -682,6 +741,26 @@ def run_validation_arm(
         truth["policy"].to_csv(target / "truth_policy_values.csv", index=False, encoding="utf-8-sig")
         truth["arms"].to_csv(target / "truth_arm_means.csv", index=False, encoding="utf-8-sig")
         truth["contrasts"].to_csv(target / "truth_arm_contrasts.csv", index=False, encoding="utf-8-sig")
+    bootstrap: dict[str, Any] | None = None
+    if int(bootstrap_resamples) > 0:
+        targeted_profit = observed.loc[
+            observed["assigned_policy_arm"] == f02.TARGETED_ARM, "net_profit"
+        ].to_numpy(dtype=float)
+        random_profit = observed.loc[
+            observed["assigned_policy_arm"] == f02.RANDOM_ARM, "net_profit"
+        ].to_numpy(dtype=float)
+        bootstrap = two_sample_bootstrap_diff(
+            targeted_profit, random_profit,
+            resamples=int(bootstrap_resamples),
+            master_seed=int(cfg.require("project.master_seed")),
+            index=int(rep_id),
+        )
+        if target is not None:
+            pd.DataFrame([{
+                "rep": int(rep_id),
+                "budget_cny_per_user": float(info["budget_cny_per_user"]),
+                **bootstrap,
+            }]).to_csv(target / "fixed_bootstrap.csv", index=False, encoding="utf-8-sig")
     targeted = info["arms"][f02.TARGETED_ARM]
     random_arm = info["arms"][f02.RANDOM_ARM]
     return {
@@ -696,6 +775,7 @@ def run_validation_arm(
         "validation_observed_hash": dataset.content_hash,
         "source_hashes": source_hashes,
         "build_info": build_info,
+        "validation_fixed_bootstrap": bootstrap,
     }
 
 
@@ -801,6 +881,7 @@ def run_g_rep(
     time_mode: str = "static",
     with_learning: bool = True,
     with_validation: bool = True,
+    bootstrap_resamples: int = 0,
     snapshot: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """跑一个 (cell, rep)：历史数据只建一次，ATE 与学习共用它。"""
@@ -816,6 +897,15 @@ def run_g_rep(
     n = int(spec["n"] if n is None else n)
     if status == "formal" and n != int(spec["n"]):
         raise ValueError("正式运行的 n 必须等于注册 n")
+    if int(bootstrap_resamples) > 0 and rep != 0:
+        raise ValueError(
+            "固定策略 bootstrap 只允许在代表 rep（0）上运行；其他 rep 用预设影响函数区间"
+        )
+    if status == "formal" and int(bootstrap_resamples) > 0:
+        raise ValueError(
+            "固定策略 bootstrap 的全预算编排尚未实现（当前只覆盖主预算）；"
+            "正式运行不得开，见 docs/v3_G执行器缺口与设计.md"
+        )
     target = Path(out_dir)
     target.mkdir(parents=True, exist_ok=True)
     run_id = f"g:{cell_id}:{spec['block']}:rep{rep}"
@@ -856,6 +946,7 @@ def run_g_rep(
         validation = run_validation_arm(
             fit, cfg, rep_id=rep, n_validation=n, policy=policy,
             target_dir=target / "validation",
+            bootstrap_resamples=int(bootstrap_resamples),
         )
         validation_builds = 1
         model_seconds += time.process_time() - validation_started
@@ -896,6 +987,14 @@ def run_g_rep(
         ),
         "validation_freeze_hash": validation["validation_freeze_hash"] if validation else "",
         "validation_observed_hash": validation["validation_observed_hash"] if validation else "",
+        "validation_bootstrap_resamples": _bootstrap_scalar(validation, "resamples", 0),
+        "validation_bootstrap_point_diff": _bootstrap_scalar(validation, "point_diff"),
+        "validation_bootstrap_se": _bootstrap_scalar(validation, "bootstrap_se"),
+        "validation_bootstrap_ci_low": _bootstrap_scalar(validation, "ci_low"),
+        "validation_bootstrap_ci_high": _bootstrap_scalar(validation, "ci_high"),
+        "validation_fixed_bootstrap": (
+            validation["validation_fixed_bootstrap"] if validation else None
+        ),
         "status": status,
         "provisional": status != "formal",
     }
@@ -941,6 +1040,11 @@ def run_g_rep(
         "selected_model": row["chosen_model"],
         "selected_policy": policy if validation else "",
         "freeze_hash": row["validation_freeze_hash"],
+        "fixed_bootstrap_resamples": int(bootstrap_resamples),
+        "fixed_bootstrap_scope": (
+            "representative_rep_primary_budget_only" if int(bootstrap_resamples) > 0 else "not_run"
+        ),
+        "fixed_bootstrap": validation["validation_fixed_bootstrap"] if validation else None,
         "truth_columns_present": False,
         "truth_unlock_order": "policy_list_written_then_truth_audit",
         "cpu_seconds": {
@@ -1027,6 +1131,7 @@ def run_cell(
     policy: str = "greedy_incremental_profit_per_cost",
     with_learning: bool = True,
     with_validation: bool = True,
+    bootstrap_resamples: int = 0,
     snapshot: Mapping[str, Any] | None = None,
     resume_from: str | Path | None = None,
     target_reps: int,
@@ -1067,6 +1172,11 @@ def run_cell(
             drifted.append("protocol_config_hash 漂移")
         if int(first["tier"]) == 1 and _int_value(first, "rep") >= int(spec["R_ate"]):
             drifted.append("已有 rep 超出当前 R_ate")
+        if any(
+            _int_value(row, "validation_bootstrap_resamples") != int(bootstrap_resamples)
+            for row in existing
+        ):
+            drifted.append("bootstrap_resamples 与已有结果不一致")
         if drifted:
             raise ValueError(f"续跑参数与已有结果不一致，拒绝拼接：{drifted}")
 
@@ -1083,6 +1193,7 @@ def run_cell(
             n=expected_n, plan=plan, status=status,
             formal_approval=formal_approval, models=models, policy=policy,
             with_learning=with_learning, with_validation=with_validation,
+            bootstrap_resamples=int(bootstrap_resamples),
             snapshot=snapshot,
         )
         row = json.loads((cell_dir / f"rep{rep}" / "row.json").read_text(encoding="utf-8"))
@@ -1119,6 +1230,10 @@ def run_cell(
         "R_learn": int(spec["R_learn"]),
         "R_validation": int(spec["R_validation"]),
         "n": expected_n,
+        "fixed_bootstrap_resamples": int(bootstrap_resamples),
+        "fixed_bootstrap_scope": (
+            "representative_rep_primary_budget_only" if int(bootstrap_resamples) > 0 else "not_run"
+        ),
         "config_hash": protocol.scenario(cell_id).hash(64),
         "protocol_config_hash": protocol.config_hash,
         "completed_reps": [_int_value(row, "rep") for row in existing],

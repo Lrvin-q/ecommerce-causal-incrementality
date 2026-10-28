@@ -9,7 +9,7 @@
 |---|---|---|---|
 | ATE + 学习 + 独立验证 + 单一预算名单 | 已实现 | `scripts/34_g_matrix_run.py` + `evaluation/v3_g_matrix.py` | `outputs/evidence/g_smoke/`（28 件） |
 | 完整链路 AA（四层 × R） | 已实现（21:00） | `scripts/36_g_aa_run.py`（复用 `v3_aa.run_full_chain_aa`） | `outputs/evidence/g_aa_smoke/`（9 件） |
-| 固定策略 bootstrap 1000 | **未实现** | — | — |
+| 固定策略 bootstrap 1000 | **部分实现**（代表 rep × 主预算；全预算编排未实现） | `run_validation_arm(bootstrap_resamples=…)` + `scripts/34 --bootstrap-resamples` | `tests/test_v3_g_fixed_bootstrap.py`（7 项）；CLI 冒烟在 `out/g_bootstrap_smoke/`（未导出登记，可复跑） |
 | 再训练 bootstrap | **未实现** | — | — |
 | 随机名单（每预算 200 种子） | **未实现** | — | — |
 | G03 的 L2 交叉 / L3 三分支专项 | **未实现** | — | — |
@@ -29,6 +29,18 @@
   （69 学习格 × 8 预算 × 1000）。必须在代表 rep 上实测一次再乘。
 - **验收**：每个（代表格，预算）一组 1000 次差的分布；报告给均值差、SE 与 95% 百分位区间；
   与 `arm_summary` 的点估计一致（差 = 两臂均值差，误差 < 1e-12）。
+- **已实现（2026-10-28 21:30）**：
+  - `two_sample_bootstrap_diff` 做两臂各自有放回重抽，RNG 流 `child_rng(master_seed, "g.fixed_bootstrap", rep)`；
+  - `run_validation_arm` 在真值审计之后、用 `assigned_policy_arm` 与 `net_profit` 重抽，写
+    `validation/fixed_bootstrap.csv`（含 `budget_cny_per_user`、`resamples`、`point_diff`、`bootstrap_se`、`ci_low/high`）；
+  - 逐 rep 表新增 5 列 `validation_bootstrap_{resamples,point_diff,se,ci_low,ci_high}`；
+    manifest 记 `fixed_bootstrap_resamples`、`fixed_bootstrap_scope`、`fixed_bootstrap`；
+  - 守卫：`rep != 0` 拒绝（代表 rep 固定为 0）；`status="formal"` 且要跑 bootstrap 时**直接拒绝**，
+    因为全预算编排尚未实现——正式 G01 不得以“只跑主预算”开跑。
+- **未实现的全预算部分与成本**：每层代表格 × 8 个预算需要**各自构建一次验证总体**（分配不同 → 结果不同）。
+  552 = 69 学习格 × 8 预算；扣除已计入的 69 个主预算验证 rep，仍多 **483 次验证构建**；
+  按 D01 的 G2−CF = 131.2 s/次，约 **17.6 CPU·h**（不含 552,000 次重抽样本身）。
+  该成本尚未进任何上限表，必须在 G02 排期前与用户裁决。
 
 ## 2. 再训练 bootstrap
 

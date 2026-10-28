@@ -83,7 +83,8 @@ def _worker(task: dict) -> dict:
         formal_approval=task["formal_approval"], plan=plan, n=task["n"],
         models=tuple(task["models"]) if task["models"] else None,
         policy=task["policy"], with_learning=task["with_learning"],
-        with_validation=task["with_validation"], snapshot=task["snapshot"],
+        with_validation=task["with_validation"],
+        bootstrap_resamples=int(task["bootstrap_resamples"]), snapshot=task["snapshot"],
         resume_from=task["resume_from"],
     )
     return {"cell": task["cell"], "reps": task["reps"], "shard": str(task["root"]), **result}
@@ -200,6 +201,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--policy", default="greedy_incremental_profit_per_cost")
     parser.add_argument("--no-learning", action="store_true")
     parser.add_argument("--no-validation", action="store_true")
+    parser.add_argument(
+        "--bootstrap-resamples", type=int, default=0,
+        help="验证臂固定策略 bootstrap 重抽次数（0=不跑；协议要求 1000）",
+    )
     parser.add_argument("--out-root", type=Path, default=ROOT / "out" / "g_matrix")
     parser.add_argument("--summary-dir", type=Path, default=ROOT / "outputs" / "tables")
     parser.add_argument("--overlay", type=Path, default=DEFAULT_OVERLAY)
@@ -285,6 +290,7 @@ def main(argv: list[str] | None = None) -> int:
                 "n": args.n, "models": args.models, "policy": args.policy,
                 "with_learning": not args.no_learning,
                 "with_validation": not args.no_validation,
+                "bootstrap_resamples": int(args.bootstrap_resamples),
                 "snapshot": snapshot, "resume_from": resume_from,
                 "overlay": args.overlay.as_posix(),
             })
