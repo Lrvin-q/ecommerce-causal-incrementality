@@ -60,7 +60,7 @@ F02 回答：**冻结策略在一个从未参与训练的新用户总体上，�
 
 ## 4. 结果
 
-（待填：合并 200 rep 后由 `out/scratch/f02_aggregate.py`（届时提升进 `scripts/`）生成；
+（待填：合并 200 rep 后由 `scripts/32_aggregate_f02_formal.py` 生成；
 必须**按 `selected_model` 分层**、每个聚合列带分母，并单列 `constant` 层的零通过现象。）
 
 ### 4.1 决策层（每 rep 两项收益主张 + 一项护栏）
@@ -114,7 +114,7 @@ F02 回答：**冻结策略在一个从未参与训练的新用户总体上，�
   --shard-root out/f02_formal/shard2 --shard-root out/f02_formal/shard3 \
   --expected-reps 200 --tables-dir outputs/tables --evidence-dir outputs/evidence/f02_formal
 # rep 配对聚合（分层）
-.venv/Scripts/python.exe out/scratch/f02_aggregate.py
+.venv/Scripts/python.exe scripts/32_aggregate_f02_formal.py --root out/f02_formal --expect-reps 200
 ```
 
 ## 8. 检查单（合并后逐项打勾）
@@ -135,3 +135,4 @@ F02 回答：**冻结策略在一个从未参与训练的新用户总体上，�
 | 时间（北京时间） | 变更 |
 |---|---|
 | 2026-10-28 11:00 | 起稿：协议、绑定、检查单；§1 与 §4 留占位 |
+| 2026-10-28 11:22 | 聚合入口提为 `scripts/32_aggregate_f02_formal.py`（11 个反例夹具见 `tests/test_v32_aggregate_f02_formal.py`）；缺 rep 默认失败 |
