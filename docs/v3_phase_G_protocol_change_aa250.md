@@ -105,8 +105,8 @@
    修订目录里 `protocol_manifest.json` 的该字段仍是脚本输出 `false`（不改脚本产物），
    由第 5 步的 `revision.json` 声明 `experiment_results_exist: true` 并注明来源；
    `experiment_matrix.csv`、`config_hash`、`source_sha256`、`planned_counts` 照用脚本输出。
-5. **档案（已完成，2026-10-28 18:26）**：`outputs/v3/protocol_aa250/approval_revision_20261028.json`（2 696 B），含
-   `supersedes_config_hash`（`30511a32…`）、`config_hash`（`6b672610…`）、逐文件 `source_sha256`、
+5. **档案（已完成，2026-10-28 18:26；18:37/18:47 两次补正）**：`outputs/v3/protocol_aa250/approval_revision_20261028.json`（3 708 B），含
+   `supersedes_config_hash`（`30511a32…`）、`config_hash`（`00723dc2…`；`6b672610…` 只是十一行中间值，不再作为最终值）、逐文件 `source_sha256`、
    `reason_doc` 与其 sha256、`authorized_by`（2026-10-28 11:05 用户裁决）、`scope`（AA 4 格 250/层，其余不变）、
    `experiment_results_exist: true`、`review.status = pending_independent_review`。
    `outputs/v3/protocol/approval.json` **保留原字节**（sha256 `8f8a7e21…`，已记录在修订文件里）。
@@ -120,7 +120,7 @@
 
 ## 6. 回滚
 
-把 §2 的 11 行改回原值 → 重跑 `scripts/09_freeze_v3_protocol.py` → 在 `approval.json` 追加一条回滚 revision。
+把 §2 的 12 行改回原值 → 重跑 `scripts/09_freeze_v3_protocol.py` → 在 `approval.json` 追加一条回滚 revision。
 无需改动任何数据产物：本修订不改变已落盘作业的绑定值。
 
 ## 7. 变更记录
@@ -133,3 +133,4 @@
 | 2026-10-28 18:37 | **范围补正**：全量测试 18:34 结束（EXIT=1，2 项失败），抓到 `design.yaml:38` 的 AA 批数副本仍为 1000、`tests/test_v3_power.py` 的 `FROZEN_CONFIG_HASH` 仍钉旧值。按同一授权改 `design.yaml` 为 250（第 12 行）、更新两处守卫测试；18:36 重跑 09，最终 `config_hash=00723dc2…`、matrix `30645842…`、design `8890d25b…`。**11 行 → 12 行** |
 | 2026-10-28 18:37 | 修正 §4 的一处指针：独立评审在 §5 第 7 条，不在 §6（§6 是回滚） |
 | 2026-10-28 18:46 | 最终全量串行测试 **1 275 项、EXIT=0、18:36:49–18:45:27（518 s）**，日志与 JSON 凭据入库；18:24 首轮 EXIT=1 的两项失败与处置保留在 pre-fix 凭据里 |
+| 2026-10-28 19:03 | 预评审 2 项 P1 修复：§6 回滚改 **12 行**、§5.5 档案改为 **3 708 B / `config_hash 00723dc2…`**（`6b672610…` 标注为十一行中间值）；`approval_revision_20261028.json` 补 `updated_at` 与 `revision_history`，并在本条登记后重算本文件 sha 回填修订档（前值 `6417c059…`）。预评审为草稿复核，不替代 §5 第 7 条的独立评审 |
