@@ -1,7 +1,14 @@
 # AGENT 交接说明 —— v3 重建
 
-> **最新交接时间：2026-10-28 22:44（北京时间）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
+> **最新交接时间：2026-10-28 23:01（北京时间）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
 > **（2026-10-28 22:44 更新）G 阶段四项裁决已落地；G01 AA250 正式跑运行中（22:42:39 起，ETA 2026-10-29 05:00–07:30）；G02/G03/G04 未启动。**
+> **（23:01 增补）收尾链已修完并预演；恢复会话从这三条开始：**
+> 1. **G01 跑完会自动收尾**：`out/g01_runner.sh` → `out/g01_verify.py` → `36 merge` → 无人值守 `out/g01_post.sh`（等 `out/g01_logs/finished_at.txt`，校验 `verify.exit`/`merge.exit`=0 后跑 `scripts/37_export_g01_evidence.py` 与 `scripts/33 --dirs g01_aa250`）。进度看 `out/g01_logs/post.status`（含 OK/ABORT 即结束）。
+> 2. **收尾链三处路径错已修**（22:53–23:00，提交 `8aaab1c`/`a752517`）：分片表在 `<shard>/layer_runs/<layer>_<stamp>/`、导出器按分片→层映射（不是 12×4）、manifest 在 `<root>/<layer>/`。校验器已用半成品实跑验证。
+> 3. **跑完后仍未做**：写 `docs/v3_phase_G01_formal.md`（骨架在 `out/scratch/g01_report_skeleton.md`，数字用 `out/scratch/g01_report_numbers.py` 生成）、翻 GOAL G01 行、刷新 TODO/日志/本文件、`git push origin codex/d03`（已连续 3 次 443 超时，无代理环境变量）。
+> - **G02 两处硬缺口**（冻结窗口内不得改 `src/`，跑完再动）：① `run_validation_arm` 不回传策略价值（`v3_g_matrix.py:764-779`），A 的评估拿不到被评估量，需**新增**返回键；② formal 守卫 `:904-908` 需换成"显式声明 `budget_scope=primary_0.2` 才放行"。A 的轻量链**未实测**，13.3 h 只是 240 s/rep 的外推，若落在 365–670 s 就是 20–37 h，必须 R=1 实测再排期。见 `docs/v3_G执行器缺口与设计.md` §6.1/§6.6/§6.7。
+> - **G03 成本待对账**：`34 plan`（tier2 overlay）给 24 格 / 149.4 CPU·h（含 4 个 core 格），与决策单"20 格 57.0"口径不同，开跑前须逐格重算，见决策单 §H。
+
 > - **四项裁决**：A 再训练 bootstrap = **200 次**（须改 `docs/v3_协议.md:105` 与 GOAL G02 的"每层 200"）；B 固定策略 bootstrap = **仅主预算 0.2 元**；C G03 = **20 格 + 改措辞（走法 1）**；D 随机名单未单独裁决，按推荐接受 **DR 估值**；E **批准 G01 正式跑**。详见 `docs/v3_G开跑决策单.md` §裁决记录。
 > - **G01 运行中**：批准号 `G01-AA250-20261028`；快照 49 文件 `526ff53d56a54c75`；`status=formal`、n=200 000、4 层 × 250 = 1 000 rep；**12 分片 / 6 lane**（编排 `out/g01_runner.sh`，核对 `out/g01_verify.py`，日志 `out/g01_logs/`）。6 路实测每 rep 132–135 s、峰值内存 10.69 GB ⇒ 6 路可行（4 路上限来自 `--workers` 一层一进程）。**运行期冻结窗口生效：不得写 `src/ sql/ configs/`。**
 > - **跑前证据**：全量串行绿灯 `outputs/evidence/test_runs/pytest_g01_20261028_2234.log`（1 310 进度点 / 0 F/E / EXIT=0）；D 阶段 1000 次 AA 的 8 个合并产物已按字节归档 `outputs/evidence/d02_aa_phase_d_20261027/`（G01 合并会覆盖 `outputs/tables/v3_phase_D_aa_formal_merged.*`）。
