@@ -60,17 +60,29 @@ def sha256(path: Path) -> str:
 
 
 def shard_dir(tag: str, layer: str) -> Path:
-    """分片产物落在 ``<tag>/layer_runs/<layer>_<stamp>/``；多份就拒绝猜。"""
+    """分片原始产物目录 ``<tag>/layer_runs/<layer>_<stamp>/``；多份就拒绝猜。"""
     matches = sorted((RUN_ROOT / tag / "layer_runs").glob(f"{layer}_*"))
     if len(matches) != 1:
         raise SystemExit(f"{tag}/{layer}: layer_runs 下应恰有一份，实际 {matches}")
     return matches[0]
 
 
+def shard_table(tag: str, layer: str) -> Path:
+    """与 17 号合并读同一份：优先归一化表 ``<root>/<layer>/``，缺失才回退原始表。
+
+    两张表内容不完全相同（36 号收尾会筛 true_aa 并重排索引），
+    导出与复算必须对齐合并口径，否则"复算与 17 号表不一致"会变成假故障。
+    """
+    normalized = RUN_ROOT / tag / layer / "aa_repetitions.csv"
+    if normalized.is_file():
+        return normalized
+    return shard_dir(tag, layer) / "aa_repetitions.csv"
+
+
 def load_per_rep() -> pd.DataFrame:
     parts = []
     for tag, layer in SHARD_LAYER.items():
-        path = shard_dir(tag, layer) / "aa_repetitions.csv"
+        path = shard_table(tag, layer)
         if not path.is_file():
             raise SystemExit(f"缺分片表：{path}")
         frame = pd.read_csv(path)
@@ -164,8 +176,8 @@ def export(data: pd.DataFrame, recomputed: pd.DataFrame) -> dict:
         records.append(entry)
 
     for tag, layer in SHARD_LAYER.items():
-        # 表在 layer_runs/<layer>_<stamp>/；manifest 由 36 号在分片收尾时写到 <root>/<layer>/
-        for src in (shard_dir(tag, layer) / "aa_repetitions.csv",
+        # 表优先归一化副本（与 17 号合并同源）；manifest 只由 36 号写到 <root>/<layer>/
+        for src in (shard_table(tag, layer),
                     RUN_ROOT / tag / layer / "aa_manifest.json"):
             if not src.is_file():
                 raise SystemExit(f"缺产物：{src}")
