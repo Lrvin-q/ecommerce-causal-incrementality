@@ -1,0 +1,124 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "status": "engineering_pilot",
+  "generated_by": "scripts/38_export_d01_evidence.py",
+  "purpose": "D01 20 rep pilot 的运行身份与逐 rep 表（原始日志在 out/，被 .gitignore 排除）",
+  "file_count": 9,
+  "total_bytes": 24963,
+  "files": [
+    {
+      "path": "logs/d01_pilot_20261028_1651.log",
+      "kind": "d01_log",
+      "source": "out/logs/d01_pilot_20261028_1651.log",
+      "bytes": 5910,
+      "sha256": "0f550ef23d255d070b43a8273dd405ed51a2c95ca70ea9f2e454a0f846a20f1f"
+    },
+    {
+      "path": "logs/d01_l0_l3_20261028_1848.log",
+      "kind": "d01_log",
+      "source": "out/logs/d01_l0_l3_20261028_1848.log",
+      "bytes": 1645,
+      "sha256": "496c8b7acd54ad265e352855cbdb8d2e4009f8f7240054a6eeb980b736ff5dd0"
+    },
+    {
+      "path": "tables/v3_phase_D_pilot_raw_r20.csv",
+      "kind": "d01_table",
+      "source": "outputs/tables/v3_phase_D_pilot_raw_r20.csv",
+      "bytes": 11503,
+      "sha256": "b91374fb29b8dcc9236a8f75add4a63ea8037fc37f542cbdf22effc5119e580f"
+    },
+    {
+      "path": "tables/v3_phase_D_pilot_summary_r20.json",
+      "kind": "d01_table",
+      "source": "outputs/tables/v3_phase_D_pilot_summary_r20.json",
+      "bytes": 509,
+      "sha256": "ec047d7c978feaae5cd9d24305a5e72083eb92fa20cc4dab33551e00013aeeeb"
+    },
+    {
+      "path": "tables/v3_phase_D_pilot_raw_L0_r1.csv",
+      "kind": "d01_table",
+      "source": "outputs/tables/v3_phase_D_pilot_raw_L0_r1.csv",
+      "bytes": 1197,
+      "sha256": "9d7d12d7d8071105e5bafeee2fa0f25f7b11fef25a57ab531984e7ea93900a6c"
+    },
+    {
+      "path": "tables/v3_phase_D_pilot_summary_L0_r1.json",
+      "kind": "d01_table",
+      "source": "outputs/tables/v3_phase_D_pilot_summary_L0_r1.json",
+      "bytes": 491,
+      "sha256": "2993431a8212eb9153f75692cf0091c13ab0861992297d5836ec81e039952620"
+    },
+    {
+      "path": "tables/v3_phase_D_pilot_raw_L3_r1.csv",
+      "kind": "d01_table",
+      "source": "outputs/tables/v3_phase_D_pilot_raw_L3_r1.csv",
+      "bytes": 1181,
+      "sha256": "4c95889781634240dd31c2695c97292f905d01139dfd3172cb0744c651bf1ffa"
+    },
+    {
+      "path": "tables/v3_phase_D_pilot_summary_L3_r1.json",
+      "kind": "d01_table",
+      "source": "outputs/tables/v3_phase_D_pilot_summary_L3_r1.json",
+      "bytes": 500,
+      "sha256": "65bc6abd2659f8b6c212d7e12781932d58cbac554d37cddd7ff441602feedfe8"
+    },
+    {
+      "path": "run_manifest.json",
+      "kind": "d01_run_manifest",
+      "source": "scripts/38_export_d01_evidence.py",
+      "bytes": 2027,
+      "sha256": "2442a3a08b93a3017a759ceafe3ec54f84eb3b0e9227c44d866faac5621eced5"
+    }
+  ],
+  "key_numbers": {
+    "rows": 20,
+    "rep_min": 0,
+    "rep_max": 19,
+    "rep_gaps": [],
+    "failed": 0,
+    "mean_G1_s": 131.05078125,
+    "mean_G2_s": 256.8328125,
+    "mean_G3_s": 256.85859375,
+    "mean_G3_plus_dgp_s": 257.26015625,
+    "mean_wall_s": 267.1187776949955,
+    "mean_cf_cpu_s": 125.61171875,
+    "derived_validation_cpu_s": 131.2211,
+    "cpu_over_wall_mean": 0.961671,
+    "cpu_over_wall_min": 0.950979,
+    "cpu_over_wall_max": 0.971739,
+    "whole_rep_cpu_over_wall_mean": 0.963144,
+    "total_cpu_h_lower": 1003.11,
+    "total_cpu_h_five_model": [
+      1097.13,
+      1107.07
+    ],
+    "counts": {
+      "historical_dgp_jobs": 9500,
+      "full_learning_data_jobs": 7300,
+      "independent_validation_jobs": 7300,
+      "complete_aa_jobs": 1000,
+      "additional_design_power_jobs": 2000,
+      "retraining_bootstrap_jobs": 800
+    },
+    "external_retraining_s": 476.1,
+    "five_model_reference_s": [
+      303.2,
+      308.1
+    ],
+    "l3_vs_l1": {
+      "G1": -0.137143,
+      "G3_plus_dgp": -0.116471,
+      "wall": -0.098854,
+      "peak": -0.278923
+    },
+    "l0_vs_l1": {
+      "G1": 0.059823,
+      "G3_plus_dgp": -0.012976,
+      "wall": -0.000951,
+      "peak": -0.315347
+    },
+    "summary_csv_field": "out/v3_phase_d/pilot_raw_L1_main_n200000.csv",
+    "summary_csv_field_note": "指向 out/（被忽略）；复算请用 tables/v3_phase_D_pilot_raw_r20.csv 副本"
+  },
+  "note": "只支撑排期；L0/L3 各 1 rep 无层内方差，不构成等价性实测。summary 的 csv 字段指向 out/，复算以本目录 tables/ 副本为准。"
+}

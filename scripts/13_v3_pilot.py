@@ -44,6 +44,7 @@ import yaml
 from causal_growth.data.v3_pipeline import build_observed_pipeline
 from causal_growth.dgp.v3_engine import generate_v3_population
 from causal_growth.policy.selection import greedy_by_ratio, local_improvement
+from causal_growth.rng import child_rng
 from causal_growth.v3_config import load_v3_protocol
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -157,7 +158,7 @@ def _lgbm_classifier(spec: dict[str, Any]):
     )
 
 
-def _causal_forest(spec: dict[str, Any], lgbm: dict[str, Any]):
+def _causal_forest(spec: dict[str, Any], lgbm: dict[str, Any], *, random_state: int):
     from econml.dml import CausalForestDML
 
     return CausalForestDML(
@@ -169,8 +170,18 @@ def _causal_forest(spec: dict[str, Any], lgbm: dict[str, Any]):
         cv=int(spec["cv"]),
         n_jobs=int(spec["n_jobs"]),
         inference=bool(spec["inference"]),
-        random_state=0,
+        random_state=random_state,
     )
+
+
+def _pilot_master_seed() -> int:
+    business = yaml.safe_load((ROOT / "configs" / "v3" / "business.yaml").read_text(encoding="utf-8"))
+    return int(business["project"]["master_seed"])
+
+
+def _pilot_base_budget_per_user() -> float:
+    policy = yaml.safe_load((ROOT / "configs" / "v3" / "policy.yaml").read_text(encoding="utf-8"))
+    return float(policy["policy"]["budget"]["base_per_user_cny"])
 
 
 # --------------------------------------------------------------------------- #
@@ -233,7 +244,9 @@ def run_rep(rep: int, n: int, scenario: str, models: dict[str, Any], out_dir: Pa
                      - m_s.predict(np.column_stack([x_test, np.zeros(len(x_test))])))
 
         with timer.stage("causal_forest"):
-            cf = _causal_forest(models["causal_forest"], lgbm)
+            cf_state = int(child_rng(_pilot_master_seed(), "v3.pilot.causal_forest", rep)
+                           .integers(0, np.iinfo(np.int32).max))
+            cf = _causal_forest(models["causal_forest"], lgbm, random_state=cf_state)
             cf.fit(y_train, t_train, X=x_train)
             tau_cf = cf.effect(x_test)
 
@@ -245,7 +258,7 @@ def run_rep(rep: int, n: int, scenario: str, models: dict[str, Any], out_dir: Pa
         business = yaml.safe_load((ROOT / "configs" / "v3" / "business.yaml").read_text(encoding="utf-8"))
         face = float(business["business"]["coupon_reference_face"])
         redemption = float(business["business"]["redemption_rate"])
-        budget = 0.20 * len(x_test) * face * redemption  # 计时用占位预算，不构成结果
+        budget = _pilot_base_budget_per_user() * len(x_test) * face * redemption  # 计时用占位预算，不构成结果
         cost = np.full(len(x_test), max(face * redemption, 1e-9), dtype=float)
         with timer.stage("policy"):
             pick = greedy_by_ratio(tau_cf, cost, budget)

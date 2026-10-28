@@ -1,0 +1,61 @@
+{
+  "purpose": "d01_pilot_run_manifest",
+  "recipe": "pilot_cost_table_v1",
+  "command": "scripts/13_v3_pilot.py --scenario L1_main --n 200000 --reps 20 --start-rep 0",
+  "extra_runs": "L0_P_main / L3_fixed_lt000 各 1 rep（n=200000，三粒度）",
+  "host": {
+    "platform": "Windows-11-10.0.26100-SP0",
+    "node": "LAPTOP-LRW",
+    "python": "3.13.7"
+  },
+  "logs": {
+    "logs/d01_pilot_20261028_1651.log": {
+      "start": "2026-10-28 16:51:36 +0800",
+      "end": "2026-10-28 18:20:43 +0800",
+      "exit": 0,
+      "rep_blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "failed_lines": 0
+    },
+    "logs/d01_l0_l3_20261028_1848.log": {
+      "start": "2026-10-28 18:48:36 +0800",
+      "end": "2026-10-28 18:57:27 +0800",
+      "exit": null,
+      "rep_blocks": [
+        0,
+        0
+      ],
+      "failed_lines": 0
+    }
+  },
+  "files": {
+    "logs/d01_pilot_20261028_1651.log": "0f550ef23d255d070b43a8273dd405ed51a2c95ca70ea9f2e454a0f846a20f1f",
+    "logs/d01_l0_l3_20261028_1848.log": "496c8b7acd54ad265e352855cbdb8d2e4009f8f7240054a6eeb980b736ff5dd0",
+    "tables/v3_phase_D_pilot_raw_r20.csv": "b91374fb29b8dcc9236a8f75add4a63ea8037fc37f542cbdf22effc5119e580f",
+    "tables/v3_phase_D_pilot_summary_r20.json": "ec047d7c978feaae5cd9d24305a5e72083eb92fa20cc4dab33551e00013aeeeb",
+    "tables/v3_phase_D_pilot_raw_L0_r1.csv": "9d7d12d7d8071105e5bafeee2fa0f25f7b11fef25a57ab531984e7ea93900a6c",
+    "tables/v3_phase_D_pilot_summary_L0_r1.json": "2993431a8212eb9153f75692cf0091c13ab0861992297d5836ec81e039952620",
+    "tables/v3_phase_D_pilot_raw_L3_r1.csv": "4c95889781634240dd31c2695c97292f905d01139dfd3172cb0744c651bf1ffa",
+    "tables/v3_phase_D_pilot_summary_L3_r1.json": "65bc6abd2659f8b6c212d7e12781932d58cbac554d37cddd7ff441602feedfe8"
+  }
+}

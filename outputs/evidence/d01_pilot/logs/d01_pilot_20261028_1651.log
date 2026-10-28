@@ -1,0 +1,80 @@
+START 2026-10-28 16:51:36 +0800
+[pilot] rep=0 n=200000 scenario=L1_main
+  dgp_cpu_s=1.7s  pipeline_cpu_s=148.0s  features_cpu_s=0.4s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=3.4s  s_learner_cpu_s=2.9s  causal_forest_cpu_s=136.0s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=1871MB
+[pilot] rep=1 n=200000 scenario=L1_main
+  dgp_cpu_s=0.4s  pipeline_cpu_s=143.9s  features_cpu_s=0.5s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=3.1s  s_learner_cpu_s=2.8s  causal_forest_cpu_s=133.3s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2468MB
+[pilot] rep=2 n=200000 scenario=L1_main
+  dgp_cpu_s=0.4s  pipeline_cpu_s=139.2s  features_cpu_s=0.5s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.9s  s_learner_cpu_s=2.6s  causal_forest_cpu_s=117.3s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2484MB
+[pilot] rep=3 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=112.4s  features_cpu_s=0.4s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.3s  s_learner_cpu_s=2.0s  causal_forest_cpu_s=114.4s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2484MB
+[pilot] rep=4 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=113.3s  features_cpu_s=0.4s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.4s  s_learner_cpu_s=2.2s  causal_forest_cpu_s=123.5s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2484MB
+[pilot] rep=5 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=122.4s  features_cpu_s=0.4s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.5s  s_learner_cpu_s=2.2s  causal_forest_cpu_s=124.3s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2620MB
+[pilot] rep=6 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=123.0s  features_cpu_s=0.4s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.4s  s_learner_cpu_s=2.4s  causal_forest_cpu_s=122.4s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2630MB
+[pilot] rep=7 n=200000 scenario=L1_main
+  dgp_cpu_s=0.4s  pipeline_cpu_s=121.0s  features_cpu_s=0.4s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.6s  s_learner_cpu_s=2.3s  causal_forest_cpu_s=125.3s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2643MB
+[pilot] rep=8 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=123.2s  features_cpu_s=0.5s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.6s  s_learner_cpu_s=2.4s  causal_forest_cpu_s=119.7s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2682MB
+[pilot] rep=9 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=120.9s  features_cpu_s=0.4s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.3s  s_learner_cpu_s=2.2s  causal_forest_cpu_s=132.8s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2682MB
+[pilot] rep=10 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=114.7s  features_cpu_s=0.4s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.4s  s_learner_cpu_s=2.1s  causal_forest_cpu_s=142.6s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2682MB
+[pilot] rep=11 n=200000 scenario=L1_main
+  dgp_cpu_s=0.4s  pipeline_cpu_s=116.0s  features_cpu_s=0.3s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.2s  s_learner_cpu_s=2.1s  causal_forest_cpu_s=113.3s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2682MB
+[pilot] rep=12 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=113.9s  features_cpu_s=0.3s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.4s  s_learner_cpu_s=2.3s  causal_forest_cpu_s=119.9s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2682MB
+[pilot] rep=13 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=113.0s  features_cpu_s=0.4s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.3s  s_learner_cpu_s=2.0s  causal_forest_cpu_s=113.0s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2682MB
+[pilot] rep=14 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=114.2s  features_cpu_s=0.4s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.4s  s_learner_cpu_s=2.2s  causal_forest_cpu_s=135.9s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2682MB
+[pilot] rep=15 n=200000 scenario=L1_main
+  dgp_cpu_s=0.4s  pipeline_cpu_s=140.7s  features_cpu_s=0.5s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=3.1s  s_learner_cpu_s=2.8s  causal_forest_cpu_s=130.5s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2682MB
+[pilot] rep=16 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=142.1s  features_cpu_s=0.5s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=3.1s  s_learner_cpu_s=2.8s  causal_forest_cpu_s=117.0s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2682MB
+[pilot] rep=17 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=137.2s  features_cpu_s=0.3s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.5s  s_learner_cpu_s=2.3s  causal_forest_cpu_s=118.0s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2682MB
+[pilot] rep=18 n=200000 scenario=L1_main
+  dgp_cpu_s=0.3s  pipeline_cpu_s=110.2s  features_cpu_s=0.4s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=2.3s  s_learner_cpu_s=2.1s  causal_forest_cpu_s=119.1s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2682MB
+[pilot] rep=19 n=200000 scenario=L1_main
+  dgp_cpu_s=0.4s  pipeline_cpu_s=146.6s  features_cpu_s=0.5s  itt_cpu_s=0.0s  constant_cpu_s=0.0s  t_learner_cpu_s=3.5s  s_learner_cpu_s=3.1s  causal_forest_cpu_s=154.1s  predict_cpu_s=0.0s  policy_cpu_s=0.0s
+  peak=2682MB
+{
+  "scenario": "L1_main",
+  "n": 200000,
+  "reps": 20,
+  "csv": "out/v3_phase_d/pilot_raw_L1_main_n200000.csv",
+  "failed": 0,
+  "mean_G1_estimation_s": 131.05078125,
+  "mean_G2_tables_sql_estimation_s": 256.8328125,
+  "mean_G3_full_with_cf_s": 256.85859375,
+  "mean_G1_plus_dgp_s": 131.45234375,
+  "mean_G3_plus_dgp_s": 257.26015625,
+  "mean_dgp_s": 0.4015625,
+  "mean_pipeline_s": 125.78203125,
+  "mean_cf_s": 125.61171875,
+  "mean_wall_s": 267.1187776949955,
+  "max_peak_mb": 2682.359375
+}
+EXIT=0
+END 2026-10-28 18:20:43 +0800
