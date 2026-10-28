@@ -2,10 +2,12 @@
 
 > **正式结果（2026-10-28 16:37 合并完成，200/200 rep）。** 四片各 50 rep，合并 exit 0；
 > 本文 §4 数字由 `scripts/32_aggregate_f02_formal.py` 在全部 200 个 rep 上重算（R=200，无 `--allow-incomplete`）。
-> **阶段状态仍为“未证实”**：结果已生成、口径已自检；独立评审 19:17 判 **PASS WITH CONDITIONS**
-> （`docs/reviews/v3_phase_F02_review.md`），收尾窄口径复核 21:43 再判 **PASS WITH CONDITIONS**
-> （`docs/reviews/v3_phase_F02_closeout.md`，C1–C6）。条件 21:48 已落地，但**尚待窄口径确认**，
-> 因此不得把本文当作已通过的验收；引用须同时引用 §6 的局限。
+> **阶段状态：通过（2026-10-28 22:04，第四次窄口径确认 CLOSED，`docs/reviews/v3_phase_F02_final_confirm.md`）。**
+> 评审链：独立评审 19:17 判 **PASS WITH CONDITIONS**（`docs/reviews/v3_phase_F02_review.md`）→ 收尾窄口径复核 21:43
+> 再判 **PASS WITH CONDITIONS**（`docs/reviews/v3_phase_F02_closeout.md`，C1–C6 于 21:48 落地）→ 21:55 第三次复核
+> 判 C1–C6 全关但抓出 P2/P3（21:57 修完）→ 22:04 第四次确认 **CLOSED**。
+> **"通过"只表示记录准确、断言范围正确**（200 rep × 20 万新用户 × 三臂 ITT × 合成 DGP × 0.2 元/人档），
+> **不表示"定向有效"或策略可部署**；引用须同时引用 §6 的局限。
 
 ## 1. 状态
 

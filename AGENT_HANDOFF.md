@@ -1,7 +1,7 @@
 # AGENT 交接说明 —— v3 重建
 
-> **最新交接时间：2026-10-28 21:49（北京时间）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
-> **（2026-10-28 21:49 更新）D 层三项全部通过；F02 收尾复核条件 C1–C6 已落地，等窄口径复核确认。**
+> **最新交接时间：2026-10-28 22:04（北京时间）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
+> **（2026-10-28 22:04 更新）D 层三项与 F02 全部通过；G01–G04 等待用户四项裁决与 R>0 开跑授权。**
 > - **D01 通过（21:38）**：第三轮复核 PASS（`docs/reviews/v3_phase_D01_closeout.md`），第四轮在 77 条登记上复核仍 **PASS（6/6）**：
 >   下界 1,003.0977、上界 1,097.12–1,107.06、分项和 −182.5676、1.79/1.89 GiB；目录级 10/10、顶层 76/76（21:28 版）与 77/77（21:42 版）sha/bytes 全 MATCH。
 >   残余仅 P3-1：`outputs/evidence/d01_pilot/source_binding.json` 仍是旧字段 `frozen_config_hash`（770 B、`8162110b…`）；
@@ -11,12 +11,12 @@
 >   `outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv`（119,025 B / `dbb8a869…`，
 >   21:45 重导出补 `budget_cny` 与 `budget_note`、21:48 重登记）并登记进目录级（20 件）与顶层（**77 条 / 16,924,056 B**，`registry_repairs` 15 条）。
 >   定向臂 实际/预测 = **1.056348**（min −5.42% / 中位 +5.09% / max +30.67%，**179/200** 为正），随机臂 **1.002835**（104/200 为正）。
-> - **F02 仍记"未证实"**：收尾窄口径复核 21:43 判 **PASS WITH CONDITIONS**（`docs/reviews/v3_phase_F02_closeout.md`，
->   新发现 1 P1 + 4 P2 + 5 P3，另有跨轮残留 P1-1 交付层与 P2-2）；**C1–C6 已于 21:48 全部落地**（formal 去"未落盘"与 bytes 断言、
->   表补分母、validation 写死合并口径、repair 条目改 `added` 并更正时刻、计数改 77 / 16,924,056）。
->   **21:55 第三次窄口径复核**（`docs/reviews/v3_phase_F02_c1c6_recheck.md`）判 C1–C6 六条全关，但因 validation 评审行仍写"未做"（P2）
->   与 5 条 P3 判 NOT CLOSED；**P2 与 5 条 P3 已于 21:56 修完，待第四次确认后才改判**。
-> - **下一步**：F02 窄口径复核 PASS → 改判 → G01（AA 4 层 × 250 ≈ 44 CPU·h）需用户批准 R>0、独占机器与快照；
+> - **F02 通过（22:04，第四次窄口径确认 CLOSED）**：收尾复核 21:43 判 PASS WITH CONDITIONS（1 P1 + 4 P2 + 5 P3），
+>   **C1–C6 于 21:48 全部落地**（formal 去"未落盘"与 bytes 断言、表补分母、validation 写死合并口径、repair 条目改 `added`、
+>   计数改 77 / 16,924,056）；21:55 第三次复核判 C1–C6 全关但抓出 validation 评审行"未做"（P2）+ 5 条 P3，
+>   已于 21:57 修完；**22:04 第四次确认判 CLOSED**（`docs/reviews/v3_phase_F02_final_confirm.md`）。
+>   边界：仅"记录准确、断言范围正确"（200 rep / 20 万新用户 / 三臂 ITT / 合成 DGP / 0.2 元档），**不表示"定向有效"或可部署**。
+> - **下一步**：F02 已改判 → G01（AA 4 层 × 250 ≈ 44 CPU·h）需用户批准 R>0、独占机器与快照；
 >   G02/G03 仍欠三项决策：再训练 bootstrap 次数（80/200/800，协议原文为"每层 200"⇒ 800）、G03 口径与 210 CPU·h 上限、
 >   全预算固定 bootstrap（overlay 28 格口径 196 次额外验证构建 ≈7.1 CPU·h，冻结 69 格口径 483 次 ≈17.6）。
 >
@@ -139,7 +139,7 @@
 | B 机制与真值 | 通过 | `outputs/v3/validation/approval.json` |
 | C 五表/SQL/隔离 | 通过 | `outputs/v3/data_validation/approval.json` |
 | **D02** | **通过（09:45）**，走完「评审判定 → 修复 → 独立复核 PASS」三环 | `docs/v3_phase_D_aa_formal.md` §8；`docs/reviews/v3_phase_D_recheck.md` |
-| D01 | **未证实**：20pilot 三粒度实测与资源计划未做 | — |
+| D01 | **未证实**：20pilot 三粒度实测与资源计划未做（**10:57 历史快照；已于 21:38 改判"通过"，见顶部最新块**） | — |
 | **D03** | **通过（2026-10-28 05:15 独立复审 PASS）**，走完「评审判定（10-27 20:53 PASS WITH CONDITIONS）→ 修复（P0-1 + P1-1~P1-6，21:02）→ 独立复核 PASS」三环；程序豁免经用户 01:10 批准；复审另提 4 项 P2（全为标签/分母问题、无算术错）已当场修正。**证据是正式 R = 200 rep × n=200 000（12:54–17:14）**：选模 105/71/12/7/5，校准斜率 CF 0.754 / S 0.467 / T 0.114 / DR 0.098，greedy−business 按模型符号分裂。此前的 20 rep 诊断（选模 constant 9/20、cf 4/20、dr/s 各 3/20、t 1/20；0.20 档选模后悔 −0.101 元/人）**只是诊断口径，不是通过依据** | `docs/v3_phase_D03_formal.md`（含 §11 评审闭环、§11.2 复审）；`docs/reviews/v3_phase_D03_review.md`；`docs/reviews/v3_phase_D03_rereview.md`；`outputs/tables/v3_phase_D03_formal_*`（7 表 + meta）；`outputs/evidence/d03_formal/`（15 文件，83/83 快照绑定） |
 | D04 装载优化 | 实现通过，调用点已切换 | `docs/v3_phase_D_loader_switch.md` |
 | E 组件层 | 完成，41 项测试绿 | `src/causal_growth/policy/v3_policy.py`；`docs/v3_phase_E_coverage.md` |
