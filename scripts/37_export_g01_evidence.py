@@ -164,11 +164,12 @@ def export(data: pd.DataFrame, recomputed: pd.DataFrame) -> dict:
         records.append(entry)
 
     for tag, layer in SHARD_LAYER.items():
-        for name, sub in (("aa_repetitions.csv", "per_rep"), ("aa_manifest.json", "per_rep")):
-            src = shard_dir(tag, layer) / name
+        # 表在 layer_runs/<layer>_<stamp>/；manifest 由 36 号在分片收尾时写到 <root>/<layer>/
+        for src in (shard_dir(tag, layer) / "aa_repetitions.csv",
+                    RUN_ROOT / tag / layer / "aa_manifest.json"):
             if not src.is_file():
                 raise SystemExit(f"缺产物：{src}")
-            target = DEST / sub / f"{tag}__{layer}__{name}"
+            target = DEST / "per_rep" / f"{tag}__{layer}__{src.name}"
             shutil.copy2(src, target)
             record(target, f"分片 {tag} / {layer}")
         exit_file = LOG_ROOT / f"{tag}.exit"
