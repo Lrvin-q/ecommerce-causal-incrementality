@@ -33,11 +33,18 @@
   编排 `out/g01_runner.sh`，跑完自动 `out/g01_verify.py`（每层 rep 恰 0..249、无重复缺口、n_total/alpha/protocol 唯一）
   再交 17 号多根合并（`outputs/tables/v3_phase_D_aa_formal_merged.*` 会被覆盖——D 阶段原字节已归档到
   `outputs/evidence/d02_aa_phase_d_20261027/`，8 文件 + manifest）。
-  实测 6 路每 rep 132–135 s、峰值 10.69 GB，**ETA 2026-10-29 05:00–07:30**。
+  实测 6 路每 rep 132–147 s、峰值 10.69 GB；**23:53 实测：首片 29/83，146 s/rep，每 lane 余 137 rep ⇒ ETA 2026-10-29 05:00–06:00（约 05:30）**。
   跑前全量串行绿灯：`outputs/evidence/test_runs/pytest_g01_20261028_2234.log`（1 310 进度点、0 F/E、EXIT=0）。
-  **运行期冻结窗口生效**：不写 `src/ sql/ configs/`。已知缺陷：`out/g01_logs/*` 里 `date` 落盘是 UTC（少 8 h），
-  引用时刻一律用分片日志的 Python 时间戳。
-  **22:48 进度与收尾链**：s01 已完成 rep 0–1（133.2/133.4 s），分片表已落 `out/g01_aa250/s01/L0_AA/`；
+  **运行期冻结窗口生效**：不写 `src/ sql/ configs/`。已知缺陷：`out/g01_logs/*` 里 `date` 落盘是 UTC（少 8 h，
+  Git Bash 的 `TZ=Asia/Shanghai date` 不生效，Python `zoneinfo` 正常；分片日志里的时刻可信）。
+
+**23:55 收尾链修正（第四次路径类错误）**：分片表优先读归一化副本 `<shard>/<layer>/aa_repetitions.csv`
+（36 号收尾时由 `split_layer_table` 写出：筛 `true_aa` + 重排索引），缺失才回退
+`<shard>/layer_runs/<layer>_<stamp>/aa_repetitions.csv`；**两张表哈希不同**（`62e19c7c…` vs `2c4df6c3…`），
+17 号合并读的是前者，校验/导出必须同源，否则"复算与合并表不一致"是假故障。已提交 `268a9b6`，
+并用当前部分产物验证取数：6 个已开 lane 解析到 `layer_runs` 原始表（归一化副本尚未生成），未开跑的 s02/s04/s06/s08/s10/s12 如实报缺。
+  **22:48 进度与收尾链**：s01 已完成 rep 0–1（133.2/133.4 s），分片表落在
+  `out/g01_aa250/s01/layer_runs/L0_224239/aa_repetitions.csv`（**不是** `s01/L0_AA/`，早期记录已更正）；
   收尾链已做成无人值守 `out/g01_post.sh`（21:48 UTC 启动，pid 1870）：等 `finished_at.txt` → 校验
   `verify.exit`/`merge.exit` 均为 0 → `scripts/37_export_g01_evidence.py` → `scripts/33 --dirs g01_aa250`
   （先 `--dry-run` 再写盘）；任一步非零即停在 `out/g01_logs/post.status` 并**不登记**。
