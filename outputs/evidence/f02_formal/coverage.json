@@ -92,6 +92,34 @@
       "source": "outputs/tables/v3_phase_F02_formal_spend.csv",
       "sha256": "6c34cf2db86cbaeab57669e9c0daafb90bfef458a44fdc34143c6c6aac71c184",
       "bytes": 487
+    },
+    {
+      "path": "aggregate/v3_phase_F02_formal_per_rep_binding.csv",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "sha256": "fa600c6457fa53332157c70c1b606902a3cd3ded8e697eb956ef314117eb9442",
+      "bytes": 47833,
+      "kind": "f02_formal_aggregate"
+    },
+    {
+      "path": "aggregate/v3_phase_F02_formal_per_rep_realized_spend.csv",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "sha256": "239eac3062a5d09bb0464b177d49922e07d64011fdf9f31321c8348c71171033",
+      "bytes": 76270,
+      "kind": "f02_formal_aggregate"
+    },
+    {
+      "path": "aggregate/v3_phase_F02_formal_shards.csv",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "sha256": "3a14b4c683d391611236fe10dbae3523719f21e8585494df96fb3b18627aae73",
+      "bytes": 934,
+      "kind": "f02_formal_aggregate"
+    },
+    {
+      "path": "aggregate/v3_phase_F02_formal_snapshot_binding.json",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "sha256": "71ebff14faedf4e6ad19d25c9367e94564e4af370145598b5697920be9917752",
+      "bytes": 499,
+      "kind": "f02_formal_aggregate"
     }
   ],
   "excluded": [
@@ -116,5 +144,7 @@
       "reason": "五表与 SQL 产物体积大；只导出 manifest.json，原始表可由快照 + rep 0 重建"
     }
   ],
-  "note": "manifest.json 含冻结后聚合的 audit_true_arm_means（整臂均值），不含逐用户真值；聚合表只由 decision/guardrail/itt 的观测列生成。"
+  "note": "manifest.json 含冻结后聚合的 audit_true_arm_means（整臂均值），不含逐用户真值；聚合表只由 decision/guardrail/itt 的观测列生成。",
+  "repaired_at": "2026-10-28 21:34",
+  "repair_note": "19:30 的 4 个聚合文件（200 rep 绑定表 / 600 行实际支出 / 4 分片 / snapshot binding）当时只写进顶层 coverage.json，漏了本目录级索引；21:34 按磁盘字节补登记，sha256/bytes 现场重算，原有 15 条未改动。"
 }
