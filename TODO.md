@@ -55,8 +55,8 @@
   收尾链已做成无人值守 `out/g01_post.sh`（21:48 UTC 启动，pid 1870）：等 `finished_at.txt` → 校验
   `verify.exit`/`merge.exit` 均为 0 → `scripts/37_export_g01_evidence.py` → `scripts/33 --dirs g01_aa250`
   （先 `--dry-run` 再写盘）；任一步非零即停在 `out/g01_logs/post.status` 并**不登记**。
-  **推送阻塞**：`b920519`、`4c2ba14` 两次 443 超时（无代理环境变量），待网络恢复后重试；
-  提交内容为文档/脚本，不影响运行。
+  **推送已恢复**：2026-10-29 00:00 `git push origin codex/d03` 成功（`3c1d37e..5a1681d`），
+  此前 3 次 443 超时的积压提交（`b920519`、`4c2ba14`、`268a9b6`、`645e904` 等）已一并上云。
   **22:53 收尾链自查（已修 3 处，均已提交）**：① 分片产物真实布局是
   `<shard>/layer_runs/<layer>_<stamp>/aa_repetitions.csv`，校验器与导出器原先按 `<shard>/<layer>/` 找，
   会在跑完后把 12 片全判失败并中止导出——已改并**用当前半成品实跑校验器验证**（读到 L0/L2 各 12 行、
