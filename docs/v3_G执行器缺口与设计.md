@@ -167,6 +167,10 @@ G03 的验收状态里，不能等跑完再解释。
   需要 `configs/budget/g02_reps50_overlay.yaml`：`tier1_learning_reps: 50`、`tier1_validation_reps: 50`、
   `tier2_cells` 非空且合法、`tier2_reps: 30`。`g02_bootstrap_overlay.yaml` 不是 BudgetPlan
   （`kind: bootstrap_overlay`，缺 tier1/tier2 键），只作文档与报告口径，**不得**传给 `--overlay`。
+  **实现核对（2026-10-29 05:52）**：39 号不消费 budget overlay——A 臂每格 b 数与总数由
+  `g02_bootstrap_overlay.yaml` 的 `retraining_bootstrap_per_cell/total` 提供，并由
+  `check_counts`（per_cell × len(core) == total）自检；`plan_cell` 只用来取 `n`/`block`。
+  因此 **不创建** `g02_reps50_overlay.yaml`（无消费者的配置等于死配置），本条前半段作废。
 - **成本两笔账**：13.3 CPU·h = 200 × 240 s。但单 rep 若落在 365–670 s（F02 实测区间），
   200 次就是 **20–37 CPU·h**，是决策单 13.3 的 1.5–2.8 倍。**开跑前必须先 R=1 实测这条轻量链**，
   实测超 320 s/次就回来重报预算，不得按 240 s 直接外推。
