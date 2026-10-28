@@ -3,8 +3,8 @@
   "status": "engineering_pilot",
   "generated_by": "scripts/38_export_d01_evidence.py",
   "purpose": "D01 20 rep pilot 的运行身份与逐 rep 表（原始日志在 out/，被 .gitignore 排除）",
-  "file_count": 9,
-  "total_bytes": 24963,
+  "file_count": 10,
+  "total_bytes": 25733,
   "files": [
     {
       "path": "logs/d01_pilot_20261028_1651.log",
@@ -63,6 +63,13 @@
       "sha256": "65bc6abd2659f8b6c212d7e12781932d58cbac554d37cddd7ff441602feedfe8"
     },
     {
+      "path": "source_binding.json",
+      "kind": "d01_source_binding",
+      "source": "scripts/38_export_d01_evidence.py",
+      "bytes": 770,
+      "sha256": "8162110b49ea2775da98c0af76d209d878f03336ca5f4c3d5cb0d798d94f9266"
+    },
+    {
       "path": "run_manifest.json",
       "kind": "d01_run_manifest",
       "source": "scripts/38_export_d01_evidence.py",
@@ -87,10 +94,10 @@
     "cpu_over_wall_min": 0.950979,
     "cpu_over_wall_max": 0.971739,
     "whole_rep_cpu_over_wall_mean": 0.963144,
-    "total_cpu_h_lower": 1003.11,
+    "total_cpu_h_lower": 1003.1,
     "total_cpu_h_five_model": [
-      1097.13,
-      1107.07
+      1097.12,
+      1107.06
     ],
     "counts": {
       "historical_dgp_jobs": 9500,

@@ -575,9 +575,17 @@
       "sha256": "2442a3a08b93a3017a759ceafe3ec54f84eb3b0e9227c44d866faac5621eced5",
       "source": "scripts/38_export_d01_evidence.py",
       "status": "engineering_pilot"
+    },
+    {
+      "kind": "d01_source_binding",
+      "target": "outputs/evidence/d01_pilot/source_binding.json",
+      "bytes": 770,
+      "sha256": "8162110b49ea2775da98c0af76d209d878f03336ca5f4c3d5cb0d798d94f9266",
+      "source": "scripts/38_export_d01_evidence.py",
+      "status": "engineering_pilot"
     }
   ],
-  "total_bytes": 16804261,
+  "total_bytes": 16805031,
   "registry_repairs": [
     {
       "at": "2026-10-28 02:38",
@@ -913,7 +921,48 @@
         }
       ],
       "reason": "D01 评审 P1-5：登记 20 rep 运行 manifest（日志+逐 rep 表已导出到 outputs/evidence/d01_pilot/）"
+    },
+    {
+      "at": "2026-10-28 21:28",
+      "dropped_missing_target": [],
+      "added": [
+        "outputs/evidence/d01_pilot/source_binding.json"
+      ],
+      "enriched": [
+        "outputs/evidence/d01_pilot/run_manifest.json"
+      ],
+      "records_before": 75,
+      "records_after": 76,
+      "total_bytes_before": 16804261,
+      "total_bytes_after": 16805031,
+      "identity_patterns": [
+        "*binding*.json",
+        "*manifest*.json",
+        "freeze.json",
+        "meta*.json",
+        "decision.json"
+      ],
+      "ordering_policy": "append_only_preserve_existing_order",
+      "prior_entry_defects": [
+        {
+          "entry_index": 1,
+          "entry_at": "2026-10-28 03:06",
+          "untrustworthy_fields": [
+            "total_bytes_before",
+            "reason"
+          ],
+          "recorded_value": {
+            "total_bytes_before": 22788510
+          },
+          "correct_value": {
+            "total_bytes_before": 15811356
+          },
+          "evidence": "out/scratch/fix_evidence_registry.py:100 将 total_bytes_before 硬编码为 22788510、:102 将 reason 硬编码；该脚本于 02:38 与 03:06 各运行一次，故 03:06 条目的 before 值实为 02:38 的旧前值。03:06 的真实前值 = repairs[0].total_bytes_after = 15 811 356；03:06 的后值 15 811 358 = 15 811 356 + 2（f01_ope/meta.json 17 333 → 17 335 B）。out/scratch/coverage_backup_before_31patch_20261028_031329.json 佐证 03:13 前磁盘上 records=35、total_bytes=15 811 358、repairs=2。",
+          "action": "仅登记缺陷，未改写 repairs[1]；其 refreshed/records_before/records_after 字段仍可信"
+        }
+      ],
+      "reason": "27 号（D03 正式）与 30 号（F02 正式）脚本只写目录级 coverage.json、不刷顶层索引，导致 d03_formal / f02_n200k_rep0 的源码绑定与冻结清单在顶层不可发现（AGENTS §12.1）。按身份类 JSON 规则提升，提升前逐文件重算 sha256/bytes，提升后全表复算。"
     }
   ],
-  "last_refreshed_at": "2026-10-28T21:18:04+08:00"
+  "last_refreshed_at": "2026-10-28T21:28:15+08:00"
 }

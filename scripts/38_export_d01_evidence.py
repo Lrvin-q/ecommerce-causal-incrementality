@@ -28,6 +28,7 @@ import hashlib
 import json
 import platform
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -104,11 +105,12 @@ def _key_numbers() -> dict[str, object]:
     whole_ratio = [float(row["G3_plus_dgp_s"]) / float(row["elapsed_wall_s"]) for row in raw]
     mean_g2 = float(summary["mean_G2_tables_sql_estimation_s"])
     mean_cf = float(summary["mean_cf_s"])
+    mean_dgp = float(summary["mean_dgp_s"])
     derived_validation_s = mean_g2 - mean_cf
 
     def total_hours(validation_s: float, learning_s: float) -> float:
         return (
-            COUNTS["historical_dgp_jobs"] * 0.406
+            COUNTS["historical_dgp_jobs"] * mean_dgp
             + COUNTS["full_learning_data_jobs"] * learning_s
             + COUNTS["independent_validation_jobs"] * validation_s
             + COUNTS["complete_aa_jobs"] * validation_s
@@ -164,6 +166,36 @@ def _key_numbers() -> dict[str, object]:
     }
 
 
+def _git_blob(spec: str) -> bytes | None:
+    try:
+        result = subprocess.run(
+            ["git", "show", spec], cwd=ROOT, capture_output=True, check=True
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return result.stdout
+
+
+def _source_binding() -> dict[str, object]:
+    """运行版本的源码绑定；运行后脚本已改，故同时记“运行时推断版本”与当前值。"""
+    run_spec = "1682b51:scripts/13_v3_pilot.py"
+    blob = _git_blob(run_spec)
+    return {
+        "purpose": "d01_source_binding",
+        "entry_script": "scripts/13_v3_pilot.py",
+        "sha256_current": _sha256(ROOT / "scripts" / "13_v3_pilot.py"),
+        "sha256_at_run_inferred": hashlib.sha256(blob).hexdigest() if blob else None,
+        "run_version_spec": run_spec,
+        "last_commit_touching_entry_script": "1682b51 (2026-10-25 10:53)",
+        "frozen_config_hash": "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3",
+        "note": (
+            "scripts/13 在运行后于 073c4a7（2026-10-28 21:20）被修改（CF random_state 与预算派生），"
+            "sha256_current 不能代表运行版本；运行版本按 git 历史推断为 1682b51 的字节，"
+            "运行窗口内是否有未提交改动无法由 git 证明。"
+        ),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--force", action="store_true", help="目标字节不同时允许覆盖")
@@ -200,6 +232,22 @@ def main() -> int:
             print(f"  - {rel}")
         return 2
 
+    binding_path = TARGET / "source_binding.json"
+    binding_payload = json.dumps(_source_binding(), ensure_ascii=False, indent=2)
+    if (
+        binding_path.exists()
+        and binding_path.read_text(encoding="utf-8").strip() != binding_payload.strip()
+        and not args.force
+    ):
+        print("[d01-evidence] source_binding.json 已存在且内容不同，拒绝重写（--force 才覆盖）")
+        return 2
+    binding_path.write_text(binding_payload, encoding="utf-8", newline="\r\n")
+    records.append({
+        "path": "source_binding.json", "kind": "d01_source_binding",
+        "source": _rel(Path(__file__)), "bytes": binding_path.stat().st_size,
+        "sha256": _sha256(binding_path),
+    })
+
     manifest = {
         "purpose": "d01_pilot_run_manifest",
         "recipe": RECIPE,
@@ -207,7 +255,11 @@ def main() -> int:
         "extra_runs": "L0_P_main / L3_fixed_lt000 各 1 rep（n=200000，三粒度）",
         "host": {"platform": platform.platform(), "node": platform.node(), "python": platform.python_version()},
         "logs": {rel: _parse_log(TARGET / rel) for _, rel in LOGS},
-        "files": {record["path"]: record["sha256"] for record in records},
+        "files": {
+            record["path"]: record["sha256"]
+            for record in records
+            if record["path"] != "source_binding.json"
+        },
     }
     manifest_path = TARGET / "run_manifest.json"
     manifest_payload = json.dumps(manifest, ensure_ascii=False, indent=2)
