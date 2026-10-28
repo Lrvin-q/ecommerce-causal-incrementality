@@ -38,6 +38,11 @@ MERGE_JSON = TABLES / "v3_phase_D_aa_formal_merged.json"
 PYTEST_LOG = ROOT / "outputs" / "evidence" / "test_runs" / "pytest_g01_20261028_2234.log"
 BEIJING = ZoneInfo("Asia/Shanghai")
 SHARDS = [f"s{i:02d}" for i in range(1, 13)]
+# 每个分片只跑一层；按"分片→层"映射取表，不能用 12×4 的笛卡尔积。
+SHARD_LAYER = {
+    "s01": "L0", "s02": "L1", "s03": "L0", "s04": "L1", "s05": "L0", "s06": "L1",
+    "s07": "L2", "s08": "L3", "s09": "L2", "s10": "L3", "s11": "L2", "s12": "L3",
+}
 LAYERS = ("L0", "L1", "L2", "L3")
 METRICS = ("net_profit", "paid_purchase_7d", "any_refund_30d")
 ALPHA = 0.05
@@ -54,16 +59,23 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def shard_dir(tag: str, layer: str) -> Path:
+    """分片产物落在 ``<tag>/layer_runs/<layer>_<stamp>/``；多份就拒绝猜。"""
+    matches = sorted((RUN_ROOT / tag / "layer_runs").glob(f"{layer}_*"))
+    if len(matches) != 1:
+        raise SystemExit(f"{tag}/{layer}: layer_runs 下应恰有一份，实际 {matches}")
+    return matches[0]
+
+
 def load_per_rep() -> pd.DataFrame:
     parts = []
-    for tag in SHARDS:
-        for layer in LAYERS:
-            path = RUN_ROOT / tag / layer / "aa_repetitions.csv"
-            if not path.is_file():
-                raise SystemExit(f"缺分片表：{path}")
-            frame = pd.read_csv(path)
-            frame["_shard"] = tag
-            parts.append(frame)
+    for tag, layer in SHARD_LAYER.items():
+        path = shard_dir(tag, layer) / "aa_repetitions.csv"
+        if not path.is_file():
+            raise SystemExit(f"缺分片表：{path}")
+        frame = pd.read_csv(path)
+        frame["_shard"] = tag
+        parts.append(frame)
     data = pd.concat(parts, ignore_index=True)
     if "block" in data.columns:
         data = data[data["block"] == "true_aa"].reset_index(drop=True)
@@ -151,15 +163,14 @@ def export(data: pd.DataFrame, recomputed: pd.DataFrame) -> dict:
             entry["note"] = note
         records.append(entry)
 
-    for tag in SHARDS:
-        for layer in LAYERS:
-            for name, sub in (("aa_repetitions.csv", "per_rep"), ("aa_manifest.json", "per_rep")):
-                src = RUN_ROOT / tag / layer / name
-                if not src.is_file():
-                    raise SystemExit(f"缺产物：{src}")
-                target = DEST / sub / f"{tag}__{layer}__{name}"
-                shutil.copy2(src, target)
-                record(target, f"分片 {tag} / {layer}")
+    for tag, layer in SHARD_LAYER.items():
+        for name, sub in (("aa_repetitions.csv", "per_rep"), ("aa_manifest.json", "per_rep")):
+            src = shard_dir(tag, layer) / name
+            if not src.is_file():
+                raise SystemExit(f"缺产物：{src}")
+            target = DEST / sub / f"{tag}__{layer}__{name}"
+            shutil.copy2(src, target)
+            record(target, f"分片 {tag} / {layer}")
         exit_file = LOG_ROOT / f"{tag}.exit"
         if not exit_file.is_file():
             raise SystemExit(f"缺退出码：{exit_file}")
