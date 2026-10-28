@@ -97,6 +97,9 @@
       新 `config_hash=6b672610…`（当前真实 `config_hash=30511a32…`，与 `approval.json` 一致；`e1aa4314…` 是另一层级的 `protocol_config_hash`）。
       **同轮还暴露一个死代码缺陷**：写后校验用 `scenario(cell).require("R")`，正确路径是 `active_scenario.R`；
       这段校验此前从未执行过（真跑一直被安全阀挡住），第一次执行就报错。⇒ 若直接真跑，会留下"配置已改、加载器不通过"的中间态。
+- [x] **收尾编排脚本（11:12）**：`out/scratch/post_f02_check.sh`——先断言 200 个 `freeze.json`、再断言
+      `outputs/evidence/f02_formal/coverage.json` 已由合并生成，然后跑正式聚合（无 `--allow-incomplete`）与证据登记**预演**。
+      安全阀已实测（11:12 时 116/200 → `FAIL: F02 未集齐`，exit=3）。
 - [x] **版本化理由文档草稿（11:10）**：`docs/v3_phase_G_protocol_change_aa250.md`，86 行；§3 的前后绑定值保留 `<待填>`，执行时实测填入。
 - [!] **仍未执行的边界**：这次只是"补丁就绪 + 文档记录"，**配置一个字节都没改**；真跑必须等 F02 四分片退出（AGENTS §11）。
       push `514495e` 上次失败（网络重置），本轮再试一次。
