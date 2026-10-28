@@ -89,6 +89,17 @@
   （s07 0/40、s11 4/40，CP 都盖住 0.05）。**只作早期体检，不作任何验收结论**；磁盘余量 91 GB。
   盘面复核 `out/g01_runner.sh`：6 lane 各 2 片顺序跑，单片失败只记 `.exit` 不中断同 lane，`wait` 后仍会
   跑 verify+merge 并写 `finished_at.txt`；verify 会拦缺 rep，故不会把缺片的结果当正式产物导出。
+
+**G01 退场后按序执行（恢复入口，2026-10-29 00:22 写）**：
+1. 先读 `out/g01_logs/verify.exit`、`merge.exit`、`post.status`；任一非 0/非成功即**停在原地诊断**，不补跑、不改判。
+2. `python out/scratch/g01_report_numbers.py`（`provisional` 非 False 会 exit 3）→ 三张指标表 + SE 校准 +
+   37 号独立复算差；按 `out/scratch/g01_report_skeleton.md` 填 `docs/v3_phase_G01_formal.md`。
+   注意：`outputs/tables/v3_phase_D_aa_formal_merged.*` 此刻内容是 **G01** 的，D 数字只从
+   `outputs/evidence/d02_aa_phase_d_20261027/` 复算（两份 D 文档 00:22 已加注）。
+3. 独立评审 → 通过后才改判 GOAL G01（"通过"只指记录准确、断言范围正确）。
+4. `python out/scratch/g02_patch.py .`（真树字节已预演）→ 全量串行 pytest（`--basetemp C:/cg_t`）→
+   `python scripts/39_g_retrain_bootstrap_run.py plan` → `run --reps 1` **测每 b 成本** → 报用户批准后才 formal。
+5. G03：`python scripts/34_g_matrix_run.py plan`，按 §H.1 先对**最贵 Tier2 格**与**一个 core 格**各跑 R=1 定价。
   **仍未启动**：G02/G03/G04 需先落 200 次重训的执行器覆盖与 formal 守卫改造（不得改 `configs/v3/*.yaml`）。**F02 已于 22:04 改判"通过"**（第四次窄口径确认 CLOSED，
   `docs/reviews/v3_phase_F02_final_confirm.md`；含义仅"记录准确、断言范围正确"，不表示"定向有效"）。
 - **登记管道修复（21:34）**：F02 目录级 coverage 补登记 19:30 的 4 条聚合文件（15→19，sha/bytes 现场重算、原有 15 条未动）；
