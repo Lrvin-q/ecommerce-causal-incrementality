@@ -166,13 +166,16 @@ def _key_numbers() -> dict[str, object]:
     }
 
 
-def _git_blob(spec: str) -> bytes | None:
+def _git_blob(spec: str) -> bytes:
+    """取 git 对象字节；取不到必须响（AGENTS §3.6/§12.7：证据生成侧不许静默降级）。"""
     try:
         result = subprocess.run(
             ["git", "show", spec], cwd=ROOT, capture_output=True, check=True
         )
-    except (OSError, subprocess.CalledProcessError):
-        return None
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise RuntimeError(
+            f"无法从 git 读取 {spec}，拒绝生成缺字段的 source_binding.json：{exc}"
+        ) from exc
     return result.stdout
 
 
@@ -184,14 +187,19 @@ def _source_binding() -> dict[str, object]:
         "purpose": "d01_source_binding",
         "entry_script": "scripts/13_v3_pilot.py",
         "sha256_current": _sha256(ROOT / "scripts" / "13_v3_pilot.py"),
-        "sha256_at_run_inferred": hashlib.sha256(blob).hexdigest() if blob else None,
+        "sha256_at_run_inferred": hashlib.sha256(blob).hexdigest(),
         "run_version_spec": run_spec,
         "last_commit_touching_entry_script": "1682b51 (2026-10-25 10:53)",
-        "frozen_config_hash": "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3",
+        "config_hash_current": "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3",
+        "config_hash_at_run_inferred_prefix": "30511a32",
         "note": (
             "scripts/13 在运行后于 073c4a7（2026-10-28 21:20）被修改（CF random_state 与预算派生），"
             "sha256_current 不能代表运行版本；运行版本按 git 历史推断为 1682b51 的字节，"
             "运行窗口内是否有未提交改动无法由 git 证明。"
+            "config_hash_current 是**导出时**的 canonical hash（AA250 修订后 00723dc2…）；"
+            "D01 运行（2026-10-28 16:51–18:20）早于 AA250 修订 df12f57（18:47 提交），"
+            "故运行期配置哈希按 git 推断为 30511a32…（前缀；完整值未在运行日志中记录）。"
+            "L1_main 场景块在修订前后逐字节相同，该项不影响计时口径。"
         ),
     }
 
