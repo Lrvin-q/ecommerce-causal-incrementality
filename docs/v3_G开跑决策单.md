@@ -140,3 +140,12 @@ G01（AA250，**44.4 h**）不依赖 A–D，可**单独先批**。开跑条件�
 漂移即抛 `source files changed during the data run`。
 **因此 G01 期间按 AGENTS §11 走"冻结窗口"：不写 `src/ sql/ configs/`（含任何 `v3*.py`、`v3*.sql`、`v3*.yaml`）。**
 写 `docs/`、`outputs/`、`TODO.md` 等不受影响。
+
+## H. G03 复核（2026-10-28 22:57，只读 `34 plan`，未开跑）
+
+`python scripts/34_g_matrix_run.py plan --overlay configs/budget/tier2_overlay.yaml` 输出
+**24 格**（4 个 Tier1 core + 20 个 Tier2 选中格）与 **149.4 CPU·h**，日志落在 `out/g03_plan.log`。
+格数含 4 个 core 属预期（34 号把 core 与 Tier2 一起排）。但 **149.4 与决策单 §C 的"20 格 57.0"对不上**：
+前者含 4 个 core 的 R_ate=500 / R_learn=100 / R_validation=100，后者只算 20 个 Tier2 格。
+G03 真开跑前必须用**实测单 rep 成本**逐格重算，并对齐"G 矩阵 162.8 已含 core"的口径，
+**不得**把 149.4 直接加到 207.2 上（会重复计入 core）。这条在 G03 排期时先解决，不影响 G01。
