@@ -21,6 +21,7 @@
   （R 500/100/100 与 30/30/30、builds 1/1、`truth_columns_present=False`、`budget_plan.source=overlay`、`freeze_written_before_truth=True`）；
   顶层登记 **65 → 70**、全表复算 PASS、幂等；反例：源缺失 exit 2、目录级漏登记 exit 2。
 - **全量测试**：20:44:34–20:52:46 串行 **1 287 项、EXIT=0**（`outputs/evidence/test_runs/pytest_g_prework_20261028_2045.log`）；含 17/19 号校验器既有用例，本次未改动两脚本，门禁未削弱。
+- **全量测试（G AA 执行器后）**：21:05–21:13 串行 **1 303 项、EXIT=0**（`outputs/evidence/test_runs/pytest_g_aa_20261028_2105.log`）；新增 `tests/test_v3_g_aa_executor.py` 16 项，含 6 类 gate 拒绝与 3 类 `split_layer_table` 拒绝。
 - **成本口径自纠（20:47）**：初稿"192.8 CPU·h"含 30 h 未列明余量且漏掉 AA250。逐项重算：G 矩阵 **162.8** + AA250 **44.4** = **207.2**，
   上限 210、余量 **2.8 h**；固定 bootstrap 1000 次不重拟合、未计入，跑前须实测。已改 `docs/v3_repetition_budget_revision.md` §7.2 与 GOAL G02。
 - **仍未启动**：G01–G04 需用户对 R>0 开跑确认 + 机器独占 + 快照运行；F02 仍"未证实"（P1-1 预测支出运行期未落盘）。
@@ -909,7 +910,8 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [ ] **其余专项臂仍未实现（21:02）**：固定 bootstrap 1000、再训练 bootstrap、`random_list_seeds_per_budget`（每预算 200 个名单种子），以及 G03 的 L2 交叉 / L3 三分支。162.8 h 只含矩阵四臂；AA 44.4 h 已由 36 号承接；bootstrap 与名单种子臂成本未实测。**补齐之前 G01–G04 不得开跑**——否则产物看起来完整、实际缺臂。
 - [ ] **G02 预算口径冲突（21:05 新发现，P1，需用户裁决）**：冻结配置下 `planned_counts` 为 `retraining_bootstrap_jobs=800`（≈53.3 CPU·h）、`fixed_bootstrap_resamples=552 000`、`random_baseline_lists=11 680 000`；任务书 780 h 表只按 200 次重训（13.3 h）计、且完全未计后两项；`repetition_overlay.yaml` 另写 `retraining_bootstrap_total_jobs: 80`（无代码读取）。207.2 h 的合计**只含 200 次重训**，按冻结配置仅重训一项就 +40 h、越过 210 上限。**80 / 200 / 800 的裁决与两个基准臂的成本实测，必须早于 G02 开跑**；合同细节见 `docs/v3_G执行器缺口与设计.md`。
 - [ ] **F02 的两条未决**：P1-1 逐 rep 预测支出需决定"接受部分关闭"或"重跑预算检查"（后者是 R>0，需批准）；P1-3 审计价值已声明移交 D01/G。
-- [ ] **D01 独立评审**未做（20 rep 已跑完），G01 之前应先补，否则资源计划只有自证。
+- [x] **D01 独立评审**（2026-10-28 21:14 返回）：PASS WITH CONDITIONS，0 P0 / 6 P1 / 16 P2，报告 `docs/reviews/v3_phase_D01_review.md`。主控复算确认为真：991.387 分行、1,003.1（统一 CPU 口径）、5 模型参照 1,097–1,107 CPU·h、0.961671/0.963144、最差相对差 −13.71%（L3 G1）与 −31.53%（L0 峰值）、8.4 GB 为 2026-10-25 16:10 历史读数。
+- [ ] **D01 六项 P1 关闭**（G01 排期输入）：① §11.3 给区间并把 991 标为“4 模型暖态下界”；② 5 类未计入计数（fixed bootstrap 552k / 随机名单 11.68M / 预算重采样 7.3M / model_mode 49.3k / learner_fit 64.5k）逐项标“含/不含”；③ 并行度按当前可用内存与占空比重算、删除“4 进程不可行”；④ §11.1 统一 CPU、127.124→131.221、合计→≈1,003；⑤ 两份 `out/logs/*.log` 导出到 `outputs/evidence/` 并登记；⑥ “rep 8 饱和”改为“20 rep 内无新高水位”。
 - [ ] **G03 字面要求与 20 格 overlay 互斥（21:07 冲突登记，P1，需用户裁决）**：GOAL G03 要"L2 完整交叉 / L1 与业务敏感性 / L3 三分支"，但 overlay 只跑 L2 2/12、L1 6/25；`dgp.l3.branch` 仅 `fixed_truth`/`joint` 两个取值，"三分支"无定义。字面跑满 65 格 ≈ 335.5 CPU·h（含 AA，不含重训 800 与基准臂），超 210 上限。三条走法（改措辞 / 抬上限 / 砍子集）见 `docs/v3_G执行器缺口与设计.md` §4.4；**裁决前 G03 不得声称满足字面验收**。
 - [ ] G01–G04 完成后再排 H01–H05 与 Z01/Z02；H 依赖 G 的正式数值。
 
