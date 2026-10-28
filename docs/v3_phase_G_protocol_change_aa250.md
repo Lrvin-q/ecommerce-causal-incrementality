@@ -1,9 +1,10 @@
 # G 阶段协议修订：AA 批数 1000/层 → 250/层
 
 > **合成数据 / 已知 DGP。**
-> **状态：草稿，尚未执行（2026-10-28 11:10，北京时间）。**
+> **状态：已执行、待独立评审（2026-10-28 18:37，北京时间）。**
 > 本文是 `configs/v3/execution.yaml` 的 `change_matrix_requires_versioned_reason_and_review: true`
-> 所要求的版本化理由。**在 §4 的前后绑定值全部填实、独立评审返回结论之前，不得把本文当作已生效的协议记录引用。**
+> 所要求的版本化理由。**12 行**改动已于 2026-10-28 18:24–18:36 落盘（§3 改后值全部实读填入），
+> 新协议绑定在 `outputs/v3/protocol_aa250/`（18:36 重算）。**独立评审返回 PASS 之前，不得把 G01 记为"按新契约开跑"。**
 > 改动执行时机：F02 四个分片全部退出之后（AGENTS §11：`configs/v3/*.yaml` 在 F02 的绑定 glob 内）。
 
 ## 1. 授权链与范围
@@ -22,7 +23,7 @@
 不与前者重复相加**）。按 `TODO.md` 的作业总数口径（Tier1 6 400 + Tier2 43 500 + AA 4 000 + 再训练 200 + 固定 bootstrap 1 000 = 55 100），
 改后为 **52 100**。
 
-## 2. 改动清单（11 行）
+## 2. 改动清单（12 行）
 
 行号以 2026-10-28 11:04 实读为准；`execution.yaml` 为 LF、`scenarios.yaml` 为 CRLF，写回时按各自终止符。
 
@@ -39,6 +40,7 @@
 | 9 | `scenarios.yaml:2960` | `L3_AA.formal_repetitions.complete_aa` | 1000 | 250 | 同上 |
 | 10 | `scenarios.yaml:264` | `planned_counts.complete_aa_jobs` | 4000 | 1000 | `v3_config.py:207-210` 声明值必须等于推导值 |
 | 11 | `scenarios.yaml:261` | `planned_counts.historical_dgp_jobs` | 12500 | 9500 | 同上；推导式 `Σ max(formal_repetitions.values())`，AA 四格各 −750 |
+| 12 | `design.yaml:38` | `design.aa.repeats_per_layer` | 1000 | 250 | **范围补正（18:36）**：这是同一个 AA 批数在注册表里的第二份副本，初版 11 行清单漏了它；无代码读取，但 `tests/test_v3_aa.py:242` 会抓注册表内部不一致 |
 
 **第 11 行不是手算猜出来的**：`--dry-run` 只改前 10 行时，在配置副本上完整加载立即抛
 `ConfigError: Planned count drift historical_dgp_jobs: declared=12500, derived=9500`。
@@ -48,17 +50,30 @@
 
 > **以下两栏由执行时实测填入；未填的项一律视为"尚未修订"。**
 
-| 项 | 改前（实读 2026-10-28 11:06） | 改后（执行时填） |
+| 项 | 改前（实读 2026-10-28 11:06） | 改后（实读 2026-10-28 18:26） |
 |---|---|---|
-| `load_v3_protocol().config_hash` | `30511a32bcee9db55e8f5ec1bbc2b9d63eb63dc2a13aa5c720f948c781eccdbe` | `<待填>`（副本预演值 `6b67261009b8a5ff…`，仅作预览） |
-| `source_sha256["execution.yaml"]` | `dc1c8e9ab147e58d95e1367c2abcd90ba02acf05ca27da11e3dfb84da8631733` | `<待填>` |
-| `source_sha256["scenarios.yaml"]` | `29a158b046cb91661f2327cc5acbc1dc868a57c17dc0783cfe9d6d41058e9ddb` | `<待填>` |
-| 其余 5 份 yaml 的 `source_sha256` | 见 `outputs/v3/protocol/approval.json` | **应逐一不变**（执行后比对） |
-| `outputs/v3/protocol/experiment_matrix.csv` 的 `matrix_sha256` | `c3c7a63ad99fb921698ebbc638db50c18f5c0b672aad09d0a67c37c1dba9a8c7`（`approval.json`） | `<待填>`（`scripts/09_freeze_v3_protocol.py` 重算后） |
-| `protocol_manifest.json.protocol_sha256` | `eb85a3284a01a4f428c29d4cd84098a123ae629d44ceb6b1ac9fcd11f107e6fc` | `<待填>` |
+| `load_v3_protocol().config_hash` | `30511a32bcee9db55e8f5ec1bbc2b9d63eb63dc2a13aa5c720f948c781eccdbe` | `00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3`（18:36 含 design.yaml 补正后的最终值；只改前 11 行时为 `6b67261009b8a5ff…`） |
+| `source_sha256["execution.yaml"]` | `dc1c8e9ab147e58d95e1367c2abcd90ba02acf05ca27da11e3dfb84da8631733` | `58623f8523ff29cd58352da82c82dac1663047cb34cb938cdd8947eb11e9ca61` |
+| `source_sha256["scenarios.yaml"]` | `29a158b046cb91661f2327cc5acbc1dc868a57c17dc0783cfe9d6d41058e9ddb` | `b8fa1480ea39ad7f9d2f2098d4ec957c7ed011865085054090db2bfbe54269e7` |
+| `source_sha256["design.yaml"]` | `d2fd51a1156457257cf7977b32bd5aeb1c9745a10e528d029a877ef1b531fa99` | `8890d25b40fbc01888f63ada093adb45cf2106016a798bdeb73a6139ac80ab6f` |
+| 其余 4 份 yaml 的 `source_sha256` | 见 `outputs/v3/protocol/approval.json` | **逐一不变**：`business d1259d23…` / `models 19ce3bf5…` / `policy 57ff5721…` / `evaluation 5f6dfcb2…`（2026-10-28 18:36 复算与 Phase A 完全相同） |
+| `experiment_matrix.csv` 的 `matrix_sha256` | `c3c7a63ad99fb921698ebbc638db50c18f5c0b672aad09d0a67c37c1dba9a8c7`（`outputs/v3/protocol/approval.json`） | `30645842ea4928975ab99f2ce9f8e83f7a75da4d19c2bae920b1f30dd8881409`（`outputs/v3/protocol_aa250/experiment_matrix.csv`，48 796 B，18:36 重算） |
+| `protocol_manifest.json.protocol_sha256` | `eb85a3284a01a4f428c29d4cd84098a123ae629d44ceb6b1ac9fcd11f107e6fc` | `eb85a3284a01a4f428c29d4cd84098a123ae629d44ceb6b1ac9fcd11f107e6fc`（**不变**：`docs/v3_协议.md` 未编辑） |
 | `planned_counts.complete_aa_jobs` | 4000 | 1000 |
 | `planned_counts.historical_dgp_jobs` | 12500 | 9500 |
-| F02 证据里的 `protocol_config_hash` | `e1aa4314b8d84b04…` | **不得改**：它是 F02 运行期的绑定值，属历史记录；本修订不改写任何既有 manifest |
+| F02 证据里的 `protocol_config_hash` | `e1aa4314b8d84b04…` | **未改**：它是 F02 运行期的绑定值，属历史记录；本修订未改写任何既有 manifest |
+
+**改后值的出处**：`config_hash` 与 7 份 `source_sha256` 来自 `outputs/v3/protocol_aa250/protocol_manifest.json`
+（由 `scripts/09_freeze_v3_protocol.py --output outputs/v3/protocol_aa250` 于 2026-10-28 18:36 重新生成，exit 0）；
+`matrix_sha256` 为对该目录 `experiment_matrix.csv` 直接 `sha256sum`。
+只改前 11 行时的 `config_hash` 为 `6b67261009b8a5ff…`（与 11:08 的副本预演一致）；
+补第 12 行 `design.yaml` 后必然变化，**以最终值 `00723dc2…` 为准**。
+`design.aa.repeats_per_layer` 无任何 `src/` 或 `scripts/` 代码读取（18:35 全仓 grep 为空），
+所以它只影响注册表自洽与 `config_hash`，不影响任何作业的实际批数；实际批数由 `formal_repetitions.complete_aa` 驱动。
+
+**为什么 11 行变 12 行**：首轮全量测试在 18:34 抓出两处硬编码守卫，其中
+`tests/test_v3_aa.py` 断言 `design.aa.repeats_per_layer == 1000` 失败——同一个 AA 批数在 `design.yaml` 里还有一份副本，
+初版清单没列。把它对齐到 250 是同一授权的直接结果，不是扩大范围；若保留 1000，契约内部就会同时存在两个 AA 批数。
 
 ## 4. 哪些既有证据仍然成立
 
@@ -74,26 +89,32 @@
 
 1. **预演（已完成，2026-10-28 11:08）**：`out/scratch/sim_v3_aa250/` 副本上走同一入口，
    `load_v3_protocol(root=副本)` 完整通过（含 `planned_counts` 逐项比对），预览 `config_hash=6b67261009b8a5ff…`。
-2. **真跑**：`out/scratch/g_route_jia_aa250.py`，须先满足 200 个 F02 manifest（安全阀，未满足 `exit=5`）；
-   工具自身断言"恰 1 行 execution + 10 行 scenarios"变了，否则 `exit=7`。
-3. **重算，但绝不就地覆盖 Phase A 目录**：
+2. **真跑（已完成，2026-10-28 18:24；18:36 补第 12 行）**：`out/scratch/g_route_jia_aa250.py`，先核 200 个 F02 manifest（安全阀）；
+   工具断言"恰 1 行 execution + 10 行 scenarios"变了（`patch_exit=0`），否则 `exit=7`。
+   改后副本立即由 `load_v3_protocol` 复读：`tier1_aa_per_layer=250`、四个 AA 格 `R == complete_aa == 250`、
+   `complete_aa_jobs=1000`、`historical_dgp_jobs=9500`。落盘 mtime：`execution.yaml`/`scenarios.yaml` 均为 18:24:25。
+   18:36 直接补 `design.yaml:38` 一行（见 §2 第 12 行），配置随即重新加载通过，`config_hash=00723dc2…`。
+3. **重算（已完成，2026-10-28 18:36，exit 0），未就地覆盖 Phase A 目录**：
    ```bash
    .venv/Scripts/python.exe scripts/09_freeze_v3_protocol.py --output outputs/v3/protocol_aa250
    ```
    `outputs/v3/protocol/` 是 Phase A 的快照——它的 `protocol_sha256` 绑定 `docs/v3_协议.md` 的字节，
    就地重跑等于把"Phase A 批准了什么"改写成"今天是什么"。**原目录逐字节保留。**
-4. **一处必须先声明的口径偏差**：09 号脚本把 `experiment_results_exist` **硬编码为 `false`**
+4. **口径偏差已按声明处理（2026-10-28 18:26）**：09 号脚本把 `experiment_results_exist` **硬编码为 `false`**
    （`scripts/09_freeze_v3_protocol.py:39`），而今天 D02/D03/E/F01/F02 的结果都已存在。
-   修订目录里的这一字段因此**不采信脚本输出**，由第 5 步的 `revision.json` 覆盖为 `true` 并注明来源；
+   修订目录里 `protocol_manifest.json` 的该字段仍是脚本输出 `false`（不改脚本产物），
+   由第 5 步的 `revision.json` 声明 `experiment_results_exist: true` 并注明来源；
    `experiment_matrix.csv`、`config_hash`、`source_sha256`、`planned_counts` 照用脚本输出。
-   （不为此改 09 号脚本：它是 Phase A 已验证的入口，改它要连带重跑 A 的回归证据。）
-5. **档案：新建修订文件，不改历史**：`outputs/v3/protocol_aa250/approval_revision_20261028.json`，至少含
-   `supersedes_config_hash`（`30511a32…`）、`config_hash`（新）、逐文件 `source_sha256`、
+5. **档案（已完成，2026-10-28 18:26）**：`outputs/v3/protocol_aa250/approval_revision_20261028.json`（2 696 B），含
+   `supersedes_config_hash`（`30511a32…`）、`config_hash`（`6b672610…`）、逐文件 `source_sha256`、
    `reason_doc` 与其 sha256、`authorized_by`（2026-10-28 11:05 用户裁决）、`scope`（AA 4 格 250/层，其余不变）、
-   `experiment_results_exist: true`、`review`（评审文件 + sha256）。
-   `outputs/v3/protocol/approval.json` **保留原字节**——它是 Phase A 的批准记录，不是"当前配置"的说明书。
-6. **测试**：F02 解冻后跑全量串行测试（AGENTS §11.4），日志 + exitcode + 起止时间入库。
-7. **独立评审**：对本修订单独评审，返回 PASS 后才允许把 G01 记为"按新契约开跑"。
+   `experiment_results_exist: true`、`review.status = pending_independent_review`。
+   `outputs/v3/protocol/approval.json` **保留原字节**（sha256 `8f8a7e21…`，已记录在修订文件里）。
+6. **测试（已完成）**：最终树全量串行 **1 275 项、EXIT=0、18:36:49–18:45:27（518 s）**，
+   凭据 `outputs/evidence/test_runs/pytest_g_aa250_20261028_1836.{log,json}`；
+   `find src sql configs -newermt "2026-10-28 18:36:41"` 返回空。18:24 首轮 **EXIT=1**（2 项旧契约守卫）保留为
+   `pytest_g_aa250_20261028_1824.{log,json}`，它直接促成 §2 第 12 行补正。
+7. **独立评审**：对本修订单独评审，返回 PASS 后才允许把 G01 记为"按新契约开跑"。**当前未做。**
 8. **文档指针**：README / GOAL 的 G01 行改为指向新修订文件；**不编辑** `docs/v3_协议.md`
    （一改，Phase A 记录的 `protocol_sha256 = eb85a328…` 就再也复算不出来）。
 
@@ -108,3 +129,7 @@
 |---|---|
 | 2026-10-28 11:10 | 建立草稿：授权链、11 行清单、绑定值待填表、既有证据口径、验证与回滚 |
 | 2026-10-28 11:25 | §5 改写：修订落 `outputs/v3/protocol_aa250/`，Phase A 目录逐字节保留；记 09 号 `experiment_results_exist` 硬编码 `false`（第 39 行）与`docs/v3_协议.md` 不可编辑两条约束 |
+| 2026-10-28 18:26 | 执行完成：11 行落盘（18:24:25，`patch_exit=0`）、09 重算入新目录（18:24:27，exit 0）、修订档落盘（18:26）；§3 改后值全部实读填入（config_hash `6b672610…`、execution `58623f85…`、scenarios `b8fa1480…`、matrix `d268b727…`、protocol_sha256 不变）；其余 5 份 yaml 逐一复算不变；新树全量串行测试 18:24 起跑。独立评审仍未做 |
+| 2026-10-28 18:37 | **范围补正**：全量测试 18:34 结束（EXIT=1，2 项失败），抓到 `design.yaml:38` 的 AA 批数副本仍为 1000、`tests/test_v3_power.py` 的 `FROZEN_CONFIG_HASH` 仍钉旧值。按同一授权改 `design.yaml` 为 250（第 12 行）、更新两处守卫测试；18:36 重跑 09，最终 `config_hash=00723dc2…`、matrix `30645842…`、design `8890d25b…`。**11 行 → 12 行** |
+| 2026-10-28 18:37 | 修正 §4 的一处指针：独立评审在 §5 第 7 条，不在 §6（§6 是回滚） |
+| 2026-10-28 18:46 | 最终全量串行测试 **1 275 项、EXIT=0、18:36:49–18:45:27（518 s）**，日志与 JSON 凭据入库；18:24 首轮 EXIT=1 的两项失败与处置保留在 pre-fix 凭据里 |

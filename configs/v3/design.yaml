@@ -35,7 +35,7 @@ design:
     virtual_label_probability: 0.50
     label_effect_on_mechanism: none
     pipeline: [five_tables, dirty, clean, sql, estimation]
-    repeats_per_layer: 1000
+    repeats_per_layer: 250
   guardrail:
     primary_metric: any_refund_30d_per_assigned_user
     auxiliary_descriptive_metric: refunded_orders_per_paid_order

@@ -258,10 +258,10 @@ planned_counts:
   tier1_aa_cells: 4
   tier2_complete_cells: 65
   design_power_cells: 20
-  historical_dgp_jobs: 12500
+  historical_dgp_jobs: 9500
   full_learning_data_jobs: 7300
   independent_validation_jobs: 7300
-  complete_aa_jobs: 4000
+  complete_aa_jobs: 1000
   additional_design_power_jobs: 2000
   retraining_bootstrap_jobs: 800
   fixed_bootstrap_resamples: 552000
@@ -408,7 +408,7 @@ scenarios:
   tier: 1
   n: 200000
   treatment_probability: 0.5
-  R: 1000
+  R: 250
   purpose: 真正 AA：标签随机，所有用户实际动作均为不发券；标签不影响购买/成本/退款
   overrides:
     dgp.profile: l0_purchase
@@ -426,7 +426,7 @@ scenarios:
     ate: 0
     full_learning_per_model: 0
     independent_validation: 0
-    complete_aa: 1000
+    complete_aa: 250
   models: []
   time_modes:
   - static
@@ -1293,7 +1293,7 @@ scenarios:
   tier: 1
   n: 200000
   treatment_probability: 0.5
-  R: 1000
+  R: 250
   purpose: 真正 AA：标签随机，所有用户实际动作均为不发券；标签不影响购买/成本/退款
   overrides:
     dgp.profile: l1
@@ -1311,7 +1311,7 @@ scenarios:
     ate: 0
     full_learning_per_model: 0
     independent_validation: 0
-    complete_aa: 1000
+    complete_aa: 250
   models: []
   time_modes:
   - static
@@ -1922,7 +1922,7 @@ scenarios:
   tier: 1
   n: 200000
   treatment_probability: 0.5
-  R: 1000
+  R: 250
   purpose: 真正 AA：标签随机，所有用户实际动作均为不发券；标签不影响购买/成本/退款
   overrides:
     dgp.profile: l2
@@ -1940,7 +1940,7 @@ scenarios:
     ate: 0
     full_learning_per_model: 0
     independent_validation: 0
-    complete_aa: 1000
+    complete_aa: 250
   models: []
   time_modes:
   - static
@@ -2939,7 +2939,7 @@ scenarios:
   tier: 1
   n: 200000
   treatment_probability: 0.5
-  R: 1000
+  R: 250
   purpose: 真正 AA：标签随机，所有用户实际动作均为不发券；标签不影响购买/成本/退款
   overrides:
     dgp.profile: l3
@@ -2957,7 +2957,7 @@ scenarios:
     ate: 0
     full_learning_per_model: 0
     independent_validation: 0
-    complete_aa: 1000
+    complete_aa: 250
   models: []
   time_modes:
   - static

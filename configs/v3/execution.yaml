@@ -22,7 +22,7 @@ execution:
     tier1_ate: 500
     tier1_full_learning_per_model: 200
     tier1_independent_validation: 200
-    tier1_aa_per_layer: 1000
+    tier1_aa_per_layer: 250
     tier2_ate: 100
     tier2_full_learning_per_model: 100
     tier2_independent_validation: 100

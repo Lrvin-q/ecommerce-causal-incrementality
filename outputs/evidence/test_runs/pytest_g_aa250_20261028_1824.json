@@ -1,0 +1,20 @@
+{
+  "kind": "full_suite_serial_test_log_pre_fix",
+  "phase": "G_AA250",
+  "created_at": "2026-10-28T18:46:00+08:00",
+  "purpose": "AA250 修订落地后的首轮全量串行测试，保留为改动前证据：它抓出两处旧契约硬编码守卫，直接促成 design.yaml 第 12 行补正",
+  "source": "outputs/evidence/test_runs/pytest_g_aa250_20261028_1824.log",
+  "command_line": ".venv/Scripts/python.exe -m pytest -q -p no:warnings --basetemp C:/cg_t",
+  "start": "2026-10-28 18:24:48 +0800",
+  "end": "2026-10-28 18:34:50 +0800",
+  "duration_seconds": 602,
+  "exit_code": 1,
+  "collected_tests": 1275,
+  "progress_failure_or_skip_markers": 2,
+  "failures": [
+    "tests/test_v3_aa.py::test_registered_aa_cells_are_one_per_layer_and_match_the_frozen_design - design.aa.repeats_per_layer 仍为 1000（此前清单漏列 design.yaml）",
+    "tests/test_v3_power.py::test_config_canonical_hash_is_still_frozen - FROZEN_CONFIG_HASH 仍为 30511a32…，实际为 6b672610…（当时尚未补第 12 行）"
+  ],
+  "resolution": "design.yaml:38 1000→250（第 12 行）；两处守卫更新为 250 与最终 config_hash 00723dc2…；18:36:49–18:45:27 重跑 exit 0（见 pytest_g_aa250_20261028_1836.{log,json}）",
+  "sha256": "e773cb2cc56a62ba137dd3f9b51c7bb947e8ab1c646f5f7c01f9b7b1d1e2628b"
+}

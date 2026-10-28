@@ -34,8 +34,8 @@ from causal_growth.v3_config import V3Protocol, load_v3_protocol
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = Path(vp.__file__)
-#: 冻结的七份配置合并规范化 SHA-256（A 阶段评审凭据，改一个字符即失效）。
-FROZEN_CONFIG_HASH = "30511a32bcee9db55e8f5ec1bbc2b9d63eb63dc2a13aa5c720f948c781eccdbe"
+#: 冻结的七份配置合并规范化 SHA-256（A 阶段评审凭据；2026-10-28 AA250 修订后由 30511a32… 更新为下值）。
+FROZEN_CONFIG_HASH = "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3"
 BASE_SCENARIOS = ("L0_P_main", "L1_main", "L2_n200000_p050", "L3_fixed_lt000")
 
 

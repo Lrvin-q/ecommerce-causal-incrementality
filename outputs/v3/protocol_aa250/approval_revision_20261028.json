@@ -1,0 +1,66 @@
+{
+  "kind": "approval_revision",
+  "revision": "AA250-20261028",
+  "created_at": "2026-10-28T18:26:00+08:00",
+  "supersedes_config_hash": "30511a32bcee9db55e8f5ec1bbc2b9d63eb63dc2a13aa5c720f948c781eccdbe",
+  "config_hash": "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3",
+  "config_hash_note": "只改前 11 行时为 6b67261009b8a5ff…（与 11:08 预演相同）；18:36 补 design.yaml:38 第 12 行后为现值的最终值",
+  "protocol_sha256": "eb85a3284a01a4f428c29d4cd84098a123ae629d44ceb6b1ac9fcd11f107e6fc",
+  "authorized_by": {
+    "user_decision_at": "2026-10-28 11:05（北京时间）",
+    "decision_text": "G阶段按甲方案。按照你的思考和建议的方式推进。",
+    "scope": "只把 AA 四层的 R / complete_aa / tier1_aa_per_layer 从 1000 对齐到 250，并同步两个计划计数；ATE、学习、独立验证、bootstrap 等其余项保持冻结值"
+  },
+  "changed_files": {
+    "configs/v3/execution.yaml": {
+      "sha256": "58623f8523ff29cd58352da82c82dac1663047cb34cb938cdd8947eb11e9ca61",
+      "changed_lines": 1
+    },
+    "configs/v3/scenarios.yaml": {
+      "sha256": "b8fa1480ea39ad7f9d2f2098d4ec957c7ed011865085054090db2bfbe54269e7",
+      "changed_lines": 10
+    },
+    "configs/v3/design.yaml": {
+      "sha256": "8890d25b40fbc01888f63ada093adb45cf2106016a798bdeb73a6139ac80ab6f",
+      "changed_lines": 1,
+      "note": "design.aa.repeats_per_layer 1000→250；同一个 AA 批数的注册表副本，初版清单漏列，18:36 补正"
+    }
+  },
+  "changed_lines_total": 12,
+  "planned_counts_delta": {
+    "complete_aa_jobs": {
+      "from": 4000,
+      "to": 1000
+    },
+    "historical_dgp_jobs": {
+      "from": 12500,
+      "to": 9500
+    }
+  },
+  "reason_doc": {
+    "path": "docs/v3_phase_G_protocol_change_aa250.md",
+    "sha256": "9b685880b68f50640dbd8406878f7bb7b249999e4c8179fc465995c348aed8ed",
+    "note": "18:47 补入最终测试凭据后重算；11:10 草稿 ff54fd1f...、18:26 十一行版 5ed3211e...、18:27 时刻修正版 6112c4cd...、18:37 十二行版 801e8cf5..."
+  },
+  "protocol_dir": {
+    "path": "outputs/v3/protocol_aa250",
+    "experiment_matrix_csv_sha256": "30645842ea4928975ab99f2ce9f8e83f7a75da4d19c2bae920b1f30dd8881409",
+    "protocol_manifest_json_note": "由 scripts/09_freeze_v3_protocol.py 于 18:36 重新生成；其 experiment_results_exist 仍为脚本硬编码 false，以本文件 experiment_results_exist=true 为准"
+  },
+  "experiment_results_exist": true,
+  "experiment_results_note": "F02 正式 200 rep 已在旧协议（config_hash 30511a32… / e1aa4314…）下产生结果并入库；本次修订只改 AA 计数，不改动 F02 的绑定与证据。09 号脚本在脚本内硬编码 experiment_results_exist=False（scripts/09_freeze_v3_protocol.py:39），是已知偏差，故以本修订文件为准声明 true。",
+  "approval_unchanged": {
+    "path": "outputs/v3/protocol/approval.json",
+    "sha256": "8f8a7e21537430250f9ab195adbd0c84cf968ab33816dbb8b8000e3cd6866f31",
+    "note": "Phase A 批准文件保持字节不变；本文件是其增量修订，不覆盖原批准"
+  },
+  "f02_binding_unchanged": {
+    "formal_config_hash": "e1aa4314b8d84b04a26150cb8ccea5a35dbe9b2d514fee724c56570d5b586d75",
+    "note": "F02 的 200 rep 在新协议生效前已全部完成；其 manifest 仍绑定旧哈希，不得据新哈希重算或覆盖"
+  },
+  "review": {
+    "status": "pending_independent_review",
+    "required_by": "AGENTS §7.4 / G 阶段门禁：改冻结配置须版本化理由 + 独立评审",
+    "note": "本修订在独立评审通过前不得把 G01/G02 记为按新契约运行"
+  }
+}

@@ -1,0 +1,59 @@
+START 2026-10-28 18:24:48 +0800
+........................................................................ [  5%]
+........................................................................ [ 11%]
+........................................................................ [ 16%]
+........................................................................ [ 22%]
+........................................................................ [ 28%]
+................................................................F....... [ 33%]
+........................................................................ [ 39%]
+........................................................................ [ 45%]
+........................................................................ [ 50%]
+........................................................................ [ 56%]
+........................................................................ [ 62%]
+.....................................................................F.. [ 67%]
+........................................................................ [ 73%]
+........................................................................ [ 79%]
+........................................................................ [ 84%]
+........................................................................ [ 90%]
+........................................................................ [ 96%]
+...................................................                      [100%]
+================================== FAILURES ===================================
+___ test_registered_aa_cells_are_one_per_layer_and_match_the_frozen_design ____
+
+protocol = V3Protocol(config=Config(name='v3', keys=['schema_version', 'parameter_evidence_default', 'parameter_reference', 'unit...957c7ed011865085054090db2bfbe54269e7'}, config_hash='6b67261009b8a5ff1983d24adc13095728242410a2f140cee3827ce8ad116b6f')
+
+    def test_registered_aa_cells_are_one_per_layer_and_match_the_frozen_design(protocol):
+        """格数来自注册表：每层恰一个 Tier1 完整 AA，1000 次、全员同一动作。"""
+        cells = aa_cells(protocol)
+        assert [cell.level for cell in cells] == ["L0", "L1", "L2", "L3"]
+        assert all(cell.tier == 1 for cell in cells)
+>       assert all(cell.registered_reps == 1000 for cell in cells)
+E       assert False
+E        +  where False = all(<generator object test_registered_aa_cells_are_one_per_layer_and_match_the_frozen_design.<locals>.<genexpr> at 0x000001B82EFDF510>)
+
+tests\test_v3_aa.py:233: AssertionError
+_________________ test_config_canonical_hash_is_still_frozen __________________
+
+protocol = V3Protocol(config=Config(name='v3', keys=['schema_version', 'parameter_evidence_default', 'parameter_reference', 'unit...957c7ed011865085054090db2bfbe54269e7'}, config_hash='6b67261009b8a5ff1983d24adc13095728242410a2f140cee3827ce8ad116b6f')
+
+    def test_config_canonical_hash_is_still_frozen(protocol):
+>       assert protocol.config_hash == FROZEN_CONFIG_HASH
+E       AssertionError: assert '6b67261009b8...27ce8ad116b6f' == '30511a32bcee...948c781eccdbe'
+E         
+E         - 30511a32bcee9db55e8f5ec1bbc2b9d63eb63dc2a13aa5c720f948c781eccdbe
+E         + 6b67261009b8a5ff1983d24adc13095728242410a2f140cee3827ce8ad116b6f
+
+tests\test_v3_power.py:134: AssertionError
+============================== warnings summary ===============================
+tests/test_v3_timing.py::test_timing_quadrature_tolerance_convergence
+  C:\Users\26382\.qoder-cn\worktrees\app\c509bd\营销数分项目\src\causal_growth\dgp\v3_timing.py:89: IntegrationWarning: The occurrence of roundoff error is detected, which prevents 
+    the requested tolerance from being achieved.  The error may be 
+    underestimated.
+    value, error = quad(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_v3_aa.py::test_registered_aa_cells_are_one_per_layer_and_match_the_frozen_design
+FAILED tests/test_v3_power.py::test_config_canonical_hash_is_still_frozen - A...
+EXIT=1
+END 2026-10-28 18:34:50 +0800

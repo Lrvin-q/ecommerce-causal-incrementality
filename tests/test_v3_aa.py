@@ -226,11 +226,11 @@ def test_summary_separates_negative_control_from_true_aa():
 # 2. 配置合同
 # --------------------------------------------------------------------------- #
 def test_registered_aa_cells_are_one_per_layer_and_match_the_frozen_design(protocol):
-    """格数来自注册表：每层恰一个 Tier1 完整 AA，1000 次、全员同一动作。"""
+    """格数来自注册表：每层恰一个 Tier1 完整 AA，250 次、全员同一动作（AA250 修订，2026-10-28）。"""
     cells = aa_cells(protocol)
     assert [cell.level for cell in cells] == ["L0", "L1", "L2", "L3"]
     assert all(cell.tier == 1 for cell in cells)
-    assert all(cell.registered_reps == 1000 for cell in cells)
+    assert all(cell.registered_reps == 250 for cell in cells)
     assert all(cell.registered_n == 200_000 for cell in cells)
     assert all(cell.actual_action == 0 for cell in cells)
     assert all(cell.virtual_label_probability == 0.5 for cell in cells)
@@ -239,7 +239,7 @@ def test_registered_aa_cells_are_one_per_layer_and_match_the_frozen_design(proto
                             "pipeline", "repeats_per_layer")
     assert design["label_effect_on_mechanism"] == "none"
     assert tuple(design["pipeline"]) == ("five_tables", "dirty", "clean", "sql", "estimation")
-    assert design["repeats_per_layer"] == 1000
+    assert design["repeats_per_layer"] == 250
 
 
 def test_virtual_labels_only_replace_the_treatment_column_in_generated_data(protocol, chain_cell):
