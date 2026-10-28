@@ -38,6 +38,13 @@
   P2-1 在正文注明 `source_binding.json` 的 `frozen_config_hash` 是导出时当前值（运行期按 git 推断 30511a32…，
   AA250 修订晚于运行、`L1_main` 场景块未变），并把 `scripts/38` 改为 `config_hash_current` +
   `config_hash_at_run_inferred_prefix`、git 取不到时 **RuntimeError 硬失败**（未重导出，证据字节与 76 条登记不变）。
+- **F02 P1-1 关闭（21:42）**：预测支出其实一直逐 rep 落在 `out/f02_formal/shard*/rep*/manifest.json` 的
+  `arms.*.predicted_spend_*`；19:30 旧表把该列留空并注 `not_persisted_per_rep`，**注记是错的**。
+  已新建 `outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv`（600 行 = 200 rep × 3 臂，
+  含 predicted/realized/`realized_to_predicted`/`overspend_ratio`/`budget_deviation`）并两级登记（目录级 **20 件**、
+  顶层 **77 条 / 16,906,697 B**、全表复算一致）。合并实际/预测：定向 **1.056348**（逐 rep min −5.42% / 中位 +5.09% /
+  max +30.67%，**179/200** 为正）、随机 **1.002835**；正文 §5.2 已补。**F02 第三轮窄口径复核已启动**，
+  报告 `docs/reviews/v3_phase_F02_closeout.md`；PASS 前 F02 仍记"未证实"。
 - **推送**：20:54 首推失败（443 不可达）后 **21:26 成功**，远端 `a351ec3`；此后 `fb574e1`（D01 状态入册）、`d3b0082`（N9 补登记）待推。
 
 **2026-10-28 19:25 更新。D01 完成；G 甲方案已执行并经独立评审（条件已关闭）；F02 评审条件正在关闭**：

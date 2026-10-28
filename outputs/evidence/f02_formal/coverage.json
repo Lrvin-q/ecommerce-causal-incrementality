@@ -120,6 +120,14 @@
       "sha256": "71ebff14faedf4e6ad19d25c9367e94564e4af370145598b5697920be9917752",
       "bytes": 499,
       "kind": "f02_formal_aggregate"
+    },
+    {
+      "path": "aggregate/v3_phase_F02_formal_per_rep_spend_full.csv",
+      "source": "out/f02_formal/shard*/rep*/manifest.json (arms.*.predicted_spend_*) + arm_summary.csv (realized)",
+      "sha256": "8219660498fe927798aad306bfbb97353c0f7d1c65a7e271a56263cc3cafd33e",
+      "bytes": 101666,
+      "rows": 600,
+      "kind": "f02_formal_aggregate"
     }
   ],
   "excluded": [
@@ -145,6 +153,6 @@
     }
   ],
   "note": "manifest.json 含冻结后聚合的 audit_true_arm_means（整臂均值），不含逐用户真值；聚合表只由 decision/guardrail/itt 的观测列生成。",
-  "repaired_at": "2026-10-28 21:34",
-  "repair_note": "19:30 的 4 个聚合文件（200 rep 绑定表 / 600 行实际支出 / 4 分片 / snapshot binding）当时只写进顶层 coverage.json，漏了本目录级索引；21:34 按磁盘字节补登记，sha256/bytes 现场重算，原有 15 条未改动。"
+  "repaired_at": "2026-10-28 21:42",
+  "repair_note": "19:30 的 4 个聚合文件（200 rep 绑定表 / 600 行实际支出 / 4 分片 / snapshot binding）当时只写进顶层 coverage.json，漏了本目录级索引；21:34 按磁盘字节补登记，sha256/bytes 现场重算，原有 15 条未改动。 21:42 新增 600 行逐 rep 支出全表（含 predicted_per_assigned / realized_to_predicted / overspend_ratio），数据来自逐 rep manifest.json 与 arm_summary.csv；此前 19:30 的 realized_spend 表把 predicted 列留空并注 \"not_persisted_per_rep\"，该注记不正确——predicted 一直在 manifest 里，只是当时未导出。"
 }

@@ -188,6 +188,15 @@ F02 三臂是**用户级独立随机**，两条差各用 `sqrt(se_l²+se_r²)`�
 ③ 实际券成本已进入 `observed_net_profit`，超支已被结果变量吸收。正式 200 rep 必须逐
 rep 报告实际支出与超支倍数，并把"同预算"限定为"同预测预算规则"，不得声称实际支出相等。
 
+**逐 rep 支出与超支倍数（2026-10-28 21:42 补齐，关闭评审 P1-1）**：预测支出其实一直逐 rep 落在 `out/f02_formal/shard*/rep*/manifest.json` 的 `arms.*.predicted_spend_*`，19:30 导出的 `v3_phase_F02_formal_per_rep_realized_spend.csv` 只是**没有再读它**，其 `predicted_note="not_persisted_per_rep"` 的表述不正确。现从 manifest + `arm_summary.csv` 重建 **600 行**（200 rep × 3 臂）全表：
+`outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv`（列含 `predicted_spend_cny`、`predicted_per_assigned_cny`、`realized_coupon_cost_total_cny`、`realized_per_assigned_cny`、`realized_to_predicted`、`overspend_ratio`、`budget_deviation_cny`），已登记进目录级 `coverage.json`（20 件）与顶层（**77 条**）。
+
+- 定向臂：合并 实际/预测 = **1.056348**（逐 rep 超支倍数 min **−5.42%** / 中位 **+5.09%** / max **+30.67%**，**179/200** 为正）；
+- 随机臂：**1.002835**（min −6.14% / 中位 +0.11% / max +8.90%，104/200 为正）；
+- 不发券臂：0 / 0（无预测支出）。
+
+结论口径与评审 §8.2 第 4 条一致："同预算"只能写成"同预测预算规则"；定向臂实际支出比其预测高约 **5.6%**（合并口径），且逐 rep 波动可达 +30.7%。旧表（`..._per_rep_realized_spend.csv`）保留为历史产物，但引用超支倍数时以本表为准。
+
 ### 5.2.1 两次独立拟合一致性（正式前置，2026-10-27 20:37，北京时间）
 
 §6 要求"若 learner 内部随机性不完全受种子控制，需在正式 R 前用两次独立拟合哈希核验"。
