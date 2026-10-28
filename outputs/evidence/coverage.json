@@ -407,9 +407,97 @@
       "target": "outputs/evidence/test_runs/pytest_g_aa250_20261028_1836.log",
       "bytes": 1527,
       "sha256": "f8df46b0032f36e8ce7fb5c3efc247c1d273dc8c2ef76539fa09b0063a10ff86"
+    },
+    {
+      "kind": "f02_formal_aggregate",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_claims.csv",
+      "bytes": 557,
+      "sha256": "5ff02faa3c575fe8be810921e17d87f5a58db453bab0b62729101b4cdb3dd60c",
+      "rows": 2
+    },
+    {
+      "kind": "f02_formal_aggregate",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_guardrail.csv",
+      "bytes": 337,
+      "sha256": "32430faab6720861084b7079834f95499a6c7a3a0adf994df6b5a4f980535ead",
+      "rows": 1
+    },
+    {
+      "kind": "f02_formal_aggregate",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_itt.csv",
+      "bytes": 490,
+      "sha256": "291db8f3b766d3bfe53e3ea7a108f7ebfb13b69294f2d41aa0516263e38b731f",
+      "rows": 3
+    },
+    {
+      "kind": "f02_formal_aggregate",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_binding.csv",
+      "bytes": 47833,
+      "sha256": "fa600c6457fa53332157c70c1b606902a3cd3ded8e697eb956ef314117eb9442",
+      "rows": 200
+    },
+    {
+      "kind": "f02_formal_aggregate",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_claims.csv",
+      "bytes": 249371,
+      "sha256": "7acb8cef9bd2c553c7d2f899a5019ab4653db9a307d9f142dccac8af37e4686c",
+      "rows": 400
+    },
+    {
+      "kind": "f02_formal_aggregate",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_guardrail.csv",
+      "bytes": 129391,
+      "sha256": "a31b8918517e0fb0fa4da22e887254d240287cb0e53891727b53802218cacf26",
+      "rows": 200
+    },
+    {
+      "kind": "f02_formal_aggregate",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_itt.csv",
+      "bytes": 323329,
+      "sha256": "aa12cb40eed47081ee2c05e82f0745444f398fd6348c507b94a56300b8002309",
+      "rows": 600
+    },
+    {
+      "kind": "f02_formal_aggregate",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_realized_spend.csv",
+      "bytes": 76270,
+      "sha256": "239eac3062a5d09bb0464b177d49922e07d64011fdf9f31321c8348c71171033",
+      "rows": 600
+    },
+    {
+      "kind": "f02_formal_aggregate",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_shards.csv",
+      "bytes": 934,
+      "sha256": "3a14b4c683d391611236fe10dbae3523719f21e8585494df96fb3b18627aae73",
+      "rows": 4
+    },
+    {
+      "kind": "f02_formal_aggregate",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_spend.csv",
+      "bytes": 487,
+      "sha256": "6c34cf2db86cbaeab57669e9c0daafb90bfef458a44fdc34143c6c6aac71c184",
+      "rows": 3
+    },
+    {
+      "kind": "f02_formal_aggregate",
+      "source": "F02 formal 200 rep merge / audit export 2026-10-28 19:30",
+      "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_snapshot_binding.json",
+      "bytes": 499,
+      "sha256": "71ebff14faedf4e6ad19d25c9367e94564e4af370145598b5697920be9917752",
+      "rows": null
     }
   ],
-  "total_bytes": 15916738,
+  "total_bytes": 16746236,
   "registry_repairs": [
     {
       "at": "2026-10-28 02:38",
@@ -623,5 +711,5 @@
       "total_bytes_after": 15916738
     }
   ],
-  "last_refreshed_at": "2026-10-28T16:51:30+08:00"
+  "last_refreshed_at": "2026-10-28T19:30:00+08:00"
 }
