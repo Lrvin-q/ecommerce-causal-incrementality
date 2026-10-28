@@ -1,0 +1,62 @@
+{
+  "family_alpha_one_sided": 0.05,
+  "adjustment": "holm_step_down_on_paired_one_sided_tests",
+  "confidence_limits": "invert_same_holm_family_tests_no_unadjusted_ci_substitution",
+  "benefit_threshold_cny_per_user": 0.0,
+  "guardrail_margin": 0.005,
+  "guardrail_alpha_one_sided": 0.05,
+  "require_guardrail_noninferiority": true,
+  "benefit_claims": [
+    {
+      "claim": "coupon_worth_issuing",
+      "contrast": "selected_targeted_policy_minus_no_coupon",
+      "configured_contrast": "selected_targeted_minus_no_coupon",
+      "threshold_cny_per_user": 0.0,
+      "diff_cny_per_user": 0.018504024854681944,
+      "se": 0.05531965359730966,
+      "one_sided_p_value": 0.36900386818153774,
+      "adjusted_alpha": 0.05,
+      "holm_adjusted_p_value": 0.598018947663062,
+      "passes_adjusted_test": false,
+      "adjusted_lower_confidence_limit": -0.07248870800655187,
+      "n_left": 66594,
+      "n_right": 66693
+    },
+    {
+      "claim": "targeting_better_than_random",
+      "contrast": "selected_targeted_policy_minus_random_same_budget",
+      "configured_contrast": "selected_targeted_minus_same_budget_random",
+      "threshold_cny_per_user": 0.0,
+      "diff_cny_per_user": 0.029111157537384802,
+      "se": 0.05521303854316325,
+      "one_sided_p_value": 0.299009473831531,
+      "adjusted_alpha": 0.025,
+      "holm_adjusted_p_value": 0.598018947663062,
+      "passes_adjusted_test": false,
+      "adjusted_lower_confidence_limit": -0.079104409484237,
+      "n_left": 66594,
+      "n_right": 66713
+    }
+  ],
+  "guardrail": [
+    {
+      "contrast": "selected_targeted_policy_minus_no_coupon",
+      "metric": "any_refund_30d_per_assigned_user",
+      "unit": "per_assigned_user",
+      "margin": 0.005,
+      "alpha_one_sided": 0.05,
+      "left_rate": 0.00958044268252395,
+      "right_rate": 0.007796920216514477,
+      "diff": 0.0017835224660094733,
+      "se": 0.000508410543913889,
+      "ci_one_sided_upper": 0.0026197833931466043,
+      "passed": true,
+      "n_left": 66594,
+      "n_right": 66693,
+      "n_left_refunds": 638,
+      "n_right_refunds": 520,
+      "method": "wald_1sided_ci_unpooled_se"
+    }
+  ],
+  "truth_columns_present": false
+}

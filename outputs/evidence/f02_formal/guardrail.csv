@@ -1,0 +1,2 @@
+﻿contrast,metric,unit,margin,alpha_one_sided,left_rate,right_rate,diff,se,ci_one_sided_upper,passed,n_left,n_right,n_left_refunds,n_right_refunds,method
+selected_targeted_policy_minus_no_coupon,any_refund_30d_per_assigned_user,per_assigned_user,0.005,0.05,0.00958044268252395,0.007796920216514477,0.0017835224660094733,0.000508410543913889,0.0026197833931466043,True,66594,66693,638,520,wald_1sided_ci_unpooled_se

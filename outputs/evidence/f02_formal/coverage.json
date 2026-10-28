@@ -1,0 +1,120 @@
+{
+  "phase": "F02_formal_evidence",
+  "created_at": "2026-10-28T16:37:00+08:00",
+  "representative_rep_dir": "out/f02_formal/shard0/rep0",
+  "files": [
+    {
+      "path": "arm_summary.csv",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\arm_summary.csv",
+      "sha256": "b90854ad70c4af6b0e9b20ae28829f19ed0f94dd1dd3a6914779a8066e0dddca",
+      "bytes": 530
+    },
+    {
+      "path": "itt_contrasts.csv",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\itt_contrasts.csv",
+      "sha256": "8d9be5a5aa5854d53f85739c13a212f8a3695525c1e3ccb6bd26f72b400a65b7",
+      "bytes": 545
+    },
+    {
+      "path": "decision.csv",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\decision.csv",
+      "sha256": "0414a0d5fc599d07b2387cd21aa1fa2ba4ef138ad40191425becca87827257a3",
+      "bytes": 677
+    },
+    {
+      "path": "guardrail.csv",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\guardrail.csv",
+      "sha256": "ca014dc8d4a9203eb942f0937f56943e06e2677a3f03c392a214c14f0ef244ee",
+      "bytes": 418
+    },
+    {
+      "path": "decision.json",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\decision.json",
+      "sha256": "8af344dc404a0b67e7456619177a7d5b5bb9d8c4922363d488c3136fdbeac3db",
+      "bytes": 2237
+    },
+    {
+      "path": "freeze.json",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\freeze.json",
+      "sha256": "77c1d81e77bd89ba66ad13fa6a3cca43ef877940135000210c852e0576bfede8",
+      "bytes": 482
+    },
+    {
+      "path": "manifest.json",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\manifest.json",
+      "sha256": "5b917124a2a3680eba2ae74ab627feed05e7ae0a2f587d7280b7cdcaed150fff",
+      "bytes": 9063
+    },
+    {
+      "path": "five_tables/manifest.json",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\five_tables\\manifest.json",
+      "sha256": "3271e777a69070d6d3b23a5bb56f2fdfea4deab66a0683a860d1659c9365b60d",
+      "bytes": 25253
+    },
+    {
+      "path": "aggregate/v3_phase_F02_formal_per_rep_claims.csv",
+      "source": "outputs/tables/v3_phase_F02_formal_per_rep_claims.csv",
+      "sha256": "7acb8cef9bd2c553c7d2f899a5019ab4653db9a307d9f142dccac8af37e4686c",
+      "bytes": 249371
+    },
+    {
+      "path": "aggregate/v3_phase_F02_formal_per_rep_guardrail.csv",
+      "source": "outputs/tables/v3_phase_F02_formal_per_rep_guardrail.csv",
+      "sha256": "a31b8918517e0fb0fa4da22e887254d240287cb0e53891727b53802218cacf26",
+      "bytes": 129391
+    },
+    {
+      "path": "aggregate/v3_phase_F02_formal_per_rep_itt.csv",
+      "source": "outputs/tables/v3_phase_F02_formal_per_rep_itt.csv",
+      "sha256": "aa12cb40eed47081ee2c05e82f0745444f398fd6348c507b94a56300b8002309",
+      "bytes": 323329
+    },
+    {
+      "path": "aggregate/v3_phase_F02_formal_claims.csv",
+      "source": "outputs/tables/v3_phase_F02_formal_claims.csv",
+      "sha256": "5ff02faa3c575fe8be810921e17d87f5a58db453bab0b62729101b4cdb3dd60c",
+      "bytes": 557
+    },
+    {
+      "path": "aggregate/v3_phase_F02_formal_guardrail.csv",
+      "source": "outputs/tables/v3_phase_F02_formal_guardrail.csv",
+      "sha256": "32430faab6720861084b7079834f95499a6c7a3a0adf994df6b5a4f980535ead",
+      "bytes": 337
+    },
+    {
+      "path": "aggregate/v3_phase_F02_formal_itt.csv",
+      "source": "outputs/tables/v3_phase_F02_formal_itt.csv",
+      "sha256": "291db8f3b766d3bfe53e3ea7a108f7ebfb13b69294f2d41aa0516263e38b731f",
+      "bytes": 490
+    },
+    {
+      "path": "aggregate/v3_phase_F02_formal_spend.csv",
+      "source": "outputs/tables/v3_phase_F02_formal_spend.csv",
+      "sha256": "6c34cf2db86cbaeab57669e9c0daafb90bfef458a44fdc34143c6c6aac71c184",
+      "bytes": 487
+    }
+  ],
+  "excluded": [
+    {
+      "path": "per_user.csv",
+      "reason": "逐用户观测（每 rep 约 15.4 MB）；聚合只依赖汇总表"
+    },
+    {
+      "path": "audit_truth.csv",
+      "reason": "逐用户真值；冻结后才生成，仅审计用"
+    },
+    {
+      "path": "audit_policy_values.csv",
+      "reason": "聚合审计价值；正式聚合不依赖它"
+    },
+    {
+      "path": "audit_arm_contrasts.csv",
+      "reason": "聚合审计对照；正式聚合不依赖它"
+    },
+    {
+      "path": "five_tables/",
+      "reason": "五表与 SQL 产物体积大；只导出 manifest.json，原始表可由快照 + rep 0 重建"
+    }
+  ],
+  "note": "manifest.json 含冻结后聚合的 audit_true_arm_means（整臂均值），不含逐用户真值；聚合表只由 decision/guardrail/itt 的观测列生成。"
+}

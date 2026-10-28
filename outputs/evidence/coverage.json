@@ -329,9 +329,45 @@
       "target": "outputs/evidence/test_runs/pytest_full_20261028_0321.json",
       "bytes": 2891,
       "sha256": "b163b1592759f3b82c28be01c75bbe01ca5d1fea7febef5b9da51739d4c75467"
+    },
+    {
+      "kind": "f02_formal_decision",
+      "target": "outputs/evidence/f02_formal/decision.json",
+      "bytes": 2237,
+      "sha256": "8af344dc404a0b67e7456619177a7d5b5bb9d8c4922363d488c3136fdbeac3db",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\decision.json",
+      "status": "formal_r200",
+      "note": "F02 正式 200 rep 的代表 rep 0 证据包与聚合表身份文件（登记号 F02-FORMAL-20261028-R200）。逐用户观测 per_user.csv 与冻结后生成的真值文件被 30 号脚本显式排除，排除项与理由见本目录 coverage.json 的 excluded；运行已完成，但阶段状态为**未证实**，待独立评审（AGENTS §7.4）。"
+    },
+    {
+      "kind": "f02_formal_freeze",
+      "target": "outputs/evidence/f02_formal/freeze.json",
+      "bytes": 482,
+      "sha256": "77c1d81e77bd89ba66ad13fa6a3cca43ef877940135000210c852e0576bfede8",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\freeze.json",
+      "status": "formal_r200",
+      "note": "F02 正式 200 rep 的代表 rep 0 证据包与聚合表身份文件（登记号 F02-FORMAL-20261028-R200）。逐用户观测 per_user.csv 与冻结后生成的真值文件被 30 号脚本显式排除，排除项与理由见本目录 coverage.json 的 excluded；运行已完成，但阶段状态为**未证实**，待独立评审（AGENTS §7.4）。"
+    },
+    {
+      "kind": "f02_formal_manifest",
+      "target": "outputs/evidence/f02_formal/manifest.json",
+      "bytes": 9063,
+      "sha256": "5b917124a2a3680eba2ae74ab627feed05e7ae0a2f587d7280b7cdcaed150fff",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\manifest.json",
+      "status": "formal_r200",
+      "note": "F02 正式 200 rep 的代表 rep 0 证据包与聚合表身份文件（登记号 F02-FORMAL-20261028-R200）。逐用户观测 per_user.csv 与冻结后生成的真值文件被 30 号脚本显式排除，排除项与理由见本目录 coverage.json 的 excluded；运行已完成，但阶段状态为**未证实**，待独立评审（AGENTS §7.4）。"
+    },
+    {
+      "kind": "f02_formal_five_tables_manifest",
+      "target": "outputs/evidence/f02_formal/five_tables/manifest.json",
+      "bytes": 25253,
+      "sha256": "3271e777a69070d6d3b23a5bb56f2fdfea4deab66a0683a860d1659c9365b60d",
+      "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\five_tables\\manifest.json",
+      "status": "formal_r200",
+      "note": "F02 正式 200 rep 的代表 rep 0 证据包与聚合表身份文件（登记号 F02-FORMAL-20261028-R200）。逐用户观测 per_user.csv 与冻结后生成的真值文件被 30 号脚本显式排除，排除项与理由见本目录 coverage.json 的 excluded；运行已完成，但阶段状态为**未证实**，待独立评审（AGENTS §7.4）。"
     }
   ],
-  "total_bytes": 15866131,
+  "total_bytes": 15903166,
   "registry_repairs": [
     {
       "at": "2026-10-28 02:38",
@@ -485,7 +521,49 @@
           "new_bytes": 2891
         }
       ]
+    },
+    {
+      "at": "2026-10-28 16:51",
+      "dropped_missing_target": [],
+      "added": [
+        "outputs/evidence/f02_formal/decision.json",
+        "outputs/evidence/f02_formal/freeze.json",
+        "outputs/evidence/f02_formal/manifest.json",
+        "outputs/evidence/f02_formal/five_tables/manifest.json"
+      ],
+      "enriched": [],
+      "records_before": 44,
+      "records_after": 48,
+      "total_bytes_before": 15866131,
+      "total_bytes_after": 15903166,
+      "identity_patterns": [
+        "*binding*.json",
+        "*manifest*.json",
+        "freeze.json",
+        "meta*.json",
+        "decision.json"
+      ],
+      "ordering_policy": "append_only_preserve_existing_order",
+      "prior_entry_defects": [
+        {
+          "entry_index": 1,
+          "entry_at": "2026-10-28 03:06",
+          "untrustworthy_fields": [
+            "total_bytes_before",
+            "reason"
+          ],
+          "recorded_value": {
+            "total_bytes_before": 22788510
+          },
+          "correct_value": {
+            "total_bytes_before": 15811356
+          },
+          "evidence": "out/scratch/fix_evidence_registry.py:100 将 total_bytes_before 硬编码为 22788510、:102 将 reason 硬编码；该脚本于 02:38 与 03:06 各运行一次，故 03:06 条目的 before 值实为 02:38 的旧前值。03:06 的真实前值 = repairs[0].total_bytes_after = 15 811 356；03:06 的后值 15 811 358 = 15 811 356 + 2（f01_ope/meta.json 17 333 → 17 335 B）。out/scratch/coverage_backup_before_31patch_20261028_031329.json 佐证 03:13 前磁盘上 records=35、total_bytes=15 811 358、repairs=2。",
+          "action": "仅登记缺陷，未改写 repairs[1]；其 refreshed/records_before/records_after 字段仍可信"
+        }
+      ],
+      "reason": "F02 正式 200 rep 合并与证据导出完成（2026-10-28 16:37，merge exit 0）；按身份类 JSON 提升 rep0 冻结/决策/五表 manifest，登记前逐文件重算、登记后全表复算。"
     }
   ],
-  "last_refreshed_at": "2026-10-28T10:46:05+08:00"
+  "last_refreshed_at": "2026-10-28T16:51:30+08:00"
 }

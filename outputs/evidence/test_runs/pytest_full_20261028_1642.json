@@ -1,0 +1,28 @@
+{
+  "kind": "full_suite_serial_test_log",
+  "phase": "F02",
+  "created_at": "2026-10-28T16:53:00+08:00",
+  "purpose": "AGENTS §11.4 要求的全量串行测试凭据：单进程、无并发写盘、含起止时间与 exitcode",
+  "source": "outputs/evidence/test_runs/pytest_full_20261028_1642.log",
+  "target": "outputs/evidence/test_runs/pytest_full_20261028_1642.log",
+  "command_line": ".venv/Scripts/python.exe -m pytest -q --basetemp C:/cg_t",
+  "command_line_source": "本会话 2026-10-28 16:42 的实际调用（包装脚本：START 时间 → pytest → EXIT → END，全部重定向到同一日志）",
+  "missing_summary_line_explained": "同 2026-10-28 06:28 凭据已核实的机制：pyproject.toml addopts 已含一个 -q，命令行再给 -q 使 verbosity=-2；pytest terminal.summary_stats() 在 verbosity < -1 时直接 return，故末行“N passed”汇总被跳过。条数改由 --collect-only 与日志进度点双重确认。",
+  "start": "2026-10-28 16:42:18 +0800",
+  "end": "2026-10-28 16:51:00 +0800",
+  "duration_seconds": 522,
+  "exit_code": 0,
+  "progress_dots": 1275,
+  "progress_failure_or_skip_markers": 0,
+  "collected_tests": 1275,
+  "collected_tests_note": "条数由 --collect-only 独立确认（48 个文件合计 1275），与本日志的 1275 个进度点、0 个 F/E/s/x/X 标记一致；较 03:21 的 1264 项多 11 项，恰为新增的 tests/test_v32_aggregate_f02_formal.py 11 个用例。",
+  "describes_frozen_tree": true,
+  "frozen_tree_check": "find src sql configs -newermt \"2026-10-28 16:42:18\" ( -name v3*.py -o -name v3*.sql -o -name v3*.yaml ) 返回空（计数 0）⇒ 四个绑定 glob 内没有任何文件晚于本次测试开始时间，本日志描述的正是 F02 正式 200 rep 所绑定的那棵树",
+  "bytes": 2059,
+  "sha256": "a9769f4be4a2a382fc9002b86ff29287c8c2b7176a3d04ba65d8ccedca672fd0",
+  "superseded_evidence": {
+    "path": "outputs/evidence/test_runs/pytest_full_20261028_0321.log",
+    "reason": "不取代：03:21 凭据属 F01 阶段、1264 项；本次属 F02、1275 项。两者描述同一棵绑定树（configs/src 自 03:21 起未变），保留两份可对照新增 11 个用例后仍全绿。"
+  },
+  "line_ending_note": "本文件按 outputs/evidence 下 JSON 的既有约定写成 CRLF；同批 .log 保持与源逐字节相同（pytest 进度行 CRLF、bash 写的 START/EXIT/END 行 LF，故 CR<LF），不做行尾归一。"
+}

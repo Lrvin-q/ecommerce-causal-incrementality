@@ -1,0 +1,2 @@
+﻿contrast,metric,margin,alpha_one_sided,n_reps,pass_count,pass_rate,pass_rate_ci_low,pass_rate_ci_high,mean_diff,mc_se_diff,mean_ci_one_sided_upper
+selected_targeted_policy_minus_no_coupon,any_refund_30d_per_assigned_user,0.005,0.05,200,200,1.0,0.9817246596448638,1.0,0.0013743191224695151,3.936873572744869e-05,0.002196715915627221
