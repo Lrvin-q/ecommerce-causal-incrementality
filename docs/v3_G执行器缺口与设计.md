@@ -156,10 +156,21 @@ G03 的验收状态里，不能等跑完再解释。
   `ObservedDataset` 只允许 `from_sql_result`/`from_manifest` 构造、且 `analysis_sha256` 与 SQL 输出逐字节绑定
   （`src/causal_growth/data/v3_observed.py:124-148`），对观测表重抽会立刻打破校验。
   报告与表头一律写**参数化 bootstrap（已知 DGP 重抽）**，不得写"非参数 bootstrap"，也不得与 Tier1 数字并列。
-- **执行器**：`scripts/38_g_bootstrap_run.py`（`plan|run|merge` 三模式，仿 34/36）。门禁：
-  `--status formal` 必须带批准号 + 快照；overlay 缺任一键或 `per_cell × len(core) != total` 直接拒绝；
-  运行清单显式回写 `retraining_bootstrap_total: 200`，**不得**回落到冻结配置算出的 800。
-- **成本**：按 240 s/rep 外推 200 × 240 s ≈ **13.3 CPU·h**（未含每次五表构建；开跑前先 R=1 实测再外推）。
+- **执行器**：`scripts/39_g_retrain_bootstrap_run.py`（`plan|run|merge` 三模式，仿 34/36）。
+  **38 号已被 `38_export_d01_evidence.py` 占用**，22:47 草案里的"scripts/38_g_bootstrap_run.py"作废。
+  **不能直接复用 34 号**：`run_g_cell` 会连带生成独立验证队列（打分 → 三臂 → 真值），
+  单 rep 实测随选模 365–670 s；A 的链路只需"建历史五表 → SQL → 清洗 → 重训 → 在**冻结验证帧**上评估"，
+  不含验证队列。门禁：`--status formal` 必须带批准号 + 快照；overlay 缺任一键或
+  `per_cell × len(core) != total` 直接拒绝；运行清单显式回写 `retraining_bootstrap_total: 200`，
+  **不得**回落到冻结配置算出的 800。
+- **配套第二个 overlay（必须是合法 budget_overlay）**：A 的 rep 数走 34 的 `plan_cell` 契约，
+  需要 `configs/budget/g02_reps50_overlay.yaml`：`tier1_learning_reps: 50`、`tier1_validation_reps: 50`、
+  `tier2_cells` 非空且合法、`tier2_reps: 30`。`g02_bootstrap_overlay.yaml` 不是 BudgetPlan
+  （`kind: bootstrap_overlay`，缺 tier1/tier2 键），只作文档与报告口径，**不得**传给 `--overlay`。
+- **成本两笔账**：13.3 CPU·h = 200 × 240 s。但单 rep 若落在 365–670 s（F02 实测区间），
+  200 次就是 **20–37 CPU·h**，是决策单 13.3 的 1.5–2.8 倍。**开跑前必须先 R=1 实测这条轻量链**，
+  实测超 320 s/次就回来重报预算，不得按 240 s 直接外推。
+
 
 ### 6.2 B：固定策略 bootstrap 仅主预算档 0.2
 
