@@ -72,6 +72,13 @@
   39 号解析改为 5 必需键 + 6 可选元数据键）。冒烟抓到真 bug：
   `fit_history_models(models=None)` 会试全部模型 → L0 的 dr_learner 直接抛不适用，
   已改为按 `common ∪ additional_by_level[level]` 解析。**尚未在真树/正式 n 跑过**。
+  **00:17 报告取数口径定死（"15 行"不是重复）**：17 号表按 `METRICS=("net_profit","paid_purchase_7d","any_refund_30d")`
+  × (L0..L3+POOLED) = **15 行**，`population` 恒为 `full`；所以"三个 POOLED"是三个指标、不是三次运行。
+  `out/scratch/g01_report_numbers.py` 改为：主表只取 `net_profit`（G01 注册口径），另两个指标单列并标注
+  "未做多重比较校正"；新增 `check_shape()` 结构校验（缺列 / 缺层 / 多层 / 重复 `(metric,layer)` /
+  `population≠full` / 缺主指标 = 非零退出），反例夹具 `out/scratch/g01_report_negcheck.py`
+  当场跑出 **5/6** —— "缺 `mc_se`"被放行（只查 5 列，漏了渲染实际用到的另 4 列），补进必需列后 **6/6**，
+  正例在 dryrun 夹具上 exit 0。**00:15 进度**：6 片各 38 行（=228/1000 层·rep），仍 ~142 s/rep，ETA 维持 ~05:30。
   **仍未启动**：G02/G03/G04 需先落 200 次重训的执行器覆盖与 formal 守卫改造（不得改 `configs/v3/*.yaml`）。**F02 已于 22:04 改判"通过"**（第四次窄口径确认 CLOSED，
   `docs/reviews/v3_phase_F02_final_confirm.md`；含义仅"记录准确、断言范围正确"，不表示"定向有效"）。
 - **登记管道修复（21:34）**：F02 目录级 coverage 补登记 19:30 的 4 条聚合文件（15→19，sha/bytes 现场重算、原有 15 条未动）；
