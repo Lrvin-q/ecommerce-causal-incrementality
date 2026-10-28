@@ -1,5 +1,24 @@
 # AGENT 交接说明 —— v3 重建
 
+> **最新交接时间：2026-10-28 21:45（北京时间）。当前分支：`codex/d03`；HEAD `a1796f4`（本块编辑时的工作树快照）。**
+> **（2026-10-28 21:45 新增）D 层三项全部通过；F02 的 P1-1 已关闭，等窄口径复核。**
+> - **D01 通过（21:38）**：第三轮复核 PASS（`docs/reviews/v3_phase_D01_closeout.md`），第四轮在 77 条登记上复核仍 **PASS（6/6）**：
+>   下界 1,003.0977、上界 1,097.12–1,107.06、分项和 −182.5676、1.79/1.89 GiB；目录级 10/10、顶层 76/76（21:28 版）与 77/77（21:42 版）sha/bytes 全 MATCH。
+>   残余仅 P3-1：`outputs/evidence/d01_pilot/source_binding.json` 仍是旧字段 `frozen_config_hash`（770 B、`8162110b…`）；
+>   脚本已在 `f055883` 改为 `config_hash_current` + `config_hash_at_run_inferred_prefix: 30511a32` 并把 `_git_blob` 失败改为硬失败，但未重导出（重导出会改 sha，需 `--force` + 刷新两级登记）。语义已由 doc `:268` 注记覆盖，不改任何数字。
+> - **F02 P1-1 关闭（21:42）**：预测支出一直逐 rep 落在 `out/f02_formal/shard*/rep*/manifest.json` 的 `arms.*.predicted_spend_*`；
+>   19:30 导出里的 `predicted_note="not_persisted_per_rep"` 是**没去读**，不是没落盘。已补 600 行全表
+>   `outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv`（101,666 B）并登记进目录级与顶层；
+>   定向臂 实际/预测 = **1.056348**（min −5.42% / 中位 +5.09% / max +30.67%，**179/200** 为正），随机臂 **1.002835**（104/200 为正）。
+>   顶层登记 **77 条 / 16,906,697 B**，全表校验 0 不符，`registry_repairs` 14 条。
+> - **F02 仍记"未证实"**：第三轮窄口径复核（预算/超支/分层/证据链）尚未返回；PASS 前不改判。
+> - **下一步**：F02 复核 PASS → 改判 → G01（AA 4 层 × 250 ≈ 44 CPU·h）需用户批准 R>0、独占机器与快照；
+>   G02/G03 仍欠三项决策：再训练 bootstrap 次数（80/200/800）、G03 口径与 210 CPU·h 上限、全预算固定 bootstrap（483 次额外验证构建 ≈17.6 CPU·h）。
+>
+> ---
+>
+> **历史块（2026-10-28 10:57）**
+>
 > **最新交接时间：2026-10-28 10:57（北京时间）。当前分支：`codex/d03`（从 `codex/v3-rebuild` 的 `9d05bd6` 切出）。**
 > **（2026-10-28 10:57 新增）F01 已改判"通过"；第四环 5 项 RC 全部落地。**
 > 第四环窄口径复核 07:21 返回 **PASS WITH CONDITIONS**（`docs/reviews/v3_phase_F01_recheck.md`）：

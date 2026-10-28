@@ -1,12 +1,15 @@
 # D01 六项关闭条件复核（closeout）
 
-> 复核对象：`docs/v3_phase_D_pilot.md`（24,789 B，sha256 `b6cd680b…`，mtime 2026-10-28 21:35:38，含 5 行未提交编辑）、
-> `outputs/evidence/d01_pilot/`（10 件 25,733 B）、`scripts/38_export_d01_evidence.py`、目录级与顶层 `coverage.json`。
-> 复核时间：2026-10-28 21:36（北京时间）。工作树 `codex/d03`，HEAD `fb3fd96`；证据、coverage、scripts/38 已在
-> `4e5d632`（21:30）提交，doc 的 21:35 编辑尚未提交。本报告以该快照为准；若回退这 5 行，§2 的 0.02 精度问题会重现（不影响 6 项判定）。
+> 复核对象：`docs/v3_phase_D_pilot.md`（24,789 B，sha256 `b6cd680b…`，已随 `f055883` 提交）、
+> `outputs/evidence/d01_pilot/`（10 件 25,733 B，21:28 导出后未再变）、`scripts/38_export_d01_evidence.py`（`f0cb2470…`）、
+> 目录级与顶层 `coverage.json`（顶层已被 F02 提交 `a1796f4` 刷新为 77 条，D01 两条未变，见 §2）。
+> 复核时间：2026-10-28 21:40（北京时间）。工作树 `codex/d03`，HEAD `a1796f4`；D01 相关提交为 `f055883`（21:36:55）：
+> 主控已把 doc 的 5 行编辑、scripts/38 修复、GOAL/TODO 与本报告初稿一并提交；工作树除本报告外只剩 F02 的 1 个未跟踪 CSV。
+> 若回退 doc 这 5 行，§2 的 0.02 精度问题会重现（不影响 6 项判定）。
 > 纪律：只读；未改 `src/`、`scripts/`、`configs/`、`tests/`、`GOAL.md`、`TODO.md`；未运行任何 `R>0` 作业；
 > 除本文件外未写盘。全部数字由 `.venv/Scripts/python.exe` 从 `outputs/evidence/d01_pilot/` 独立重算，不引用脚本输出。
-> 结论：**PASS（6/6 关闭条件属实）**。剩 2 项 P3（证据库字段标注、scripts/38 静默 None），均不改数字、不需重跑。
+> 结论：**PASS（6/6 关闭条件属实）**。P3-2 已在 `f055883` 修掉；P3-1 只剩 `source_binding.json` 未按新脚本重导出，
+> 不改数字、不需重跑。
 
 ## 1. 逐条关闭条件判定
 
@@ -17,7 +20,7 @@
 | 3 | GiB/MiB | **属实** | doc `:231`、`:235`、`:236`、`:285` | 1,836.48 MiB=1.7934 GiB、1,934.19=1.8889 GiB、2,682.36=2.6195 GiB；4×2.62=10.48。全文无 `1.84–1.93 GiB`、无 `2.68 GiB`（`1.93–2.03 GB` 是十进制换算，标注正确） |
 | 4 | AGENTS 引用 | **属实** | doc `:236`；`AGENTS.md` | `:236` 已改引 `docs/v3_决策与反思日志.md` 2026-10-25 15:58 条；`AGENTS.md` grep `6.6` = 0，§6 为"图表与报告"且无小节，§6.6 不存在 |
 | 5 | L0/L3 退出表述 | **属实** | doc `:277`；日志 `:22`、`:43`；manifest `logs` | 正文改"两个 rep 块均记 `REP_EXIT=0`、未记录进程级 `EXIT=`"；日志只有 `REP_EXIT_L0_P_main=0`/`REP_EXIT_L3_fixed_lt000=0`，无 `EXIT=`；manifest 对该日志 `exit: null`，三者一致 |
-| 6 | scripts/38 的 0.406 | **属实** | `scripts/38_export_d01_evidence.py:108,113`；两份 coverage；manifest；doc `:268` | `mean_dgp` 取自 `summary["mean_dgp_s"]`（0.4015625）；`key_numbers.total_cpu_h_lower=1003.1`（=round(1003.0977,2)），非 1003.11；`run_manifest.json` 2027 B、sha `2442a3a0…`，与 `git cat-file -p HEAD:…` 字节相同（未被改动）；`source_binding.json` 770 B、sha `8162110b…`，目录级第 9 条 + 顶层第 76 条登记，sha/bytes 与磁盘一致；doc `:268` 已指向该文件并注明 config 哈希的运行期/当前值 |
+| 6 | scripts/38 的 0.406 | **属实** | `scripts/38_export_d01_evidence.py:108,113`；两份 coverage；manifest；doc `:268` | `mean_dgp` 取自 `summary["mean_dgp_s"]`（0.4015625）；`key_numbers.total_cpu_h_lower=1003.1`（=round(1003.0977,2)），非 1003.11；`run_manifest.json` 2027 B、sha `2442a3a0…`，与 `git cat-file -p HEAD:…` 字节相同（未被改动）；`source_binding.json` 770 B、sha `8162110b…`，目录级第 9 条 + 顶层登记（D01 导出时 76 条；21:42 被 F02 刷新为 77 条，该条未变且 MATCH）；doc `:268` 已指向该文件并注明 config 哈希的运行期/当前值 |
 
 ## 2. 独立复算表（不采信脚本自报）
 
@@ -33,19 +36,20 @@
 | 峰值均值/最大 | 2,593.67 / 2,682.36 MiB | **2,593.6742 / 2,682.3594** | 一致 |
 | validation = G2−CF | 131.221 | **131.2211** | 一致 |
 | L0/L3 峰值与差 | 1,836.48/1,934.19；−31.53%/−27.89% | **1,836.4844/1,934.1875；−0.315347/−0.278923** | 一致 |
-| 顶层登记 | 76 条 | **76 条、总 16,805,031 B、逐条 sha/bytes 0 不符** | 一致 |
+| 顶层登记 | 76 条（21:28）→ 77 条（21:42，F02） | **21:28 版 76/76、总 16,805,031 B；21:42 版 77/77、总 16,906,697 B；D01 两条不变** | 一致 |
 | 目录级登记 | 10 件 25,733 B | **10 件、总 25,733 B、sha 全 MATCH** | 一致 |
 | manifest/source_binding | 2027 B `2442a3a0…` / 770 B `8162110b…` | **同左；manifest 与 HEAD 逐字节相同** | 一致 |
 
 ## 3. 新发现
 
-复核期间主控已在 21:31–21:35 把 `:265` 精度、`:179/:182` 计划措辞、`:3` 维护时间、`:268` config 哈希注记改掉，
-我初稿的 P2-1 与 3 条 P3 中有 4 条因此不再成立；下列两项仅剩证据库/脚本侧。
+复核期间主控已在 21:31–21:36 修掉 `:265` 精度、`:179/:182` 计划措辞、`:3` 维护时间、`:268` config 哈希注记与证据文件引用，
+并在 `f055883` 把 scripts/38 的 `_git_blob` 改为硬失败、binding 字段改名并补运行期前缀；我初稿的 P2-1 与 3 条 P3
+已全部关闭或改写，只剩证据文件未随脚本重导出这一条残余（下表 P3-1）。
 
 | 编号 | 级别 | 位置 | 问题 | 建议 |
 |---|---|---|---|---|
-| **P3-1** | P3 | `outputs/evidence/d01_pilot/source_binding.json` | `frozen_config_hash=00723dc2…` 是运行后（AA250 修订 `df12f57` 18:47 提交）的值，运行期（16:51–18:20）按 git 推断为 `30511a32…`；doc `:268` 已补注，但证据包单读仍会把该字段当成运行期配置。不影响数字：`L1_main` 场景块在 `5020c56` 与 HEAD 逐字节相同（32 行，块 sha 前缀 `5f752440`），修订只动 `planned_counts`、4 个 AA 场景及 design/execution 的 AA 重复数 | 在 JSON 增 `config_hash_at_run: 30511a32…`（注明"按 git 推断"），或把现字段改名 `config_hash_current` |
-| **P3-2** | P3 | `scripts/38_export_d01_evidence.py:169–189` | `run_spec`、`frozen_config_hash` 为硬编码；`_git_blob` 失败返回 None，binding 写 null 后脚本仍 exit 0（证据生成侧静默降级，与 §12.7"读不懂要响"相反） | git 取不到运行版本时进失败清单并非零退出；哈希改为计算或注明来源 |
+| **P3-1（残余）** | P3 | `outputs/evidence/d01_pilot/source_binding.json`（21:28 版，770 B，`8162110b…`） | 文件仍是旧字段 `frozen_config_hash=00723dc2…`；`f055883` 已把脚本改为 `config_hash_current` + `config_hash_at_run_inferred_prefix: 30511a32`，但未重导出，故脚本（新字段）与 JSON、doc `:268`（旧字段）不一致（语义已由 doc 注记覆盖）。重导出会改 sha，需 `--force` 并同步刷新目录级 10 条与顶层登记（现 77 条） | 下次证据导出时重生成（`--force`），同步改 doc `:268` 字段名；本次不改数字 |
+| **P3-2（已关闭）** | — | `scripts/38_export_d01_evidence.py:169–179` | `f055883` 已把 `_git_blob` 失败从 `return None` 改为 `raise RuntimeError`，`sha256_at_run_inferred` 不再写 null，与 §12.7 一致；`config_hash_current` 仍为硬编码、运行期哈希只给前缀，属可接受的来源注明 | 无需再改；如追求可复算，可在 note 给出 canonical hash 的输入清单 |
 
 **补充检查（一句话）**：正文无 `1.84–1.93 GiB`、无 `2.68 GiB`、无 `2.68×4=10.48`、无 `AGENTS §6.6`；
 §11.3 已注明 D03 上界是"四分片正式跑的每 rep 墙钟、含 5 模型与 `rank_models` 选模，作保守上界"（`:256`），
@@ -57,7 +61,9 @@
 
 - 6 项关闭条件全部属实；关键数字只用 `outputs/evidence/d01_pilot/` 即可复算：下界 1,003.0977、
   上界 1,097.12–1,107.06、分项 −125.33/−27.13/−20.01/−8.21/−1.89（和 −182.5676）、1.79/1.89 GiB。
-- 证据链一致：目录级 10/10、顶层 76/76 条 sha256 与 bytes 全 MATCH；`run_manifest.json` 未被改动（与 HEAD 字节相同）。
-- 两项 P3 是证据库字段标注与脚本容错，不改任何数字、不影响计时口径，不阻断 D01；建议随下一次证据导出修。
-- 本判定依赖 21:35 未提交的 5 行 doc 编辑（`:265/:179/:182/:3/:268`）；若回退，需按 §2 的 0.02 与 §3 的 P3 复核措辞。
+- 证据链一致：目录级 10/10、顶层 76/76（21:28 导出）与 77/77（21:42 含 F02 新增 1 条）sha256 与 bytes 全 MATCH；
+  `run_manifest.json` 未被改动（与 HEAD 字节相同）。
+- P3-2 已在 `f055883` 修掉；P3-1 只剩 `source_binding.json` 未按新脚本重导出（脚本与证据/正文字段名不一致），
+  不改任何数字、不影响计时口径，不阻断 D01；建议随下一次证据导出修。
+- 本判定依赖 `f055883` 中已提交的 5 行 doc 编辑（`:265/:179/:182/:3/:268`）；若回退，需按 §2 的 0.02 与 §3 的 P3 复核措辞。
 - `GOAL.md` / `TODO.md` 的改判权在主控；本文件只给评审结论。
