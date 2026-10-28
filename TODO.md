@@ -43,6 +43,13 @@
 `<shard>/layer_runs/<layer>_<stamp>/aa_repetitions.csv`；**两张表哈希不同**（`62e19c7c…` vs `2c4df6c3…`），
 17 号合并读的是前者，校验/导出必须同源，否则"复算与合并表不一致"是假故障。已提交 `268a9b6`，
 并用当前部分产物验证取数：6 个已开 lane 解析到 `layer_runs` 原始表（归一化副本尚未生成），未开跑的 s02/s04/s06/s08/s10/s12 如实报缺。
+
+**00:00 收尾链已在夹具上整段跑通（`out/scratch/dryrun_37.py`，DRYRUN PASS）**：
+17 号合并（12 个单层根 → 15 行 / POOLED 1000、无 `_provisional`）→ 37 号导出（45 文件、与 17 表 **0 不一致**、`coverage.json` CRLF）
+→ 33 号提升（12 条 `g01_shard_manifest`、`status=formal_aa250`）。夹具里 6 份原始表被故意写成 p=1.0，
+证明 37 号确实读归一化表。第五处修复 `645e904`：导出记录的 `path` 改为**相对证据目录**（33 号按 `d / rel` 取文件），
+并补 `kind`/`source`/`status` —— 原样会在登记环节对 12 条全部报"索引过期/无法确定 kind"。
+另记：**17 号对归一化表没有回退**，这是设计选择；缺表时它写 `_provisional` 副本，而 verify 会先拦缺 rep。
   **22:48 进度与收尾链**：s01 已完成 rep 0–1（133.2/133.4 s），分片表落在
   `out/g01_aa250/s01/layer_runs/L0_224239/aa_repetitions.csv`（**不是** `s01/L0_AA/`，早期记录已更正）；
   收尾链已做成无人值守 `out/g01_post.sh`（21:48 UTC 启动，pid 1870）：等 `finished_at.txt` → 校验
