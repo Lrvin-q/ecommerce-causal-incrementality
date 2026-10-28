@@ -26,6 +26,10 @@
 - [x] **ETA 重估**：近 8 个 rep 的间隔中位 475 / 441 s（最近两个 610 / 594 s）⇒ 合并 ~229 s/rep、剩 82 rep ≈ 5.2 h ⇒ **投影 ~16:40**；D01 顺延到 ~16:45 起。
 - [x] **补一条真缺口：缺 rep 不失败。** 原版只在"目录存在但缺件"时 `FAIL`，而 rep 目录尚未生成时**照常出口径、写产物、exit 0**
       ⇒ 200 rep 的正式聚合法可以在只有 118 个 rep 时"跑通"。已改为缺 rep 与缺件都默认 `FAIL[2]`，`--allow-incomplete` 仅供等待期诊断。
+- [x] **无人值守收尾已挂上（11:24:50，PID 8374）**：`out/scratch/f02_postmerge_auto.sh` 等 200 个 `freeze.json`
+      → 等 `outputs/evidence/f02_formal/coverage.json`（`f02_finalize.sh` 的合并产物）→ 以 **无 `--allow-incomplete`** 跑官方聚合
+      → 证据登记 `--dry-run`；全程只写 `out/` 与 `out/logs/f02_postmerge_auto.log`，**不改文档、不登记证据**。
+      加上既有的 `f02_chain.sh` 与 `f02_finalize.sh`，三个等待进程并存；恢复工作前先读该日志。
 - [x] **顺手把 G 的落地链改对了（11:25）**：原计划"跑 09 号 → 更新 `approval.json`"会**就地覆盖 Phase A 快照**
       （`outputs/v3/protocol/` 的 `protocol_sha256` 绑定 `docs/v3_协议.md` 的字节，重跑等于改写"Phase A 批准了什么"）；
       且 09 号把 `experiment_results_exist` **硬编码 `false`**（第 39 行），今天已有 D02–F02 结果，直接采信会产出一条假陈述。
