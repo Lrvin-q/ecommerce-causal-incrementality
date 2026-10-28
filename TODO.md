@@ -56,6 +56,11 @@
 - [x] **F01 改判"通过"（10:52）**：GOAL.md（L3 维护时间、L7 交接节点、F01 行、R01 行）、`docs/v3_phase_F01_ope.md`（页首状态 + 第四环段 + §1 评审行 + §6 结论句）、本文件、AGENT_HANDOFF.md 同步。
       **含义边界写进每一处**：只表示"记录准确、断言范围正确"（单 rep / rep 0 / `formal_repetitions=0` / `constant` 模型 / 0.2 元档），**不表示"定向有效"、不表示策略可部署**。
 - [~] **F02 进度**：10:47 时 **112/200**，合并 ~208 s/rep ⇒ **投影 ~15:52**（详见上方 F02 条目）。
+- [x] **已完成 112 个 rep 的只读结构审计（10:51）**：唯一 `rep_id`；`config_hash` 全为 `e1aa4314…`；
+      `source_hashes` 摘要全为 `d8327ae0…`（与快照绑定一致）；`formal_approval` 全同；
+      `n_users` 全为 200 000；rep0 是唯一 `representative_five_tables=true`（其余 rep 按设计不落五表，
+      首版审计脚本把它误报成缺件，已按设计修正预期）；11 个顶层文件 0 缺件；`status` 全 `formal`、`failures` 0 —— **0 项异常**。
+      收尾等待进程 `out/scratch/f02_finalize.sh`（PID 1656，04:04:41 起）与 `f02_chain.sh` 均在运行。
 
 **2026-10-28 06:37 本轮（F01 复审 9 条 P2 落地 + 一次"同类缺陷"横向清扫 + §11.4 测试凭据入库）**：
 - [x] **F01 复审 9 条 P2 全部逐项本机复算后修完**（`docs/v3_phase_F01_ope.md` 481 → 573 行）：
