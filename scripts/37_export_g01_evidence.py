@@ -163,9 +163,16 @@ def export(data: pd.DataFrame, recomputed: pd.DataFrame) -> dict:
 
     records: list[dict] = []
 
-    def record(path: Path, note: str = "") -> None:
-        rel = path.relative_to(ROOT).as_posix()
-        entry = {"path": rel, "bytes": path.stat().st_size, "sha256": sha256(path)}
+    def record(path: Path, note: str = "", source: Path | None = None,
+               kind: str | None = None) -> None:
+        # path 必须是**相对本证据目录**的 posix：33 号按 ``d / rel`` 取文件（33:311），
+        # 写成仓内相对路径会让顶层登记把每一条都判成"索引已过期"。
+        entry = {"path": path.relative_to(DEST).as_posix(),
+                 "bytes": path.stat().st_size, "sha256": sha256(path)}
+        if source is not None:
+            entry["source"] = source.as_posix()
+        if kind:
+            entry["kind"] = kind
         if path.suffix == ".csv":
             try:
                 entry["rows"] = int(len(pd.read_csv(path)))
@@ -183,12 +190,13 @@ def export(data: pd.DataFrame, recomputed: pd.DataFrame) -> dict:
                 raise SystemExit(f"缺产物：{src}")
             target = DEST / "per_rep" / f"{tag}__{layer}__{src.name}"
             shutil.copy2(src, target)
-            record(target, f"分片 {tag} / {layer}")
+            record(target, f"分片 {tag} / {layer}", source=src,
+                   kind="g01_shard_manifest" if src.suffix == ".json" else "g01_per_rep_table")
         exit_file = LOG_ROOT / f"{tag}.exit"
         if not exit_file.is_file():
             raise SystemExit(f"缺退出码：{exit_file}")
         shutil.copy2(exit_file, DEST / "shards" / f"{tag}.exit")
-        record(DEST / "shards" / f"{tag}.exit")
+        record(DEST / "shards" / f"{tag}.exit", source=exit_file, kind="g01_shard_exit")
 
     for src, name in (
         (RUN_ROOT / "coverage.json", "coverage_check.json"),
@@ -204,7 +212,7 @@ def export(data: pd.DataFrame, recomputed: pd.DataFrame) -> dict:
             raise SystemExit(f"缺产物：{src}")
         target = DEST / name
         shutil.copy2(src, target)
-        record(target)
+        record(target, source=src)
 
     recomputed.to_csv(DEST / "recomputed_fpr.csv", index=False, encoding="utf-8-sig",
                       lineterminator="\n")
@@ -216,6 +224,7 @@ def export(data: pd.DataFrame, recomputed: pd.DataFrame) -> dict:
         "purpose": "g01_aa250_formal_evidence",
         "exported_at": datetime.now(BEIJING).isoformat(timespec="seconds"),
         "approval": "G01-AA250-20261028",
+        "status": "formal_aa250",
         "protocol_config_hash": sorted(data["protocol_config_hash"].dropna().unique().tolist())
         if "protocol_config_hash" in data.columns else [],
         "declared_reps_per_layer": DECLARED_REPS,
