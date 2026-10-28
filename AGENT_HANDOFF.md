@@ -83,6 +83,28 @@
 > **（2026-10-28 05:25 更新）A/B/C/D02/D03 通过。D03 于 05:15 经独立复审 PASS 关闭（`docs/reviews/v3_phase_D03_rereview.md`），走完"评审判定 → 主负责修复 → 独立复核"三环，GOAL.md 三处已同步。E01/E02 与 F01 的评审均为 PASS WITH CONDITIONS、修复已落地，独立复审分别于 05:13 / 05:10 起飞、尚未返回，故仍记"未证实"。F02 正式 200 rep 已于 03:39 起跑（05:07 时 20/200，ALARM 0 次），投影 15:20–17:35 集齐。D01 20 rep 已批准、排在 F02 之后。**
 > 下文「最新交接」是当前事实；再往下的旧版交接保留施工约束与历史背景。
 
+## 恢复工作从这里开始（2026-10-28 11:27 写，F02 未集齐时）
+
+1. **先看三个等待进程与两份日志**（都不需要人盯，但恢复时要知道它们到哪了）：
+   - `out/logs/f02_postmerge_auto.log`（PID 8374，11:24:50 起）：集齐 200 rep + `outputs/evidence/f02_formal/coverage.json`
+     出现后**自动**跑 `scripts/32_aggregate_f02_formal.py --expect-reps 200` 与登记 `--dry-run`，产物 `out/scratch/f02_agg_200_*`；
+   - `out/scratch/f02_finalize.sh`（PID 1656，04:04 起）：四片各满 50 后自动合并并导出证据；
+   - `out/scratch/f02_chain.sh`：分片编排。
+   若 `f02_postmerge_auto.log` 最后一行是 `聚合 exit=0`，直接读 `out/scratch/f02_agg_200_summary.json`。
+2. **核对口径**（缺一不可）：200 个 rep、`config_hash` 全 `e1aa4314…`、三臂 `n_assigned` 合计 200 000、
+   分层 R 之和 = 200、`constant` 层单列。
+3. **填正文**：`docs/v3_phase_F02_formal.md` §1 与 §4 的 7 处 `（待填…）`，数字全部取自
+   `f02_agg_200_by_model.csv` / `_summary.json`，并写清"计划等预算 ≠ 实付等预算"。
+4. **全量串行测试**（§11.4）：单进程、日志 + exitcode + 起止时间，入 `outputs/evidence/test_runs/`；
+   **不要**用 `cmd | tail` 取退出码。
+5. **D01**（~92 分钟独占）：`scripts/13_v3_pilot.py --scenario L1_main --n 200000 --reps 20 --start-rep 0`；
+   原始产物复制到 `outputs/tables/v3_phase_D_pilot_raw_r20.csv`，不覆盖既有文件。
+6. **G 甲方案**：按「G 阶段前置阻塞」末尾的 6 步链执行（补丁 → 09 号落**新目录** → 新建 `approval_revision_20261028.json`
+   → 理由文档 §3 填实 → 全量测试 → 独立评审）。**不要**就地重跑 `outputs/v3/protocol/`，**不要**编辑 `docs/v3_协议.md`。
+7. **E 残留**：meta 缺 `cfg.hash(64)`（= `e1aa4314…`）。两轮评审均判**可接受、不阻断**，可从
+   `outputs/evidence/d03_formal/shard0_summary…` 交叉读出；若要做，先确认 `Config` 上确有 `hash(n)` 访问器，
+   再改 `scripts/24_e_evidence.py` 并重跑两家族（各约 50 分钟，须在 F02 与 D01 都退出后）。
+
 ## 最新交接：D02 通过，E 被 D03 挡住
 
 ### 一、权威状态（不要从旧叙述推断）
