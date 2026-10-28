@@ -1,0 +1,79 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "purpose": "d02_aa_phase_d_archive",
+  "archived_at": "2026-10-28T22:37:18+08:00",
+  "note": "D 阶段 2026-10-27 09:57 的 AA 合并产物（4 层 × 250 = 1000 次，非 provisional）。归档原因：G01 的 AA250 正式合并会覆盖 outputs/tables 下的同名文件，而 D02 的 FPR 46/1000 与 CP [0.0339, 0.0609] 引用该文件。归档为逐字节副本，覆盖后 D02 断言仍可重建。provisional 两份是该次运行早期的未跑满副本，一并保留以避免'只留结论、丢掉过程'。",
+  "key_numbers_from_merged_csv": {
+    "net_profit": {
+      "reps": 1000,
+      "rejections": 46,
+      "fpr": 0.046,
+      "cp_low": 0.033871498547677924,
+      "cp_high": 0.060883552713742635
+    },
+    "paid_purchase_7d": {
+      "reps": 1000,
+      "rejections": 40,
+      "fpr": 0.04,
+      "cp_low": 0.028727625285890793,
+      "cp_high": 0.0540726968193685
+    },
+    "any_refund_30d": {
+      "reps": 1000,
+      "rejections": 52,
+      "fpr": 0.052,
+      "cp_low": 0.0390765349439805,
+      "cp_high": 0.06763501405050731
+    }
+  },
+  "files": [
+    {
+      "path": "outputs/evidence/d02_aa_phase_d_20261027/v3_phase_D_aa_formal_L0.csv",
+      "source": "outputs/tables/v3_phase_D_aa_formal_L0.csv",
+      "bytes": 4291,
+      "sha256": "026d4680bd5bffc4be612a802e15b0f5e5c5a3350137fd951f645f5b3c2f942b"
+    },
+    {
+      "path": "outputs/evidence/d02_aa_phase_d_20261027/v3_phase_D_aa_formal_L1.csv",
+      "source": "outputs/tables/v3_phase_D_aa_formal_L1.csv",
+      "bytes": 4270,
+      "sha256": "a80cd8c13f43bdf23981b2453b6116e8a806890e3952ed133ccd7abc8a7ee4c4"
+    },
+    {
+      "path": "outputs/evidence/d02_aa_phase_d_20261027/v3_phase_D_aa_formal_L2.csv",
+      "source": "outputs/tables/v3_phase_D_aa_formal_L2.csv",
+      "bytes": 4280,
+      "sha256": "46714b0536b1ab14dedfd87472ca051fd368894033898fa18ad2338687333a6f"
+    },
+    {
+      "path": "outputs/evidence/d02_aa_phase_d_20261027/v3_phase_D_aa_formal_L3.csv",
+      "source": "outputs/tables/v3_phase_D_aa_formal_L3.csv",
+      "bytes": 4277,
+      "sha256": "adf66ce97d9569b2282201ec74dc1c30371fbcb25e53b0eda958edddd5669690"
+    },
+    {
+      "path": "outputs/evidence/d02_aa_phase_d_20261027/v3_phase_D_aa_formal_merged.csv",
+      "source": "outputs/tables/v3_phase_D_aa_formal_merged.csv",
+      "bytes": 2779,
+      "sha256": "2c6d6e91bf4b89ea225edd959ccf8629865b391844d3c53b9debcb47e5149fe4"
+    },
+    {
+      "path": "outputs/evidence/d02_aa_phase_d_20261027/v3_phase_D_aa_formal_merged.json",
+      "source": "outputs/tables/v3_phase_D_aa_formal_merged.json",
+      "bytes": 2223,
+      "sha256": "cc8151487aff649af9cfe4896dc017f17d0e45b76fc022ec3f8508b4592eef4c"
+    },
+    {
+      "path": "outputs/evidence/d02_aa_phase_d_20261027/v3_phase_D_aa_formal_merged_provisional.csv",
+      "source": "outputs/tables/v3_phase_D_aa_formal_merged_provisional.csv",
+      "bytes": 2892,
+      "sha256": "6e72df4b57d2045815480f84a82d58776d8abb94d0f6cebdc1d09103d85d2615"
+    },
+    {
+      "path": "outputs/evidence/d02_aa_phase_d_20261027/v3_phase_D_aa_formal_merged_provisional.json",
+      "source": "outputs/tables/v3_phase_D_aa_formal_merged_provisional.json",
+      "bytes": 2046,
+      "sha256": "390192de67a2253153c705f76694f735e156ccfe13afbb2b2dc4d0a528b29616"
+    }
+  ]
+}

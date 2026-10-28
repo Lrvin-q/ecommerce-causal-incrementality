@@ -1,7 +1,11 @@
 # AGENT 交接说明 —— v3 重建
 
-> **最新交接时间：2026-10-28 22:04（北京时间）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
-> **（2026-10-28 22:04 更新）D 层三项与 F02 全部通过；G01–G04 等待用户四项裁决与 R>0 开跑授权。**
+> **最新交接时间：2026-10-28 22:44（北京时间）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
+> **（2026-10-28 22:44 更新）G 阶段四项裁决已落地；G01 AA250 正式跑运行中（22:42:39 起，ETA 2026-10-29 05:00–07:30）；G02/G03/G04 未启动。**
+> - **四项裁决**：A 再训练 bootstrap = **200 次**（须改 `docs/v3_协议.md:105` 与 GOAL G02 的"每层 200"）；B 固定策略 bootstrap = **仅主预算 0.2 元**；C G03 = **20 格 + 改措辞（走法 1）**；D 随机名单未单独裁决，按推荐接受 **DR 估值**；E **批准 G01 正式跑**。详见 `docs/v3_G开跑决策单.md` §裁决记录。
+> - **G01 运行中**：批准号 `G01-AA250-20261028`；快照 49 文件 `526ff53d56a54c75`；`status=formal`、n=200 000、4 层 × 250 = 1 000 rep；**12 分片 / 6 lane**（编排 `out/g01_runner.sh`，核对 `out/g01_verify.py`，日志 `out/g01_logs/`）。6 路实测每 rep 132–135 s、峰值内存 10.69 GB ⇒ 6 路可行（4 路上限来自 `--workers` 一层一进程）。**运行期冻结窗口生效：不得写 `src/ sql/ configs/`。**
+> - **跑前证据**：全量串行绿灯 `outputs/evidence/test_runs/pytest_g01_20261028_2234.log`（1 310 进度点 / 0 F/E / EXIT=0）；D 阶段 1000 次 AA 的 8 个合并产物已按字节归档 `outputs/evidence/d02_aa_phase_d_20261027/`（G01 合并会覆盖 `outputs/tables/v3_phase_D_aa_formal_merged.*`）。
+> - **已知缺陷**：`out/g01_logs/*` 的 `date` 落盘是 UTC（少 8 h），引用时刻只用分片日志里的 Python 时间戳。
 > - **D01 通过（21:38）**：第三轮复核 PASS（`docs/reviews/v3_phase_D01_closeout.md`），第四轮在 77 条登记上复核仍 **PASS（6/6）**：
 >   下界 1,003.0977、上界 1,097.12–1,107.06、分项和 −182.5676、1.79/1.89 GiB；目录级 10/10、顶层 76/76（21:28 版）与 77/77（21:42 版）sha/bytes 全 MATCH。
 >   残余仅 P3-1：`outputs/evidence/d01_pilot/source_binding.json` 仍是旧字段 `frozen_config_hash`（770 B、`8162110b…`）；
