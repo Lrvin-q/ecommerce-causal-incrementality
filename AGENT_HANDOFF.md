@@ -12,7 +12,7 @@
 > **F02**：10:57 时 **114/200**（shard0/1 完成 0–99；shard2 完成 100–106、shard3 完成 150–156），
 > 两 lane 426.3 / 414.7 s/rep ⇒ 合并 ~208 s/rep、剩 86 rep ⇒ **投影 ~15:55**；两 lane 均有内存看护（lane 2 于 10:54:45 启动、PID 67048/65688，峰值 2 436 / 2 207 MB，ALARM 0）。
 > **推送**：`ada408c` 之后又有 F01 这批文档/登记改动，均未推送（`[ahead 1]` + 未提交）；仍不装无人值守重试循环。
-> **（2026-10-28 07:13）G 阶段有一个必须用户裁决的前置阻塞——重复预算有两份互相矛盾的契约。**
+> **（2026-10-28 07:13 发现，11:05 用户裁决）G 阶段的重复预算契约冲突——用户已选甲方案。**
 > 为了给 G 定价，第一次把 `configs/v3/execution.yaml` + `scenarios.yaml` 与 `configs/budget/repetition_overlay.yaml`
 > **并排实读**，发现两者描述的是**规模差 12.2 倍的两个实验**：冻结配置（代码实读、绑定 `approval.json`）**55 100** 作业，
 > overlay（用户 2026-10-25 授权）**4 513** 作业。分项倍数 Tier2 **120.8×** / 功效格 **10×** / Tier1 **8.0×** /
@@ -30,11 +30,19 @@
 > ⇒ 墙钟按 **2 workers**：overlay 路线约 **2.8 天**、冻结路线约 **33.5 天**（1 610 CPU·h ÷ 2）。
 > **既有 1 384 行 AA 证据不能直接当 G01 的正式 AA**：9 份 `configs/` 逐份未变（说明当时配置就写着 1000/层），
 > 但 **6 份源码已漂移** ⇒ 按 §12.6 不得跨版本配对，G01 的 AA 两条路线都要在当前树上重跑。
-> 三条路线（**甲**改冻结配置 7 处 / **乙**跑满 55 100 / **丙**不改配置只在入口传批数并逐表标注）连同代价写在
-> TODO.md「G 阶段前置阻塞」节。**主负责不自行选择**：`execution.yaml` 自带
-> `change_matrix_requires_versioned_reason_and_review: true`，且用户"默认批准"那句针对的是四项具体事项、
-> **不含修改冻结场景矩阵**；机制上也改不了——`v3_pipeline.py:41-44` 的绑定 glob 含 `configs/v3/*.yaml`，
-> F02 未退出前改它会让作业抛 `source files changed during the data run`。
+> **用户 2026-10-28 11:05 裁决：走甲方案，且只对齐 AA。** 原话「G阶段按甲方案。按照你的思考和建议的方式推进。」
+> 范围 = **AA 4 层 × 250**（2026-10-25 授权值），共 **10 行**：`execution.yaml:25`、`scenarios.yaml:411/1296/1925/2942`（`R`）、
+> `scenarios.yaml:429/1314/1943/2960`（`complete_aa`）、`scenarios.yaml:264`（`complete_aa_jobs: 4000→1000`）。
+> **其余项不动**（ATE 500 / 学习 200 / 独立验证 200 / Tier2 100 / 再训练 200 / 固定 bootstrap 1000）：
+> GOAL G01/G02 仍以冻结值为验收标准，同步下调等于**同时改验收标准**，超出这次授权。
+> **补丁已就绪**：`out/scratch/g_route_jia_aa250.py`（`out/` 不入库）。`--dry-run` 逐行核对 10 处、写后 `load_v3_protocol()` 复核；
+> 真跑安全阀实测在 F02 116/200 时 `FAIL[5]` 拒绝。两处反例（CRLF 行锚点、就地改列表致计数恒 0）都被工具拦下。
+> **机制上 11:05 仍不能改**：`v3_pipeline.py:41-44` 的绑定 glob 含 `configs/v3/*.yaml`，
+> F02 未退出前改它会让作业抛 `source files changed during the data run`（AGENTS §11）。
+> **落地链（F02 四片退出后按序）**：跑补丁 → `scripts/09_freeze_v3_protocol.py` 重算 protocol →
+> 更新 `outputs/v3/protocol/approval.json` 的 `revision` 块（无代码读取，属档案层，不改历史 `approved_on`）→
+> 写 `docs/v3_phase_G_protocol_change_aa250.md`（含"哪些既有证据仍成立"：各阶段 manifest 绑的是运行当时的 `config_hash`）→
+> **独立评审**后才能记 G 开跑。详见 TODO.md「G 阶段前置阻塞」节末的用户裁决小节。
 > **顺带否证了自己一个误读**：AA manifest 的 `purpose=engineering_or_downstream_input_not_formal_completion`、
 > `formal_repetitions_completed=0` **不是**"D02 那 1 000 次不正式"的证据，而是全项目所有 manifest 入口的**统一戳**
 > （`v3_aa.py:67` 明写"不改变任何正式计数器"，`v3_data_checks.py:407` 断言 `no_formal_repetitions_claimed`）；
