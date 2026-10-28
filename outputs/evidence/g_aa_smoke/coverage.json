@@ -1,0 +1,176 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "status": "engineering_smoke",
+  "generated_by": "scripts/37_export_g_aa_smoke.py",
+  "run_root": "out/g_aa_smoke",
+  "file_count": 9,
+  "total_bytes": 23065,
+  "files": [
+    {
+      "path": "g_aa_run_summary.json",
+      "kind": "g_aa_run_summary",
+      "source": "out/g_aa_smoke/g_aa_run_summary.json",
+      "sha256": "787c3a06f8fd0aca9b7473dec3011c760e5c1b139f21bd2a73e7d2908638db6d",
+      "bytes": 2952
+    },
+    {
+      "path": "per_layer/L0_aa_repetitions.csv",
+      "kind": "g_aa_repetitions",
+      "source": "out/g_aa_smoke/L0/aa_repetitions.csv",
+      "sha256": "8a0320f7acfc07bad5f7c55a3a6772b98669c32c006700563317f4bee7f007e9",
+      "bytes": 2672
+    },
+    {
+      "path": "manifests/L0_aa_manifest.json",
+      "kind": "g_aa_manifest",
+      "source": "out/g_aa_smoke/L0/aa_manifest.json",
+      "sha256": "085648dfa8ce7952da52316f0d065c6736e1aaf1b291c6d07670d08067098074",
+      "bytes": 2351
+    },
+    {
+      "path": "per_layer/L1_aa_repetitions.csv",
+      "kind": "g_aa_repetitions",
+      "source": "out/g_aa_smoke/L1/aa_repetitions.csv",
+      "sha256": "854cbd9c7069a6284c08f2430d55104744ced8ef3831618161c6bd597c08d5f9",
+      "bytes": 2675
+    },
+    {
+      "path": "manifests/L1_aa_manifest.json",
+      "kind": "g_aa_manifest",
+      "source": "out/g_aa_smoke/L1/aa_manifest.json",
+      "sha256": "1c0b3dd9b54dd3df85c31527cd4bdbe7b7196fac9b7066e124bf550c761f1ab0",
+      "bytes": 2351
+    },
+    {
+      "path": "per_layer/L2_aa_repetitions.csv",
+      "kind": "g_aa_repetitions",
+      "source": "out/g_aa_smoke/L2/aa_repetitions.csv",
+      "sha256": "a55fe784b5e63857dfd78c97edbcdd2de5e3278d67ac84cf3ec6b3850f0c96ce",
+      "bytes": 2684
+    },
+    {
+      "path": "manifests/L2_aa_manifest.json",
+      "kind": "g_aa_manifest",
+      "source": "out/g_aa_smoke/L2/aa_manifest.json",
+      "sha256": "51bb4c372590e37e8eb3d5faf34584085f042a2b88b535dfcc9a798ea71ac317",
+      "bytes": 2351
+    },
+    {
+      "path": "per_layer/L3_aa_repetitions.csv",
+      "kind": "g_aa_repetitions",
+      "source": "out/g_aa_smoke/L3/aa_repetitions.csv",
+      "sha256": "5fee11ae4f60c34b4adac97a4ac4b36bb745af30ff9b93ad9c03d2632eedf5e6",
+      "bytes": 2678
+    },
+    {
+      "path": "manifests/L3_aa_manifest.json",
+      "kind": "g_aa_manifest",
+      "source": "out/g_aa_smoke/L3/aa_manifest.json",
+      "sha256": "eb010c10e9c206db9dafbb31054aa8a65d5fba57958ae01753a2663d98c60302",
+      "bytes": 2351
+    }
+  ],
+  "key_numbers": {
+    "status": "engineering",
+    "all_complete": true,
+    "complete": {
+      "L0": true,
+      "L1": true,
+      "L2": true,
+      "L3": true
+    },
+    "requested": {
+      "reps": 1,
+      "rep_start": 0,
+      "n": 2000
+    },
+    "declared_reps_per_layer": 250,
+    "protocol_config_hash": "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3",
+    "formal_approval": null,
+    "snapshot_binding": null,
+    "layers": {
+      "L0": {
+        "rows": 1,
+        "reps": [
+          0
+        ],
+        "blocks": [
+          "true_aa"
+        ],
+        "n_total": [
+          2000
+        ],
+        "protocol_config_hash": [
+          "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3"
+        ],
+        "p_net_profit_full": [
+          0.028923023038209265
+        ],
+        "rejections_at_0.05": 1,
+        "cpu_s_sum": 3.062
+      },
+      "L1": {
+        "rows": 1,
+        "reps": [
+          0
+        ],
+        "blocks": [
+          "true_aa"
+        ],
+        "n_total": [
+          2000
+        ],
+        "protocol_config_hash": [
+          "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3"
+        ],
+        "p_net_profit_full": [
+          0.549607005812443
+        ],
+        "rejections_at_0.05": 0,
+        "cpu_s_sum": 4.578
+      },
+      "L2": {
+        "rows": 1,
+        "reps": [
+          0
+        ],
+        "blocks": [
+          "true_aa"
+        ],
+        "n_total": [
+          2000
+        ],
+        "protocol_config_hash": [
+          "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3"
+        ],
+        "p_net_profit_full": [
+          0.11539423603816332
+        ],
+        "rejections_at_0.05": 0,
+        "cpu_s_sum": 4.359
+      },
+      "L3": {
+        "rows": 1,
+        "reps": [
+          0
+        ],
+        "blocks": [
+          "true_aa"
+        ],
+        "n_total": [
+          2000
+        ],
+        "protocol_config_hash": [
+          "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3"
+        ],
+        "p_net_profit_full": [
+          0.28010537194656665
+        ],
+        "rejections_at_0.05": 0,
+        "cpu_s_sum": 2.906
+      }
+    },
+    "note": "engineering_smoke：每层 1 rep、n=2000。p 值与拒绝计数只证明链路可运行，不得作为 AA 验收或假阳性率凭据；正式口径见 17 号池化 FPR。"
+  },
+  "note": "G01 专项臂（AA）的工程冒烟证据；正式 AA 验收必须由 17 号在 n=200 000、四层各 250 rep 上合并，未跑满只会写 _provisional。"
+}

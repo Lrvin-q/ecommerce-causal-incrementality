@@ -1,0 +1,79 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "purpose": "g01_aa_arm",
+  "status": "engineering",
+  "formal_approval": null,
+  "snapshot_binding": null,
+  "protocol_config_hash": "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3",
+  "declared_reps_per_layer": 250,
+  "requested": {
+    "reps": 1,
+    "rep_start": 0,
+    "n": 2000
+  },
+  "layers": [
+    {
+      "layer": "L0",
+      "scenario_id": "L0_AA",
+      "rows": 1,
+      "reps": [
+        0
+      ],
+      "table": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g_aa_smoke/L0/aa_repetitions.csv",
+      "sha256": "8a0320f7acfc07bad5f7c55a3a6772b98669c32c006700563317f4bee7f007e9",
+      "cpu_s": 3.0625,
+      "wall_s_median": 3.401180199999999,
+      "run_root": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\g_aa_smoke\\layer_runs\\L0_205914"
+    },
+    {
+      "layer": "L1",
+      "scenario_id": "L1_AA",
+      "rows": 1,
+      "reps": [
+        0
+      ],
+      "table": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g_aa_smoke/L1/aa_repetitions.csv",
+      "sha256": "854cbd9c7069a6284c08f2430d55104744ced8ef3831618161c6bd597c08d5f9",
+      "cpu_s": 4.578125,
+      "wall_s_median": 4.877189299999827,
+      "run_root": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\g_aa_smoke\\layer_runs\\L1_205914"
+    },
+    {
+      "layer": "L2",
+      "scenario_id": "L2_AA",
+      "rows": 1,
+      "reps": [
+        0
+      ],
+      "table": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g_aa_smoke/L2/aa_repetitions.csv",
+      "sha256": "a55fe784b5e63857dfd78c97edbcdd2de5e3278d67ac84cf3ec6b3850f0c96ce",
+      "cpu_s": 4.359375,
+      "wall_s_median": 4.657443999999941,
+      "run_root": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\g_aa_smoke\\layer_runs\\L2_205914"
+    },
+    {
+      "layer": "L3",
+      "scenario_id": "L3_AA",
+      "rows": 1,
+      "reps": [
+        0
+      ],
+      "table": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g_aa_smoke/L3/aa_repetitions.csv",
+      "sha256": "5fee11ae4f60c34b4adac97a4ac4b36bb745af30ff9b93ad9c03d2632eedf5e6",
+      "cpu_s": 2.90625,
+      "wall_s_median": 3.265804100000423,
+      "run_root": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\g_aa_smoke\\layer_runs\\L3_205914"
+    }
+  ],
+  "complete": {
+    "L0": true,
+    "L1": true,
+    "L2": true,
+    "L3": true
+  },
+  "all_complete": true,
+  "failures": [],
+  "started_at": "2026-10-28T20:59:14+08:00",
+  "finished_at": "2026-10-28T20:59:26+08:00",
+  "note": "内层 aa_manifest.json 的 purpose/formal_repetitions_completed 是 v3_aa 模块的 D 阶段固定标签，**不是** G01 的计数器；G01 的正式状态与 rep 完整性以本文件为准。"
+}

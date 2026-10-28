@@ -1,0 +1,55 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "purpose": "phase_d_complete_aa_not_formal_completion",
+  "formal_repetitions_completed": 0,
+  "started_at_utc": "2026-10-28T12:59:26.470652+00:00",
+  "protocol_config_hash": "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3",
+  "protocol_source_hashes": {
+    "business.yaml": "d1259d2342aba1a4cdcaca5c0de6e4914c8a55b315a80af7c0923757d1ba0e0a",
+    "design.yaml": "8890d25b40fbc01888f63ada093adb45cf2106016a798bdeb73a6139ac80ab6f",
+    "models.yaml": "19ce3bf5a338ea0e055e3ba0ff676054e8926dde7ce44409ca7699443361bdf2",
+    "policy.yaml": "57ff5721de12af0cc285bb235f320fd7047a06837dc5f2ac00e228690d36958a",
+    "evaluation.yaml": "5f6dfcb2c700bc72831efb1ff94b3b2137bc8dd9680b862981c4b2755c3241d1",
+    "execution.yaml": "58623f8523ff29cd58352da82c82dac1663047cb34cb938cdd8947eb11e9ca61",
+    "scenarios.yaml": "b8fa1480ea39ad7f9d2f2098d4ec957c7ed011865085054090db2bfbe54269e7"
+  },
+  "data_config_hash": "e5e3a7b3fd8b085701320bc513f2962545f44ec2199e3804f95b5dd49ed22a2b",
+  "master_seed": 20240101,
+  "alpha": 0.05,
+  "reps": 1,
+  "n": 2000,
+  "rep_start": 0,
+  "layers": [
+    "L2"
+  ],
+  "cells": [
+    {
+      "scenario_id": "L2_AA",
+      "level": "L2",
+      "tier": 1,
+      "registered_n": 200000,
+      "registered_reps": 250,
+      "actual_action": 0,
+      "virtual_label_probability": 0.5
+    }
+  ],
+  "include_negative_control": false,
+  "negative_control_scenario": null,
+  "negative_control_reps": 0,
+  "cost_anchor_reps": 0,
+  "cost_anchor_n": null,
+  "max_source_retries": 3,
+  "resume_from": null,
+  "flush_path": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\g_aa_smoke\\layer_runs\\L2_205914\\aa_repetitions.csv",
+  "source_retries_total": 0,
+  "file_lock_retries_total": 0,
+  "python_version": "3.13.7",
+  "v3_aa_source_sha256": "95edd77c18f6d33ff2e6e5073c5c9327fb71029f587e54af994b167c28c199a9",
+  "run_root": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\g_aa_smoke\\layer_runs\\L2_205914",
+  "g_layer": "L2",
+  "g_status": "engineering",
+  "g_formal_approval": null,
+  "layer_table": "out/g_aa_smoke/L2/aa_repetitions.csv",
+  "layer_table_sha256": "a55fe784b5e63857dfd78c97edbcdd2de5e3278d67ac84cf3ec6b3850f0c96ce",
+  "layer_table_rows": 1
+}

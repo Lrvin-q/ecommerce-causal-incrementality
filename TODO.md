@@ -905,7 +905,8 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 
 - [x] **G01 编排入口已存在**（20:52）：`scripts/34_g_matrix_run.py`（plan/run/merge、分片、`--resume`、快照绑定、provisional 门禁）+ `src/causal_growth/evaluation/v3_g_matrix.py`；A10 工程跑 2 格×R=3 已通过，证据 28 件入册（`outputs/evidence/g_smoke/`）。
 - [ ] **G01 启动前门禁（仍未满足）**：① 用户对 R>0 正式运行的开跑确认（全 G 阶段 **207.2 CPU·h** = G 矩阵 162.8 + AA250 44.4，上限 210、余量 2.8；固定 bootstrap 1000 次未计）；② 机器独占 + 内存看护（含模型 rep 峰值 2.9–3.2 GB，4 worker 安全、6 worker 需先释放内存）；③ 快照 `src/ sql/ configs/`（49 文件）并以 `--snapshot` 绑定，运行期只读。
-- [ ] **G01/G02 专项臂尚未实现（20:58 核实，新增）**：`v3_g_matrix.py` 只覆盖"ATE + 学习 + 独立验证 + 单一预算策略名单"；**没有** AA 臂（`tier1_aa_per_layer`）、固定/再训练 bootstrap、`random_list_seeds_per_budget`（每预算 200 个名单种子），也没有 G03 的 L2 交叉 / L3 三分支专项。162.8 h 只含矩阵四臂；AA 44.4 h 另计；bootstrap 与名单种子臂成本未实测。**补齐这些执行器之前，G01–G04 不得开跑**——否则产物看起来完整、实际缺臂。
+- [x] **AA 臂已补齐并冒烟**（21:00）：`scripts/36_g_aa_run.py` 复用 `v3_aa.run_full_chain_aa`，把四层拆成 17 号可合并的 `<root>/<layer>/aa_repetitions.csv`；正式门禁（批准号 + 快照 + n=200 000）与工程上限（≤5 rep）内置。冒烟 4 层×1 rep×n=2000 exit 0；17 号读到四层、协议指纹一致后按设计以 n_total=2000 拒绝合并。证据 9 件 / 23 065 B（`outputs/evidence/g_aa_smoke/`），顶层登记 70→74；16 项单测 + 导出器 2 例反证（均 exit 2）。
+- [ ] **其余专项臂仍未实现（21:02）**：固定 bootstrap 1000、再训练 bootstrap、`random_list_seeds_per_budget`（每预算 200 个名单种子），以及 G03 的 L2 交叉 / L3 三分支。162.8 h 只含矩阵四臂；AA 44.4 h 已由 36 号承接；bootstrap 与名单种子臂成本未实测。**补齐之前 G01–G04 不得开跑**——否则产物看起来完整、实际缺臂。
 - [ ] **F02 的两条未决**：P1-1 逐 rep 预测支出需决定"接受部分关闭"或"重跑预算检查"（后者是 R>0，需批准）；P1-3 审计价值已声明移交 D01/G。
 - [ ] **D01 独立评审**未做（20 rep 已跑完），G01 之前应先补，否则资源计划只有自证。
 - [ ] G01–G04 完成后再排 H01–H05 与 Z01/Z02；H 依赖 G 的正式数值。

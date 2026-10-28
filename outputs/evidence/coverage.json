@@ -535,9 +535,41 @@
       "sha256": "318eb48cc75cca85586d4918e7df882b6c97efcfab2d7bd4a103e1a13dbd8020",
       "source": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/freeze.json",
       "status": "engineering_smoke"
+    },
+    {
+      "kind": "g_aa_manifest",
+      "target": "outputs/evidence/g_aa_smoke/manifests/L0_aa_manifest.json",
+      "bytes": 2351,
+      "sha256": "085648dfa8ce7952da52316f0d065c6736e1aaf1b291c6d07670d08067098074",
+      "source": "out/g_aa_smoke/L0/aa_manifest.json",
+      "status": "engineering_smoke"
+    },
+    {
+      "kind": "g_aa_manifest",
+      "target": "outputs/evidence/g_aa_smoke/manifests/L1_aa_manifest.json",
+      "bytes": 2351,
+      "sha256": "1c0b3dd9b54dd3df85c31527cd4bdbe7b7196fac9b7066e124bf550c761f1ab0",
+      "source": "out/g_aa_smoke/L1/aa_manifest.json",
+      "status": "engineering_smoke"
+    },
+    {
+      "kind": "g_aa_manifest",
+      "target": "outputs/evidence/g_aa_smoke/manifests/L2_aa_manifest.json",
+      "bytes": 2351,
+      "sha256": "51bb4c372590e37e8eb3d5faf34584085f042a2b88b535dfcc9a798ea71ac317",
+      "source": "out/g_aa_smoke/L2/aa_manifest.json",
+      "status": "engineering_smoke"
+    },
+    {
+      "kind": "g_aa_manifest",
+      "target": "outputs/evidence/g_aa_smoke/manifests/L3_aa_manifest.json",
+      "bytes": 2351,
+      "sha256": "eb010c10e9c206db9dafbb31054aa8a65d5fba57958ae01753a2663d98c60302",
+      "source": "out/g_aa_smoke/L3/aa_manifest.json",
+      "status": "engineering_smoke"
     }
   ],
-  "total_bytes": 16792830,
+  "total_bytes": 16802234,
   "registry_repairs": [
     {
       "at": "2026-10-28 02:38",
@@ -792,7 +824,49 @@
         }
       ],
       "reason": "G A10 工程小规模验证跑（R=3、2 格）身份类证据入顶层登记表"
+    },
+    {
+      "at": "2026-10-28 21:00",
+      "dropped_missing_target": [],
+      "added": [
+        "outputs/evidence/g_aa_smoke/manifests/L0_aa_manifest.json",
+        "outputs/evidence/g_aa_smoke/manifests/L1_aa_manifest.json",
+        "outputs/evidence/g_aa_smoke/manifests/L2_aa_manifest.json",
+        "outputs/evidence/g_aa_smoke/manifests/L3_aa_manifest.json"
+      ],
+      "enriched": [],
+      "records_before": 70,
+      "records_after": 74,
+      "total_bytes_before": 16792830,
+      "total_bytes_after": 16802234,
+      "identity_patterns": [
+        "*binding*.json",
+        "*manifest*.json",
+        "freeze.json",
+        "meta*.json",
+        "decision.json"
+      ],
+      "ordering_policy": "append_only_preserve_existing_order",
+      "prior_entry_defects": [
+        {
+          "entry_index": 1,
+          "entry_at": "2026-10-28 03:06",
+          "untrustworthy_fields": [
+            "total_bytes_before",
+            "reason"
+          ],
+          "recorded_value": {
+            "total_bytes_before": 22788510
+          },
+          "correct_value": {
+            "total_bytes_before": 15811356
+          },
+          "evidence": "out/scratch/fix_evidence_registry.py:100 将 total_bytes_before 硬编码为 22788510、:102 将 reason 硬编码；该脚本于 02:38 与 03:06 各运行一次，故 03:06 条目的 before 值实为 02:38 的旧前值。03:06 的真实前值 = repairs[0].total_bytes_after = 15 811 356；03:06 的后值 15 811 358 = 15 811 356 + 2（f01_ope/meta.json 17 333 → 17 335 B）。out/scratch/coverage_backup_before_31patch_20261028_031329.json 佐证 03:13 前磁盘上 records=35、total_bytes=15 811 358、repairs=2。",
+          "action": "仅登记缺陷，未改写 repairs[1]；其 refreshed/records_before/records_after 字段仍可信"
+        }
+      ],
+      "reason": "G01 AA 臂工程冒烟证据（4 层各 1 rep，n=2000）"
     }
   ],
-  "last_refreshed_at": "2026-10-28T20:41:58+08:00"
+  "last_refreshed_at": "2026-10-28T21:00:09+08:00"
 }
