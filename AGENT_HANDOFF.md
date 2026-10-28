@@ -9,11 +9,13 @@
 > - **F02 P1-1 关闭（21:38 建表 / 21:48 定稿）**：预测支出一直逐 rep 落在 `out/f02_formal/shard*/rep*/manifest.json` 的 `arms.*.predicted_spend_*`；
 >   19:30 导出里的 `predicted_note="not_persisted_per_rep"` 是**没去读**，不是没落盘。已补 600 行全表
 >   `outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv`（119,025 B / `dbb8a869…`，
->   21:48 重导出补 `budget_cny` 与 `budget_note`）并登记进目录级（20 件）与顶层（**77 条 / 16,924,056 B**，`registry_repairs` 15 条）。
+>   21:45 重导出补 `budget_cny` 与 `budget_note`、21:48 重登记）并登记进目录级（20 件）与顶层（**77 条 / 16,924,056 B**，`registry_repairs` 15 条）。
 >   定向臂 实际/预测 = **1.056348**（min −5.42% / 中位 +5.09% / max +30.67%，**179/200** 为正），随机臂 **1.002835**（104/200 为正）。
 > - **F02 仍记"未证实"**：收尾窄口径复核 21:43 判 **PASS WITH CONDITIONS**（`docs/reviews/v3_phase_F02_closeout.md`，
 >   新发现 1 P1 + 4 P2 + 5 P3，另有跨轮残留 P1-1 交付层与 P2-2）；**C1–C6 已于 21:48 全部落地**（formal 去"未落盘"与 bytes 断言、
->   表补分母、validation 写死合并口径、repair 条目改 `added` 并更正时刻、计数改 77 / 16,924,056），待窄口径复核确认后才改判。
+>   表补分母、validation 写死合并口径、repair 条目改 `added` 并更正时刻、计数改 77 / 16,924,056）。
+>   **21:55 第三次窄口径复核**（`docs/reviews/v3_phase_F02_c1c6_recheck.md`）判 C1–C6 六条全关，但因 validation 评审行仍写"未做"（P2）
+>   与 5 条 P3 判 NOT CLOSED；**P2 与 5 条 P3 已于 21:56 修完，待第四次确认后才改判**。
 > - **下一步**：F02 窄口径复核 PASS → 改判 → G01（AA 4 层 × 250 ≈ 44 CPU·h）需用户批准 R>0、独占机器与快照；
 >   G02/G03 仍欠三项决策：再训练 bootstrap 次数（80/200/800，协议原文为"每层 200"⇒ 800）、G03 口径与 210 CPU·h 上限、
 >   全预算固定 bootstrap（overlay 28 格口径 196 次额外验证构建 ≈7.1 CPU·h，冻结 69 格口径 483 次 ≈17.6）。

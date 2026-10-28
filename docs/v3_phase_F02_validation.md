@@ -18,7 +18,7 @@
 | n=200 000 单 rep（工程状态） | 完成，18:32:41–18:39:21，exit=0 | `outputs/evidence/f02_n200k_rep0/` |
 | 正式 200 rep | 已完成（2026-10-28 03:39 起跑、16:37 合并，四片各 50、exit 0；登记号 `F02-FORMAL-20261028-R200`） | `out/f02_formal/shard{0,1,2,3}/`；`docs/v3_phase_F02_formal.md` |
 | 正式前置：源码冻结 | 评审驱动的改动全部落地并复跑后，才可建快照；`source_hashes` 逐 rep 绑定，`--resume` 拒绝漂移 | `v3_f02_formal.py::plan_formal_shard` |
-| 独立科学评审 | **未做** | — |
+| 独立科学评审 | **已做**：19:17 初审与 21:43 收尾复核均判 PASS WITH CONDITIONS，21:55 第三次窄口径复核只核 C1–C6 | `docs/reviews/v3_phase_F02_review.md`、`…_closeout.md`、`…_c1c6_recheck.md` |
 
 ## 1. 回答的问题
 
@@ -189,7 +189,7 @@ F02 三臂是**用户级独立随机**，两条差各用 `sqrt(se_l²+se_r²)`�
 ③ 实际券成本已进入 `observed_net_profit`，超支已被结果变量吸收。正式 200 rep 必须逐
 rep 报告实际支出与超支倍数，并把"同预算"限定为"同预测预算规则"，不得声称实际支出相等。
 
-**逐 rep 支出与超支倍数（2026-10-28 21:38 重建、21:48 补分母，关闭评审 P1-1）**：预测支出其实一直逐 rep 落在 `out/f02_formal/shard*/rep*/manifest.json` 的 `arms.*.predicted_spend_*`，19:30 导出的 `v3_phase_F02_formal_per_rep_realized_spend.csv` 只是**没有再读它**，其 `predicted_note="not_persisted_per_rep"` 的表述不正确。现从 manifest + `arm_summary.csv` 重建 **600 行**（200 rep × 3 臂）全表：
+**逐 rep 支出与超支倍数（2026-10-28 21:38 重建、21:45 补分母、21:48 重登记，关闭评审 P1-1）**：预测支出其实一直逐 rep 落在 `out/f02_formal/shard*/rep*/manifest.json` 的 `arms.*.predicted_spend_*`，19:30 导出的 `v3_phase_F02_formal_per_rep_realized_spend.csv` 只是**没有再读它**，其 `predicted_note="not_persisted_per_rep"` 的表述不正确。现从 manifest + `arm_summary.csv` 重建 **600 行**（200 rep × 3 臂）全表：
 `outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv`（列含 `predicted_spend_cny`、`predicted_per_assigned_cny`、`realized_coupon_cost_total_cny`、`realized_per_assigned_cny`、`realized_to_predicted`、`overspend_ratio`、`budget_cny`、`budget_deviation_cny`、`budget_note`；`budget_cny` = 0.2 × `n_assigned`，`no_coupon` 记 0.0 并注“无券预算”），已登记进目录级 `coverage.json`（20 件）与顶层（**77 条**）。
 
 - 定向臂：**合并 = Σ实际 / Σ预测** = **1.056348**（逐 rep 超支倍数 min **−5.42%** / 中位 **+5.09%** / max **+30.67%**，**179/200** 为正）；
@@ -239,7 +239,7 @@ B 于 20:44:59–20:51:59 完成，均 `--status engineering`、单 rep 0，产�
 - [ ] 护栏在每个 rep 内单独判定，聚合层报告通过率与差值的 MC 分布；
 - [ ] 先冻结 OPE/随机验证结果，再解封审计；审计数字不反流选模/选策略。
 
-### 5.4 正式 200 rep 的编排与聚合（工具已就绪，未运行）
+### 5.4 正式 200 rep 的编排与聚合（2026-10-28 16:37 完成，200/200）
 
 | 件 | 路径 | 职责 |
 |---|---|---|
@@ -322,17 +322,18 @@ python "$snap\scripts\29_f02_formal.py" --scenario L1_main --n 200000 `
   该次冒烟产物不作为证据。
 
 **状态**：工具已在 n=2 000、2 rep 上用假登记号冒烟（冒烟产物已删除，不构成证据）；
-快照机制已在 n=2 000、1 rep 验证；8 项聚合/分片测试绿；**正式 200 rep 未运行**，
-等待用户批准与登记号。
+快照机制已在 n=2 000、1 rep 验证；8 项聚合/分片测试绿；**正式 200 rep 已于 2026-10-28 16:37 完成**
+（登记号 `F02-FORMAL-20261028-R200`，四片各 50、合并 exit 0，见 `docs/v3_phase_F02_formal.md`）；
+阶段状态仍为"未证实"，待独立评审确认后才改判"通过"。
 
 ## 6. 已知局限
 
 - 仍是合成数据与已知 DGP，结论不能外推到真实业务；
 - ITT 区间用正态近似；样本量足够大，但极端重尾下应改用 bootstrap 复核；
 - 预算约束作用于**预测**支出而非实际券成本：单 rep 定向臂实际支出比预测高 29.1%，
-  随机臂基本吻合（−0.3%）。模型成本校准在全体上无偏、在"按增量利润/成本挑选"的子集上
-  有系统性低估；这是期望成本预算的固有局限，正式 R 需逐 rep 报告实际支出，不能承诺
-  实际支出等于预算；
+  随机臂基本吻合（−0.3%）。正式 200 rep 合并口径为定向 **+5.63%**（逐 rep 中位 +5.09%、最大 +30.67%）、
+  随机 **+0.28%**；模型成本校准在全体上无偏、在"按增量利润/成本挑选"的子集上
+  有系统性低估；这是期望成本预算的固有局限，不能承诺实际支出等于预算；
 - 单 rep 的 p 值与护栏判定只用于核验机制，不能当作 1/200 的"证据"或提前预判正式结论；
 - 一个 rep 只验证一个预算档（0.2 元/人）；其他预算只做历史 OPE 与真值审计；
 - 定向臂只验证 E 冻结的单一策略，不验证策略选择过程本身；
