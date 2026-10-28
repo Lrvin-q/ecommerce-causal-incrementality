@@ -1,0 +1,121 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "purpose": "g01_aa_arm_coverage_check",
+  "checked_at": "2026-10-29T05:15:39+08:00",
+  "approval": "G01-AA250-20261028",
+  "declared_reps_per_layer": 250,
+  "shards": {
+    "s01": {
+      "layer": "L0",
+      "exit": 0
+    },
+    "s02": {
+      "layer": "L1",
+      "exit": 0
+    },
+    "s03": {
+      "layer": "L0",
+      "exit": 0
+    },
+    "s04": {
+      "layer": "L1",
+      "exit": 0
+    },
+    "s05": {
+      "layer": "L0",
+      "exit": 0
+    },
+    "s06": {
+      "layer": "L1",
+      "exit": 0
+    },
+    "s07": {
+      "layer": "L2",
+      "exit": 0
+    },
+    "s08": {
+      "layer": "L3",
+      "exit": 0
+    },
+    "s09": {
+      "layer": "L2",
+      "exit": 0
+    },
+    "s10": {
+      "layer": "L3",
+      "exit": 0
+    },
+    "s11": {
+      "layer": "L2",
+      "exit": 0
+    },
+    "s12": {
+      "layer": "L3",
+      "exit": 0
+    }
+  },
+  "per_layer": {
+    "L0": {
+      "shards": [
+        "s01",
+        "s03",
+        "s05"
+      ],
+      "rows_true_aa": 250,
+      "reps_unique": 250,
+      "missing_reps": [],
+      "duplicated_reps": [],
+      "n_total": [
+        200000
+      ]
+    },
+    "L1": {
+      "shards": [
+        "s02",
+        "s04",
+        "s06"
+      ],
+      "rows_true_aa": 250,
+      "reps_unique": 250,
+      "missing_reps": [],
+      "duplicated_reps": [],
+      "n_total": [
+        200000
+      ]
+    },
+    "L2": {
+      "shards": [
+        "s07",
+        "s09",
+        "s11"
+      ],
+      "rows_true_aa": 250,
+      "reps_unique": 250,
+      "missing_reps": [],
+      "duplicated_reps": [],
+      "n_total": [
+        200000
+      ]
+    },
+    "L3": {
+      "shards": [
+        "s08",
+        "s10",
+        "s12"
+      ],
+      "rows_true_aa": 250,
+      "reps_unique": 250,
+      "missing_reps": [],
+      "duplicated_reps": [],
+      "n_total": [
+        200000
+      ]
+    }
+  },
+  "total_true_aa_rows": 1000,
+  "protocol_config_hash": [
+    "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3"
+  ],
+  "problems": [],
+  "passed": true
+}

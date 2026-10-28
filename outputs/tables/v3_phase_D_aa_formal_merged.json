@@ -1,11 +1,18 @@
 {
   "source_label": "合成数据 / 已知 DGP",
   "roots": [
-    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal",
-    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal_r2",
-    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal_r3",
-    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal_r2_det",
-    "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_aa_formal_r3_det"
+    "out/g01_aa250/s01",
+    "out/g01_aa250/s02",
+    "out/g01_aa250/s03",
+    "out/g01_aa250/s04",
+    "out/g01_aa250/s05",
+    "out/g01_aa250/s06",
+    "out/g01_aa250/s07",
+    "out/g01_aa250/s08",
+    "out/g01_aa250/s09",
+    "out/g01_aa250/s10",
+    "out/g01_aa250/s11",
+    "out/g01_aa250/s12"
   ],
   "layers_found": [
     "L0",

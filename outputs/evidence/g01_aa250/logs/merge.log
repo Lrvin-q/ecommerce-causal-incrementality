@@ -1,0 +1,31 @@
+[G-AA 05:15:43] 合并交给 17 号：C:\Users\26382\.qoder-cn\worktrees\app\c509bd\营销数分项目\.venv\Scripts\python.exe C:\Users\26382\.qoder-cn\worktrees\app\c509bd\营销数分项目\scripts\17_merge_aa_layers.py --root out/g01_aa250/s01 out/g01_aa250/s02 out/g01_aa250/s03 out/g01_aa250/s04 out/g01_aa250/s05 out/g01_aa250/s06 out/g01_aa250/s07 out/g01_aa250/s08 out/g01_aa250/s09 out/g01_aa250/s10 out/g01_aa250/s11 out/g01_aa250/s12
+  L0: 读入 250 行，去重后 250 行（重复 0）
+  L1: 读入 250 行，去重后 250 行（重复 0）
+  L2: 读入 250 行，去重后 250 行（重复 0）
+  L3: 读入 250 行，去重后 250 行（重复 0）
+  协议指纹一致：00723dc26df517b2…
+ source_label   block           metric population  layer  reps  rejections   fpr   cp_low  cp_high    mc_se  alpha  detect_power_if_true_0_08  detect_power_if_true_0_09
+合成数据 / 已知 DGP true_aa       net_profit       full     L0   250          14 0.056 0.030950 0.092174 0.014542   0.05                   0.813364                   0.917585
+合成数据 / 已知 DGP true_aa       net_profit       full     L1   250          11 0.044 0.022166 0.077363 0.012971   0.05                   0.813364                   0.917585
+合成数据 / 已知 DGP true_aa       net_profit       full     L2   250          10 0.040 0.019345 0.072329 0.012394   0.05                   0.813364                   0.917585
+合成数据 / 已知 DGP true_aa       net_profit       full     L3   250          11 0.044 0.022166 0.077363 0.012971   0.05                   0.813364                   0.917585
+合成数据 / 已知 DGP true_aa       net_profit       full POOLED  1000          46 0.046 0.033871 0.060884 0.006624   0.05                   0.959807                   0.997132
+合成数据 / 已知 DGP true_aa paid_purchase_7d       full     L0   250           7 0.028 0.011330 0.056837 0.010434   0.05                   0.813364                   0.917585
+合成数据 / 已知 DGP true_aa paid_purchase_7d       full     L1   250           7 0.028 0.011330 0.056837 0.010434   0.05                   0.813364                   0.917585
+合成数据 / 已知 DGP true_aa paid_purchase_7d       full     L2   250          12 0.048 0.025045 0.082345 0.013520   0.05                   0.813364                   0.917585
+合成数据 / 已知 DGP true_aa paid_purchase_7d       full     L3   250          14 0.056 0.030950 0.092174 0.014542   0.05                   0.813364                   0.917585
+合成数据 / 已知 DGP true_aa paid_purchase_7d       full POOLED  1000          40 0.040 0.028728 0.054073 0.006197   0.05                   0.959807                   0.997132
+合成数据 / 已知 DGP true_aa   any_refund_30d       full     L0   250          16 0.064 0.037021 0.101853 0.015480   0.05                   0.813364                   0.917585
+合成数据 / 已知 DGP true_aa   any_refund_30d       full     L1   250          17 0.068 0.040108 0.106644 0.015922   0.05                   0.813364                   0.917585
+合成数据 / 已知 DGP true_aa   any_refund_30d       full     L2   250           8 0.032 0.013915 0.062077 0.011131   0.05                   0.813364                   0.917585
+合成数据 / 已知 DGP true_aa   any_refund_30d       full     L3   250          11 0.044 0.022166 0.077363 0.012971   0.05                   0.813364                   0.917585
+合成数据 / 已知 DGP true_aa   any_refund_30d       full POOLED  1000          52 0.052 0.039077 0.067635 0.007021   0.05                   0.959807                   0.997132
+
+  SE 校准 L0      经验SD/平均SE = 0.987  (reps=250)
+  SE 校准 L1      经验SD/平均SE = 0.994  (reps=250)
+  SE 校准 L2      经验SD/平均SE = 0.988  (reps=250)
+  SE 校准 L3      经验SD/平均SE = 0.995  (reps=250)
+  SE 校准 POOLED  经验SD/平均SE = 0.995  (reps=1000)
+
+  已排除非 true_aa 行：0
+  输出：outputs\tables\v3_phase_D_aa_formal_merged.csv 与 outputs\tables\v3_phase_D_aa_formal_merged.json

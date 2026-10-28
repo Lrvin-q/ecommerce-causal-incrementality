@@ -1,0 +1,5 @@
+PASS -> C:\Users\26382\.qoder-cn\worktrees\app\c509bd\营销数分项目\out\g01_aa250\coverage.json
+  L0: rows=250 unique_reps=250 shards=['s01', 's03', 's05']
+  L1: rows=250 unique_reps=250 shards=['s02', 's04', 's06']
+  L2: rows=250 unique_reps=250 shards=['s07', 's09', 's11']
+  L3: rows=250 unique_reps=250 shards=['s08', 's10', 's12']

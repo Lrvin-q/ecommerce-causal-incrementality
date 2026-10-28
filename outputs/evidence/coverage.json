@@ -593,9 +593,105 @@
       "bytes": 119025,
       "sha256": "dbb8a8696ffe67d7c1d8cb2aaae24d77b2309f1256b5f5555a1d52561401171a",
       "rows": 600
+    },
+    {
+      "kind": "g01_shard_manifest",
+      "target": "outputs/evidence/g01_aa250/per_rep/s01__L0__aa_manifest.json",
+      "bytes": 2377,
+      "sha256": "ef6ff595a3292ce88c3092a553b3f4db90953a248f60b1a8687c3b24d1932541",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s01/L0/aa_manifest.json",
+      "status": "formal_aa250"
+    },
+    {
+      "kind": "g01_shard_manifest",
+      "target": "outputs/evidence/g01_aa250/per_rep/s02__L1__aa_manifest.json",
+      "bytes": 2377,
+      "sha256": "7a5ba5a9380d39dd95befcf73179751b85d3386d79eebe2c9b74727ef909779f",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s02/L1/aa_manifest.json",
+      "status": "formal_aa250"
+    },
+    {
+      "kind": "g01_shard_manifest",
+      "target": "outputs/evidence/g01_aa250/per_rep/s03__L0__aa_manifest.json",
+      "bytes": 2378,
+      "sha256": "ab5bacff560f1ccfe0f8db7b632a3302ca4380ccf7d265bd0243454dd41db79c",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s03/L0/aa_manifest.json",
+      "status": "formal_aa250"
+    },
+    {
+      "kind": "g01_shard_manifest",
+      "target": "outputs/evidence/g01_aa250/per_rep/s04__L1__aa_manifest.json",
+      "bytes": 2378,
+      "sha256": "aaaa6f27e3fa62195614df28916ecc0489b8a9b6838948dcb16f9e7e657318ac",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s04/L1/aa_manifest.json",
+      "status": "formal_aa250"
+    },
+    {
+      "kind": "g01_shard_manifest",
+      "target": "outputs/evidence/g01_aa250/per_rep/s05__L0__aa_manifest.json",
+      "bytes": 2379,
+      "sha256": "05be0863e63848d2832c1b9bcd405b8004f5dcd9d8d083b0e9e6880fd506bc1c",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s05/L0/aa_manifest.json",
+      "status": "formal_aa250"
+    },
+    {
+      "kind": "g01_shard_manifest",
+      "target": "outputs/evidence/g01_aa250/per_rep/s06__L1__aa_manifest.json",
+      "bytes": 2379,
+      "sha256": "37654cbfe1692ff0bfb5cb15c54d7f8abe6ab698848ba9bcb7848e479f4250d2",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s06/L1/aa_manifest.json",
+      "status": "formal_aa250"
+    },
+    {
+      "kind": "g01_shard_manifest",
+      "target": "outputs/evidence/g01_aa250/per_rep/s07__L2__aa_manifest.json",
+      "bytes": 2377,
+      "sha256": "a72c2b27382562b981f30e829b7067028bda4a817e002a0a66a2b60ba7722186",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s07/L2/aa_manifest.json",
+      "status": "formal_aa250"
+    },
+    {
+      "kind": "g01_shard_manifest",
+      "target": "outputs/evidence/g01_aa250/per_rep/s08__L3__aa_manifest.json",
+      "bytes": 2377,
+      "sha256": "975a94b1065228a9f4a64ef3a51be191614295ce2c9aee5f430a302c97c3f327",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s08/L3/aa_manifest.json",
+      "status": "formal_aa250"
+    },
+    {
+      "kind": "g01_shard_manifest",
+      "target": "outputs/evidence/g01_aa250/per_rep/s09__L2__aa_manifest.json",
+      "bytes": 2378,
+      "sha256": "80d645ffbc7aef465dda540f697314c72ed2252f80d521490430844bcd55dff3",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s09/L2/aa_manifest.json",
+      "status": "formal_aa250"
+    },
+    {
+      "kind": "g01_shard_manifest",
+      "target": "outputs/evidence/g01_aa250/per_rep/s10__L3__aa_manifest.json",
+      "bytes": 2378,
+      "sha256": "8a6b33ac4c534cc488386a032004c26b4f9b0396cd4b270c00fc5183d82ed3c5",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s10/L3/aa_manifest.json",
+      "status": "formal_aa250"
+    },
+    {
+      "kind": "g01_shard_manifest",
+      "target": "outputs/evidence/g01_aa250/per_rep/s11__L2__aa_manifest.json",
+      "bytes": 2379,
+      "sha256": "44eb7789d29898b2e4df29822e5dbb493243d27f8c83fc079cfdef78d543f194",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s11/L2/aa_manifest.json",
+      "status": "formal_aa250"
+    },
+    {
+      "kind": "g01_shard_manifest",
+      "target": "outputs/evidence/g01_aa250/per_rep/s12__L3__aa_manifest.json",
+      "bytes": 2379,
+      "sha256": "19b9eb05b72fb18f931f51293fc5f4b94a9faacb7ddbc7664abf850d1bb2d72b",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s12/L3/aa_manifest.json",
+      "status": "formal_aa250"
     }
   ],
-  "total_bytes": 16924056,
+  "total_bytes": 16952592,
   "registry_repairs": [
     {
       "at": "2026-10-28 02:38",
@@ -1048,7 +1144,57 @@
       "total_bytes_before": 16906697,
       "total_bytes_after": 16924056,
       "reason": "F02 收尾复核 C3/C5：重导出支出表补 budget_cny（=0.2×n_assigned）与 budget_note（no_coupon 臂无券预算、budget_deviation 按 0 定义的语义标注）；600 行与全部汇总值不变。同步把 21:42 条目的 refreshed 字符串数组改为 added，并更正为实际写盘时刻 21:38。"
+    },
+    {
+      "at": "2026-10-29 05:16",
+      "dropped_missing_target": [],
+      "added": [
+        "outputs/evidence/g01_aa250/per_rep/s01__L0__aa_manifest.json",
+        "outputs/evidence/g01_aa250/per_rep/s02__L1__aa_manifest.json",
+        "outputs/evidence/g01_aa250/per_rep/s03__L0__aa_manifest.json",
+        "outputs/evidence/g01_aa250/per_rep/s04__L1__aa_manifest.json",
+        "outputs/evidence/g01_aa250/per_rep/s05__L0__aa_manifest.json",
+        "outputs/evidence/g01_aa250/per_rep/s06__L1__aa_manifest.json",
+        "outputs/evidence/g01_aa250/per_rep/s07__L2__aa_manifest.json",
+        "outputs/evidence/g01_aa250/per_rep/s08__L3__aa_manifest.json",
+        "outputs/evidence/g01_aa250/per_rep/s09__L2__aa_manifest.json",
+        "outputs/evidence/g01_aa250/per_rep/s10__L3__aa_manifest.json",
+        "outputs/evidence/g01_aa250/per_rep/s11__L2__aa_manifest.json",
+        "outputs/evidence/g01_aa250/per_rep/s12__L3__aa_manifest.json"
+      ],
+      "enriched": [],
+      "records_before": 77,
+      "records_after": 89,
+      "total_bytes_before": 16924056,
+      "total_bytes_after": 16952592,
+      "identity_patterns": [
+        "*binding*.json",
+        "*manifest*.json",
+        "freeze.json",
+        "meta*.json",
+        "decision.json"
+      ],
+      "ordering_policy": "append_only_preserve_existing_order",
+      "prior_entry_defects": [
+        {
+          "entry_index": 1,
+          "entry_at": "2026-10-28 03:06",
+          "untrustworthy_fields": [
+            "total_bytes_before",
+            "reason"
+          ],
+          "recorded_value": {
+            "total_bytes_before": 22788510
+          },
+          "correct_value": {
+            "total_bytes_before": 15811356
+          },
+          "evidence": "out/scratch/fix_evidence_registry.py:100 将 total_bytes_before 硬编码为 22788510、:102 将 reason 硬编码；该脚本于 02:38 与 03:06 各运行一次，故 03:06 条目的 before 值实为 02:38 的旧前值。03:06 的真实前值 = repairs[0].total_bytes_after = 15 811 356；03:06 的后值 15 811 358 = 15 811 356 + 2（f01_ope/meta.json 17 333 → 17 335 B）。out/scratch/coverage_backup_before_31patch_20261028_031329.json 佐证 03:13 前磁盘上 records=35、total_bytes=15 811 358、repairs=2。",
+          "action": "仅登记缺陷，未改写 repairs[1]；其 refreshed/records_before/records_after 字段仍可信"
+        }
+      ],
+      "reason": "27 号（D03 正式）与 30 号（F02 正式）脚本只写目录级 coverage.json、不刷顶层索引，导致 d03_formal / f02_n200k_rep0 的源码绑定与冻结清单在顶层不可发现（AGENTS §12.1）。按身份类 JSON 规则提升，提升前逐文件重算 sha256/bytes，提升后全表复算。"
     }
   ],
-  "last_refreshed_at": "2026-10-28T21:48:21+08:00"
+  "last_refreshed_at": "2026-10-29T05:16:42+08:00"
 }
