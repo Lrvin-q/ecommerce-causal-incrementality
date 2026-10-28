@@ -590,12 +590,12 @@
       "kind": "f02_formal_aggregate",
       "source": "out/f02_formal/shard*/rep*/manifest.json (arms.*.predicted_spend_*) + arm_summary.csv (realized)",
       "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv",
-      "bytes": 101666,
-      "sha256": "8219660498fe927798aad306bfbb97353c0f7d1c65a7e271a56263cc3cafd33e",
+      "bytes": 119025,
+      "sha256": "dbb8a8696ffe67d7c1d8cb2aaae24d77b2309f1256b5f5555a1d52561401171a",
       "rows": 600
     }
   ],
-  "total_bytes": 16906697,
+  "total_bytes": 16924056,
   "registry_repairs": [
     {
       "at": "2026-10-28 02:38",
@@ -1017,17 +1017,38 @@
       "reason": "F02 关闭 P1-1：新增 600 行逐 rep 支出全表（预测/实际/比值/超支），数据取逐 rep manifest.json 的 arms.*.predicted_spend_* 与 arm_summary.csv 的实际成本；旧表 predicted 列为空且注记有误，由本表取代"
     },
     {
-      "at": "2026-10-28 21:42",
+      "at": "2026-10-28 21:38",
       "dropped_missing_target": [],
-      "refreshed": [
+      "added": [
         "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv"
       ],
       "records_before": 76,
       "records_after": 77,
       "total_bytes_before": 16805031,
       "total_bytes_after": 16906697,
+      "corrected_at": "2026-10-28 21:48",
+      "correction": "原条目 at=2026-10-28 21:42（计划时刻，实际写盘 21:38:25），且把新增文件放进字符串数组 refreshed（refreshed 在 33 号脚本与既有条目里是对象数组）。此处改为 added（=33 号脚本 `\"added\": [r[\"target\"] for r in added]` 的形状），at 改为实际写盘时刻。",
       "reason": "F02 P1-1 关闭：新增 600 行逐 rep 支出全表（predicted/realized/realized_to_predicted/overspend_ratio）。该表为 CSV，不属 33 号脚本的身份类 JSON 规则，按 19:30 的既有做法直接登记并留此 repair 条目。旧表 v3_phase_F02_formal_per_rep_realized_spend.csv 的 predicted 列全空且 predicted_note 写 not_persisted_per_rep，该注记不正确（predicted 一直在逐 rep manifest 里），本表取代其用途。"
+    },
+    {
+      "at": "2026-10-28 21:48",
+      "dropped_missing_target": [],
+      "added": [],
+      "refreshed": [
+        {
+          "target": "outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv",
+          "old_sha256": "8219660498fe927798aad306bfbb97353c0f7d1c65a7e271a56263cc3cafd33e",
+          "old_bytes": 101666,
+          "new_sha256": "dbb8a8696ffe67d7c1d8cb2aaae24d77b2309f1256b5f5555a1d52561401171a",
+          "new_bytes": 119025
+        }
+      ],
+      "records_before": 77,
+      "records_after": 77,
+      "total_bytes_before": 16906697,
+      "total_bytes_after": 16924056,
+      "reason": "F02 收尾复核 C3/C5：重导出支出表补 budget_cny（=0.2×n_assigned）与 budget_note（no_coupon 臂无券预算、budget_deviation 按 0 定义的语义标注）；600 行与全部汇总值不变。同步把 21:42 条目的 refreshed 字符串数组改为 added，并更正为实际写盘时刻 21:38。"
     }
   ],
-  "last_refreshed_at": "2026-10-28T21:42:00+08:00"
+  "last_refreshed_at": "2026-10-28T21:48:21+08:00"
 }

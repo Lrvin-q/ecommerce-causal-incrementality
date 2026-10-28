@@ -1,6 +1,6 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-28 21:38（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-28 21:48（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
 
@@ -24,7 +24,8 @@
 - **全量测试（G AA 执行器后）**：21:05–21:13 串行 **1 303 项、EXIT=0**（`outputs/evidence/test_runs/pytest_g_aa_20261028_2105.log`）；新增 `tests/test_v3_g_aa_executor.py` 16 项，含 6 类 gate 拒绝与 3 类 `split_layer_table` 拒绝。
 - **成本口径自纠（20:47）**：初稿"192.8 CPU·h"含 30 h 未列明余量且漏掉 AA250。逐项重算：G 矩阵 **162.8** + AA250 **44.4** = **207.2**，
   上限 210、余量 **2.8 h**；固定 bootstrap 1000 次不重拟合、未计入，跑前须实测。已改 `docs/v3_repetition_budget_revision.md` §7.2 与 GOAL G02。
-- **仍未启动**：G01–G04 需用户对 R>0 开跑确认 + 机器独占 + 快照运行；F02 仍"未证实"（P1-1 预测支出运行期未落盘）。
+- **仍未启动**：G01–G04 需用户对 R>0 开跑确认 + 机器独占 + 快照运行；F02 仍"未证实"（收尾复核 21:43 判
+  PASS WITH CONDITIONS，C1–C6 已 21:48 落地，待窄口径复核确认后才改判）。
 - **登记管道修复（21:34）**：F02 目录级 coverage 补登记 19:30 的 4 条聚合文件（15→19，sha/bytes 现场重算、原有 15 条未动）；
   `scripts/33 --dry-run` 全量恢复 **exit 0**（默认 9 个有 coverage 的子目录、26 个身份类文件、顶层 76 条全表复算一致）。
   D01 首评/复评共同记录的 N9 关闭；不改任何 F02 结论。
@@ -38,13 +39,17 @@
   P2-1 在正文注明 `source_binding.json` 的 `frozen_config_hash` 是导出时当前值（运行期按 git 推断 30511a32…，
   AA250 修订晚于运行、`L1_main` 场景块未变），并把 `scripts/38` 改为 `config_hash_current` +
   `config_hash_at_run_inferred_prefix`、git 取不到时 **RuntimeError 硬失败**（未重导出，证据字节与 76 条登记不变）。
-- **F02 P1-1 关闭（21:42）**：预测支出其实一直逐 rep 落在 `out/f02_formal/shard*/rep*/manifest.json` 的
+- **F02 P1-1 关闭（21:38 建表 / 21:48 定稿）**：预测支出其实一直逐 rep 落在 `out/f02_formal/shard*/rep*/manifest.json` 的
   `arms.*.predicted_spend_*`；19:30 旧表把该列留空并注 `not_persisted_per_rep`，**注记是错的**。
   已新建 `outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv`（600 行 = 200 rep × 3 臂，
-  含 predicted/realized/`realized_to_predicted`/`overspend_ratio`/`budget_deviation`）并两级登记（目录级 **20 件**、
-  顶层 **77 条 / 16,906,697 B**、全表复算一致）。合并实际/预测：定向 **1.056348**（逐 rep min −5.42% / 中位 +5.09% /
-  max +30.67%，**179/200** 为正）、随机 **1.002835**；正文 §5.2 已补。**F02 第三轮窄口径复核已启动**，
-  报告 `docs/reviews/v3_phase_F02_closeout.md`；PASS 前 F02 仍记"未证实"。
+  含 predicted/realized/`realized_to_predicted`/`overspend_ratio`/`budget_cny`/`budget_deviation`/`budget_note`）并两级登记
+  （目录级 **20 件**、顶层 **77 条 / 16,924,056 B**、全表复算一致）。合并实际/预测：定向 **1.056348**（逐 rep min −5.42% /
+  中位 +5.09% / max +30.67%，**179/200** 为正）、随机 **1.002835**；正文 §5.2 已补。
+  **收尾窄口径复核 21:43 判 PASS WITH CONDITIONS**（`docs/reviews/v3_phase_F02_closeout.md`；新发现 1 P1 + 4 P2 + 5 P3，
+  另残留跨轮 2 条：P1-1 交付层、P2-2 bytes 断言）：P1-1 数据层已关闭、交付层仍开。**C1–C6 于 21:48 全部落地**：C1 改 formal §5.3/§6 的"未落盘"；C2 撤 bytes 断言；
+  C3 表补 `budget_cny`+`budget_note`（119,025 B / `dbb8a869…`，600 行与汇总值不变）；C4 validation 写死"合并=Σ实际/Σ预测"并注 3e-6 口径差；
+  C5 把 21:42 条目的 `refreshed` 字符串数组改为 `added` 并更正为实际写盘 21:38，另加 21:48 的 `refreshed` 对象条目；
+  C6 formal 计数改 77 / 16,924,056、validation 抬头与 §5.3 标题改"已完成"。**F02 改判待窄口径复核确认，PASS 前仍记"未证实"。**
 - **推送**：20:54 首推失败（443 不可达）后 **21:26 成功**，远端 `a351ec3`；此后 `fb574e1`（D01 状态入册）、`d3b0082`（N9 补登记）待推。
 
 **2026-10-28 19:25 更新。D01 完成；G 甲方案已执行并经独立评审（条件已关闭）；F02 评审条件正在关闭**：
@@ -927,11 +932,11 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [x] **G01 编排入口已存在**（20:52）：`scripts/34_g_matrix_run.py`（plan/run/merge、分片、`--resume`、快照绑定、provisional 门禁）+ `src/causal_growth/evaluation/v3_g_matrix.py`；A10 工程跑 2 格×R=3 已通过，证据 28 件入册（`outputs/evidence/g_smoke/`）。
 - [ ] **G01 启动前门禁（仍未满足）**：① 用户对 R>0 正式运行的开跑确认（全 G 阶段 **207.2 CPU·h** = G 矩阵 162.8 + AA250 44.4，上限 210、余量 2.8；固定 bootstrap 1000 次未计）；② 机器独占 + 内存看护（含模型 rep 峰值 2.9–3.2 GB，4 worker 安全、6 worker 需先释放内存）；③ 快照 `src/ sql/ configs/`（49 文件）并以 `--snapshot` 绑定，运行期只读。
 - [x] **AA 臂已补齐并冒烟**（21:00）：`scripts/36_g_aa_run.py` 复用 `v3_aa.run_full_chain_aa`，把四层拆成 17 号可合并的 `<root>/<layer>/aa_repetitions.csv`；正式门禁（批准号 + 快照 + n=200 000）与工程上限（≤5 rep）内置。冒烟 4 层×1 rep×n=2000 exit 0；17 号读到四层、协议指纹一致后按设计以 n_total=2000 拒绝合并。证据 9 件 / 23 065 B（`outputs/evidence/g_aa_smoke/`），顶层登记 70→74；16 项单测 + 导出器 2 例反证（均 exit 2）。
-- [ ] **四件待裁决事项已并成一张决策单（21:50）**：`docs/v3_G开跑决策单.md`（A 重训 80/200/800、B 固定 bootstrap 预算范围、C G03 65 格 vs 20 格、D 随机名单 DR 口径、E G01 单独开跑授权）。**21:52 成本口径更正**：固定 bootstrap 全预算的额外构建，冻结 69 格口径是 483 次 ≈17.6 h，Tier2 overlay 执行矩阵 28 格口径是 196 次 ≈7.1 h（合计 214.3，超上限 4.3）；两种口径都写进了决策单 B 节与 `docs/v3_G执行器缺口与设计.md` §1，引用时必须写明矩阵版本。随机名单同理由 800 000 更正为 112 万–224 万个（1.6–3.2 h，估算未实测）。
-  **21:56 再更正（更重要）**：协议 `:105` 原文是「**每层** Tier1 代表场景另做 **200** 次」，每层 1 个 core 格 ⇒ 冻结配置的 **800** 才是协议忠实值，任务书/GOAL 的"200"是误读；207.2 h 因此**少算 40 h**。维持 210 上限必须同时改协议与 GOAL，不能只在任务书里写 200。**21:55 可实施性核查**：给 `build_history_dataset` 加 `resample=` 不可行——`ObservedDataset` 只允许 `from_sql_result`/`from_manifest` 构造（`v3_observed.py:124-148`），观测表重抽会破坏 `sql_sha256`/`analysis_sha256` 校验，DGP 也无用户级重抽 API；只能扩 DGP 做真 user bootstrap，或把"重训 bootstrap"改口径为"新 rep 抽样"（MC 重复）。两条都要与次数裁决一起定。
+- [ ] **四件待裁决事项已并成一张决策单（21:41）**：`docs/v3_G开跑决策单.md`（A 重训 80/200/800、B 固定 bootstrap 预算范围、C G03 65 格 vs 20 格、D 随机名单 DR 口径、E G01 单独开跑授权）。**21:42 成本口径更正**：固定 bootstrap 全预算的额外构建，冻结 69 格口径是 483 次 ≈17.6 h，Tier2 overlay 执行矩阵 28 格口径是 196 次 ≈7.1 h（合计 214.3，超上限 4.3）；两种口径都写进了决策单 B 节与 `docs/v3_G执行器缺口与设计.md` §1，引用时必须写明矩阵版本。随机名单同理由 800 000 更正为 112 万–224 万个（1.6–3.2 h，估算未实测）。
+  **21:45 再更正（更重要）**：协议 `:105` 原文是「**每层** Tier1 代表场景另做 **200** 次」，每层 1 个 core 格 ⇒ 冻结配置的 **800** 才是协议忠实值，任务书/GOAL 的"200"是误读；207.2 h 因此**少算 40 h**。维持 210 上限必须同时改协议与 GOAL，不能只在任务书里写 200。**21:44 可实施性核查**：给 `build_history_dataset` 加 `resample=` 不可行——`ObservedDataset` 只允许 `from_sql_result`/`from_manifest` 构造（`v3_observed.py:124-148`），观测表重抽会破坏 `sql_sha256`/`analysis_sha256` 校验，DGP 也无用户级重抽 API；只能扩 DGP 做真 user bootstrap，或把"重训 bootstrap"改口径为"新 rep 抽样"（MC 重复）。两条都要与次数裁决一起定。
 - [ ] **其余专项臂仍未实现（21:02；bootstrap 于 21:30 部分补齐）**：~~固定 bootstrap 1000~~（主预算已实现，全预算未实现），未实现：再训练 bootstrap、`random_list_seeds_per_budget`（每预算 200 个名单种子），以及 G03 的 L2 交叉 / L3 三分支。162.8 h 只含矩阵四臂；AA 44.4 h 已由 36 号承接；bootstrap 与名单种子臂成本未实测。**补齐之前 G01–G04 不得开跑**——否则产物看起来完整、实际缺臂。
 - [ ] **G02 预算口径冲突（21:05 新发现，P1，需用户裁决）**：冻结配置下 `planned_counts` 为 `retraining_bootstrap_jobs=800`（≈53.3 CPU·h）、`fixed_bootstrap_resamples=552 000`、`random_baseline_lists=11 680 000`；任务书 780 h 表只按 200 次重训（13.3 h）计、且完全未计后两项；`repetition_overlay.yaml` 另写 `retraining_bootstrap_total_jobs: 80`（无代码读取）。207.2 h 的合计**只含 200 次重训**，按冻结配置仅重训一项就 +40 h、越过 210 上限。**80 / 200 / 800 的裁决与两个基准臂的成本实测，必须早于 G02 开跑**；合同细节见 `docs/v3_G执行器缺口与设计.md`。
-- [ ] **F02 的两条未决**：P1-1 逐 rep 预测支出需决定"接受部分关闭"或"重跑预算检查"（后者是 R>0，需批准）；P1-3 审计价值已声明移交 D01/G。
+- [x] **F02 的两条未决**：P1-1 逐 rep 预测支出已关闭（21:38 建表 / 21:48 定稿，无需重跑，非 R>0）；P1-3 审计价值已声明移交 D01/G。收尾复核 C1–C6 已全部落地，待窄口径复核确认后改判。
 - [x] **D01 独立评审**（2026-10-28 21:14 返回）：PASS WITH CONDITIONS，0 P0 / 6 P1 / 16 P2，报告 `docs/reviews/v3_phase_D01_review.md`。主控复算确认为真：991.387 分行、1,003.1（统一 CPU 口径）、5 模型参照 1,097–1,107 CPU·h、0.961671/0.963144、最差相对差 −13.71%（L3 G1）与 −31.53%（L0 峰值）、8.4 GB 为 2026-10-25 16:10 历史读数。
 - [x] **D01 六项 P1 关闭**（21:25 落地；21:28 独立复评 5 CLOSED / 1 PARTIAL；21:35 修完 6 条关闭条件）：① §11.3 给 **1,003–1,107 CPU·h** 区间并标 1,003 为“4 模型暖态下界”；② 5 类未计入计数（fixed bootstrap 552k / 随机名单 11.68M / 预算重采样 7.3M / model_mode 49.3k / learner_fit 64.5k）逐项标“未计入”；③ 并行度改用内存实读与占空比判据、删除“4 进程不可行”，§5/§8/§9/§10.2 的 8.4 GB 全部标历史读数；④ §11.1 改 CPU 口径、127.124→131.221、合计→**1,003.12**；降幅分项按 −182.55 重算（AA −125.3 / IV −27.1 / FL −20.0 / DP −8.2 / DGP −1.9）；⑤ 新增 `scripts/38_export_d01_evidence.py`，导出 10 件 / 25 733 B，`run_manifest.json`（sha `2442a3a0…` 未变）+ `source_binding.json` 登记，顶层 75→76；⑥ “rep 8 饱和”改为“20 rep 内无新高水位”。P2 同步修：ddof、最差相对差、18–28 倍、冷/暖对比、12 行、EXIT=0 非成功证据（L0/L3 改 `REP_EXIT=0`）、MiB/GiB、§11.5 局限节、D03 上界标墙钟/含选模、3 个子计数说明、`random_state`/`budget` 从 configs 派生。
 - [ ] **D01 第三轮独立复核（21:28 启动，进行中）**：只核 6 条关闭条件 + N1/N2 算术；报告 `docs/reviews/v3_phase_D01_closeout.md`。PASS 后才可把 GOAL 的 D01 改判“通过”。

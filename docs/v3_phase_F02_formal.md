@@ -2,8 +2,10 @@
 
 > **正式结果（2026-10-28 16:37 合并完成，200/200 rep）。** 四片各 50 rep，合并 exit 0；
 > 本文 §4 数字由 `scripts/32_aggregate_f02_formal.py` 在全部 200 个 rep 上重算（R=200，无 `--allow-incomplete`）。
-> **阶段状态仍为“未证实”**：结果已生成、口径已自检，但**独立科学评审未做**（AGENTS §7.4），
-> 不得把本文当作已通过的验收；评审前引用须同时引用 §6 的局限。
+> **阶段状态仍为“未证实”**：结果已生成、口径已自检；独立评审 19:17 判 **PASS WITH CONDITIONS**
+> （`docs/reviews/v3_phase_F02_review.md`），收尾窄口径复核 21:43 再判 **PASS WITH CONDITIONS**
+> （`docs/reviews/v3_phase_F02_closeout.md`，C1–C6）。条件 21:48 已落地，但**尚待窄口径确认**，
+> 因此不得把本文当作已通过的验收；引用须同时引用 §6 的局限。
 
 ## 1. 状态
 
@@ -15,8 +17,8 @@
 | 测试 | 完成：**1 275 项**，exit 0，16:42:18–16:51:00（522 s，单进程串行；日志 1 275 个进度点、0 个 F/E/s/x/X） | `outputs/evidence/test_runs/pytest_full_20261028_1642.log` |
 | 正式 R=200（四片 × 50） | 完成（16:39 集齐 200/200；四片退出 0） | `out/f02_formal/shard{0,1,2,3}/` |
 | 代表 rep 五表 + SQL | 完成（rep 0，26/26 产物 sha256 一致（`bytes` 未在 manifest 记录，未按 manifest 复核）） | `out/f02_formal/shard0/rep0/five_tables/manifest.json` |
-| 顶层证据登记 | F02 合并时 records **48** / `total_bytes` 15 903 166；独立评审 19:17 时 54 / 15 916 738；条件关闭追加 11 条（7 张既有 aggregate + 逐 rep 支出/绑定/分片/snapshot）后 **65 / 16 746 236**，全表复算一致（以 `coverage.json` 实读为准） | `outputs/evidence/coverage.json` |
-| 独立科学评审 | 未做 | — |
+| 顶层证据登记 | F02 合并时 records **48** / `total_bytes` 15 903 166；独立评审 19:17 时 54 / 15 916 738；19:30 补 7 张 aggregate + 逐 rep 支出/绑定/分片/snapshot 后 65 / 16 746 236；21:34 补 4 条聚合、21:38 新增 600 行支出表、21:48 重导出该表（补 `budget_cny`/`budget_note`）后 **77 / 16 924 056**（21:48 实读；`coverage.json` 为准） | `outputs/evidence/coverage.json` |
+| 独立科学评审 | 已做：19:17 **PASS WITH CONDITIONS**（`docs/reviews/v3_phase_F02_review.md`，结果层全复现，P1-1/P1-2/P1-3 已关闭或移交）；21:43 收尾窄口径复核 **PASS WITH CONDITIONS**（`docs/reviews/v3_phase_F02_closeout.md`，C1–C6） | 两份评审文件 |
 
 ## 2. 回答的问题与口径
 
@@ -118,12 +120,14 @@ F02 回答：**冻结策略在一个从未参与训练的新用户总体上，�
 | 定向 − 不发券 | 0.281630 ± 0.005072 | [0.171350, 0.391910] | 200/200 |
 | 定向 − 随机 | 0.214167 ± 0.005015 | [0.103434, 0.324900] | 200/200 |
 
-**预算口径**：两活跃臂的**预测**支出/被分配用户在全 200 rep 的最大值恰为 **0.200000**，
-预算偏差最大 −1.1e-5 **元（某臂总额，不是每人）**，折合约 −1.7e-10 元/人（random 臂 rep110，n=66 713）；
-每人预测支出最小 0.199989799568（targeted 臂 rep126，短额 −1.020e-5 元/人）——即从未超过 0.2 元/人。
-**逐 rep 实际支出**见 `outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_realized_spend.csv`（600 行，三臂）；
-预测支出的逐 rep 值在运行期只作预算约束、未落盘，故本表 `predicted_per_assigned_cny` 为空——
-评审 P1-1 的“逐 rep 预测/超支倍数”因此只部分关闭，不得声称已满足。
+**预算口径**：两活跃臂的**预测**支出/被分配用户在全 200 rep 的最大值恰为 **0.200000**。
+预算偏差按**总额**看，最大幅度 **−0.6779 元**（targeted rep126，n=66 456，折 −1.020e-5 元/人）；
+最接近 0 的一格是 random rep110（n=**66 325**，−1.1e-5 元，折 −1.7e-10 元/人）。
+两种口径都远小于 1 元，且从未超过 0.2 元/人。
+**逐 rep 实际/预测支出**见 `outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv`
+（600 行，三臂；`budget_cny` = 0.2 × `n_assigned`，`no_coupon` 记 0.0 并注“无券预算”，
+`budget_deviation_cny` = 预测 − 预算）。评审 P1-1 已由该表关闭（21:38 重建、21:48 补分母与注记）；
+旧表 `…_per_rep_realized_spend.csv` 保留为历史，其 `predicted_note` 的“未落盘”表述**是错的**，引用以新表为准。
 **真实**支出（不受预测上限约束）：定向人均 **0.211268**（max 0.261322），真实/预测均值 **1.056345**
 （min 0.945840，max 1.306675）；随机人均 **0.200567**（max 0.217798），比值均值 **1.002839**
 （0.938633–1.088988）。定向比随机实际人均多花 **0.010701 元**，约为效应 0.214167 的 **5.0%**。
@@ -139,7 +143,7 @@ rep 0 的 `selected_model` 是 **`constant`**，因此它的决策层结果是�
 护栏通过（单侧上界 0.002620 < 0.005）。三臂人数 66 693 / 66 713 / 66 594，合计 200 000。
 
 五表与 SQL 交付核对：`five_tables/manifest.json` 的 `artifacts` 共 **26 个文件**，
-逐个重算 sha256 与 bytes **全部一致**；`sql/` 下 8 个 parquet（analysis/channels/cost_ledger/funnel/
+逐个重算 sha256 **全部一致**（`bytes` 未在 manifest 记录，见 §1 表，**未按 bytes 复核**）；`sql/` 下 8 个 parquet（analysis/channels/cost_ledger/funnel/
 groups/new_users/quality/weeks），`sql_sha256` 前缀 `4cbf8306…`；`checks.full_denominator`、
 `two_windows_per_user`、`source_hashes_unchanged`、`sql_quality_passed` 均为 true。
 
@@ -167,7 +171,8 @@ groups/new_users/quality/weeks），`sql_sha256` 前缀 `4cbf8306…`；`checks.
 - **正态近似**：p 值与区间均为正态近似，极端重尾下应改用 bootstrap 复核（预注册记录 §6）。
 - **护栏 margin**：0.005 是假设的业务容忍度，不是经验事实；最大上界 0.003946 已消耗约 79% 的 margin。
 - **审计价值**：与 ITT 是不同估计量，本阶段未报告、已声明移交 D01/G（见 §5）。
-- **逐 rep 预测支出**：运行期约束未逐 rep 落盘，P1-1 的预测/超支倍数部分未关闭。
+- **逐 rep 预测支出**：已由 `…_per_rep_spend_full.csv`（600 行）补全，P1-1 关闭（21:48）；边界是“同预算”
+  只能写成“同预测预算规则”——定向实际支出比预测高 5.6%，逐 rep 可达 +30.7%。
 - **0/7 不等于零效应**：constant 层点估计仍为正，7 个 rep 不足以证明零效应。
 - **`paired` 命名**：`holm_step_down_on_paired_one_sided_tests` 中的 paired 指 rep 级配对汇总，
 实际标准误为两臂独立的 `sqrt(se_left²+se_right²)`，不是用户级配对 SE。

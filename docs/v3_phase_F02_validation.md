@@ -1,8 +1,9 @@
 # F02 独立三臂随机验证：设计与验收
 
 > 合成数据 / 已知 DGP。维护时间：2026-10-27 18:42；状态表 20:36 更新（北京时间）。
-> 本文只描述机制与验收口径；**n=200 000 单 rep 已于 18:32–18:39 跑通（工程状态），
-> 正式 200 rep 尚未运行**。单 rep 与冒烟数字都不是证据，不得据此下策略结论。
+> 本文描述机制与验收口径；n=200 000 单 rep 已于 18:32–18:39 跑通（工程状态），
+> **正式 200 rep 已于 2026-10-28 16:37 完成**（结果见 §5.3 与 `docs/v3_phase_F02_formal.md`）。
+> 单 rep 与冒烟数字不是证据，不得据此下策略结论。
 
 ## 0. 状态
 
@@ -15,7 +16,7 @@
 | n=2 000 冒烟（含决策层） | 完成（仅工程） | `out/f02_decision_smoke/`（不入库） |
 | 全量串行测试 | 1 228 项 exit=0（18:12:54–18:20:00）；F01 改动后 1 248 项 exit=0（20:20:35–20:28:04，单进程） | `outputs/runs/f02_tests/full_suite.log`、`outputs/runs/f01_tests/full_suite.log` |
 | n=200 000 单 rep（工程状态） | 完成，18:32:41–18:39:21，exit=0 | `outputs/evidence/f02_n200k_rep0/` |
-| 正式 200 rep | **未跑，需用户批准与登记号** | — |
+| 正式 200 rep | 已完成（2026-10-28 03:39 起跑、16:37 合并，四片各 50、exit 0；登记号 `F02-FORMAL-20261028-R200`） | `out/f02_formal/shard{0,1,2,3}/`；`docs/v3_phase_F02_formal.md` |
 | 正式前置：源码冻结 | 评审驱动的改动全部落地并复跑后，才可建快照；`source_hashes` 逐 rep 绑定，`--resume` 拒绝漂移 | `v3_f02_formal.py::plan_formal_shard` |
 | 独立科学评审 | **未做** | — |
 
@@ -188,12 +189,14 @@ F02 三臂是**用户级独立随机**，两条差各用 `sqrt(se_l²+se_r²)`�
 ③ 实际券成本已进入 `observed_net_profit`，超支已被结果变量吸收。正式 200 rep 必须逐
 rep 报告实际支出与超支倍数，并把"同预算"限定为"同预测预算规则"，不得声称实际支出相等。
 
-**逐 rep 支出与超支倍数（2026-10-28 21:42 补齐，关闭评审 P1-1）**：预测支出其实一直逐 rep 落在 `out/f02_formal/shard*/rep*/manifest.json` 的 `arms.*.predicted_spend_*`，19:30 导出的 `v3_phase_F02_formal_per_rep_realized_spend.csv` 只是**没有再读它**，其 `predicted_note="not_persisted_per_rep"` 的表述不正确。现从 manifest + `arm_summary.csv` 重建 **600 行**（200 rep × 3 臂）全表：
-`outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv`（列含 `predicted_spend_cny`、`predicted_per_assigned_cny`、`realized_coupon_cost_total_cny`、`realized_per_assigned_cny`、`realized_to_predicted`、`overspend_ratio`、`budget_deviation_cny`），已登记进目录级 `coverage.json`（20 件）与顶层（**77 条**）。
+**逐 rep 支出与超支倍数（2026-10-28 21:38 重建、21:48 补分母，关闭评审 P1-1）**：预测支出其实一直逐 rep 落在 `out/f02_formal/shard*/rep*/manifest.json` 的 `arms.*.predicted_spend_*`，19:30 导出的 `v3_phase_F02_formal_per_rep_realized_spend.csv` 只是**没有再读它**，其 `predicted_note="not_persisted_per_rep"` 的表述不正确。现从 manifest + `arm_summary.csv` 重建 **600 行**（200 rep × 3 臂）全表：
+`outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_spend_full.csv`（列含 `predicted_spend_cny`、`predicted_per_assigned_cny`、`realized_coupon_cost_total_cny`、`realized_per_assigned_cny`、`realized_to_predicted`、`overspend_ratio`、`budget_cny`、`budget_deviation_cny`、`budget_note`；`budget_cny` = 0.2 × `n_assigned`，`no_coupon` 记 0.0 并注“无券预算”），已登记进目录级 `coverage.json`（20 件）与顶层（**77 条**）。
 
-- 定向臂：合并 实际/预测 = **1.056348**（逐 rep 超支倍数 min **−5.42%** / 中位 **+5.09%** / max **+30.67%**，**179/200** 为正）；
-- 随机臂：**1.002835**（min −6.14% / 中位 +0.11% / max +8.90%，104/200 为正）；
+- 定向臂：**合并 = Σ实际 / Σ预测** = **1.056348**（逐 rep 超支倍数 min **−5.42%** / 中位 **+5.09%** / max **+30.67%**，**179/200** 为正）；
+- 随机臂：合并 **1.002835**（min −6.14% / 中位 +0.11% / max +8.90%，104/200 为正）；
 - 不发券臂：0 / 0（无预测支出）。
+- **口径差 3e-6**：`docs/v3_phase_F02_formal.md` §5.3 另给的 **1.056345 / 1.002839** 是**逐 rep 比值的算术均值**，
+  与本段的**总量比**（pooled）不同；两者都对，引用时必须写明是哪一种，不得并置成一个数。
 
 结论口径与评审 §8.2 第 4 条一致："同预算"只能写成"同预测预算规则"；定向臂实际支出比其预测高约 **5.6%**（合并口径），且逐 rep 波动可达 +30.7%。旧表（`..._per_rep_realized_spend.csv`）保留为历史产物，但引用超支倍数时以本表为准。
 
@@ -226,7 +229,7 @@ B 于 20:44:59–20:51:59 完成，均 `--status engineering`、单 rep 0，产�
 两次运行的两条主张均不通过（调整 p 均 0.5980），与单 rep 主结果一致。该双跑仍是
 **工程核验**：固定单一 rep、无重复，不构成 F02 的 200 rep 证据。
 
-### 5.3 正式 200 rep（未跑，需用户批准）
+### 5.3 正式 200 rep（2026-10-28 16:37 完成，200/200）
 
 - [ ] 200 个 rep 全部完成，无空臂、无缺失文件；
 - [ ] 代表 rep 0 五表齐全；其他 rep 至少有名单/汇总/manifest；
