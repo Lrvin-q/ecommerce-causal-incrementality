@@ -1,6 +1,6 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-28 11:20（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-28 11:31（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
 
@@ -29,6 +29,12 @@
 - [x] **无人值守收尾已挂上（11:24:50，PID 8374）**：`out/scratch/f02_postmerge_auto.sh` 等 200 个 `freeze.json`
       → 等 `outputs/evidence/f02_formal/coverage.json`（`f02_finalize.sh` 的合并产物）→ 以 **无 `--allow-incomplete`** 跑官方聚合
       → 证据登记 `--dry-run`；全程只写 `out/` 与 `out/logs/f02_postmerge_auto.log`，**不改文档、不登记证据**。
+- [x] **11:30 证据登记工具提入入库区**：`out/scratch/register_evidence_top.py` → **`scripts/33_register_evidence_top.py`**
+      （`ROOT` 改 `parents[1]`，用法行改 `scripts/`；§12.1：`out/` 不入库，放在那里的登记工具对评审者等于不存在）。
+      等价性实测：新旧两份 `--dry-run` 输出 **diff 0 行**、两者 exit 0、顶层 44 条全表复算一致。
+      scratch 旧路径**改为 exec 新文件的 8 行垫片**（不删，因为在跑的 `f02_postmerge_auto.sh` 第 42 行与 `post_f02_check.sh` 会调用它；
+      直接编辑正在运行的 shell 脚本会让 bash 按字节偏移读错行，改被调用的 python 文件则安全）；`post_f02_check.sh` 已直接改指 `scripts/33`。
+      待办：把 6 例演练夹具提成 `tests/` 下可跑用例（当前演练结果只记在 33 号 docstring 里）。
       加上既有的 `f02_chain.sh` 与 `f02_finalize.sh`，三个等待进程并存；恢复工作前先读该日志。
 - [x] **顺手把 G 的落地链改对了（11:25）**：原计划"跑 09 号 → 更新 `approval.json`"会**就地覆盖 Phase A 快照**
       （`outputs/v3/protocol/` 的 `protocol_sha256` 绑定 `docs/v3_协议.md` 的字节，重跑等于改写"Phase A 批准了什么"）；
