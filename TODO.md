@@ -79,6 +79,9 @@
   `population≠full` / 缺主指标 = 非零退出），反例夹具 `out/scratch/g01_report_negcheck.py`
   当场跑出 **5/6** —— "缺 `mc_se`"被放行（只查 5 列，漏了渲染实际用到的另 4 列），补进必需列后 **6/6**，
   正例在 dryrun 夹具上 exit 0。**00:15 进度**：6 片各 38 行（=228/1000 层·rep），仍 ~142 s/rep，ETA 维持 ~05:30。
+  **00:18 两道补强**：① `provisional != False` 时报告脚本 **exit 3** 并写明"不得作为验收凭据"（已用改 `provisional=True`、
+  `L2=249` 的副本实测 exit 3）；② 用**当前真树字节**在 `out/scratch/g02_rehearsal/` 里预演 G02 补丁：10 处全落、
+  `fd3ca1279b40 → 3f4d677fe1ec`、`py_compile` OK，真树 hash 未变（`g02_patch.py .` 可等 G01 退场后直接执行）。
   **仍未启动**：G02/G03/G04 需先落 200 次重训的执行器覆盖与 formal 守卫改造（不得改 `configs/v3/*.yaml`）。**F02 已于 22:04 改判"通过"**（第四次窄口径确认 CLOSED，
   `docs/reviews/v3_phase_F02_final_confirm.md`；含义仅"记录准确、断言范围正确"，不表示"定向有效"）。
 - **登记管道修复（21:34）**：F02 目录级 coverage 补登记 19:30 的 4 条聚合文件（15→19，sha/bytes 现场重算、原有 15 条未动）；
