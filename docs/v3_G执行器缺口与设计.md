@@ -133,3 +133,57 @@ G03 的验收状态里，不能等跑完再解释。
 3. 快照 `src/ sql/ configs/` 并以 `--snapshot` 绑定（36 与 34 共用同一校验）；
 4. 每条臂各跑一次 R=1 工程冒烟并落证据，再启动正式 R；
 5. 全量 pytest 单进程串行跑出绿灯，日志入库（AGENTS §11.4）。
+
+## 6. 裁决后的实现规格（2026-10-28 22:47，北京时间）
+
+用户已裁决 A=200 / B=仅主预算 / C=20 格 / D=按推荐 DR；E 已批准并已开跑 G01。
+本节把裁决翻成"可写代码"的规格，G01 冻结窗口结束后按此实现，**不改** `configs/v3/*.yaml`。
+
+### 6.1 A：再训练 bootstrap 200 次（每 core 格 50）
+
+- **覆盖文件**：`configs/budget/g02_bootstrap_overlay.yaml`（新文件，落在允许目录）：
+  ```yaml
+  source_label: 合成数据 / 已知 DGP
+  retraining_bootstrap_total: 200        # 4 个代表场景合计（裁决 A）
+  retraining_bootstrap_per_cell: 50      # = total / len(core)，执行器须自校验
+  retraining_bootstrap_label: 参数化重复抽样（已知 DGP 重抽）
+  fixed_bootstrap_resamples: 1000        # 不重拟合，只重抽样
+  fixed_bootstrap_budget_scope: primary_0.2   # 裁决 B
+  ```
+- **语义（必须先写清再写代码）**：本项目的"再训练 bootstrap"落在**已知 DGP 上重抽历史总体**
+  （`stream="dgp.retrain_bootstrap"`、`index=b`），每个 b 走完整链路：建历史五表 → SQL → 清洗 →
+  重训策略 → 在**冻结验证帧**上评估。这**不是**对已观测历史的非参数 resample——
+  `ObservedDataset` 只允许 `from_sql_result`/`from_manifest` 构造、且 `analysis_sha256` 与 SQL 输出逐字节绑定
+  （`src/causal_growth/data/v3_observed.py:124-148`），对观测表重抽会立刻打破校验。
+  报告与表头一律写**参数化 bootstrap（已知 DGP 重抽）**，不得写"非参数 bootstrap"，也不得与 Tier1 数字并列。
+- **执行器**：`scripts/38_g_bootstrap_run.py`（`plan|run|merge` 三模式，仿 34/36）。门禁：
+  `--status formal` 必须带批准号 + 快照；overlay 缺任一键或 `per_cell × len(core) != total` 直接拒绝；
+  运行清单显式回写 `retraining_bootstrap_total: 200`，**不得**回落到冻结配置算出的 800。
+- **成本**：按 240 s/rep 外推 200 × 240 s ≈ **13.3 CPU·h**（未含每次五表构建；开跑前先 R=1 实测再外推）。
+
+### 6.2 B：固定策略 bootstrap 仅主预算档 0.2
+
+- 现状守卫在 `status="formal"` 且 `bootstrap_resamples>0` 时**硬拒绝**（防半套产物）。这是保护机制，
+  **不能删**。改法：守卫接受 `budget_scope`，只有显式 `budget_scope="primary_0.2"` 且运行清单里
+  `budget_scopes: {"0.2": 1000, ...其余显式 none}` 时才放行；缺声明仍拒绝。
+- 输出表必须带 `budget_scope` 列，"其余预算档未重抽样"写进报告 §局限，不得让读者以为覆盖了全预算。
+
+### 6.3 C：G03 20 格（措辞已改）
+
+- 不改代码、不改矩阵；GOAL G03 行已改"L2 两端 + 代表格 / L3 三类机制各取端点 / L1 6 个代表格"。
+- 45 个未跑格的同类判定依据在 `docs/v3_tier2_selection.md`；报告不得声称"已跑满 65 格"。
+
+### 6.4 D：随机名单按 DR 估值
+
+- 开跑前**必须**先在 n=2 000 上测单名单耗时（估 ~5 ms/名单，未实测），再外推；
+  报告写"随机基准（DR 估计）"，不得称"对照组"；全预算 200/档的口径保持字面，执行时在冻结验证帧上估值。
+
+### 6.5 并行协议（G01 已验证，G02/G03 复用）
+
+- `--workers` 上限 = 层数（一层一进程）；>4 路必须按 **rep 区间分片** + 多 out-root，再交 17 号多根合并。
+- **同层分片 rep 区间必须不相交**：17 按 `(block, rep)` 去重 `keep="last"`，重叠会被**静默**吞掉。
+  每个分片跑完必须用独立脚本核对"每层 rep 集合恰为 0..R-1"（G01 用 `out/g01_verify.py`）。
+- 实测（2026-10-28 22:25–22:34）：6 路每 rep 132–135 s、峰值内存 10.69 GB、单进程最大 2 003 MB；
+  8 物理核下 6 路比 4 路只慢约 5%。**每条 lane 必须是独立 out-root**，否则 `layer_runs` 与
+  `<layer>/aa_repetitions.csv` 会互相覆盖。
+- 每次正式跑前重新生成快照（源码一改，旧快照的 `_verify_snapshot` 会拒绝启动）。
