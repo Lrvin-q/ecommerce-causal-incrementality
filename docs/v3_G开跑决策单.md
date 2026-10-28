@@ -65,4 +65,18 @@ G01（AA250，**44.4 h**）不依赖 A–D，可**单独先批**。开跑条件�
 （含模型 rep 峰值 2.9–3.2 GB）；③ 快照 `src/ sql/ configs/`（49 文件）并以 `--snapshot` 绑定；
 ④ 各臂先跑 R=1 工程冒烟并落证据；⑤ 全量 pytest 单进程串行绿灯入库（AGENTS §11.4）。
 
+`plan` 模式已实测（21:53）：`python scripts\36_g_aa_run.py plan` 输出 **4 层 × R=250、n=200 000、
+合计 1 000 rep、≈44.4 CPU·h**。批准后的命令序列（快照必须**紧贴**运行创建，之后不得再改 `src/ sql/ configs/`）：
+
+```
+.venv\Scripts\python.exe -c "from causal_growth.evaluation import v3_g_matrix as g; print(g.create_snapshot('out/g01_snapshot'))"
+.venv\Scripts\python.exe scripts\36_g_aa_run.py run --status formal --formal-approval G01-AA250-<日期> ^
+    --snapshot out/g01_snapshot --workers 4 --out-root out/g01_aa250
+.venv\Scripts\python.exe scripts\36_g_aa_run.py merge out/g01_aa250
+```
+
+注意：`scripts/34` 的 `plan` 分支在创建快照之前就 `return 0`，所以**不能**用
+`34 plan --snapshot-out` 生成快照；必须用上面的 `create_snapshot` 一行命令，或走 `run` 模式的
+`--snapshot-out`。
+
 **一句话回答模板**：`A=200，B=主预算并改 GOAL，C=走 1，D=接受 DR，E=批准 G01 先跑`。
