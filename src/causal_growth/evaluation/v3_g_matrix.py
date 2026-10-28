@@ -86,6 +86,53 @@ BLOCK_TIER2 = "g_tier2"
 
 _STATUSES: tuple[str, ...] = ("engineering", "provisional", "formal")
 
+
+_PRIMARY_BOOTSTRAP_SCOPE = "primary_0.2"
+
+
+def require_bootstrap_scope(status: str, resamples: int, scope: str | None) -> None:
+    """正式运行的固定策略 bootstrap 只覆盖主预算档，且必须显式声明。
+
+    缺声明就拒绝：否则产物看起来"跑过 bootstrap"，实际只有主档一次，
+    读者会以为全预算都重抽样了（docs/v3_G执行器缺口与设计.md §6.2）。
+    工程/临时状态不受限，保留 A10 冒烟能力。
+    """
+    if int(resamples) <= 0 or status != "formal":
+        return
+    if scope != _PRIMARY_BOOTSTRAP_SCOPE:
+        raise ValueError(
+            "正式运行的固定策略 bootstrap 只覆盖主预算档；必须显式传 "
+            f"bootstrap_budget_scope={_PRIMARY_BOOTSTRAP_SCOPE!r}，当前为 {scope!r}"
+        )
+
+
+def bootstrap_budget_scopes(protocol: Any, resamples: int) -> dict[str, int | None] | None:
+    """运行清单用：主档写次数，其余预算档显式写 None。"""
+    if int(resamples) <= 0:
+        return None
+    data = protocol.config.to_dict()
+    grid = list(data["policy"]["budget"]["per_user_grid_cny"])
+    primary = float(data["evaluation"]["independent_validation"]["primary_budget_cny_per_user"])
+    return {
+        str(float(value)): (int(resamples) if abs(float(value) - primary) < 1e-12 else None)
+        for value in grid
+    }
+
+
+def require_primary_budget(cfg: Any, budget: float, resamples: int) -> None:
+    """固定 bootstrap 的预算必须等于配置主预算（§6.6）。
+
+    验证臂目前只有一个预算档（v3_f02.py:283），这条断言把"现状"变成契约：
+    将来若给验证臂加预算参数，这里先炸，避免 bootstrap 悄悄扩到全预算网格。
+    """
+    if int(resamples) <= 0:
+        return
+    primary = float(cfg.require("evaluation.independent_validation.primary_budget_cny_per_user"))
+    if abs(float(budget) - primary) > 1e-12:
+        raise ValueError(
+            f"固定 bootstrap 只允许主预算档 {primary} 元；当前预算为 {float(budget)} 元"
+        )
+
 #: E 阶段 9 列契约；预测 7 列与真值 2 列必须分文件（任务书 §7）。
 E_PREDICTION_COLUMNS: tuple[str, ...] = (
     "user_id", "is_new", "cart_value", "purchase_propensity",
@@ -682,6 +729,7 @@ def run_validation_arm(
     policy: str,
     target_dir: str | Path | None = None,
     bootstrap_resamples: int = 0,
+    with_policy_value: bool = False,
 ) -> dict[str, Any]:
     """独立 20 万队列：三臂 → 冻结名单 → 之后才读真值，并返回逐 rep 摘要。"""
     target = None if target_dir is None else Path(target_dir)
@@ -743,6 +791,7 @@ def run_validation_arm(
         truth["contrasts"].to_csv(target / "truth_arm_contrasts.csv", index=False, encoding="utf-8-sig")
     bootstrap: dict[str, Any] | None = None
     if int(bootstrap_resamples) > 0:
+        require_primary_budget(cfg, float(info["budget_cny_per_user"]), int(bootstrap_resamples))
         targeted_profit = observed.loc[
             observed["assigned_policy_arm"] == f02.TARGETED_ARM, "net_profit"
         ].to_numpy(dtype=float)
@@ -763,7 +812,7 @@ def run_validation_arm(
             }]).to_csv(target / "fixed_bootstrap.csv", index=False, encoding="utf-8-sig")
     targeted = info["arms"][f02.TARGETED_ARM]
     random_arm = info["arms"][f02.RANDOM_ARM]
-    return {
+    result: dict[str, Any] = {
         "validation_n": int(n_validation),
         "validation_targeted_n": int(targeted["n_issued"]),
         "validation_random_n": int(random_arm["n_issued"]),
@@ -777,6 +826,15 @@ def run_validation_arm(
         "build_info": build_info,
         "validation_fixed_bootstrap": bootstrap,
     }
+    if with_policy_value:
+        policy_truth = truth["policy"]
+        selected = policy_truth.loc[policy_truth["component"] == "value_targeted_policy"]
+        if len(selected) != 1:
+            raise ValueError("真值策略表应恰有一行 value_targeted_policy")
+        result["validation_decision"] = decision
+        result["validation_guardrail"] = guardrail
+        result["validation_truth_policy_value"] = float(selected["value_cny_per_user"].iloc[0])
+    return result
 
 
 # --------------------------------------------------------------------------- #
@@ -882,6 +940,7 @@ def run_g_rep(
     with_learning: bool = True,
     with_validation: bool = True,
     bootstrap_resamples: int = 0,
+    bootstrap_budget_scope: str | None = None,
     snapshot: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """跑一个 (cell, rep)：历史数据只建一次，ATE 与学习共用它。"""
@@ -901,11 +960,7 @@ def run_g_rep(
         raise ValueError(
             "固定策略 bootstrap 只允许在代表 rep（0）上运行；其他 rep 用预设影响函数区间"
         )
-    if status == "formal" and int(bootstrap_resamples) > 0:
-        raise ValueError(
-            "固定策略 bootstrap 的全预算编排尚未实现（当前只覆盖主预算）；"
-            "正式运行不得开，见 docs/v3_G执行器缺口与设计.md"
-        )
+    require_bootstrap_scope(status, int(bootstrap_resamples), bootstrap_budget_scope)
     target = Path(out_dir)
     target.mkdir(parents=True, exist_ok=True)
     run_id = f"g:{cell_id}:{spec['block']}:rep{rep}"
@@ -1044,6 +1099,7 @@ def run_g_rep(
         "fixed_bootstrap_scope": (
             "representative_rep_primary_budget_only" if int(bootstrap_resamples) > 0 else "not_run"
         ),
+        "fixed_bootstrap_budget_scopes": bootstrap_budget_scopes(protocol, int(bootstrap_resamples)),
         "fixed_bootstrap": validation["validation_fixed_bootstrap"] if validation else None,
         "truth_columns_present": False,
         "truth_unlock_order": "policy_list_written_then_truth_audit",
@@ -1132,6 +1188,7 @@ def run_cell(
     with_learning: bool = True,
     with_validation: bool = True,
     bootstrap_resamples: int = 0,
+    bootstrap_budget_scope: str | None = None,
     snapshot: Mapping[str, Any] | None = None,
     resume_from: str | Path | None = None,
     target_reps: int,
@@ -1143,6 +1200,7 @@ def run_cell(
     """
     if status == "formal" and not formal_approval:
         raise ValueError("正式 G 运行必须带 formal_approval")
+    require_bootstrap_scope(status, int(bootstrap_resamples), bootstrap_budget_scope)
     plan = plan or load_budget_plan(protocol)
     spec = plan_cell(protocol, cell_id, plan)
     cell_dir = Path(out_root) / cell_id
@@ -1194,6 +1252,7 @@ def run_cell(
             formal_approval=formal_approval, models=models, policy=policy,
             with_learning=with_learning, with_validation=with_validation,
             bootstrap_resamples=int(bootstrap_resamples),
+            bootstrap_budget_scope=bootstrap_budget_scope,
             snapshot=snapshot,
         )
         row = json.loads((cell_dir / f"rep{rep}" / "row.json").read_text(encoding="utf-8"))
@@ -1234,6 +1293,7 @@ def run_cell(
         "fixed_bootstrap_scope": (
             "representative_rep_primary_budget_only" if int(bootstrap_resamples) > 0 else "not_run"
         ),
+        "fixed_bootstrap_budget_scopes": bootstrap_budget_scopes(protocol, int(bootstrap_resamples)),
         "config_hash": protocol.scenario(cell_id).hash(64),
         "protocol_config_hash": protocol.config_hash,
         "completed_reps": [_int_value(row, "rep") for row in existing],

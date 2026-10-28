@@ -4,6 +4,22 @@
 
 ## 当前状态
 
+**2026-10-29 05:40 更新。G01 已跑完待评审；G02 补丁已落真树、全量测试绿灯；下一步 R=1 实测**：
+- **G02 补丁落真树（05:19）**：`v3_g_matrix.py` `fd3ca127…` → `3f4d677f…`（+66/−6）。新增
+  `require_bootstrap_scope` / `bootstrap_budget_scopes` / `require_primary_budget`；
+  `run_g_rep`/`run_cell` 加 `bootstrap_budget_scope` 并在建目录前拒绝；两份清单加
+  `fixed_bootstrap_budget_scopes`；`run_validation_arm(with_policy_value=…)` 增三个出口键。
+- **测试契约更新**：首次全量串行（05:20:31–05:28:42）唯一红项是
+  `test_formal_run_refuses_incomplete_bootstrap_scope` 断言旧文案"全预算"；守卫仍拒绝，改的是断言。
+  反例扩到 `None`/空串/`all_budgets`/`primary_0.5` 四个，另补 3 条正例（scope 接受主档、
+  scopes 只主档非 None、预算断言接受主档）。**未削弱守卫**。
+- **全量串行绿灯**：05:31:20→05:39:30（8 m 10 s），**1 313 点、0 F/E、EXIT=0**
+  （`outputs/evidence/test_runs/pytest_g02_20261029_053120.log`）。
+- **G01 报告两处措辞**：补"05:19 补丁后真树哈希变 `3f4d677f`，G01 以快照/manifest 绑定为准"；
+  "45 文件"改为"登记 45、磁盘 46（含 `coverage.json`）"。
+- **下一步**：G02 R=1 实测每 b 成本（4 格 × 1 b × n=200 000，engineering，`out/g02_retrain_r1`）；
+  >320 s/次即回来重报预算。随后 G03 R=1（最贵 Tier2 + 一个 core），>340 s/rep 重报上限。
+
 **2026-10-28 20:52 更新。G 阶段前置（包 A/包 B）完成并留证；G01–G04 正式跑仍未启动**：
 - **包 A（A1 语义）**：`job_semantics.full_learning_reuses_first_ate_repetitions` 已实现并接线到新驱动
   `src/causal_growth/evaluation/v3_g_matrix.py` + 薄入口 `scripts/34_g_matrix_run.py`（plan/run/merge、分片、快照、provisional 门禁）。

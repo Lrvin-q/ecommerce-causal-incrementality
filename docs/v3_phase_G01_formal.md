@@ -4,7 +4,7 @@
 > 批准号 `G01-AA250-20261028`；运行快照 49 文件（`out/g01_snapshot`，绑定见 `snapshot_binding.json`）；
 > `protocol_config_hash = 00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3`（= `configs/v3` 冻结哈希）。
 > **状态：未证实（材料齐备，待独立评审）**。本文所有数字可由 `outputs/evidence/g01_aa250/`
-> （45 文件 / 1.3 MB，含 **1 000 行逐 rep**）重建；"通过"按 AGENTS §7.4 由主负责在评审后改写。
+> （`coverage.json` 登记 45 个文件、磁盘共 46 个，1.3 MB，含 **1 000 行逐 rep**）重建；"通过"按 AGENTS §7.4 由主负责在评审后改写。
 
 ## 1. 结论（数据与自检；判定待评审）
 
@@ -23,6 +23,7 @@
 | 起止（北京时间） | 2026-10-28 22:42:39 → 2026-10-29 05:15:45，墙钟 **6 h 33 m** |
 | 单 rep 成本 | CPU 132–137 s；6 路并行峰值内存 10.69 GB |
 | 源码/配置 | 快照 49 文件绑定；运行期未写 `src/ sql/ configs/v3`（真树 `v3_g_matrix.py` 全程 `fd3ca127…`） |
+| 事后源码变动 | 2026-10-29 05:19 G02 补丁把 `v3_g_matrix.py` 改为 `3f4d677f…`（+66/−6，守卫与清单，不改 AA 路径）。**G01 的字节绑定以 `out/g01_snapshot` / 各分片 manifest 为准；用当前真树重算 `pipeline_source_hashes()` 会得到新哈希，这是预期的，不是漂移** |
 | 编排 | `out/g01_runner.sh` → `out/g01_verify.py` → `scripts/17` 合并 → `scripts/37` 导出 → `scripts/33` 登记，**全部 exit 0** |
 
 ## 3. 结果（主口径 `net_profit`）
@@ -54,7 +55,7 @@
 
 - **verify PASS**：每层 250 行、rep 0..249 无重复无缺口、`n_total`/`alpha`/protocol 唯一（`out/g01_logs/verify.log`）。
 - **独立复算**：`scripts/37` 从逐 rep 表重算，与 17 号合并表**最大绝对差 6.939e-18**（`outputs/evidence/g01_aa250/recomputed_fpr.csv`）。
-- **证据**：`outputs/evidence/g01_aa250/` 45 文件 / 1.3 MB；`per_rep/` 24 张分片表合计 **1 000 行**；登记后顶层 `outputs/evidence/coverage.json` 由 77 条增至 **89** 条（`total_bytes` 16.92 MB）。
+- **证据**：`outputs/evidence/g01_aa250/` 登记 45 个文件（磁盘 46 = 45 + `coverage.json`）/ 1.3 MB；`per_rep/` 24 张分片表合计 **1 000 行**；登记后顶层 `outputs/evidence/coverage.json` 由 77 条增至 **89** 条（`total_bytes` 16.92 MB）。
 - **D 阶段同名表已归档**：17 号把结果写死在 `outputs/tables/v3_phase_D_aa_formal_merged.*`，本次已覆盖；D02 原字节在 `outputs/evidence/d02_aa_phase_d_20261027/`。
 
 ### 5.1 必须披露：本次合并表与 D02 逐字节相同

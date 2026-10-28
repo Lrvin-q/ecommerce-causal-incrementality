@@ -89,12 +89,49 @@ def test_bootstrap_only_on_representative_rep(protocol, plan, tmp_path):
 
 
 def test_formal_run_refuses_incomplete_bootstrap_scope(protocol, plan, tmp_path):
-    with pytest.raises(ValueError, match="全预算"):
-        g.run_g_rep(
-            protocol, CORE, 0, out_dir=tmp_path / "formal", plan=plan,
-            models=("constant",), with_learning=False, with_validation=False,
-            bootstrap_resamples=16, status="formal", formal_approval="test-only",
-        )
+    # 旧契约是"全预算编排未实现"的硬拒绝；G02 改为"只覆盖主预算档且必须显式声明"，
+    # 拒绝行为不变，理由更精确。None / 空串 / 任何非主档声明都必须被拒。
+    for i, scope in enumerate((None, "", "all_budgets", "primary_0.5")):
+        with pytest.raises(ValueError, match="只覆盖主预算档"):
+            g.run_g_rep(
+                protocol, CORE, 0, out_dir=tmp_path / f"formal_{i}", plan=plan,
+                models=("constant",), with_learning=False, with_validation=False,
+                bootstrap_resamples=16, status="formal", formal_approval="test-only",
+                bootstrap_budget_scope=scope,
+            )
+
+
+def test_require_bootstrap_scope_accepts_only_primary():
+    g.require_bootstrap_scope("formal", 64, g._PRIMARY_BOOTSTRAP_SCOPE)  # 正例不抛
+    for status in ("engineering", "provisional"):
+        g.require_bootstrap_scope(status, 64, None)  # 非正式状态不受限
+    g.require_bootstrap_scope("formal", 0, None)  # 不跑 bootstrap 时无声明要求
+    with pytest.raises(ValueError, match="只覆盖主预算档"):
+        g.require_bootstrap_scope("formal", 64, None)
+
+
+def test_bootstrap_budget_scopes_only_primary(protocol):
+    scopes = g.bootstrap_budget_scopes(protocol, 64)
+    primary = float(
+        protocol.config.to_dict()["evaluation"]["independent_validation"][
+            "primary_budget_cny_per_user"
+        ]
+    )
+    assert scopes[str(float(primary))] == 64, "主档必须写真实次数"
+    others = {k: v for k, v in scopes.items() if abs(float(k) - primary) > 1e-12}
+    assert others and all(v is None for v in others.values()), "其余预算档必须显式 None"
+    assert g.bootstrap_budget_scopes(protocol, 0) is None
+
+
+def test_require_primary_budget_rejects_other_budgets(protocol):
+    cfg = protocol.scenario(CORE)
+    primary = float(
+        cfg.require("evaluation.independent_validation.primary_budget_cny_per_user")
+    )
+    g.require_primary_budget(cfg, primary, 64)  # 主档通过
+    g.require_primary_budget(cfg, primary + 0.5, 0)  # 不跑 bootstrap 时不受限
+    with pytest.raises(ValueError, match="只允许主预算档"):
+        g.require_primary_budget(cfg, primary + 0.5, 64)
 
 
 def test_validation_arm_records_fixed_bootstrap(protocol, plan, tmp_path):
