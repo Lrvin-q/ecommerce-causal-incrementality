@@ -1,0 +1,3 @@
+﻿claim,contrast,configured_contrast,threshold_cny_per_user,diff_cny_per_user,se,one_sided_p_value,adjusted_alpha,holm_adjusted_p_value,passes_adjusted_test,adjusted_lower_confidence_limit,n_left,n_right
+coupon_worth_issuing,selected_targeted_policy_minus_no_coupon,selected_targeted_minus_no_coupon,0.0,0.6798750373718958,0.44664770919907243,0.06398288217251702,0.025,0.12796576434503404,False,-0.1955383864356054,673,661
+targeting_better_than_random,selected_targeted_policy_minus_random_same_budget,selected_targeted_minus_same_budget_random,0.0,-0.4030340593193493,0.5046786511052378,0.7877374778826614,0.05,0.7877374778826614,False,-1.2331565690347759,673,666

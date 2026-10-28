@@ -1,8 +1,29 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-28 19:25（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-28 20:52（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
+
+**2026-10-28 20:52 更新。G 阶段前置（包 A/包 B）完成并留证；G01–G04 正式跑仍未启动**：
+- **包 A（A1 语义）**：`job_semantics.full_learning_reuses_first_ate_repetitions` 已实现并接线到新驱动
+  `src/causal_growth/evaluation/v3_g_matrix.py` + 薄入口 `scripts/34_g_matrix_run.py`（plan/run/merge、分片、快照、provisional 门禁）。
+  一个 rep 只建一次历史数据（`history_pipeline_builds=1`），ATE 与学习共用；验证另建总体（`validation_pipeline_builds=1`）。
+  `tests/test_v3_g_matrix.py` 12 项全绿（A1–A10）；两处变异均落红并已复原（学习路径重建 → `assert 2 == 1`；
+  真值篡改 → `policy_list.csv` 第 254 字节起不同），源文件 sha256 复原为 `ab836691…`。
+- **包 B（Tier2 收缩）**：`configs/budget/tier2_overlay.yaml`（sha256 `02644767…`）把 65 格×100 收缩为 20 格×30，
+  Tier1 取 ATE 500 / 学习 100 / 验证 100；七份冻结配置 canonical hash 仍 `00723dc2…`。8 键检查通过：
+  `tier1_ate`/`fixed_policy_bootstrap`/`retraining_bootstrap` 未变，三个 `tier2_*` 全 30（含 `tier2_independent_validation`）。
+  选格与 45 个被砍格的同类对应见 `docs/v3_tier2_selection.md`。
+- **A10 工程跑**：49 文件字节快照 + PYTHONPATH 绑定；2 格×R=3（n=2000、constant、2 worker）；
+  `rows_raw 6 / rows_deduped 6 / duplicates 0 / failures []`；`_final/*/repetitions_provisional.csv` 不含计时列，
+  计时单列 `repetitions_telemetry.csv`（A2 逐字节复现要求）。
+- **证据**：`outputs/evidence/g_smoke/` 28 个文件、433 501 B；`scripts/35_export_g_smoke_evidence.py` 导出并反算关键数字
+  （R 500/100/100 与 30/30/30、builds 1/1、`truth_columns_present=False`、`budget_plan.source=overlay`、`freeze_written_before_truth=True`）；
+  顶层登记 **65 → 70**、全表复算 PASS、幂等；反例：源缺失 exit 2、目录级漏登记 exit 2。
+- **全量测试**：20:44:34–20:52:46 串行 **1 287 项、EXIT=0**（`outputs/evidence/test_runs/pytest_g_prework_20261028_2045.log`）；含 17/19 号校验器既有用例，本次未改动两脚本，门禁未削弱。
+- **成本口径自纠（20:47）**：初稿"192.8 CPU·h"含 30 h 未列明余量且漏掉 AA250。逐项重算：G 矩阵 **162.8** + AA250 **44.4** = **207.2**，
+  上限 210、余量 **2.8 h**；固定 bootstrap 1000 次不重拟合、未计入，跑前须实测。已改 `docs/v3_repetition_budget_revision.md` §7.2 与 GOAL G02。
+- **仍未启动**：G01–G04 需用户对 R>0 开跑确认 + 机器独占 + 快照运行；F02 仍"未证实"（P1-1 预测支出运行期未落盘）。
 
 **2026-10-28 19:25 更新。D01 完成；G 甲方案已执行并经独立评审（条件已关闭）；F02 评审条件正在关闭**：
 - **D01**：20 rep × 3 粒度（L1_main，n=200 000）**16:51:36–18:20:43、exit 0、failed=0**。
@@ -881,8 +902,8 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 **D02 判定**：AA 与护栏已达，但负对照未回、功效格未实测，**不得标记通过**。
 ## 下一步（G01 起的启动清单，2026-10-28 19:32）
 
-- [ ] **G01 编排入口尚不存在**：`scripts/02_run_experiment.py` 是第一轮 v2 主线（无 argparse，直接执行会跑整条 R1 流程），不是 v3 G 运行器；`scripts/17_merge_aa_layers.py` 只做 AA 合并。G01 需新建 v3 作业注册/分片入口（矩阵 73 格 → 作业表 → 分片 → 合并），并配 R=0 冒烟与断点恢复测试。
-- [ ] **G01 启动前门禁**：① 用户对 R>0 正式运行的开跑确认（AA 250×4=1000 次，≈991 CPU·h，3 进程约 14.3 天；Tier2 另计）；② 机器独占 + 内存看护（长进程峰值 2.68 GB/进程）；③ 快照 `src/ sql/ configs/` 并绑定 `00723dc2…`；④ 运行期绑定 glob 只读（AGENTS §11）。
+- [x] **G01 编排入口已存在**（20:52）：`scripts/34_g_matrix_run.py`（plan/run/merge、分片、`--resume`、快照绑定、provisional 门禁）+ `src/causal_growth/evaluation/v3_g_matrix.py`；A10 工程跑 2 格×R=3 已通过，证据 28 件入册（`outputs/evidence/g_smoke/`）。
+- [ ] **G01 启动前门禁（仍未满足）**：① 用户对 R>0 正式运行的开跑确认（全 G 阶段 **207.2 CPU·h** = G 矩阵 162.8 + AA250 44.4，上限 210、余量 2.8；固定 bootstrap 1000 次未计）；② 机器独占 + 内存看护（含模型 rep 峰值 2.9–3.2 GB，4 worker 安全、6 worker 需先释放内存）；③ 快照 `src/ sql/ configs/`（49 文件）并以 `--snapshot` 绑定，运行期只读。
 - [ ] **F02 的两条未决**：P1-1 逐 rep 预测支出需决定"接受部分关闭"或"重跑预算检查"（后者是 R>0，需批准）；P1-3 审计价值已声明移交 D01/G。
 - [ ] **D01 独立评审**未做（20 rep 已跑完），G01 之前应先补，否则资源计划只有自证。
 - [ ] G01–G04 完成后再排 H01–H05 与 Z01/Z02；H 依赖 G 的正式数值。

@@ -1,0 +1,444 @@
+{
+  "phase": "G_A10_engineering_smoke",
+  "status": "engineering_smoke",
+  "created_at": "2026-10-28T20:42:08+08:00",
+  "representative_rep_dir": "out/g_smoke/shards/<cell>_s0000/<cell>/rep0",
+  "files": [
+    {
+      "path": "run_summary.json",
+      "kind": "g_a10_run_summary",
+      "source": "out/g_smoke/run_summary.json",
+      "sha256": "f70dc98b3d2ea934fe4da6a5362152a9def2a44bb54a4ca8256ecdf0f2cbe178",
+      "bytes": 1266
+    },
+    {
+      "path": "snapshot_binding.json",
+      "kind": "g_a10_snapshot_binding",
+      "source": "out/g_smoke_snapshot/snapshot_binding.json",
+      "sha256": "583ebeb51bab4380562bee325a776e517b5d7487e351b1fd3a48b785d6a23e5d",
+      "bytes": 5781
+    },
+    {
+      "path": "per_cell/L1_main_repetitions_provisional.csv",
+      "kind": "g_a10_repetitions",
+      "source": "out/g_smoke/_final/L1_main/repetitions_provisional.csv",
+      "sha256": "325bbc44628de43817f20a19f60bb8a22a4dd65832c54a7cea674f4fe5d2da7e",
+      "bytes": 3683
+    },
+    {
+      "path": "per_cell/L1_main_repetitions_telemetry.csv",
+      "kind": "g_a10_telemetry",
+      "source": "out/g_smoke/_final/L1_main/repetitions_telemetry.csv",
+      "sha256": "9ae6a36ccd23217bd36e0036aef34f080c01e07b0bfcc1531d84e8be3a64a7e6",
+      "bytes": 200
+    },
+    {
+      "path": "manifests/L1_main_rep0_manifest.json",
+      "kind": "g_a10_manifest",
+      "source": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/manifest.json",
+      "sha256": "f90e915c34afcda165b62244885b3c1c4c5a5906e8a7a4ebaac466f981b088a1",
+      "bytes": 19768
+    },
+    {
+      "path": "frozen/L1_main/freeze.json",
+      "kind": "g_a10_freeze",
+      "source": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/freeze.json",
+      "sha256": "65f537c5d68f39d22278fcef0adb7f9a3978679a3eb9b8517c4d982af218ebc8",
+      "bytes": 610
+    },
+    {
+      "path": "validation/L1_main_rep0_policy_list.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/policy_list.csv",
+      "sha256": "5844949fe97893b8c24b448c295af6c3d5d6c71f8241796919f7cc3b0fad4571",
+      "bytes": 168471
+    },
+    {
+      "path": "validation/L1_main_rep0_decision.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/decision.csv",
+      "sha256": "5d4ebd404578b883b75dbcab22abd152b8b83b0728e58ab04b955f91296722bd",
+      "bytes": 637
+    },
+    {
+      "path": "validation/L1_main_rep0_arm_summary.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/arm_summary.csv",
+      "sha256": "5223b8e6230c24d9a865ee44f5c4afd6540f7c0c1aa3473b37a0fa1d021eacfa",
+      "bytes": 507
+    },
+    {
+      "path": "validation/L1_main_rep0_itt_contrasts.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/itt_contrasts.csv",
+      "sha256": "e8835c0680005cfba0b4098467fc4054b76aedb5f65714d10cfa1f1a7d864580",
+      "bytes": 529
+    },
+    {
+      "path": "validation/L1_main_rep0_guardrail.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/guardrail.csv",
+      "sha256": "60dae371d641088592557f4cd50fb5868fd75f5653f569618ab591dfcedbf44d",
+      "bytes": 412
+    },
+    {
+      "path": "validation/L1_main_rep0_truth_arm_means.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/truth_arm_means.csv",
+      "sha256": "0f52b0d95e433b84c7f24341f8ecb6851e50de4ec4405a10579724d13a6dbc54",
+      "bytes": 244
+    },
+    {
+      "path": "validation/L1_main_rep0_truth_arm_contrasts.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/truth_arm_contrasts.csv",
+      "sha256": "ab015ce2ef36c3dc68614caf55b2170d22e4b54ded28e4c157e0fdd4ec70d6d7",
+      "bytes": 389
+    },
+    {
+      "path": "validation/L1_main_rep0_truth_policy_values.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/truth_policy_values.csv",
+      "sha256": "8b5c8a1ce77936cf27be001250337b13b8b0583a803d228fec63aeb2c57907f4",
+      "bytes": 174
+    },
+    {
+      "path": "per_cell/L0_Pi_heterogeneous_cost_repetitions_provisional.csv",
+      "kind": "g_a10_repetitions",
+      "source": "out/g_smoke/_final/L0_Pi_heterogeneous_cost/repetitions_provisional.csv",
+      "sha256": "a62ed4f31a6d0c8e706c2fc05b0557a975f593db618de618a592f2df7162e070",
+      "bytes": 3787
+    },
+    {
+      "path": "per_cell/L0_Pi_heterogeneous_cost_repetitions_telemetry.csv",
+      "kind": "g_a10_telemetry",
+      "source": "out/g_smoke/_final/L0_Pi_heterogeneous_cost/repetitions_telemetry.csv",
+      "sha256": "5b28e9255223fededcb9bf4c141ee1809e81ce1c878f6d6d2f59cff987a1a404",
+      "bytes": 275
+    },
+    {
+      "path": "manifests/L0_Pi_heterogeneous_cost_rep0_manifest.json",
+      "kind": "g_a10_manifest",
+      "source": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/manifest.json",
+      "sha256": "364f795714247dc8f435a8d7c5af5a237ed58bb4e2bf1820fd0d20aaf7e9480d",
+      "bytes": 19825
+    },
+    {
+      "path": "frozen/L0_Pi_heterogeneous_cost/freeze.json",
+      "kind": "g_a10_freeze",
+      "source": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/freeze.json",
+      "sha256": "318eb48cc75cca85586d4918e7df882b6c97efcfab2d7bd4a103e1a13dbd8020",
+      "bytes": 610
+    },
+    {
+      "path": "validation/L0_Pi_heterogeneous_cost_rep0_policy_list.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/policy_list.csv",
+      "sha256": "1ad8c2ceed25531ac343ff9bdd587c445bed2b3f7572ca313d146a8aa51c28d8",
+      "bytes": 202401
+    },
+    {
+      "path": "validation/L0_Pi_heterogeneous_cost_rep0_decision.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/decision.csv",
+      "sha256": "4d02df76597f2744ae69df838d0981e627b1a624c84039b23c067480e442960a",
+      "bytes": 669
+    },
+    {
+      "path": "validation/L0_Pi_heterogeneous_cost_rep0_arm_summary.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/arm_summary.csv",
+      "sha256": "4312995fcaab6af36fdedf7ac22eef15ecee5cf2b4f0323631a5ef5e35c17e84",
+      "bytes": 507
+    },
+    {
+      "path": "validation/L0_Pi_heterogeneous_cost_rep0_itt_contrasts.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/itt_contrasts.csv",
+      "sha256": "1dd1588d8470c2a48631f5bb0ce875da3f8a2c5dcdcdca68aa2db523d88e1ef7",
+      "bytes": 525
+    },
+    {
+      "path": "validation/L0_Pi_heterogeneous_cost_rep0_guardrail.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/guardrail.csv",
+      "sha256": "c624df9222a2286e2a8bf565740c053e3eec4d2fb3d3d2b6133ad2292e27481b",
+      "bytes": 409
+    },
+    {
+      "path": "validation/L0_Pi_heterogeneous_cost_rep0_truth_arm_means.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/truth_arm_means.csv",
+      "sha256": "71c20a81f4c3a56770d921f19cb824fafdde605907dfe36c628783a85deeaf0a",
+      "bytes": 244
+    },
+    {
+      "path": "validation/L0_Pi_heterogeneous_cost_rep0_truth_arm_contrasts.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/truth_arm_contrasts.csv",
+      "sha256": "76c44fc0e86f5e1af5c5e975c1dbbfa165fb89a825491074ff2c5a0f53e6a16f",
+      "bytes": 387
+    },
+    {
+      "path": "validation/L0_Pi_heterogeneous_cost_rep0_truth_policy_values.csv",
+      "kind": "g_a10_validation_csv",
+      "source": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/truth_policy_values.csv",
+      "sha256": "e4d9cadf1e341b2278b5a97807328004a808f84e856610756aa63f36cc9c6999",
+      "bytes": 174
+    },
+    {
+      "path": "summaries/v3_g_g_core_provisional.csv",
+      "kind": "g_a10_summary",
+      "source": "outputs/tables/v3_g_g_core_provisional.csv",
+      "sha256": "e201a00bdf014cf7e44625354513c792d5b030196155c29860158c343f5b2c7a",
+      "bytes": 473
+    },
+    {
+      "path": "summaries/v3_g_g_tier2_provisional.csv",
+      "kind": "g_a10_summary",
+      "source": "outputs/tables/v3_g_g_tier2_provisional.csv",
+      "sha256": "ec3f6bd22608447b5f3368aaff52db29414cf5e54e52e5318001ddbc98d62d60",
+      "bytes": 544
+    }
+  ],
+  "key_numbers": {
+    "run": {
+      "status": "engineering",
+      "started_at": "2026-10-28T20:37:18+08:00",
+      "finished_at": "2026-10-28T20:39:55+08:00",
+      "rows_raw": 6,
+      "rows_deduped": 6,
+      "duplicates_removed": 0,
+      "merge_key": [
+        "scenario_id",
+        "block",
+        "rep"
+      ],
+      "all_complete": false,
+      "failures": []
+    },
+    "cells": {
+      "L1_main": {
+        "reps": [
+          0,
+          1,
+          2
+        ],
+        "n": 2000,
+        "ate": [
+          0.6314099999999996,
+          -0.503616761676168,
+          0.10547195184426217
+        ],
+        "ate_se": [
+          0.4126275015780681,
+          0.4847824941013712,
+          0.5020108562888153
+        ],
+        "chosen_model": [
+          "constant",
+          "constant",
+          "constant"
+        ],
+        "observed_hash_without_run_id": [
+          "d4ce8b9bdccab510476258db54f47084f7ac0c67c8a8964250b497b87d2cc1ca",
+          "31cf67bfb995716630c7b4587a94bdbe3688106c7fd446d66028ad26c259bddf",
+          "6d38c862527d60c59e341ce51944412f0c38690363d78c906844f7e08ef4b320"
+        ],
+        "status": [
+          "engineering",
+          "engineering",
+          "engineering"
+        ],
+        "R_ate": 500,
+        "R_learn": 100,
+        "R_validation": 100,
+        "history_pipeline_builds": [
+          1,
+          1,
+          1
+        ],
+        "validation_pipeline_builds": [
+          1,
+          1,
+          1
+        ],
+        "truth_columns_present": false,
+        "budget_plan_source": "overlay",
+        "snapshot_source_hashes_sha256": "5e97d74ccf6634b2e797af6fa3816bdfc60bae602f0cbc9548d2198784e6727c",
+        "freeze_written_before_truth": true,
+        "freeze_hash": "79eaca67eaaf752942bd0dfb1d7dd602515c948193b4545909bda3616288a7bb",
+        "cpu_seconds": {
+          "cpu_seconds_pipeline": [
+            3.09375,
+            1.6875,
+            1.671875
+          ],
+          "cpu_seconds_estimate": [
+            0.0,
+            0.0,
+            0.015625
+          ],
+          "cpu_seconds_models": [
+            2.8125,
+            2.421875,
+            2.375
+          ]
+        }
+      },
+      "L0_Pi_heterogeneous_cost": {
+        "reps": [
+          0,
+          1,
+          2
+        ],
+        "n": 2000,
+        "ate": [
+          -0.0876533851428487,
+          -0.5365743885801617,
+          0.3472983619157417
+        ],
+        "ate_se": [
+          0.408961235176867,
+          0.42072826747210973,
+          0.42790232394784206
+        ],
+        "chosen_model": [
+          "constant",
+          "constant",
+          "constant"
+        ],
+        "observed_hash_without_run_id": [
+          "3b33d9dd7347e0b890944657ec27d6519debe6dd0f78a4b2abde17ae195b09b6",
+          "8b01bab4a51786349bdac7a93de9babf482ad0bb41f49943ad213e4c4b1f2320",
+          "b5f38f96c45c029af0ce0b81ee061b619299679644ed5c45b8d9286c48c209e7"
+        ],
+        "status": [
+          "engineering",
+          "engineering",
+          "engineering"
+        ],
+        "R_ate": 30,
+        "R_learn": 30,
+        "R_validation": 30,
+        "history_pipeline_builds": [
+          1,
+          1,
+          1
+        ],
+        "validation_pipeline_builds": [
+          1,
+          1,
+          1
+        ],
+        "truth_columns_present": false,
+        "budget_plan_source": "overlay",
+        "snapshot_source_hashes_sha256": "5e97d74ccf6634b2e797af6fa3816bdfc60bae602f0cbc9548d2198784e6727c",
+        "freeze_written_before_truth": true,
+        "freeze_hash": "9de951695d776ee5143648d36310db849710e5cd6fa6b74218b63efa8a88c6bf",
+        "cpu_seconds": {
+          "cpu_seconds_pipeline": [
+            30.375,
+            25.109375,
+            21.015625
+          ],
+          "cpu_seconds_estimate": [
+            0.015625,
+            0.015625,
+            0.015625
+          ],
+          "cpu_seconds_models": [
+            30.640625,
+            23.015625,
+            19.421875
+          ]
+        }
+      }
+    },
+    "summaries": {
+      "L1_main": {
+        "ate": {
+          "R": 3,
+          "MC_SE": 0.32794695041499616,
+          "mean": 0.0777550633893646,
+          "provisional": true
+        },
+        "ate_test": {
+          "R": 3,
+          "MC_SE": 0.5685065597692751,
+          "mean": 0.16818449097799304,
+          "provisional": true
+        },
+        "ate_paid_purchase_7d": {
+          "R": 3,
+          "MC_SE": 0.001739803537235077,
+          "mean": 0.05316384894551613,
+          "provisional": true
+        },
+        "ate_any_refund_30d": {
+          "R": 3,
+          "MC_SE": 0.003513546299517722,
+          "mean": 0.0033458180944460577,
+          "provisional": true
+        }
+      },
+      "L0_Pi_heterogeneous_cost": {
+        "ate": {
+          "R": 3,
+          "MC_SE": 0.255162707204821,
+          "mean": -0.09230980393575623,
+          "provisional": true
+        },
+        "ate_test": {
+          "R": 3,
+          "MC_SE": 0.1353358642907835,
+          "mean": -0.194134236192963,
+          "provisional": true
+        },
+        "ate_paid_purchase_7d": {
+          "R": 3,
+          "MC_SE": 0.005905061863387493,
+          "mean": 0.03339983387745639,
+          "provisional": true
+        },
+        "ate_any_refund_30d": {
+          "R": 3,
+          "MC_SE": 0.0011493380093436317,
+          "mean": 0.004164940879578177,
+          "provisional": true
+        }
+      }
+    },
+    "sources": {
+      "run_summary.json": "out/g_smoke/run_summary.json",
+      "snapshot_binding.json": "out/g_smoke_snapshot/snapshot_binding.json",
+      "per_cell/L1_main_repetitions_provisional.csv": "out/g_smoke/_final/L1_main/repetitions_provisional.csv",
+      "per_cell/L1_main_repetitions_telemetry.csv": "out/g_smoke/_final/L1_main/repetitions_telemetry.csv",
+      "manifests/L1_main_rep0_manifest.json": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/manifest.json",
+      "frozen/L1_main/freeze.json": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/freeze.json",
+      "validation/L1_main_rep0_policy_list.csv": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/policy_list.csv",
+      "validation/L1_main_rep0_decision.csv": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/decision.csv",
+      "validation/L1_main_rep0_arm_summary.csv": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/arm_summary.csv",
+      "validation/L1_main_rep0_itt_contrasts.csv": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/itt_contrasts.csv",
+      "validation/L1_main_rep0_guardrail.csv": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/guardrail.csv",
+      "validation/L1_main_rep0_truth_arm_means.csv": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/truth_arm_means.csv",
+      "validation/L1_main_rep0_truth_arm_contrasts.csv": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/truth_arm_contrasts.csv",
+      "validation/L1_main_rep0_truth_policy_values.csv": "out/g_smoke/shards/L1_main_s0000/L1_main/rep0/validation/truth_policy_values.csv",
+      "per_cell/L0_Pi_heterogeneous_cost_repetitions_provisional.csv": "out/g_smoke/_final/L0_Pi_heterogeneous_cost/repetitions_provisional.csv",
+      "per_cell/L0_Pi_heterogeneous_cost_repetitions_telemetry.csv": "out/g_smoke/_final/L0_Pi_heterogeneous_cost/repetitions_telemetry.csv",
+      "manifests/L0_Pi_heterogeneous_cost_rep0_manifest.json": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/manifest.json",
+      "frozen/L0_Pi_heterogeneous_cost/freeze.json": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/freeze.json",
+      "validation/L0_Pi_heterogeneous_cost_rep0_policy_list.csv": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/policy_list.csv",
+      "validation/L0_Pi_heterogeneous_cost_rep0_decision.csv": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/decision.csv",
+      "validation/L0_Pi_heterogeneous_cost_rep0_arm_summary.csv": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/arm_summary.csv",
+      "validation/L0_Pi_heterogeneous_cost_rep0_itt_contrasts.csv": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/itt_contrasts.csv",
+      "validation/L0_Pi_heterogeneous_cost_rep0_guardrail.csv": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/guardrail.csv",
+      "validation/L0_Pi_heterogeneous_cost_rep0_truth_arm_means.csv": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/truth_arm_means.csv",
+      "validation/L0_Pi_heterogeneous_cost_rep0_truth_arm_contrasts.csv": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/truth_arm_contrasts.csv",
+      "validation/L0_Pi_heterogeneous_cost_rep0_truth_policy_values.csv": "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/truth_policy_values.csv",
+      "summaries/v3_g_g_core_provisional.csv": "outputs/tables/v3_g_g_core_provisional.csv",
+      "summaries/v3_g_g_tier2_provisional.csv": "outputs/tables/v3_g_g_tier2_provisional.csv"
+    }
+  },
+  "note": "工程小规模验证跑（R=3、n=2000、constant 单模型），不是正式 G 结果；逐 rep 表为 provisional，R 以 manifest 的 R_ate/R_learn/R_validation 为准。CPU 计时单列 repetitions_telemetry.csv，因为计时无法逐字节复现（A2）。"
+}

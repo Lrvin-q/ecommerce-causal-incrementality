@@ -1,0 +1,47 @@
+{
+  "merged": {
+    "roots": [
+      "out/g_smoke/shards/L0_Pi_heterogeneous_cost_s0000",
+      "out/g_smoke/shards/L1_main_s0000"
+    ],
+    "rows_raw": 6,
+    "rows_deduped": 6,
+    "duplicates_removed": 0,
+    "key": [
+      "scenario_id",
+      "block",
+      "rep"
+    ]
+  },
+  "cells": {
+    "L0_Pi_heterogeneous_cost": {
+      "complete": false
+    },
+    "L1_main": {
+      "complete": false
+    }
+  },
+  "all_complete": false,
+  "final_root": "out/g_smoke/_final",
+  "telemetry": {
+    "L1_main": {
+      "path": "out/g_smoke/_final/L1_main/repetitions_telemetry.csv",
+      "rows": 3,
+      "duplicates": 0
+    },
+    "L0_Pi_heterogeneous_cost": {
+      "path": "out/g_smoke/_final/L0_Pi_heterogeneous_cost/repetitions_telemetry.csv",
+      "rows": 3,
+      "duplicates": 0
+    }
+  },
+  "summaries": [
+    "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/outputs/tables/v3_g_g_core_provisional.csv",
+    "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/outputs/tables/v3_g_g_tier2_provisional.csv"
+  ],
+  "at": "2026-10-28T20:39:55+08:00",
+  "failures": [],
+  "status": "engineering",
+  "started_at": "2026-10-28T20:37:18+08:00",
+  "finished_at": "2026-10-28T20:39:55+08:00"
+}

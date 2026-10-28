@@ -1,0 +1,11 @@
+{
+  "freeze_hash": "9de951695d776ee5143648d36310db849710e5cd6fa6b74218b63efa8a88c6bf",
+  "per_user_hash": "959d4dafe8ac719cf964338ba549451238d7ec3c29fbf8cc3884e2f42117fba0",
+  "decision_hash": "93d02b93a5d7785f196d230146c2216975651314a5bb44b7a7884db2d35426dc",
+  "guardrail_hash": "fb3c176bc7ac2ccc25645d6f521bdabc946369c025dd53be7dddba8de2f6ff8f",
+  "selected_model": "constant",
+  "selected_policy": "greedy_incremental_profit_per_cost",
+  "observed_hash": "8e2d3067766c95e85a89a26d969f7ca72b8375a04777d2838ba4223d13674f2f",
+  "truth_columns_present": false,
+  "freeze_written_before_truth": true
+}

@@ -1,0 +1,46 @@
+# 合成数据 / 已知 DGP。
+# G 阶段预算覆盖：不修改 configs/v3/ 下七份冻结配置（canonical hash 保持
+# 00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3）。
+# 依据：docs/v3_G阶段任务书.md §5；选格理由见 docs/v3_tier2_selection.md。
+# 注意：本文件必须留在 configs/budget/，否则会被 pipeline_source_hashes 的两条
+# configs/v3* glob 扫进源码绑定集，等于「改预算 = 改源码」。
+schema_version: 1
+kind: budget_overlay
+maintained_at_beijing: "2026-10-28 20:35"
+supersedes: configs/budget/repetition_overlay.yaml#budget.tier2_boundary_cells
+notes: >
+  Tier2 从 65 格 × 100 收缩到 20 格 × 30，只判方向与量级；
+  Tier1 学习/验证从 200 降到 100。Tier1 ATE 500、固定 bootstrap 1000、
+  重训 bootstrap 200 不变。Tier2 的 MC SE 约为 Tier1 的 sqrt(100/30)≈1.8 倍，
+  正文不得与 Tier1 数字并列比较。
+
+tier1_learning_reps: 100
+tier1_validation_reps: 100
+
+tier2_cells:
+  # L0（2/3）：成本异质性与零购买效应两个机制边界；等成本格与核心 L0 同类。
+  - L0_Pi_heterogeneous_cost
+  - L0_zero_purchase_effect
+  # L1（6/25）：异质性两端、弱信号、关键误设、缺失压力、成本低估。
+  - L1_heterogeneity_000
+  - L1_heterogeneity_150
+  - L1_signal_weak
+  - L1_misspec_omit_new_channel
+  - L1_mar_double
+  - L1_cost_prediction_under
+  # L2（5/17）：样本量两端、时间漂移、人群构成、延迟成熟负对照。
+  - L2_n30000_p050
+  - L2_n100000_p050
+  - L2_drift_smooth
+  - L2_composition_shift
+  - L2_immature_negative_control
+  # L3（7/20）：λ_T 扫描三点含两端、λ_T×λ_Y 联合两端、极端重叠、缺失混淆。
+  - L3_fixed_lt025
+  - L3_fixed_lt075
+  - L3_fixed_lt150
+  - L3_joint_lam000
+  - L3_joint_lam150
+  - L3_overlap_extreme
+  - L3_missing_confounders
+
+tier2_reps: 30

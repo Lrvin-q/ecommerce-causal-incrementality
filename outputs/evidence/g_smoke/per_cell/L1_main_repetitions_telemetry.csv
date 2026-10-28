@@ -1,0 +1,4 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L1_main,g_core,0,3.09375,0.0,2.8125
+L1_main,g_core,1,1.6875,0.0,2.421875
+L1_main,g_core,2,1.671875,0.015625,2.375

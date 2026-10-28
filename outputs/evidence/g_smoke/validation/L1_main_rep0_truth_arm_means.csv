@@ -1,0 +1,4 @@
+﻿arm,n_assigned,true_mean_net_profit_cny,true_mean_tau_cny
+no_coupon,661,3.029319213313162,0.2229198184568835
+random_same_budget,666,3.344339339339339,0.5146696696696696
+selected_targeted_policy,673,2.3027191679049035,0.04959881129271918
