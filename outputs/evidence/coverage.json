@@ -365,9 +365,51 @@
       "source": "C:\\Users\\26382\\.qoder-cn\\worktrees\\app\\c509bd\\营销数分项目\\out\\f02_formal\\shard0\\rep0\\five_tables\\manifest.json",
       "status": "formal_r200",
       "note": "F02 正式 200 rep 的代表 rep 0 证据包与聚合表身份文件（登记号 F02-FORMAL-20261028-R200）。逐用户观测 per_user.csv 与冻结后生成的真值文件被 30 号脚本显式排除，排除项与理由见本目录 coverage.json 的 excluded；运行已完成，但阶段状态为**未证实**，待独立评审（AGENTS §7.4）。"
+    },
+    {
+      "kind": "test_log_sidecar",
+      "source": "outputs/evidence/test_runs",
+      "target": "outputs/evidence/test_runs/pytest_full_20261028_1642.json",
+      "bytes": 2455,
+      "sha256": "94aa5b1e8c2485b1c47f8b4d82cd087346c287efb3ee7db2d2e50f9f68a3ca1e"
+    },
+    {
+      "kind": "full_suite_serial_test_log",
+      "source": "outputs/evidence/test_runs",
+      "target": "outputs/evidence/test_runs/pytest_full_20261028_1642.log",
+      "bytes": 2059,
+      "sha256": "a9769f4be4a2a382fc9002b86ff29287c8c2b7176a3d04ba65d8ccedca672fd0"
+    },
+    {
+      "kind": "test_log_sidecar_pre_fix",
+      "source": "outputs/evidence/test_runs",
+      "target": "outputs/evidence/test_runs/pytest_g_aa250_20261028_1824.json",
+      "bytes": 1309,
+      "sha256": "9e5a5cde0df53e4f80cc87140aad1bd135e7dae2cfd1f987577ec440578105bc"
+    },
+    {
+      "kind": "full_suite_serial_test_log_pre_fix",
+      "source": "outputs/evidence/test_runs",
+      "target": "outputs/evidence/test_runs/pytest_g_aa250_20261028_1824.log",
+      "bytes": 4170,
+      "sha256": "e773cb2cc56a62ba137dd3f9b51c7bb947e8ab1c646f5f7c01f9b7b1d1e2628b"
+    },
+    {
+      "kind": "test_log_sidecar",
+      "source": "outputs/evidence/test_runs",
+      "target": "outputs/evidence/test_runs/pytest_g_aa250_20261028_1836.json",
+      "bytes": 2052,
+      "sha256": "ed5269f0ce8449581c868f11c219a1106055a8c46a2310ca240bfe7a40d7a3cc"
+    },
+    {
+      "kind": "full_suite_serial_test_log",
+      "source": "outputs/evidence/test_runs",
+      "target": "outputs/evidence/test_runs/pytest_g_aa250_20261028_1836.log",
+      "bytes": 1527,
+      "sha256": "f8df46b0032f36e8ce7fb5c3efc247c1d273dc8c2ef76539fa09b0063a10ff86"
     }
   ],
-  "total_bytes": 15903166,
+  "total_bytes": 15916738,
   "registry_repairs": [
     {
       "at": "2026-10-28 02:38",
@@ -563,6 +605,22 @@
         }
       ],
       "reason": "F02 正式 200 rep 合并与证据导出完成（2026-10-28 16:37，merge exit 0）；按身份类 JSON 提升 rep0 冻结/决策/五表 manifest，登记前逐文件重算、登记后全表复算。"
+    },
+    {
+      "at": "2026-10-28T18:50:00+08:00",
+      "reason": "补登记三组全量串行测试凭据（16:42 F02 树、18:24 AA250 首轮 pre-fix、18:36 AA250 最终）。16:42 那组此前未进顶层索引，属漏登记；18:24/18:36 为本轮新增。",
+      "added": [
+        "outputs/evidence/test_runs/pytest_full_20261028_1642.json",
+        "outputs/evidence/test_runs/pytest_full_20261028_1642.log",
+        "outputs/evidence/test_runs/pytest_g_aa250_20261028_1824.json",
+        "outputs/evidence/test_runs/pytest_g_aa250_20261028_1824.log",
+        "outputs/evidence/test_runs/pytest_g_aa250_20261028_1836.json",
+        "outputs/evidence/test_runs/pytest_g_aa250_20261028_1836.log"
+      ],
+      "records_before": 48,
+      "records_after": 54,
+      "total_bytes_before": 15903166,
+      "total_bytes_after": 15916738
     }
   ],
   "last_refreshed_at": "2026-10-28T16:51:30+08:00"
