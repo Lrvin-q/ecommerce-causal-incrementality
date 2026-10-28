@@ -172,6 +172,28 @@ G03 的验收状态里，不能等跑完再解释。
   实测超 320 s/次就回来重报预算，不得按 240 s 直接外推。
 
 
+### 6.1.a 落地决定：不新增随机流，验证帧固定（2026-10-29 00:10，写代码前先定）
+
+写 39 号之前先把两处"会做错"的地方钉死：
+
+1. **"重抽历史总体"用 rep_id 偏移，不新增 DGP 流**。`generate_v3_population` 的每个 `rep_id`
+   本来就是一次独立抽签（covariates/outcomes/timing/amounts 的子流全部以 `rep_id` 为 index，
+   `src/causal_growth/dgp/v3_*.py` 逐处可核）。39 号令 `history_rep_id = RETRAIN_OFFSET + b`
+   （`RETRAIN_OFFSET = 1_000_000`，与正式 rep 0–199、AA 的 0–249 均不相交），
+   语义就是"已知 DGP 重抽"，**不动 `src/`、不扰动任何既有随机流**。
+   报告与 manifest 写 `bootstrap_kind: parametric_dgp_redraw` 并记 `history_rep_id`，
+   不得写"非参数 bootstrap"，也不得与 Tier1 数字并列（§6.1 原文要求）。
+   若将来真要 `dgp.retrain_bootstrap` 专用流，那是 src 改动 → 全量测试 + 源码重绑，不在 G02 窗口做。
+2. **验证帧固定在一个 rep**。`run_validation_arm` 的 `rep_id` 同时决定验证队列与 bootstrap 种子
+   （内部 `run_id=...validation:rep{rep_id}`）。39 号对 4 个 core 格 × 50 个 b **一律传同一个
+   `VALIDATION_REP`**（取该格正式 rep 0），只让 `history_rep_id` 随 b 变；并用返回值里的
+   `validation_observed_hash` 断言 50 次逐字节相同——不同就说明验证帧被重抽了，直接失败。
+3. **每格次数自校验**：core 格 = `cell_meta(...)["tier"] == 1` 且 `"core" in roles`；
+   `per_cell × len(core_cells) != total` 或 `per_cell != retraining_bootstrap_total // len(core)`
+   一律拒绝，不得回落到冻结配置的 800。
+4. **门禁**：`--status formal` 需批准号 + 快照；当前只有 R=1 实测权限。
+   实测 > 320 s/次就回来重报预算（决策单 §H.1），不得按 240 s 外推。
+
 ### 6.2 B：固定策略 bootstrap 仅主预算档 0.2
 
 - 现状守卫在 `status="formal"` 且 `bootstrap_resamples>0` 时**硬拒绝**（防半套产物）。这是保护机制，
