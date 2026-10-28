@@ -1,7 +1,7 @@
 # G 阶段协议修订：AA 批数 1000/层 → 250/层
 
 > **合成数据 / 已知 DGP。**
-> **状态：已执行、待独立评审（2026-10-28 18:37，北京时间）。**
+> **状态：已执行；独立评审 2026-10-28 19:09 判 PASS WITH CONDITIONS（0 P0 / 1 P1 / 3 P2），C1–C3 已于 19:25 关闭（2026-10-28 19:25，北京时间）。**
 > 本文是 `configs/v3/execution.yaml` 的 `change_matrix_requires_versioned_reason_and_review: true`
 > 所要求的版本化理由。**12 行**改动已于 2026-10-28 18:24–18:36 落盘（§3 改后值全部实读填入），
 > 新协议绑定在 `outputs/v3/protocol_aa250/`（18:36 重算）。**独立评审返回 PASS 之前，不得把 G01 记为"按新契约开跑"。**
@@ -105,8 +105,8 @@
    修订目录里 `protocol_manifest.json` 的该字段仍是脚本输出 `false`（不改脚本产物），
    由第 5 步的 `revision.json` 声明 `experiment_results_exist: true` 并注明来源；
    `experiment_matrix.csv`、`config_hash`、`source_sha256`、`planned_counts` 照用脚本输出。
-5. **档案（已完成，2026-10-28 18:26；18:37/18:47 两次补正）**：`outputs/v3/protocol_aa250/approval_revision_20261028.json`（3 708 B），含
-   `supersedes_config_hash`（`30511a32…`）、`config_hash`（`00723dc2…`；`6b672610…` 只是十一行中间值，不再作为最终值）、逐文件 `source_sha256`、
+5. **档案（已完成，2026-10-28 18:26；18:37/18:47 两次补正）**：`outputs/v3/protocol_aa250/approval_revision_20261028.json`（18:47 版 3 708 B；19:03 版 4 204 B；后续以 git 实读为准），含
+   `supersedes_config_hash`（`30511a32…`）、`config_hash`（`00723dc2…`；`6b672610…` 只是十一行中间值，不再作为最终值）、`changed_files` 的 3 份改动文件 `source_sha256` + manifest 中完整 7 份、
    `reason_doc` 与其 sha256、`authorized_by`（2026-10-28 11:05 用户裁决）、`scope`（AA 4 格 250/层，其余不变）、
    `experiment_results_exist: true`、`review.status = pending_independent_review`。
    `outputs/v3/protocol/approval.json` **保留原字节**（sha256 `8f8a7e21…`，已记录在修订文件里）。
@@ -120,7 +120,7 @@
 
 ## 6. 回滚
 
-把 §2 的 12 行改回原值 → 重跑 `scripts/09_freeze_v3_protocol.py` → 在 `approval.json` 追加一条回滚 revision。
+把 §2 的 12 行改回原值，并把守卫测试的冻结值一并回滚（`tests/test_v3_aa.py` 两条断言 250→1000、`tests/test_v3_power.py` 的 `FROZEN_CONFIG_HASH` `00723dc2…`→`30511a32…`；18:24 的 pre-fix 日志已证明只回配置会让这两条变红）→ 重跑 `scripts/09_freeze_v3_protocol.py --output <新目录>`（**必须显式给 `--output`**：脚本默认写 `outputs/v3/protocol`，会覆盖 Phase A 目录）→ 写盘后复核 `outputs/v3/protocol/approval.json` 仍为 `8f8a7e21…`、`experiment_matrix.csv` 仍为 `c3c7a63a…` → 回滚记录追加到**本修订档案**（或新的 `approval_revision_*.json`），**不得写入 Phase A 的 `approval.json`**。
 无需改动任何数据产物：本修订不改变已落盘作业的绑定值。
 
 ## 7. 变更记录
@@ -134,3 +134,4 @@
 | 2026-10-28 18:37 | 修正 §4 的一处指针：独立评审在 §5 第 7 条，不在 §6（§6 是回滚） |
 | 2026-10-28 18:46 | 最终全量串行测试 **1 275 项、EXIT=0、18:36:49–18:45:27（518 s）**，日志与 JSON 凭据入库；18:24 首轮 EXIT=1 的两项失败与处置保留在 pre-fix 凭据里 |
 | 2026-10-28 19:03 | 预评审 2 项 P1 修复：§6 回滚改 **12 行**、§5.5 档案改为 **3 708 B / `config_hash 00723dc2…`**（`6b672610…` 标注为十一行中间值）；`approval_revision_20261028.json` 补 `updated_at` 与 `revision_history`，并在本条登记后重算本文件 sha 回填修订档（前值 `6417c059…`）。预评审为草稿复核，不替代 §5 第 7 条的独立评审 |
+| 2026-10-28 19:25 | **独立评审返回 PASS WITH CONDITIONS**（`docs/reviews/v3_phase_G_aa250_review.md`，0 P0 / 1 P1 / 3 P2；12 行、7/7 源哈希、Phase A 字节不变、F02 绑定不变、1 275 项/518 s 均独立复算通过）。C1 回滚补 tests 4 行与 `--output` 及回滚记录落点；C2 GOAL 11 行→12 行并指向本文；C3 §5.5 字节数与 source_sha 表述修正。修完重算本文件 sha 回填修订档 |
