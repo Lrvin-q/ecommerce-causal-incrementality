@@ -1,6 +1,26 @@
-source_label: 合成数据 / 已知 DGP
-retraining_bootstrap_total: 200        # 4 个代表场景合计（裁决 A，2026-10-28 22:26）
-retraining_bootstrap_per_cell: 50      # = total / len(core)，执行器自校验
-retraining_bootstrap_label: 参数化重复抽样（已知 DGP 重抽）
-fixed_bootstrap_resamples: 1000        # 不重拟合，只重抽样
-fixed_bootstrap_budget_scope: primary_0.2   # 裁决 B
+# 合成数据 / 已知 DGP。
+# G 阶段 bootstrap 口径覆盖：不修改 configs/v3/ 下七份冻结配置（canonical hash 保持
+# 00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3）。
+# 依据：docs/v3_G开跑决策单.md 裁决记录（2026-10-28 22:26 用户拍板 A=200 / B=仅主预算）
+# 与 docs/v3_协议.md 105 行 22:46 修订；实现规格见
+# docs/v3_G执行器缺口与设计.md §6.1–§6.2。
+# 注意：本文件必须留在 configs/budget/，否则会被 pipeline_source_hashes 的两条
+# configs/v3* glob 扫进源码绑定集，等于「改预算 = 改源码」。
+schema_version: 1
+kind: bootstrap_overlay   # 不是 budget_overlay：本文件不含 tier1/tier2 批数键，
+                          # 传给 load_budget_plan(overlay=...) 会被判缺键，属预期
+maintained_at_beijing: "2026-10-28 22:48"
+supersedes: null
+notes: >
+  A 再训练 bootstrap：协议原句「每层代表场景另做 200 次」按 4 层 × 200 = 800 落地会
+  使 G 阶段超上限（247.2 h > 210 h）。2026-10-28 22:26 用户裁决取任务书口径 200 次
+  **合计**，即每个 core 格 50 次；协议原文保留、修订标注在 docs/v3_协议.md。
+  B 固定策略 bootstrap：仅主预算档 0.2 元/人上做 1000 次重抽样；「所有预算」的口径
+  已在 GOAL/协议写明改为「代表预算档」，执行器必须在运行清单里显式写出
+  fixed_bootstrap_budget_scope=primary_0.2，且不得静默回退到全预算或 800。
+
+retraining_bootstrap_total: 200      # 4 个代表场景合计，非每层
+retraining_bootstrap_per_cell: 50    # = total / len(core)；执行器须自检等式
+retraining_bootstrap_label: 参数化重复抽样（已知 DGP 重抽）  # 不是对观测表有放回重抽
+fixed_bootstrap_resamples: 1000
+fixed_bootstrap_budget_scope: primary_0.2

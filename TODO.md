@@ -67,8 +67,9 @@
   **G02 补丁已在影子树全绿（10-29 00:07）**：10 处改动 + 幂等 + `py_compile` + 守卫矩阵 6 例 + 预算断言 3 例
   + `run_cell` 早失败不落盘；真树 hash 仍 `fd3ca1279b40…` 未动，**等 G01 退场后执行 `out/scratch/g02_patch.py .`**。
   **39 号执行器已写完并冒烟（10-29 00:13）**：`scripts/39_g_retrain_bootstrap_run.py`（plan|run|merge），
-  影子树 4 格 × 1 b（n=2000）~35 s 跑通、merge 正确写 `_provisional`；新建
-  `configs/budget/g02_bootstrap_overlay.yaml`（200/50/1000/primary_0.2）。冒烟抓到真 bug：
+  影子树 4 格 × 1 b（n=2000）~35 s 跑通、merge 正确写 `_provisional`；复用了**已存在**的
+  `configs/budget/g02_bootstrap_overlay.yaml`（`cc5a22d`，曾被误覆盖为 6 键简版，已 `git show` 恢复原字节；
+  39 号解析改为 5 必需键 + 6 可选元数据键）。冒烟抓到真 bug：
   `fit_history_models(models=None)` 会试全部模型 → L0 的 dr_learner 直接抛不适用，
   已改为按 `common ∪ additional_by_level[level]` 解析。**尚未在真树/正式 n 跑过**。
   **仍未启动**：G02/G03/G04 需先落 200 次重训的执行器覆盖与 formal 守卫改造（不得改 `configs/v3/*.yaml`）。**F02 已于 22:04 改判"通过"**（第四次窄口径确认 CLOSED，

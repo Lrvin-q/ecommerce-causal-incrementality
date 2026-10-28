@@ -62,8 +62,13 @@ VALIDATION_REP = 0
 BOOTSTRAP_OVERLAY = ROOT / "configs" / "budget" / "g02_bootstrap_overlay.yaml"
 ENGINEERING_MAX_REPS = 2
 REQUIRED_BOOTSTRAP_KEYS = {
-    "source_label", "retraining_bootstrap_total", "retraining_bootstrap_per_cell",
+    "retraining_bootstrap_total", "retraining_bootstrap_per_cell",
     "retraining_bootstrap_label", "fixed_bootstrap_resamples", "fixed_bootstrap_budget_scope",
+}
+SOURCE_LABEL_DEFAULT = "合成数据 / 已知 DGP"
+# 覆盖文件在 cc5a22d 里已带文档与元数据；它们不是执行参数，但也不是错键。
+OPTIONAL_BOOTSTRAP_KEYS = {
+    "schema_version", "kind", "maintained_at_beijing", "supersedes", "notes", "source_label",
 }
 
 
@@ -100,9 +105,13 @@ def read_bootstrap_overlay() -> dict:
     missing = sorted(REQUIRED_BOOTSTRAP_KEYS - set(obj))
     if missing:
         raise SystemExit(f"bootstrap overlay 缺键：{missing}")
-    unknown = sorted(set(obj) - REQUIRED_BOOTSTRAP_KEYS)
+    unknown = sorted(set(obj) - REQUIRED_BOOTSTRAP_KEYS - OPTIONAL_BOOTSTRAP_KEYS)
     if unknown:
         raise SystemExit(f"bootstrap overlay 含未注册键：{unknown}")
+    if "schema_version" in obj and int(obj["schema_version"]) != 1:
+        raise SystemExit(f"schema_version 必须是 1：{obj['schema_version']!r}")
+    if "kind" in obj and str(obj["kind"]) != "bootstrap_overlay":
+        raise SystemExit(f"kind 必须是 bootstrap_overlay：{obj['kind']!r}")
     return obj
 
 
@@ -273,6 +282,7 @@ def command_plan(args) -> int:
     print(json.dumps({
         "bootstrap_kind": "parametric_dgp_redraw",
         "label": overlay["retraining_bootstrap_label"],
+        "source_label": str(overlay.get("source_label", SOURCE_LABEL_DEFAULT)),
         "cells": cells,
         "per_cell": per_cell,
         "total": total,
@@ -411,7 +421,7 @@ def command_merge(args) -> int:
     meta = {
         "bootstrap_kind": "parametric_dgp_redraw",
         "bootstrap_label": overlay["retraining_bootstrap_label"],
-        "source_label": overlay["source_label"],
+        "source_label": str(overlay.get("source_label", SOURCE_LABEL_DEFAULT)),
         "retraining_bootstrap_total": total,
         "retraining_bootstrap_per_cell": per_cell,
         "validation_rep": VALIDATION_REP,
