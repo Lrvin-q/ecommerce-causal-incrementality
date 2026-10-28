@@ -48,3 +48,27 @@ D 阶段原字节已归档到 `outputs/evidence/d02_aa_phase_d_20261027/`（8 �
 - [ ] 12 个 `.exit` 全 0
 - [ ] 证据导出 + 顶层登记（`scripts/33`）exit 0，且 `--dry-run` 与写盘后的记录数一致
 - [ ] G01 报告 `docs/v3_phase_G01_formal.md` 的每个数字都能从 `outputs/evidence/g01_aa250/` 重建
+
+## 5. 跑完后的命令序列（照抄即可，全部在项目根目录执行）
+
+```bash
+# 0) 看收尾链是否已自动完成（OK / ABORT）
+cat out/g01_logs/post.status
+
+# 1) 若 post 链 ABORT 在导出步，手动顺序执行（先看日志再重跑，幂等）
+.venv/Scripts/python.exe scripts/37_export_g01_evidence.py
+.venv/Scripts/python.exe scripts/33_register_evidence_top.py --dirs g01_aa250 --dry-run
+.venv/Scripts/python.exe scripts/33_register_evidence_top.py --dirs g01_aa250
+
+# 2) 出报告数字（只读；末行给出"复算 vs 17 号表"的最大绝对差，必须 ≤1e-12）
+.venv/Scripts/python.exe out/scratch/g01_report_numbers.py
+
+# 3) 用数字填 out/scratch/g01_report_skeleton.md 的两张表，写成 docs/v3_phase_G01_formal.md
+# 4) 翻 GOAL G01 行（"未证实"→"通过"，并写明合并判定与逐层只作描述）
+# 5) 刷新 TODO.md / docs/v3_决策与反思日志.md / AGENT_HANDOFF.md / 本注册表 §4 清单
+# 6) 提交并推送（推送此前连续 3 次 443 超时，网络恢复后重试）
+git add -A && git commit -m "G|g01: 正式 AA 1000 次完成，报告与证据入库"
+git push origin codex/d03
+```
+
+**禁止**：在导出/登记未成功前把 G01 记成"通过"；在 `out/g01_logs/*.exit` 未齐 12 个 0 之前做合并结论。
