@@ -3,6 +3,11 @@
 > 合成数据 / 已知 DGP。维护时间：2026-10-26 01:47（北京时间）。
 > 本文是 **D02「完整 AA」** 的验收依据。正式重复 **R > 0**，这是 v3 的第一批正式结果。
 > D.2 的 pilot（R=50/层、n=1 万）另见 [v3_phase_D_aa.md](v3_phase_D_aa.md)，二者不可混引。
+> **同名文件会被覆盖（2026-10-29 00:22 记）**：`outputs/tables/v3_phase_D_aa_formal_merged.{csv,json}` 是
+> 17 号合并脚本的**固定输出路径**，G01 的 AA250 合并会把它替换成 G01 的数字。D02 原字节已归档在
+> `outputs/evidence/d02_aa_phase_d_20261027/`（8 文件 + `manifest.json`，逐份 sha256 与来源路径）。
+> **本文的 D 阶段数字只能从归档件复算，不得从被覆盖后的同名文件复算**；G01 的数字见
+> `docs/v3_phase_G01_formal.md`。
 
 ## 1. 结论
 

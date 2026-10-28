@@ -5,6 +5,8 @@
 > [`v3_phase_D_aa_formal.md`](v3_phase_D_aa_formal.md)** —— 本文只负责机制说明与 pilot。
 > 两份文档分工固定：本文 = 机制 + R=50/n=1 万 pilot；formal = R=1000 正式结果。**数字不得互引**。
 > 正式结果事实源：`outputs/tables/v3_phase_D_aa_formal_merged.csv` / `.json`；
+> **2026-10-29 00:22 注**：该路径会被 G01 的 AA250 合并覆盖，D 阶段原字节见
+> `outputs/evidence/d02_aa_phase_d_20261027/`（8 文件 + `manifest.json`）；**D 数字只从归档件复算**。
 > 本文早期数字来自 `outputs/tables/v3_phase_D_aa.csv`，只作机制证明。
 
 ## 1. 这一节要证明什么
