@@ -327,11 +327,11 @@
       "kind": "test_log_sidecar",
       "source": "generated_at_registration",
       "target": "outputs/evidence/test_runs/pytest_full_20261028_0321.json",
-      "bytes": 2571,
-      "sha256": "7c50c11e80524aff9b699dd25baa96c7ebc63d22b8a63f7b3738c7af11f0e0c3"
+      "bytes": 2891,
+      "sha256": "b163b1592759f3b82c28be01c75bbe01ca5d1fea7febef5b9da51739d4c75467"
     }
   ],
-  "total_bytes": 15865811,
+  "total_bytes": 15866131,
   "registry_repairs": [
     {
       "at": "2026-10-28 02:38",
@@ -471,7 +471,21 @@
       "records_added": 2,
       "records_before": 42,
       "records_after": 44
+    },
+    {
+      "at": "2026-10-28 10:46",
+      "what": "F01 复审复核 RC-3 / RC-5：sidecar 修正行尾断言与命令行来源标注",
+      "why": "RC-3：line_ending_note 原写『仓库里的 *.md 一律 LF』，实测 70 个入库 .md 中 18 个含 CR；RC-5：command_line_source 原钉 TODO.md:262，该行已漂移（现命令在锚文本条目内，行号不稳）。两处均只改文本断言，不改任何被引用的凭据内容",
+      "refreshed": [
+        {
+          "target": "outputs/evidence/test_runs/pytest_full_20261028_0321.json",
+          "old_sha256": "7c50c11e80524aff9b699dd25baa96c7ebc63d22b8a63f7b3738c7af11f0e0c3",
+          "old_bytes": 2571,
+          "new_sha256": "b163b1592759f3b82c28be01c75bbe01ca5d1fea7febef5b9da51739d4c75467",
+          "new_bytes": 2891
+        }
+      ]
     }
   ],
-  "last_refreshed_at": "2026-10-28T06:45:24+08:00"
+  "last_refreshed_at": "2026-10-28T10:46:05+08:00"
 }

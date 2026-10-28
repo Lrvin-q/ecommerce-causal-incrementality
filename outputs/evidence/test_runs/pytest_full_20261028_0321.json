@@ -6,7 +6,7 @@
   "source": "out/logs/pytest_full_20261028_0321.log",
   "target": "outputs/evidence/test_runs\\pytest_full_20261028_0321.log",
   "command_line": ".venv/Scripts/python.exe -m pytest -q -p no:warnings --basetemp C:/cg_t",
-  "command_line_source": "TODO.md:262（当时记录的复现命令行，逐字照抄；本文件不含命令行，故必须外挂来源）",
+  "command_line_source": "TODO.md「N-10：AGENTS §11.4 的全量串行测试凭据入库」条目里逐字记录的复现命令行（按锚文本引用，不钉行号——复核 RC-5 实测该命令因 TODO.md 增行而漂移；本文件不含命令行，故必须外挂来源）",
   "missing_summary_line_explained": "pyproject.toml:39 的 addopts 已含一个 -q（verbosity=-1），命令行再给一个 -q 使 verbosity=-2；_pytest/terminal.py:1253 的 summary_stats() 开头是 \"if self.verbosity < -1: return\"，所以末行\"N passed\"汇总被跳过。该阈值于 2026-10-28 06:28 直接读 .venv 内已安装的 pytest 源码确认，不是推测。",
   "start": "2026-10-28 03:21:18 +0800",
   "end": "2026-10-28 03:27:42 +0800",
@@ -24,5 +24,5 @@
     "path": "outputs/runs/f01_tests/full_suite.log",
     "reason": "2026-10-27 20:20:35–20:28:04、1248 项，早于 ESS 修复与 4 张新表，属过期证据；且 .gitignore:29 的 /outputs/runs/ 使整个 outputs/runs/ 从不入库（git ls-files outputs/runs 计数 = 0），所以它连\"入库的过期证据\"都不是"
   },
-  "line_ending_note": "本文件按 outputs/evidence 下 JSON 的既有约定写成 CRLF（meta.json / freeze.json / run_manifest.json 均为 CRLF），而同批的 .log 保持与源逐字节相同、不做行尾归一（源里 pytest 进度行是 CRLF、bash 写的 START/EXIT/END 行是 LF，故 CR<LF）。仓库里的 *.md 一律 LF。"
+  "line_ending_note": "本文件按 outputs/evidence 下 JSON 的既有约定写成 CRLF（meta.json / freeze.json / run_manifest.json 均为 CRLF），而同批的 .log 保持与源逐字节相同、不做行尾归一（源里 pytest 进度行是 CRLF、bash 写的 START/EXIT/END 行是 LF，故 CR<LF）。仓库里的 .md 并非一律 LF（复核 RC-3：2026-10-28 10:47 本机实读 70 个入库 .md，18 个含 CR、52 个纯 LF，AGENTS.md 是混合行尾），故行尾一律按原样保存，不做归一。"
 }
