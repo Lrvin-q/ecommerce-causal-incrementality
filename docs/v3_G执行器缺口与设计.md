@@ -55,9 +55,19 @@
   - `configs/budget/repetition_overlay.yaml`：`retraining_bootstrap_total_jobs: 80`（无代码读取）。
 - **影响**：G 阶段合计 207.2 h 只含 200 次（13.3 h）。若按冻结配置的 800 次，仅此一项 **+40 h**，
   直接越过 210 h 上限。**必须先由用户裁决 80 / 200 / 800**，裁决前不得开 G02。
-- **接线点**：与矩阵学习的 `run_cell` 共用"一 rep 一次建数据 → 学习 → 验证"链路，
-  区别只在重抽样的单位是用户、且要重新拟合；建议复用 `v3_g_matrix.run_cell` 的
-  `build_history_dataset` + `fit_history_models`，新增 `resample=` 参数，避免另写一套。
+- **21:56 口径更正（重要）**：协议原文是「**每层** Tier1 代表场景另做 **200** 次」
+  （`docs/v3_协议.md:105`），每层 1 个 core 格 ⇒ **800 才是协议忠实值**；
+  任务书 §3 与 GOAL G02 的"200"是把"每层 200"读成了总数。207.2 h 因此**少算 40 h**。
+  维持 210 上限的唯一合规做法是**同时改协议与 GOAL**，不能只在任务书里写 200。
+- **接线点（21:55 核查后作废）**：原文"给 `build_history_dataset` 加 `resample=` 参数"**不可实施**：
+  `ObservedDataset` 只允许 `from_sql_result` / `from_manifest` 构造
+  （`src/causal_growth/data/v3_observed.py:124-148`：`_SQL_TOKEN` 守卫 + `sql_sha256` /
+  `analysis_sha256` 与 SQL 输出逐字节绑定），对观测表有放回重抽会立刻破坏校验；
+  `generate_v3_population` 也没有用户级重抽参数。可行路径只有两条：
+  ① 扩 DGP：新增"按已有 population 的用户索引有放回重抽 → 重发新 `user_id` → 重走订单/五表/SQL"
+  （真实 user bootstrap，工程量最大，需同步重写审计账本）；
+  ② 改口径：用"新 rep 抽样"充当重训重复（**这是 MC 重复，不是 bootstrap**，措辞必须改）。
+  两条都需用户裁决，且必须与 800/200/80 的次数裁决一起定。
 
 ## 3. 随机名单（`random_list_seeds_per_budget = 200`）
 
