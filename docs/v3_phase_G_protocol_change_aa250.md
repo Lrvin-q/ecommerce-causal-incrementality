@@ -72,12 +72,30 @@
 
 ## 5. 验证计划（执行时逐项留证）
 
-1. 预演：`out/scratch/sim_v3_aa250/` 副本上走同一入口，`load_v3_protocol(root=副本)` 完整通过（含 `planned_counts` 逐项比对）；
-2. 真跑：`out/scratch/g_route_jia_aa250.py`，须先满足 200 个 F02 manifest（安全阀，exit=5 若未满足）；
-3. 重算：`scripts/09_freeze_v3_protocol.py`，比对 §3 全部行；
-4. 档案：`outputs/v3/protocol/approval.json` 追加 `revision` 块（不改历史 `approved_on` 与 `status`）；
-5. 测试：F02 解冻后跑全量串行测试（AGENTS §11.4），日志入库；
-6. 独立评审：对本修订单独评审，返回 PASS 后才允许把 G01 记为"按新契约开跑"。
+1. **预演（已完成，2026-10-28 11:08）**：`out/scratch/sim_v3_aa250/` 副本上走同一入口，
+   `load_v3_protocol(root=副本)` 完整通过（含 `planned_counts` 逐项比对），预览 `config_hash=6b67261009b8a5ff…`。
+2. **真跑**：`out/scratch/g_route_jia_aa250.py`，须先满足 200 个 F02 manifest（安全阀，未满足 `exit=5`）；
+   工具自身断言"恰 1 行 execution + 10 行 scenarios"变了，否则 `exit=7`。
+3. **重算，但绝不就地覆盖 Phase A 目录**：
+   ```bash
+   .venv/Scripts/python.exe scripts/09_freeze_v3_protocol.py --output outputs/v3/protocol_aa250
+   ```
+   `outputs/v3/protocol/` 是 Phase A 的快照——它的 `protocol_sha256` 绑定 `docs/v3_协议.md` 的字节，
+   就地重跑等于把"Phase A 批准了什么"改写成"今天是什么"。**原目录逐字节保留。**
+4. **一处必须先声明的口径偏差**：09 号脚本把 `experiment_results_exist` **硬编码为 `false`**
+   （`scripts/09_freeze_v3_protocol.py:39`），而今天 D02/D03/E/F01/F02 的结果都已存在。
+   修订目录里的这一字段因此**不采信脚本输出**，由第 5 步的 `revision.json` 覆盖为 `true` 并注明来源；
+   `experiment_matrix.csv`、`config_hash`、`source_sha256`、`planned_counts` 照用脚本输出。
+   （不为此改 09 号脚本：它是 Phase A 已验证的入口，改它要连带重跑 A 的回归证据。）
+5. **档案：新建修订文件，不改历史**：`outputs/v3/protocol_aa250/approval_revision_20261028.json`，至少含
+   `supersedes_config_hash`（`30511a32…`）、`config_hash`（新）、逐文件 `source_sha256`、
+   `reason_doc` 与其 sha256、`authorized_by`（2026-10-28 11:05 用户裁决）、`scope`（AA 4 格 250/层，其余不变）、
+   `experiment_results_exist: true`、`review`（评审文件 + sha256）。
+   `outputs/v3/protocol/approval.json` **保留原字节**——它是 Phase A 的批准记录，不是"当前配置"的说明书。
+6. **测试**：F02 解冻后跑全量串行测试（AGENTS §11.4），日志 + exitcode + 起止时间入库。
+7. **独立评审**：对本修订单独评审，返回 PASS 后才允许把 G01 记为"按新契约开跑"。
+8. **文档指针**：README / GOAL 的 G01 行改为指向新修订文件；**不编辑** `docs/v3_协议.md`
+   （一改，Phase A 记录的 `protocol_sha256 = eb85a328…` 就再也复算不出来）。
 
 ## 6. 回滚
 
@@ -89,3 +107,4 @@
 | 时间 | 变更 |
 |---|---|
 | 2026-10-28 11:10 | 建立草稿：授权链、11 行清单、绑定值待填表、既有证据口径、验证与回滚 |
+| 2026-10-28 11:25 | §5 改写：修订落 `outputs/v3/protocol_aa250/`，Phase A 目录逐字节保留；记 09 号 `experiment_results_exist` 硬编码 `false`（第 39 行）与`docs/v3_协议.md` 不可编辑两条约束 |

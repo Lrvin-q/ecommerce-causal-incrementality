@@ -43,8 +43,9 @@
 > 真跑安全阀实测在 F02 116/200 时 `FAIL[5]` 拒绝。两处反例（CRLF 行锚点、就地改列表致计数恒 0）都被工具拦下。
 > **机制上 11:05 仍不能改**：`v3_pipeline.py:41-44` 的绑定 glob 含 `configs/v3/*.yaml`，
 > F02 未退出前改它会让作业抛 `source files changed during the data run`（AGENTS §11）。
-> **落地链（F02 四片退出后按序）**：跑补丁 → `scripts/09_freeze_v3_protocol.py` 重算 protocol →
-> 更新 `outputs/v3/protocol/approval.json` 的 `revision` 块（无代码读取，属档案层，不改历史 `approved_on`）→
+> **落地链（F02 四片退出后按序）**：跑补丁 → `scripts/09_freeze_v3_protocol.py --output outputs/v3/protocol_aa250`
+> （**不就地覆盖 Phase A 目录**；09 号把 `experiment_results_exist` 硬编码 `false`，修订文件改记 `true`）→
+> 新建 `outputs/v3/protocol_aa250/approval_revision_20261028.json`（`approval.json` 保留原字节，它是 Phase A 记录）→
 > 写 `docs/v3_phase_G_protocol_change_aa250.md`（含"哪些既有证据仍成立"：各阶段 manifest 绑的是运行当时的 `config_hash`）→
 > **独立评审**后才能记 G 开跑。详见 TODO.md「G 阶段前置阻塞」节末的用户裁决小节。
 > **顺带否证了自己一个误读**：AA manifest 的 `purpose=engineering_or_downstream_input_not_formal_completion`、

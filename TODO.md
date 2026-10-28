@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-**2026-10-28 10:57 更新。A/B/C/D02/D03/E01/E02/F01 通过**（E 于 05:53 走完第三环窄口径确认；D03 于 05:15 经独立复审 PASS 关闭；**F01 于 10:52 改判"通过"**——第四环窄口径复核 07:21 PASS WITH CONDITIONS（`docs/reviews/v3_phase_F01_recheck.md`），5 项 RC 已 10:45–10:47 逐项复算修完、条件"在改写状态之前或同批"已满足；"通过"仅指记录准确、断言范围正确：单 rep / rep 0 / `formal_repetitions=0` / `constant` 模型 / 0.2 元档，**不表示"定向有效"**）。**F02** 正式 200 rep 于 **03:39** 起跑，**11:16 时 118/200**（shard0/1 已完成 0–99；shard2 完成 100–108、shard3 完成 150–158；rep 109 / 159 在跑），**两条 lane 均有独立内存看护**（lane 2 于 10:54:45 启动，PID 67048/65688；两 lane 峰值 2 436 / 2 207 MB，`low_streak=0`），两 lane 近 8 个 rep 的间隔中位 **475 / 441 s**（最近两个各 610 / 594 s，明显变慢）⇒ 合并 **~229 s/rep**、剩 82 rep ≈ 5.2 h ⇒ **投影 ~16:40 集齐**（早前的 ~15:55 是按"最近 7 rep / 426 s"外推，偏乐观，已按 §12.5 改用中位）。等待期已用独立评审后的聚合器重写版跑通 **118 rep**（`out/scratch/f02_aggregate.py`）：合并 115/118 判"发券值得"、111/118 判"定向优于随机"，三层同时通过 111/118；分层后 **`constant` 2/5 与 0/5**、`s_learner` 41/41 与 39/41、`causal_forest` 66/66、`dr_learner` 5/5、`t_learner` 1/1 ⇒ 正式正文必须分层（§12.6）。另记一条限制：等预算匹配的是**冻结时刻的计划支出**，实际支出比定向 **1.0609**、随机 **1.0048**（各 rep 相对 0.2×分配人数）。**G 阶段前置阻塞：用户已于 11:05 裁决走甲方案**（只把 **AA 4 层对齐到 250/层**，共 11 行（含两个计划计数）；补丁 `out/scratch/g_route_jia_aa250.py` dry-run 已逐行通过、真跑安全阀已实测拦住 116/200；**等 F02 四片退出后**执行"改配置 → 跑 09 号重算 protocol → 更新 approval.json → 版本化理由 → 独立评审"）。其余项保持冻结值，因 GOAL G01/G02 仍以冻结值为验收标准；详见「G 阶段前置阻塞」节末的用户裁决小节。**D01** 20 rep 已批准、排在 F02 之后（最早 ~16:05 起、92 分钟独占）。运行期冻结：四个绑定 glob 与 `scripts/30` 在四分片退出前不得改。详见下方 10:56 本轮与 `docs/v3_决策与反思日志.md` 10:56 条。
+**2026-10-28 10:57 更新。A/B/C/D02/D03/E01/E02/F01 通过**（E 于 05:53 走完第三环窄口径确认；D03 于 05:15 经独立复审 PASS 关闭；**F01 于 10:52 改判"通过"**——第四环窄口径复核 07:21 PASS WITH CONDITIONS（`docs/reviews/v3_phase_F01_recheck.md`），5 项 RC 已 10:45–10:47 逐项复算修完、条件"在改写状态之前或同批"已满足；"通过"仅指记录准确、断言范围正确：单 rep / rep 0 / `formal_repetitions=0` / `constant` 模型 / 0.2 元档，**不表示"定向有效"**）。**F02** 正式 200 rep 于 **03:39** 起跑，**11:16 时 118/200**（shard0/1 已完成 0–99；shard2 完成 100–108、shard3 完成 150–158；rep 109 / 159 在跑），**两条 lane 均有独立内存看护**（lane 2 于 10:54:45 启动，PID 67048/65688；两 lane 峰值 2 436 / 2 207 MB，`low_streak=0`），两 lane 近 8 个 rep 的间隔中位 **475 / 441 s**（最近两个各 610 / 594 s，明显变慢）⇒ 合并 **~229 s/rep**、剩 82 rep ≈ 5.2 h ⇒ **投影 ~16:40 集齐**（早前的 ~15:55 是按"最近 7 rep / 426 s"外推，偏乐观，已按 §12.5 改用中位）。等待期已用独立评审后的聚合器重写版跑通 **118 rep**（`out/scratch/f02_aggregate.py`）：合并 115/118 判"发券值得"、111/118 判"定向优于随机"，三层同时通过 111/118；分层后 **`constant` 2/5 与 0/5**、`s_learner` 41/41 与 39/41、`causal_forest` 66/66、`dr_learner` 5/5、`t_learner` 1/1 ⇒ 正式正文必须分层（§12.6）。另记一条限制：等预算匹配的是**冻结时刻的计划支出**，实际支出比定向 **1.0609**、随机 **1.0048**（各 rep 相对 0.2×分配人数）。**G 阶段前置阻塞：用户已于 11:05 裁决走甲方案**（只把 **AA 4 层对齐到 250/层**，共 11 行（含两个计划计数）；补丁 `out/scratch/g_route_jia_aa250.py` dry-run 已逐行通过、真跑安全阀已实测拦住 116/200；**等 F02 四片退出后**执行"改配置 → 09 号重算进**新目录** `outputs/v3/protocol_aa250` → 新建修订文件（`approval.json` 原字节保留）→ 版本化理由 → 独立评审"）。其余项保持冻结值，因 GOAL G01/G02 仍以冻结值为验收标准；详见「G 阶段前置阻塞」节末的用户裁决小节。**D01** 20 rep 已批准、排在 F02 之后（最早 ~16:05 起、92 分钟独占）。运行期冻结：四个绑定 glob 与 `scripts/30` 在四分片退出前不得改。详见下方 10:56 本轮与 `docs/v3_决策与反思日志.md` 10:56 条。
 
 **2026-10-28 11:10–11:20 本轮（聚合器按独立评审重写并在 118 rep 上跑通；ETA 按中位重估）**：
 - [x] **独立评审（只读）判 `out/scratch/f02_aggregate.py` 首版：0 P0 / 5 P1 / 8 P2**。5 条 P1 全部成立，已重写：
@@ -26,6 +26,11 @@
 - [x] **ETA 重估**：近 8 个 rep 的间隔中位 475 / 441 s（最近两个 610 / 594 s）⇒ 合并 ~229 s/rep、剩 82 rep ≈ 5.2 h ⇒ **投影 ~16:40**；D01 顺延到 ~16:45 起。
 - [x] **补一条真缺口：缺 rep 不失败。** 原版只在"目录存在但缺件"时 `FAIL`，而 rep 目录尚未生成时**照常出口径、写产物、exit 0**
       ⇒ 200 rep 的正式聚合法可以在只有 118 个 rep 时"跑通"。已改为缺 rep 与缺件都默认 `FAIL[2]`，`--allow-incomplete` 仅供等待期诊断。
+- [x] **顺手把 G 的落地链改对了（11:25）**：原计划"跑 09 号 → 更新 `approval.json`"会**就地覆盖 Phase A 快照**
+      （`outputs/v3/protocol/` 的 `protocol_sha256` 绑定 `docs/v3_协议.md` 的字节，重跑等于改写"Phase A 批准了什么"）；
+      且 09 号把 `experiment_results_exist` **硬编码 `false`**（第 39 行），今天已有 D02–F02 结果，直接采信会产出一条假陈述。
+      改为：重算落 `outputs/v3/protocol_aa250/`、新建 `approval_revision_20261028.json`、`approval.json` 保留原字节；
+      理由文档 §5 同步改写（含"不编辑 `docs/v3_协议.md`"这条约束）。
 - [x] **聚合器提为 `scripts/32_aggregate_f02_formal.py`**（`out/` 不入库，留在 scratch 等于别人无法复算），删掉 scratch 副本并把 `post_f02_check.sh` 改指新路径；
       配 **11 个反例夹具** `tests/test_v32_aggregate_f02_formal.py`（复制真实 `rep0/rep1` 再篡改，不手抄表头），**11/11 通过、约 60 s**。
 
@@ -532,10 +537,13 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
   ① 预演：刷新 `out/scratch/sim_v3_aa250/` 副本 → `python out/scratch/g_route_jia_aa250.py --root out/scratch/sim_v3_aa250`
   （与真跑同一入口，含完整 `load_v3_protocol()` 校验）；
   ② `python out/scratch/g_route_jia_aa250.py`（真跑，需 200 manifest）；
-  ③ `python scripts/09_freeze_v3_protocol.py` 重算 `outputs/v3/protocol/experiment_matrix.csv` 与 `protocol_manifest.json`
-  （`config_hash` / `source_sha256` / `planned_counts` 全变）；
-  ④ 更新 `outputs/v3/protocol/approval.json`：**无代码读取它**（已 grep 核实），属档案层；追加 `revision` 块
-  （旧 `config_hash 30511a32…` → 新值、`matrix_sha256` 旧→新、理由、日期、授权出处），不改历史的 `approved_on 2026-10-25`；
+  ③ `python scripts/09_freeze_v3_protocol.py --output outputs/v3/protocol_aa250` —— **落新目录，不就地覆盖**
+  `outputs/v3/protocol/`（那是 Phase A 快照，其 `protocol_sha256` 绑定 `docs/v3_协议.md` 的字节，就地重跑等于改写历史）；
+  另记一处口径偏差：09 号把 `experiment_results_exist` **硬编码为 `false`**（`scripts/09_freeze_v3_protocol.py:39`），
+  今天已有 D02–F02 结果，故该字段不采信脚本输出，改由 ④ 的修订文件写 `true` 并注明来源（11:25 实读确认）；
+  ④ **新建** `outputs/v3/protocol_aa250/approval_revision_20261028.json`（`supersedes_config_hash` 旧→新、逐文件 `source_sha256`、
+  `reason_doc` + sha256、`authorized_by`=11:05 用户裁决、`scope`、`experiment_results_exist: true`、`review`）；
+  `outputs/v3/protocol/approval.json` **保留原字节**（Phase A 的批准记录，不是"当前配置说明书"；无代码读取它，已 grep 核实）；
   ⑤ 版本化理由文档 **草稿已建**：`docs/v3_phase_G_protocol_change_aa250.md`（授权链、11 行清单、绑定值待填表、既有证据口径、验证与回滚；执行时把 §3 的 `<待填>` 填实）；
   ⑥ **独立评审**该改动后才能把 G01 记为"按新契约开跑"。
 - **既有证据是否失效**：D02/D03/E/F01/F02 的 manifest 绑定的是**运行当时**的 `config_hash`，作为历史记录仍然成立；
