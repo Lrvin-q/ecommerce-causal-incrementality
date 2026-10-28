@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-**2026-10-28 10:57 更新。A/B/C/D02/D03/E01/E02/F01 通过**（E 于 05:53 走完第三环窄口径确认；D03 于 05:15 经独立复审 PASS 关闭；**F01 于 10:52 改判"通过"**——第四环窄口径复核 07:21 PASS WITH CONDITIONS（`docs/reviews/v3_phase_F01_recheck.md`），5 项 RC 已 10:45–10:47 逐项复算修完、条件"在改写状态之前或同批"已满足；"通过"仅指记录准确、断言范围正确：单 rep / rep 0 / `formal_repetitions=0` / `constant` 模型 / 0.2 元档，**不表示"定向有效"**）。**F02** 正式 200 rep 于 **03:39** 起跑，**10:57 时 114/200**（shard0/1 已完成 0–99；shard2 完成 100–106、shard3 完成 150–156；rep 107 / 157 在跑），**两条 lane 均有独立内存看护**（lane 2 于 10:54:45 启动，PID 67048/65688；两 lane 峰值 2 436 / 2 207 MB，`low_streak=0`），两 lane 当前 426.3 / 414.7 s/rep ⇒ 合并 ~208 s/rep、剩 86 rep ⇒ **投影 ~15:55 集齐**；合并与证据导出自动收尾。等待期已用 114 rep 预演 rep 配对聚合器（`out/scratch/f02_aggregate.py`）：合并 108/114 判"定向优于随机"，但分层后 **`constant` 0/5**、其余模型 108/109，正式正文必须分层（§12.6）。**G 阶段前置阻塞：用户已于 11:05 裁决走甲方案**（只把 **AA 4 层对齐到 250/层**，共 10 行；补丁 `out/scratch/g_route_jia_aa250.py` dry-run 已逐行通过、真跑安全阀已实测拦住 116/200；**等 F02 四片退出后**执行"改配置 → 跑 09 号重算 protocol → 更新 approval.json → 版本化理由 → 独立评审"）。其余项保持冻结值，因 GOAL G01/G02 仍以冻结值为验收标准；详见「G 阶段前置阻塞」节末的用户裁决小节。**D01** 20 rep 已批准、排在 F02 之后（最早 ~16:05 起、92 分钟独占）。运行期冻结：四个绑定 glob 与 `scripts/30` 在四分片退出前不得改。详见下方 10:56 本轮与 `docs/v3_决策与反思日志.md` 10:56 条。
+**2026-10-28 10:57 更新。A/B/C/D02/D03/E01/E02/F01 通过**（E 于 05:53 走完第三环窄口径确认；D03 于 05:15 经独立复审 PASS 关闭；**F01 于 10:52 改判"通过"**——第四环窄口径复核 07:21 PASS WITH CONDITIONS（`docs/reviews/v3_phase_F01_recheck.md`），5 项 RC 已 10:45–10:47 逐项复算修完、条件"在改写状态之前或同批"已满足；"通过"仅指记录准确、断言范围正确：单 rep / rep 0 / `formal_repetitions=0` / `constant` 模型 / 0.2 元档，**不表示"定向有效"**）。**F02** 正式 200 rep 于 **03:39** 起跑，**10:57 时 114/200**（shard0/1 已完成 0–99；shard2 完成 100–106、shard3 完成 150–156；rep 107 / 157 在跑），**两条 lane 均有独立内存看护**（lane 2 于 10:54:45 启动，PID 67048/65688；两 lane 峰值 2 436 / 2 207 MB，`low_streak=0`），两 lane 当前 426.3 / 414.7 s/rep ⇒ 合并 ~208 s/rep、剩 86 rep ⇒ **投影 ~15:55 集齐**；合并与证据导出自动收尾。等待期已用 114 rep 预演 rep 配对聚合器（`out/scratch/f02_aggregate.py`）：合并 108/114 判"定向优于随机"，但分层后 **`constant` 0/5**、其余模型 108/109，正式正文必须分层（§12.6）。**G 阶段前置阻塞：用户已于 11:05 裁决走甲方案**（只把 **AA 4 层对齐到 250/层**，共 11 行（含两个计划计数）；补丁 `out/scratch/g_route_jia_aa250.py` dry-run 已逐行通过、真跑安全阀已实测拦住 116/200；**等 F02 四片退出后**执行"改配置 → 跑 09 号重算 protocol → 更新 approval.json → 版本化理由 → 独立评审"）。其余项保持冻结值，因 GOAL G01/G02 仍以冻结值为验收标准；详见「G 阶段前置阻塞」节末的用户裁决小节。**D01** 20 rep 已批准、排在 F02 之后（最早 ~16:05 起、92 分钟独占）。运行期冻结：四个绑定 glob 与 `scripts/30` 在四分片退出前不得改。详见下方 10:56 本轮与 `docs/v3_决策与反思日志.md` 10:56 条。
 
 **2026-10-28 07:13 本轮（给 G 定价时查出重复预算契约冲突；推送再失败 1 次）**：
 - [!] **G 阶段前置阻塞（新发现，需用户裁决）**：`configs/v3/`（代码实读、绑定 `approval.json`）与
@@ -36,7 +36,7 @@
       ⇒ 按 §12.6 不得跨源码版本配对，**G01 的 AA 无论选哪条路线都要在当前树上重跑**。
 - [!] **机制上现在改不了冻结配置**：`src/causal_growth/data/v3_pipeline.py:41-44` 的绑定 glob **含 `configs/v3/*.yaml`**，
       F02 四分片未退出前改它会让作业抛 `RuntimeError: source files changed during the data run`（AGENTS §11）⇒ 最早在 F02 合并后。
-      改它要动 **10 处**（`execution.yaml:25` + 4 格 `complete_aa` + 同 4 格 `R` + `scenarios.yaml:264` tally），
+      改它要动 **11 处**（`execution.yaml:25` + 4 格 `complete_aa` + 同 4 格 `R` + `scenarios.yaml:261/264` 两个计划计数；`historical_dgp_jobs` 是模拟运行抓出来的），
       且 `execution.yaml` 自带 `change_matrix_requires_versioned_reason_and_review: true` ⇒ **须版本化理由 + 评审**。
 - [ ] **推送又失败 1 次**：提交 `ada408c`（清除三份文档里过期的"推送失败"状态）于 **06:56** 推送失败
       （`Failed to connect to github.com port 443 after 21062 ms`，exit=128），本地 `[ahead 1]`，提交安全。
@@ -72,13 +72,13 @@
       该现象与 F01 的"`constant` 时 τ̂ 退化、定向退化为按成本排序"机制一致。
       产物 `out/scratch/f02_partial_diag_1055.csv`（不入库；合并后用正式 200 rep 重算）。
 
-**2026-10-28 11:00–11:05 本轮（用户裁决 G 走甲方案；AA 补丁工具就绪并演练出两处反例）**：
+**2026-10-28 11:00–11:08 本轮（用户裁决 G 走甲方案；AA 补丁在副本上预演，抓出第 11 行与一个死代码缺陷）**：
 - [x] **用户 11:05 给出裁决**：「G阶段按甲方案。按照你的思考和建议的方式推进。」
-      ⇒ 范围为 **AA 4 层 × 250**（2026-10-25 授权值），共 **10 行**配置改动；**不照搬 overlay 的其余削减**
+      ⇒ 范围为 **AA 4 层 × 250**（2026-10-25 授权值），共 **11 行**配置改动（11:08 模拟运行补出第 11 行 `historical_dgp_jobs`）；**不照搬 overlay 的其余削减**
       （ATE 500 / 学习 200 / 独立验证 200 / Tier2 100 / 再训练 200 / 固定 bootstrap 1000 仍是 GOAL G01/G02 的验收值），
       理由：TODO:142 的评审条件 C1 只点名 AA，其余项一旦同步下调等于**同时改验收标准**。决策与落地链见「G 阶段前置阻塞」节末。
-- [x] **补丁工具 `out/scratch/g_route_jia_aa250.py` 就绪**（`out/` 不入库）。`--dry-run` 逐行输出 10 处旧值→新值：
-      `execution.yaml:25`、`scenarios.yaml:264/411/429/1296/1314/1925/1943/2942/2960`，断言恰 1 + 9 = 10 行；
+- [x] **补丁工具 `out/scratch/g_route_jia_aa250.py` 就绪**（`out/` 不入库）。`--dry-run` 逐行输出 11 处旧值→新值：
+      `execution.yaml:25`、`scenarios.yaml:261/264/411/429/1296/1314/1925/1943/2942/2960`，断言恰 1 + 10 = 11 行；
       写后 `load_v3_protocol()` 复核 `tier1_aa_per_layer=250`、四格 `(R, complete_aa)=(250,250)`。
 - [x] **安全阀实测有效（不是装饰）**：真跑模式在 F02 未集齐时 `exit=5`：
       `FAIL[5] F02 只有 116/200 个 rep manifest，冻结窗口未结束，拒绝改冻结配置（AGENTS §11）`。
@@ -88,6 +88,15 @@
       ⇒ 同一类坑（行尾、别名共享）在本项目已各出现两次，写盘类工具一律"先留副本、再按文件自身格式写回"。
 - [x] **核实 `R` 的绑定约束**：四格 `formal_repetitions` 只有 `complete_aa` 一个键，`R=250` 满足
       `v3_config.py:189` 的 `R == max(values)` 与 `v3_aa.py:316-318` 的 `complete_aa == tier1_aa_per_layer == R`。
+- [x] **在配置副本上预演，抓出第 11 行（11:08）**：把 `configs/v3/` 复制到 `out/scratch/sim_v3_aa250/`，
+      用工具的 `--root` 走**同一条代码路径**真改再完整加载，立即抛
+      `ConfigError: Planned count drift historical_dgp_jobs: declared=12500, derived=9500`——
+      `v3_config.py:207-210` 会把 `planned_counts` 的 17 个计数逐项与推导值比对，而 `historical_dgp_jobs = Σ max(formal_repetitions.values())`，
+      AA 四格各降 750 ⇒ 总量 −3 000。**正确改动是 11 行**（补 `scenarios.yaml:261 historical_dgp_jobs: 12500→9500`）。
+      补上后副本**完整加载通过**：四格 `(R, complete_aa)=(250,250)`、`historical_dgp_jobs=9500`、`complete_aa_jobs=1000`，
+      新 `config_hash=6b672610…`（当前真实 `config_hash=30511a32…`，与 `approval.json` 一致；`e1aa4314…` 是另一层级的 `protocol_config_hash`）。
+      **同轮还暴露一个死代码缺陷**：写后校验用 `scenario(cell).require("R")`，正确路径是 `active_scenario.R`；
+      这段校验此前从未执行过（真跑一直被安全阀挡住），第一次执行就报错。⇒ 若直接真跑，会留下"配置已改、加载器不通过"的中间态。
 - [!] **仍未执行的边界**：这次只是"补丁就绪 + 文档记录"，**配置一个字节都没改**；真跑必须等 F02 四分片退出（AGENTS §11）。
       push `514495e` 上次失败（网络重置），本轮再试一次。
 
@@ -451,10 +460,10 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
 - [!] **机制上现在动不了**：`src/causal_growth/data/v3_pipeline.py:41-44` 的 `pipeline_source_hashes()`
       绑定 glob **包含 `configs/v3/*.yaml`**，F02 四分片未退出前改这些文件会让作业抛
       `RuntimeError: source files changed during the data run`（AGENTS §11）。所以本项**最早在 F02 合并后**处理。
-- **改冻结配置要动 10 处、且触发评审**：`execution.yaml:25`（1000→250）、4 个 AA 格的 `complete_aa`（1000→250）、
+- **改冻结配置要动 11 处、且触发评审**：`execution.yaml:25`（1000→250）、4 个 AA 格的 `complete_aa`（1000→250）、
       同 4 格的 `R`（1000→250，因为 `v3_config.py:189` 要求 `R == max(formal_repetitions.values())`、
       `v3_aa.py:316-318` 要求 `complete_aa == tier1_aa_per_layer == R`；已核四格 `formal_repetitions` 只有 `complete_aa` 一个键）、
-      以及 `scenarios.yaml:264` 的 tally `complete_aa_jobs`（4000→1000）。合计 1 + 4 + 4 + 1 = **10** 行。
+      以及 `scenarios.yaml:261/264` 两个计划计数（`historical_dgp_jobs` 12500→9500、`complete_aa_jobs` 4000→1000）。合计 1 + 4 + 4 + 2 = **11** 行。
       `execution.yaml` 自带 `change_matrix_requires_versioned_reason_and_review: true` ⇒ **必须带版本化理由并过评审**，不能静默改。
 - **顺带核实清楚、避免误判的两件事**：
   ① 现有 1 384 行 AA 证据**不能**直接当 G01 的正式 AA：它的 `source_hashes_before` 与当前工作区相比有 **6 份源码已漂移**
@@ -483,22 +492,25 @@ AA 标签翻转端到端反例、206 项测试，未发现公式错误或泄漏�
   GOAL G01/G02 仍写 500 ATE / 200 学习 / 200 独立验证 / 100 Tier2 / 200 再训练 / 1000 固定 bootstrap；
   **只有 AA 被 2026-10-25 的决策真正改过**（TODO:142 的 C1 条件也只点名 AA）。把 overlay 其余削减一并落地
   等于**同时改验收标准**，超出用户这次给的范围。
-- **要改的 10 行**（已逐行实测，行尾按各文件自身：`execution.yaml` 为 LF、`scenarios.yaml` 为 CRLF）：
+- **要改的 11 行**（已逐行实测，行尾按各文件自身：`execution.yaml` 为 LF、`scenarios.yaml` 为 CRLF）：
   `execution.yaml:25` `tier1_aa_per_layer: 1000→250`；`scenarios.yaml:411/1296/1925/2942` 四格 `R: 1000→250`；
-  `scenarios.yaml:429/1314/1943/2960` 四格 `complete_aa: 1000→250`；`scenarios.yaml:264` `complete_aa_jobs: 4000→1000`。
+  `scenarios.yaml:429/1314/1943/2960` 四格 `complete_aa: 1000→250`；`scenarios.yaml:264` `complete_aa_jobs: 4000→1000`；
+  `scenarios.yaml:261` `historical_dgp_jobs: 12500→9500`（加载器要求它与 Σ`max(formal_repetitions.values())` 相等）。
 - **补丁工具已就绪**：`out/scratch/g_route_jia_aa250.py`（`out/` gitignore，故不进库；F02 结束后按 §12.1 决定是否提升进 `scripts/`）。
-  - `--dry-run` 已通过（2026-10-28 11:04）：断言恰 **1 + 9 = 10** 行改动，逐行打印旧值→新值（含行号）。
+  - `--dry-run` 已通过（2026-10-28 11:04，11:08 补第 11 行后复跑）：断言恰 **1 + 10 = 11** 行改动，逐行打印旧值→新值（含行号）。
   - 真跑安全阀已实测：F02 未集齐时 `FAIL[5] F02 只有 116/200 个 rep manifest，冻结窗口未结束，拒绝改冻结配置（AGENTS §11）`。
   - 写后自校验：`load_v3_protocol()` 读回 `tier1_aa_per_layer=250`、四格 `(R, complete_aa) == (250, 250)`。
   - 反例已演练：CRLF 未处理时 `FAIL[4]`（行锚点 0 命中）、就地改列表导致改动计数恒 0 时 `FAIL[7]`——两处都真实拦住过，不是装饰。
 - **落地链（F02 四片退出后立即执行，顺序不可换）**：
-  ① `python out/scratch/g_route_jia_aa250.py`（真跑，需 200 manifest）；
-  ② `python scripts/09_freeze_v3_protocol.py` 重算 `outputs/v3/protocol/experiment_matrix.csv` 与 `protocol_manifest.json`
+  ① 预演：刷新 `out/scratch/sim_v3_aa250/` 副本 → `python out/scratch/g_route_jia_aa250.py --root out/scratch/sim_v3_aa250`
+  （与真跑同一入口，含完整 `load_v3_protocol()` 校验）；
+  ② `python out/scratch/g_route_jia_aa250.py`（真跑，需 200 manifest）；
+  ③ `python scripts/09_freeze_v3_protocol.py` 重算 `outputs/v3/protocol/experiment_matrix.csv` 与 `protocol_manifest.json`
   （`config_hash` / `source_sha256` / `planned_counts` 全变）；
-  ③ 更新 `outputs/v3/protocol/approval.json`：**无代码读取它**（已 grep 核实），属档案层；追加 `revision` 块
-  （旧 `config_hash 30511a32…` → 新值、理由、日期、授权出处），不改历史的 `approved_on 2026-10-25`；
-  ④ 写版本化理由文档 `docs/v3_phase_G_protocol_change_aa250.md`（含"哪些既有证据仍成立"）；
-  ⑤ **独立评审**该改动后才能把 G01 记为"按新契约开跑"。
+  ④ 更新 `outputs/v3/protocol/approval.json`：**无代码读取它**（已 grep 核实），属档案层；追加 `revision` 块
+  （旧 `config_hash 30511a32…` → 新值、`matrix_sha256` 旧→新、理由、日期、授权出处），不改历史的 `approved_on 2026-10-25`；
+  ⑤ 写版本化理由文档 `docs/v3_phase_G_protocol_change_aa250.md`（含"哪些既有证据仍成立"）；
+  ⑥ **独立评审**该改动后才能把 G01 记为"按新契约开跑"。
 - **既有证据是否失效**：D02/D03/E/F01/F02 的 manifest 绑定的是**运行当时**的 `config_hash`，作为历史记录仍然成立；
   改配置只影响**之后**新跑的作业。须在理由文档里逐阶段列出其绑定哈希，避免"改了配置=旧证据作废"的误读。
 - **代价**（按实测 160.00 s/rep、2 workers）：AA 1000 次 ≈ **44.4 CPU·h** ≈ **0.9 天**整机；加上其余冻结项，G 仍以"周"计。

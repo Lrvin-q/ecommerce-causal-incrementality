@@ -31,11 +31,12 @@
 > **既有 1 384 行 AA 证据不能直接当 G01 的正式 AA**：9 份 `configs/` 逐份未变（说明当时配置就写着 1000/层），
 > 但 **6 份源码已漂移** ⇒ 按 §12.6 不得跨版本配对，G01 的 AA 两条路线都要在当前树上重跑。
 > **用户 2026-10-28 11:05 裁决：走甲方案，且只对齐 AA。** 原话「G阶段按甲方案。按照你的思考和建议的方式推进。」
-> 范围 = **AA 4 层 × 250**（2026-10-25 授权值），共 **10 行**：`execution.yaml:25`、`scenarios.yaml:411/1296/1925/2942`（`R`）、
-> `scenarios.yaml:429/1314/1943/2960`（`complete_aa`）、`scenarios.yaml:264`（`complete_aa_jobs: 4000→1000`）。
+> 范围 = **AA 4 层 × 250**（2026-10-25 授权值），共 **11 行**：`execution.yaml:25`、`scenarios.yaml:411/1296/1925/2942`（`R`）、
+> `scenarios.yaml:429/1314/1943/2960`（`complete_aa`）、`scenarios.yaml:261`（`historical_dgp_jobs: 12500→9500`）、
+> `scenarios.yaml:264`（`complete_aa_jobs: 4000→1000`）。
 > **其余项不动**（ATE 500 / 学习 200 / 独立验证 200 / Tier2 100 / 再训练 200 / 固定 bootstrap 1000）：
 > GOAL G01/G02 仍以冻结值为验收标准，同步下调等于**同时改验收标准**，超出这次授权。
-> **补丁已就绪**：`out/scratch/g_route_jia_aa250.py`（`out/` 不入库）。`--dry-run` 逐行核对 10 处、写后 `load_v3_protocol()` 复核；
+> **补丁已就绪**：`out/scratch/g_route_jia_aa250.py`（`out/` 不入库）。`--dry-run` 逐行核对 11 处、写后 `load_v3_protocol(root=…)` 全量校验；
 > 真跑安全阀实测在 F02 116/200 时 `FAIL[5]` 拒绝。两处反例（CRLF 行锚点、就地改列表致计数恒 0）都被工具拦下。
 > **机制上 11:05 仍不能改**：`v3_pipeline.py:41-44` 的绑定 glob 含 `configs/v3/*.yaml`，
 > F02 未退出前改它会让作业抛 `source files changed during the data run`（AGENTS §11）。
