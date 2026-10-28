@@ -222,3 +222,14 @@ G03 的验收状态里，不能等跑完再解释。
 "学习格 × 8 预算 × 1000"的计划数（全预算口径）。G02 实际执行 1 000 次（主预算），
 报告必须同时写计划数与执行数，并引用 `budget_scope=primary_0.2`，不得让读者以为 8 档都跑了。
 
+
+### 6.7 A 的第二个硬缺口：`run_validation_arm` 不回传策略价值（2026-10-28 22:55，只读核实）
+
+`run_validation_arm` 内部算了 `decision`、`guardrail` 与真值审计，但返回值只有
+`validation_n / targeted_n / random_n / predicted_spend_per_user / budget_per_user /
+freeze_hash / observed_hash / source_hashes / build_info / fixed_bootstrap`
+（`src/causal_growth/evaluation/v3_g_matrix.py:764-779`）。**策略价值与决策结论没有出口**，
+所以 A 的"评估"拿不到被评估量。补丁必须**新增**返回键（不改既有键，避免动 34/36 与既有测试）：
+`validation_decision`、`validation_guardrail`、`validation_truth_policy_value`；
+新键只在调用方显式要时才算。A 的执行器（39 号）据此逐 b 落一行：`cell_id, b, history_rep_id,
+chosen_model, policy_value, decision, guardrail`，再按 4 格 × 50 汇总。
