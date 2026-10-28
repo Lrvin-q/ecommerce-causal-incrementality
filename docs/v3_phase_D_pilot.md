@@ -265,7 +265,7 @@ D03 的 5 模型实测为 303.2–308.1 s/rep（`docs/v3_phase_D03_formal.md` §
 与 §9 的 1,186 CPU·h 相比下降 183（精确 1,185.67 → 1,003.12，−182.55）：AA −125.3、独立验证 −27.1、`full_learning` −20.0、额外功效 −8.2、DGP −1.9（单位 CPU·h，分项和 = −182.5；再训练 bootstrap 沿用 476.1 s 未变；各分项同时含批数修订与单批秒数修订，不能只归因于计时）。原 40–55 CPU·h 估算与本区间相差 **18–28 倍**（1,003/55 = 18.2；1,107/40 = 27.7）。
 
 **证据**：以上数字可由 `outputs/evidence/d01_pilot/tables/v3_phase_D_pilot_raw_r20.csv` 与 summary 复算；
-运行身份（命令、START/END/EXIT、主机、sha256）见 `outputs/evidence/d01_pilot/run_manifest.json`，已登记进顶层 `coverage.json`。
+运行身份（命令、START/END/EXIT、主机、sha256）见 `outputs/evidence/d01_pilot/run_manifest.json`，源码版本见同目录 `source_binding.json`（入口脚本运行版本按 git 推断为 1682b51；因 073c4a7 已改脚本，当前 sha 不能代表运行版本），二者均已登记进顶层 `coverage.json`（76 条）。
 
 ### 11.4 验收口径逐条对照（§10.3）
 
