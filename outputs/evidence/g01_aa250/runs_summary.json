@@ -1,0 +1,181 @@
+{
+  "kind": "g01_runs_summary",
+  "source_label": "合成数据 / 已知 DGP",
+  "window": {
+    "started_at": "2026-10-28T22:42:39+08:00",
+    "finished_at": "2026-10-29T05:15:38+08:00",
+    "wall_seconds": 23579.0
+  },
+  "shards": [
+    {
+      "shard": "s01",
+      "layer": "L0",
+      "rows": 83,
+      "started_at": "2026-10-28T22:42:39+08:00",
+      "finished_at": "2026-10-29T01:58:43+08:00",
+      "all_complete": true,
+      "failures": [],
+      "snapshot_binding": {
+        "source_hashes_sha256": "526ff53d56a54c756030965486be86194352828fbf7af29cfd4f8c32ca1ab60b",
+        "n_files": 49
+      },
+      "file": "runs/s01__g_aa_run_summary.json"
+    },
+    {
+      "shard": "s02",
+      "layer": "L1",
+      "rows": 83,
+      "started_at": "2026-10-29T01:58:47+08:00",
+      "finished_at": "2026-10-29T05:11:03+08:00",
+      "all_complete": true,
+      "failures": [],
+      "snapshot_binding": {
+        "source_hashes_sha256": "526ff53d56a54c756030965486be86194352828fbf7af29cfd4f8c32ca1ab60b",
+        "n_files": 49
+      },
+      "file": "runs/s02__g_aa_run_summary.json"
+    },
+    {
+      "shard": "s03",
+      "layer": "L0",
+      "rows": 83,
+      "started_at": "2026-10-28T22:42:39+08:00",
+      "finished_at": "2026-10-29T01:58:52+08:00",
+      "all_complete": true,
+      "failures": [],
+      "snapshot_binding": {
+        "source_hashes_sha256": "526ff53d56a54c756030965486be86194352828fbf7af29cfd4f8c32ca1ab60b",
+        "n_files": 49
+      },
+      "file": "runs/s03__g_aa_run_summary.json"
+    },
+    {
+      "shard": "s04",
+      "layer": "L1",
+      "rows": 83,
+      "started_at": "2026-10-29T01:58:56+08:00",
+      "finished_at": "2026-10-29T05:11:12+08:00",
+      "all_complete": true,
+      "failures": [],
+      "snapshot_binding": {
+        "source_hashes_sha256": "526ff53d56a54c756030965486be86194352828fbf7af29cfd4f8c32ca1ab60b",
+        "n_files": 49
+      },
+      "file": "runs/s04__g_aa_run_summary.json"
+    },
+    {
+      "shard": "s05",
+      "layer": "L0",
+      "rows": 84,
+      "started_at": "2026-10-28T22:42:39+08:00",
+      "finished_at": "2026-10-29T02:01:10+08:00",
+      "all_complete": true,
+      "failures": [],
+      "snapshot_binding": {
+        "source_hashes_sha256": "526ff53d56a54c756030965486be86194352828fbf7af29cfd4f8c32ca1ab60b",
+        "n_files": 49
+      },
+      "file": "runs/s05__g_aa_run_summary.json"
+    },
+    {
+      "shard": "s06",
+      "layer": "L1",
+      "rows": 84,
+      "started_at": "2026-10-29T02:01:15+08:00",
+      "finished_at": "2026-10-29T05:15:38+08:00",
+      "all_complete": true,
+      "failures": [],
+      "snapshot_binding": {
+        "source_hashes_sha256": "526ff53d56a54c756030965486be86194352828fbf7af29cfd4f8c32ca1ab60b",
+        "n_files": 49
+      },
+      "file": "runs/s06__g_aa_run_summary.json"
+    },
+    {
+      "shard": "s07",
+      "layer": "L2",
+      "rows": 83,
+      "started_at": "2026-10-28T22:42:39+08:00",
+      "finished_at": "2026-10-29T01:58:42+08:00",
+      "all_complete": true,
+      "failures": [],
+      "snapshot_binding": {
+        "source_hashes_sha256": "526ff53d56a54c756030965486be86194352828fbf7af29cfd4f8c32ca1ab60b",
+        "n_files": 49
+      },
+      "file": "runs/s07__g_aa_run_summary.json"
+    },
+    {
+      "shard": "s08",
+      "layer": "L3",
+      "rows": 83,
+      "started_at": "2026-10-29T01:58:47+08:00",
+      "finished_at": "2026-10-29T05:11:03+08:00",
+      "all_complete": true,
+      "failures": [],
+      "snapshot_binding": {
+        "source_hashes_sha256": "526ff53d56a54c756030965486be86194352828fbf7af29cfd4f8c32ca1ab60b",
+        "n_files": 49
+      },
+      "file": "runs/s08__g_aa_run_summary.json"
+    },
+    {
+      "shard": "s09",
+      "layer": "L2",
+      "rows": 83,
+      "started_at": "2026-10-28T22:42:39+08:00",
+      "finished_at": "2026-10-29T01:58:51+08:00",
+      "all_complete": true,
+      "failures": [],
+      "snapshot_binding": {
+        "source_hashes_sha256": "526ff53d56a54c756030965486be86194352828fbf7af29cfd4f8c32ca1ab60b",
+        "n_files": 49
+      },
+      "file": "runs/s09__g_aa_run_summary.json"
+    },
+    {
+      "shard": "s10",
+      "layer": "L3",
+      "rows": 83,
+      "started_at": "2026-10-29T01:58:55+08:00",
+      "finished_at": "2026-10-29T05:11:11+08:00",
+      "all_complete": true,
+      "failures": [],
+      "snapshot_binding": {
+        "source_hashes_sha256": "526ff53d56a54c756030965486be86194352828fbf7af29cfd4f8c32ca1ab60b",
+        "n_files": 49
+      },
+      "file": "runs/s10__g_aa_run_summary.json"
+    },
+    {
+      "shard": "s11",
+      "layer": "L2",
+      "rows": 84,
+      "started_at": "2026-10-28T22:42:39+08:00",
+      "finished_at": "2026-10-29T02:01:06+08:00",
+      "all_complete": true,
+      "failures": [],
+      "snapshot_binding": {
+        "source_hashes_sha256": "526ff53d56a54c756030965486be86194352828fbf7af29cfd4f8c32ca1ab60b",
+        "n_files": 49
+      },
+      "file": "runs/s11__g_aa_run_summary.json"
+    },
+    {
+      "shard": "s12",
+      "layer": "L3",
+      "rows": 84,
+      "started_at": "2026-10-29T02:01:11+08:00",
+      "finished_at": "2026-10-29T05:15:34+08:00",
+      "all_complete": true,
+      "failures": [],
+      "snapshot_binding": {
+        "source_hashes_sha256": "526ff53d56a54c756030965486be86194352828fbf7af29cfd4f8c32ca1ab60b",
+        "n_files": 49
+      },
+      "file": "runs/s12__g_aa_run_summary.json"
+    }
+  ],
+  "failures_total": 0,
+  "started_at_utc_semantics": "per_rep/sNN__Lx__aa_manifest.json 的 started_at_utc 实为分片完成时刻（已知缺陷，见评审 P1-2）；本文件的 window 与 shards[].started_at/finished_at 才是权威起止"
+}

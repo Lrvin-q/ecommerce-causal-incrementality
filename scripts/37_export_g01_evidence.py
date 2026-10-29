@@ -31,6 +31,7 @@ from scipy import stats
 ROOT = Path(__file__).resolve().parents[1]
 RUN_ROOT = ROOT / "out" / "g01_aa250"
 LOG_ROOT = ROOT / "out" / "g01_logs"
+SNAPSHOT_BINDING = ROOT / "out" / "g01_snapshot" / "snapshot_binding.json"
 DEST = ROOT / "outputs" / "evidence" / "g01_aa250"
 TABLES = ROOT / "outputs" / "tables"
 MERGE_CSV = TABLES / "v3_phase_D_aa_formal_merged.csv"
@@ -153,13 +154,36 @@ def compare(recomputed: pd.DataFrame) -> list[str]:
 
 
 def export(data: pd.DataFrame, recomputed: pd.DataFrame) -> dict:
+    """先把旧证据目录改名腾开，写成功才删旧；中途失败自动还原。
+
+    2026-10-29 修评审 P1 时真实发生过一次：重写过程中抛异常，
+    ``rmtree(DEST)`` 已经把 45 个已登记文件删空、新目录却没建完。
+    证据区不能有"写一半"的状态。
+    """
+    backup = ROOT / "out" / "g01_evidence_bak"
+    if backup.exists():
+        shutil.rmtree(backup)
     if DEST.exists():
-        shutil.rmtree(DEST)
+        DEST.rename(backup)
+    try:
+        payload = _write_evidence(data, recomputed)
+    except BaseException:
+        if DEST.exists():
+            shutil.rmtree(DEST)
+        backup.rename(DEST)
+        raise
+    shutil.rmtree(backup)
+    return payload
+
+
+def _write_evidence(data: pd.DataFrame, recomputed: pd.DataFrame) -> dict:
     (DEST / "per_rep").mkdir(parents=True)
     (DEST / "shards").mkdir()
     (DEST / "logs").mkdir()
     (DEST / "merged").mkdir()
     (DEST / "scripts").mkdir()
+    (DEST / "binding").mkdir()
+    (DEST / "runs").mkdir()
 
     records: list[dict] = []
 
@@ -190,13 +214,73 @@ def export(data: pd.DataFrame, recomputed: pd.DataFrame) -> dict:
                 raise SystemExit(f"缺产物：{src}")
             target = DEST / "per_rep" / f"{tag}__{layer}__{src.name}"
             shutil.copy2(src, target)
-            record(target, f"分片 {tag} / {layer}", source=src,
-                   kind="g01_shard_manifest" if src.suffix == ".json" else "g01_per_rep_table")
+            if src.suffix == ".json":
+                record(target, source=src,
+                       kind="g01_shard_manifest",
+                       note=("注意：本 manifest 的 started_at_utc 实为分片**完成**时刻"
+                             "（缺陷，见评审 P1-2）；权威起止与 failures 以 "
+                             f"runs/{tag}__g_aa_run_summary.json 为准"))
+            else:
+                record(target, f"分片 {tag} / {layer}", source=src,
+                       kind="g01_per_rep_table")
         exit_file = LOG_ROOT / f"{tag}.exit"
         if not exit_file.is_file():
             raise SystemExit(f"缺退出码：{exit_file}")
         shutil.copy2(exit_file, DEST / "shards" / f"{tag}.exit")
         record(DEST / "shards" / f"{tag}.exit", source=exit_file, kind="g01_shard_exit")
+
+    if not SNAPSHOT_BINDING.is_file():
+        raise SystemExit(f"缺快照绑定：{SNAPSHOT_BINDING}")
+    shutil.copy2(SNAPSHOT_BINDING, DEST / "binding" / "snapshot_binding.json")
+    record(DEST / "binding" / "snapshot_binding.json", source=SNAPSHOT_BINDING,
+           kind="g01_snapshot_binding",
+           note="49 文件字节绑定 526ff53d…；git_commit 为 null（无法直接定位提交），"
+                "身份由文件内 49 条 source_hashes 自校验；评审已核对 commit 7d598fa 的 49/49 相同")
+
+    shard_runs: list[dict] = []
+    for tag, layer in SHARD_LAYER.items():
+        src = RUN_ROOT / tag / "g_aa_run_summary.json"
+        if not src.is_file():
+            raise SystemExit(f"缺运行汇总：{src}")
+        target = DEST / "runs" / f"{tag}__g_aa_run_summary.json"
+        shutil.copy2(src, target)
+        record(target, f"分片 {tag} / {layer} 的运行汇总（权威起止与 failures）",
+               source=src, kind="g01_run_summary")
+        shard = json.loads(src.read_text(encoding="utf-8"))
+        shard_runs.append({
+            "shard": tag,
+            "layer": layer,
+            "rows": sum(int(l["rows"]) for l in shard["layers"]),
+            "started_at": shard.get("started_at"),
+            "finished_at": shard.get("finished_at"),
+            "all_complete": shard.get("all_complete"),
+            "failures": shard.get("failures"),
+            "snapshot_binding": shard.get("snapshot_binding"),
+            "file": f"runs/{tag}__g_aa_run_summary.json",
+        })
+    window_start = min(datetime.fromisoformat(r["started_at"]) for r in shard_runs)
+    window_end = max(datetime.fromisoformat(r["finished_at"]) for r in shard_runs)
+    runs_summary = {
+        "kind": "g01_runs_summary",
+        "source_label": "合成数据 / 已知 DGP",
+        "window": {
+            "started_at": window_start.isoformat(timespec="seconds"),
+            "finished_at": window_end.isoformat(timespec="seconds"),
+            "wall_seconds": round((window_end - window_start).total_seconds(), 1),
+        },
+        "shards": shard_runs,
+        "failures_total": sum(len(r["failures"] or []) for r in shard_runs),
+        "started_at_utc_semantics": (
+            "per_rep/sNN__Lx__aa_manifest.json 的 started_at_utc 实为分片完成时刻（已知缺陷，"
+            "见评审 P1-2）；本文件的 window 与 shards[].started_at/finished_at 才是权威起止"
+        ),
+    }
+    (DEST / "runs_summary.json").write_text(
+        json.dumps(runs_summary, ensure_ascii=False, indent=2).replace("\n", "\r\n"),
+        encoding="utf-8", newline="",
+    )
+    record(DEST / "runs_summary.json", "12 个分片的权威起止 / failures / 窗口汇总",
+           kind="g01_runs_summary")
 
     for src, name in (
         (RUN_ROOT / "coverage.json", "coverage_check.json"),
@@ -228,6 +312,13 @@ def export(data: pd.DataFrame, recomputed: pd.DataFrame) -> dict:
         "protocol_config_hash": sorted(data["protocol_config_hash"].dropna().unique().tolist())
         if "protocol_config_hash" in data.columns else [],
         "declared_reps_per_layer": DECLARED_REPS,
+        "run_window": runs_summary["window"],
+        "run_failures_total": runs_summary["failures_total"],
+        "notes": [
+            "per_rep 内 12 个 aa_manifest.json 的 started_at_utc 实为分片完成时刻（已知缺陷）；"
+            "权威起止见 runs_summary.json 与 runs/。",
+            "运行汇总的 failures 全为空、all_complete 全为 true；分片退出码在 shards/*.exit。",
+        ],
         "total_true_aa_rows": int(len(data)),
         "pooled": {
             metric: {

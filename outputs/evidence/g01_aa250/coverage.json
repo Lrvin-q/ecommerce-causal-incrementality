@@ -1,13 +1,23 @@
 {
   "source_label": "合成数据 / 已知 DGP",
   "purpose": "g01_aa250_formal_evidence",
-  "exported_at": "2026-10-29T05:16:41+08:00",
+  "exported_at": "2026-10-29T10:06:08+08:00",
   "approval": "G01-AA250-20261028",
   "status": "formal_aa250",
   "protocol_config_hash": [
     "00723dc26df517b2ddb926f71d1425bb57713150a2d7abd4aebf417b9f7227b3"
   ],
   "declared_reps_per_layer": 250,
+  "run_window": {
+    "started_at": "2026-10-28T22:42:39+08:00",
+    "finished_at": "2026-10-29T05:15:38+08:00",
+    "wall_seconds": 23579.0
+  },
+  "run_failures_total": 0,
+  "notes": [
+    "per_rep 内 12 个 aa_manifest.json 的 started_at_utc 实为分片完成时刻（已知缺陷）；权威起止见 runs_summary.json 与 runs/。",
+    "运行汇总的 failures 全为空、all_complete 全为 true；分片退出码在 shards/*.exit。"
+  ],
   "total_true_aa_rows": 1000,
   "pooled": {
     "net_profit": {
@@ -48,7 +58,7 @@
       "sha256": "ef6ff595a3292ce88c3092a553b3f4db90953a248f60b1a8687c3b24d1932541",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s01/L0/aa_manifest.json",
       "kind": "g01_shard_manifest",
-      "note": "分片 s01 / L0"
+      "note": "注意：本 manifest 的 started_at_utc 实为分片**完成**时刻（缺陷，见评审 P1-2）；权威起止与 failures 以 runs/s01__g_aa_run_summary.json 为准"
     },
     {
       "path": "shards/s01.exit",
@@ -72,7 +82,7 @@
       "sha256": "7a5ba5a9380d39dd95befcf73179751b85d3386d79eebe2c9b74727ef909779f",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s02/L1/aa_manifest.json",
       "kind": "g01_shard_manifest",
-      "note": "分片 s02 / L1"
+      "note": "注意：本 manifest 的 started_at_utc 实为分片**完成**时刻（缺陷，见评审 P1-2）；权威起止与 failures 以 runs/s02__g_aa_run_summary.json 为准"
     },
     {
       "path": "shards/s02.exit",
@@ -96,7 +106,7 @@
       "sha256": "ab5bacff560f1ccfe0f8db7b632a3302ca4380ccf7d265bd0243454dd41db79c",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s03/L0/aa_manifest.json",
       "kind": "g01_shard_manifest",
-      "note": "分片 s03 / L0"
+      "note": "注意：本 manifest 的 started_at_utc 实为分片**完成**时刻（缺陷，见评审 P1-2）；权威起止与 failures 以 runs/s03__g_aa_run_summary.json 为准"
     },
     {
       "path": "shards/s03.exit",
@@ -120,7 +130,7 @@
       "sha256": "aaaa6f27e3fa62195614df28916ecc0489b8a9b6838948dcb16f9e7e657318ac",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s04/L1/aa_manifest.json",
       "kind": "g01_shard_manifest",
-      "note": "分片 s04 / L1"
+      "note": "注意：本 manifest 的 started_at_utc 实为分片**完成**时刻（缺陷，见评审 P1-2）；权威起止与 failures 以 runs/s04__g_aa_run_summary.json 为准"
     },
     {
       "path": "shards/s04.exit",
@@ -144,7 +154,7 @@
       "sha256": "05be0863e63848d2832c1b9bcd405b8004f5dcd9d8d083b0e9e6880fd506bc1c",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s05/L0/aa_manifest.json",
       "kind": "g01_shard_manifest",
-      "note": "分片 s05 / L0"
+      "note": "注意：本 manifest 的 started_at_utc 实为分片**完成**时刻（缺陷，见评审 P1-2）；权威起止与 failures 以 runs/s05__g_aa_run_summary.json 为准"
     },
     {
       "path": "shards/s05.exit",
@@ -168,7 +178,7 @@
       "sha256": "37654cbfe1692ff0bfb5cb15c54d7f8abe6ab698848ba9bcb7848e479f4250d2",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s06/L1/aa_manifest.json",
       "kind": "g01_shard_manifest",
-      "note": "分片 s06 / L1"
+      "note": "注意：本 manifest 的 started_at_utc 实为分片**完成**时刻（缺陷，见评审 P1-2）；权威起止与 failures 以 runs/s06__g_aa_run_summary.json 为准"
     },
     {
       "path": "shards/s06.exit",
@@ -192,7 +202,7 @@
       "sha256": "a72c2b27382562b981f30e829b7067028bda4a817e002a0a66a2b60ba7722186",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s07/L2/aa_manifest.json",
       "kind": "g01_shard_manifest",
-      "note": "分片 s07 / L2"
+      "note": "注意：本 manifest 的 started_at_utc 实为分片**完成**时刻（缺陷，见评审 P1-2）；权威起止与 failures 以 runs/s07__g_aa_run_summary.json 为准"
     },
     {
       "path": "shards/s07.exit",
@@ -216,7 +226,7 @@
       "sha256": "975a94b1065228a9f4a64ef3a51be191614295ce2c9aee5f430a302c97c3f327",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s08/L3/aa_manifest.json",
       "kind": "g01_shard_manifest",
-      "note": "分片 s08 / L3"
+      "note": "注意：本 manifest 的 started_at_utc 实为分片**完成**时刻（缺陷，见评审 P1-2）；权威起止与 failures 以 runs/s08__g_aa_run_summary.json 为准"
     },
     {
       "path": "shards/s08.exit",
@@ -240,7 +250,7 @@
       "sha256": "80d645ffbc7aef465dda540f697314c72ed2252f80d521490430844bcd55dff3",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s09/L2/aa_manifest.json",
       "kind": "g01_shard_manifest",
-      "note": "分片 s09 / L2"
+      "note": "注意：本 manifest 的 started_at_utc 实为分片**完成**时刻（缺陷，见评审 P1-2）；权威起止与 failures 以 runs/s09__g_aa_run_summary.json 为准"
     },
     {
       "path": "shards/s09.exit",
@@ -264,7 +274,7 @@
       "sha256": "8a6b33ac4c534cc488386a032004c26b4f9b0396cd4b270c00fc5183d82ed3c5",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s10/L3/aa_manifest.json",
       "kind": "g01_shard_manifest",
-      "note": "分片 s10 / L3"
+      "note": "注意：本 manifest 的 started_at_utc 实为分片**完成**时刻（缺陷，见评审 P1-2）；权威起止与 failures 以 runs/s10__g_aa_run_summary.json 为准"
     },
     {
       "path": "shards/s10.exit",
@@ -288,7 +298,7 @@
       "sha256": "44eb7789d29898b2e4df29822e5dbb493243d27f8c83fc079cfdef78d543f194",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s11/L2/aa_manifest.json",
       "kind": "g01_shard_manifest",
-      "note": "分片 s11 / L2"
+      "note": "注意：本 manifest 的 started_at_utc 实为分片**完成**时刻（缺陷，见评审 P1-2）；权威起止与 failures 以 runs/s11__g_aa_run_summary.json 为准"
     },
     {
       "path": "shards/s11.exit",
@@ -312,7 +322,7 @@
       "sha256": "19b9eb05b72fb18f931f51293fc5f4b94a9faacb7ddbc7664abf850d1bb2d72b",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s12/L3/aa_manifest.json",
       "kind": "g01_shard_manifest",
-      "note": "分片 s12 / L3"
+      "note": "注意：本 manifest 的 started_at_utc 实为分片**完成**时刻（缺陷，见评审 P1-2）；权威起止与 failures 以 runs/s12__g_aa_run_summary.json 为准"
     },
     {
       "path": "shards/s12.exit",
@@ -320,6 +330,117 @@
       "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_logs/s12.exit",
       "kind": "g01_shard_exit"
+    },
+    {
+      "path": "binding/snapshot_binding.json",
+      "bytes": 5777,
+      "sha256": "1c3a8b2a048856152c835c2f537a9c24e21e5afba89115311b4e64a1783a2e25",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_snapshot/snapshot_binding.json",
+      "kind": "g01_snapshot_binding",
+      "note": "49 文件字节绑定 526ff53d…；git_commit 为 null（无法直接定位提交），身份由文件内 49 条 source_hashes 自校验；评审已核对 commit 7d598fa 的 49/49 相同"
+    },
+    {
+      "path": "runs/s01__g_aa_run_summary.json",
+      "bytes": 2501,
+      "sha256": "5cfde6796153233c0c46663e94160686986e15d4eb4f3ef4ae2904216163775c",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s01/g_aa_run_summary.json",
+      "kind": "g01_run_summary",
+      "note": "分片 s01 / L0 的运行汇总（权威起止与 failures）"
+    },
+    {
+      "path": "runs/s02__g_aa_run_summary.json",
+      "bytes": 2508,
+      "sha256": "a0544230c95f138951dc9f7182a5874ab0fc1e5d45c528261fd0f0e3bcd98272",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s02/g_aa_run_summary.json",
+      "kind": "g01_run_summary",
+      "note": "分片 s02 / L1 的运行汇总（权威起止与 failures）"
+    },
+    {
+      "path": "runs/s03__g_aa_run_summary.json",
+      "bytes": 2584,
+      "sha256": "00ecec42d8cd4594cad6c4812e4ed4a6420dd518a3f6f57e6683e6903ed7aaad",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s03/g_aa_run_summary.json",
+      "kind": "g01_run_summary",
+      "note": "分片 s03 / L0 的运行汇总（权威起止与 failures）"
+    },
+    {
+      "path": "runs/s04__g_aa_run_summary.json",
+      "bytes": 2585,
+      "sha256": "635bf33e9053a64a06d6917a9b4681884f80285a218f6582decde87107c86a47",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s04/g_aa_run_summary.json",
+      "kind": "g01_run_summary",
+      "note": "分片 s04 / L1 的运行汇总（权威起止与 failures）"
+    },
+    {
+      "path": "runs/s05__g_aa_run_summary.json",
+      "bytes": 2616,
+      "sha256": "9604f29f7430929b0d71261e3e62d1a2c9bf31be7ac49da96f4dd4a5fcccb0d2",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s05/g_aa_run_summary.json",
+      "kind": "g01_run_summary",
+      "note": "分片 s05 / L0 的运行汇总（权威起止与 failures）"
+    },
+    {
+      "path": "runs/s06__g_aa_run_summary.json",
+      "bytes": 2616,
+      "sha256": "eb653eacdb687b490465dd2637c4e7615ee43017a9b045769bac0de5e732789b",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s06/g_aa_run_summary.json",
+      "kind": "g01_run_summary",
+      "note": "分片 s06 / L1 的运行汇总（权威起止与 failures）"
+    },
+    {
+      "path": "runs/s07__g_aa_run_summary.json",
+      "bytes": 2506,
+      "sha256": "7c89b84e733d4a8bc6fd7c46c5d02dc4ef767c70c0485e2d50269cf816a2d751",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s07/g_aa_run_summary.json",
+      "kind": "g01_run_summary",
+      "note": "分片 s07 / L2 的运行汇总（权威起止与 failures）"
+    },
+    {
+      "path": "runs/s08__g_aa_run_summary.json",
+      "bytes": 2507,
+      "sha256": "0eb73c44d2ea01635a967359c4a58374a4c12fa53d35141192aa4d2aa941a08b",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s08/g_aa_run_summary.json",
+      "kind": "g01_run_summary",
+      "note": "分片 s08 / L3 的运行汇总（权威起止与 failures）"
+    },
+    {
+      "path": "runs/s09__g_aa_run_summary.json",
+      "bytes": 2585,
+      "sha256": "424873493bd865107346f05dec279f21a0f49212aae0b8abfcab85664dfba192",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s09/g_aa_run_summary.json",
+      "kind": "g01_run_summary",
+      "note": "分片 s09 / L2 的运行汇总（权威起止与 failures）"
+    },
+    {
+      "path": "runs/s10__g_aa_run_summary.json",
+      "bytes": 2583,
+      "sha256": "85056ba4879795760cb5be154a422f2545ebaf1596e21d7c6c321fc3aa34cc4b",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s10/g_aa_run_summary.json",
+      "kind": "g01_run_summary",
+      "note": "分片 s10 / L3 的运行汇总（权威起止与 failures）"
+    },
+    {
+      "path": "runs/s11__g_aa_run_summary.json",
+      "bytes": 2616,
+      "sha256": "281970b3159a0111c4fe2478459c36add775a3895645789bb88e9e5144d2e41b",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s11/g_aa_run_summary.json",
+      "kind": "g01_run_summary",
+      "note": "分片 s11 / L2 的运行汇总（权威起止与 failures）"
+    },
+    {
+      "path": "runs/s12__g_aa_run_summary.json",
+      "bytes": 2616,
+      "sha256": "28ed772b079d24e7954cd7a73034515293668738d80f9e5ddc8c76c98cc7f354",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g01_aa250/s12/g_aa_run_summary.json",
+      "kind": "g01_run_summary",
+      "note": "分片 s12 / L3 的运行汇总（权威起止与 failures）"
+    },
+    {
+      "path": "runs_summary.json",
+      "bytes": 5825,
+      "sha256": "dd6a047161fa5c102ebb8fe4a3b25dc39cfd933e88cd83d345eeb92f46da3ad1",
+      "kind": "g01_runs_summary",
+      "note": "12 个分片的权威起止 / failures / 窗口汇总"
     },
     {
       "path": "coverage_check.json",

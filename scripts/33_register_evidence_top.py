@@ -118,6 +118,12 @@ DIR_NOTE = {
         "运行已完成，但阶段状态为**未证实**，待独立评审（AGENTS §7.4）。"
     ),
 }
+# 非身份类命名、但按先例必须顶层可发现的证据：**逐条白名单**，不做通配。
+# G01 的 runs_summary.json 是 12 个分片权威起止与 failures=[] 的唯一来源
+# （manifest 的 started_at_utc 实为完成时刻，评审 P1-2），必须让第三方在顶层找得到。
+DIR_EXTRA_IDENTITY = {
+    "g01_aa250": {"runs_summary.json": "g01_runs_summary"},
+}
 DIR_KIND_FALLBACK = {
     "f02_n200k_rep0": {
         "freeze.json": "f02_freeze",
@@ -234,6 +240,7 @@ def _normalize_dir_files(payload: dict, subdir: str, evidence_root: Path
     if raw is None:
         raw = payload.get("records")
     kinds = DIR_KIND_FALLBACK.get(subdir, {})
+    extra_kinds = DIR_EXTRA_IDENTITY.get(subdir, {})
     out: list[dict] = []
     problems: list[str] = []
     if isinstance(raw, list):
@@ -255,7 +262,7 @@ def _normalize_dir_files(payload: dict, subdir: str, evidence_root: Path
                 continue
             out.append({
                 "rel": rel,
-                "kind": rec.get("kind") or kinds.get(rel),
+                "kind": rec.get("kind") or kinds.get(rel) or extra_kinds.get(rel),
                 "source": rec.get("source"),
                 "sha256": rec["sha256"],
                 "bytes": int(rec["bytes"]),
@@ -267,7 +274,7 @@ def _normalize_dir_files(payload: dict, subdir: str, evidence_root: Path
                 continue
             out.append({
                 "rel": rel,
-                "kind": info.get("kind") or kinds.get(rel),
+                "kind": info.get("kind") or kinds.get(rel) or extra_kinds.get(rel),
                 "source": info.get("source"),
                 "sha256": info["sha256"],
                 "bytes": int(info["bytes"]),
@@ -305,8 +312,9 @@ def collect(subdirs: list[str], evidence_root: Path) -> tuple[list[dict], list[s
         for rel in on_disk:
             bad.append(f"{subdir}/{rel}: 磁盘上存在身份类文件，但目录级 coverage.json 未登记")
 
+        extra_identity = DIR_EXTRA_IDENTITY.get(subdir, {})
         for rec in normalized:
-            if not _is_identity(rec["rel"]):
+            if not _is_identity(rec["rel"]) and rec["rel"] not in extra_identity:
                 continue
             path = d / rec["rel"]
             if not path.is_file():
@@ -449,6 +457,7 @@ def main() -> int:
         "total_bytes_before": top.get("total_bytes"),
         "total_bytes_after": new_total,
         "identity_patterns": list(IDENTITY_PATTERNS),
+        "extra_identity": {k: sorted(v) for k, v in DIR_EXTRA_IDENTITY.items()},
         "ordering_policy": "append_only_preserve_existing_order",
         "prior_entry_defects": PRIOR_ENTRY_DEFECTS,
         "reason": reason,
