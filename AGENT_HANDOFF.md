@@ -1,9 +1,10 @@
 # AGENT 交接说明 —— v3 重建
 
-> **最新交接时间：2026-10-29 10:45（北京时间）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
-> **（10-29 10:45）恢复会话先读这五条：**
+> **最新交接时间：2026-10-29 11:15（北京时间）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
+> **（10-29 11:15）恢复会话先读这六条：**
 > 1. **G02 正在跑**：批准号 `G02-FORMAL-20261029`；10:39 起 4 个 core 格 × 50 b（`out/g02_retrain/`），
->    快照 `out/g02_snapshot`（49 文件 `abaa338a…`，`v3_g_matrix.py` `6ec009b6…`），ETA **19:20–20:40**。
+>    快照 `out/g02_snapshot`（49 文件 `abaa338a…`，`v3_g_matrix.py` `6ec009b6…`）；10:53 越过失火点
+>    （b=1 两指纹唯一），**ETA 16:15–17:30**（b=0 386–562 s、b=1 约 6.5 min 实测外推）。
 >    首轮 10:15 全灭的原因与修法见 TODO 顶部块与日志 10:26 条（冻结帧指纹原先含 `issued_action`）。
 > 2. **收尾与后续全自动**：`out/g02_post.sh`（PID 1457）校验 4 格 × 50 b、两个冻结指纹唯一、`status=formal`，
 >    然后 `39 … merge`；`out/g03_chain.sh`（PID 1493，14 h 期限）等 `post.status` 的 `OK:` → 阶段 A
@@ -19,6 +20,11 @@
 >    之后只需写 `docs/v3_phase_G02_formal.md` / G03 报告、跑 33 登记、刷新注册表。
 > 5. **纪律不变**：`configs/v3/*.yaml` 七份冻结（hash `00723dc2…`）；正式跑期间不写 `src/`（改脚本/文档安全）；
 >    不削弱 17/19/33/40/41 校验器；证据只认 `outputs/evidence/`。
+> 6. **G03 失败时的唯一正确续跑法（11:15 读码确认）**：`--resume` 只救"跑到一半被杀、
+>    留下 `repetitions_provisional.csv`"的分片；**已完成分片（只有 `repetitions.csv`）无论带不带
+>    `--resume` 都会整片重跑**。所以别原样重跑整条命令——先 `34 merge out/g03_formal`，
+>    再只为缺口 `--cells <cell> --rep-start a --rep-stop b --out-root out/g03_repairN` 重跑，
+>    最后 `34 merge out/g03_formal out/g03_repairN`，并确认 `duplicates=0`。详见日志 11:15 条。
 >
 > **历史块（2026-10-28 23:01）**
 >
