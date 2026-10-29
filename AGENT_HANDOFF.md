@@ -28,6 +28,9 @@
 >    out/scratch/v3_paper_build/body.tex --bbl out/scratch/v3_paper_build/main.bbl` 查"12 篇不多不少、
 >    全部被引用、无表外键、正文与 .bbl 一致、无 `{[}@` 字面量"。首次在真实产物上跑就叫停了
 >    探针残留的 `[@dummy]`——构建全绿但引用是假的，正是它要防的形态。
+>    **12:24 正文开笔**：`paper/v3/body/*.md` 按文件名拼成整稿（`01_intro.md` 已写出引言，12 篇引用全落地）；
+>    构建用 `bash paper/v3/build.sh paper/v3/body`，43 也用 `out/scratch/v3_paper_build/body.md` 同一份拼接稿。
+>    续写时只加 `02_method.md`、`03_results.md`、`04_conclusion.md`，不要改动已有章文件名顺序。
 >
 > **（10-29 11:45）七条不变，改动处已更新：**
 > 1. **G02 正在跑**：批准号 `G02-FORMAL-20261029`；10:39 起 4 个 core 格 × 50 b（`out/g02_retrain/`），
