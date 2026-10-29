@@ -18,7 +18,10 @@
 - **验证**：n=2000 × 4 格 × 2 b 冒烟通过（`L0_P_main` b=1 选模从 constant 变 causal_forest，正是旧指纹误报的场景）；
   全量单进程串行 pytest **EXIT=0**（`out/pytest_g02fix_20261029_1029.log`，10:29–10:38）。
 - **重开（10:39）**：新快照 `out/g02_snapshot` 49 文件 `abaa338a…`（`v3_g_matrix.py` `6ec009b6…`）；
-  4 格重新从 b=0 跑，ETA **19:20–20:40**。失败现场保留在 `out/g02_retrain_failed_20261029_1026/`
+  4 格重新从 b=0 跑。**10:53 已越过首轮失败点**：L0_P_main 写出 b=1，`validation_frame_hash` 与
+  `validation_arm_hash` 跨 b 唯一（各 1 个值），`validation_observed_hash` 如实变为 2 个值。
+  实测 b=0 每格 386–562 s CPU、b=1 约 6.5 min wall ⇒ 50 b 约 **5.5–6 h**，ETA **16:15–17:30**。
+  失败现场保留在 `out/g02_retrain_failed_20261029_1026/`
   （4 格 b=0 表 + failure_logs）。`out/g02_post.sh` 改为断言两个新指纹 + 停滞 3 h 即失败；
   `out/g03_chain.sh` 改为识别 `STALL/TIMEOUT/VERIFY FAIL/merge_exit≠0` 即停（10:39:57 重启，PID 1493）。
 - **10:48 补收尾看护**：`out/g03_post.sh`（PID 1952）等 `chain.status` 的 `OK:`，先跑 40/41 `--check`
