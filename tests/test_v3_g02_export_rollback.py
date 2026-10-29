@@ -81,3 +81,50 @@ def test_success_refuses_unparseable_coverage(mod, tmp_path, monkeypatch):
     with pytest.raises(ValueError):
         mod.write_evidence([], None)
     assert (dest / "old.txt").read_text(encoding="utf-8") == "old"
+
+
+def _full_cell(mod, tmp_path, monkeypatch, **overrides):
+    """造一个 50 b 的完整格目录；默认是**正确**形状：验证 rep 固定为 0。"""
+    import pandas as pd
+
+    monkeypatch.setattr(mod, "RUN_ROOT", tmp_path)
+    cell = "L0_P_main"
+    cell_dir = tmp_path / cell
+    cell_dir.mkdir(parents=True)
+    (cell_dir / "run_state.json").write_text("{}", encoding="utf-8")
+    n = mod.PER_CELL
+    data = {
+        "b": list(range(n)),
+        "history_rep_id": [1_000_000 + i for i in range(n)],
+        "validation_rep": [0] * n,
+        "validation_frame_hash": ["f"] * n,
+        "validation_arm_hash": ["a"] * n,
+        "status": ["formal"] * n,
+        "protocol_config_hash": ["p"] * n,
+        "n_history": [200_000] * n,
+        "n_validation": [5_000] * n,
+        "retraining_bootstrap_total": [200] * n,
+    }
+    data.update(overrides)
+    pd.DataFrame(data).to_csv(cell_dir / "repetitions.csv", index=False, encoding="utf-8-sig")
+    return cell
+
+
+def test_check_cell_accepts_fixed_validation_rep(mod, tmp_path, monkeypatch):
+    # 设计上 50 个 b 共用 VALIDATION_REP=0：重复是要求，不能报成缺陷
+    cell = _full_cell(mod, tmp_path, monkeypatch)
+    _, problems = mod.check_cell(cell)
+    assert problems == [], problems
+
+
+def test_check_cell_rejects_drifting_validation_rep(mod, tmp_path, monkeypatch):
+    cell = _full_cell(mod, tmp_path, monkeypatch, validation_rep=[0, 1] * 25)
+    _, problems = mod.check_cell(cell)
+    assert any("validation_rep 在 b 间不一致" in p for p in problems), problems
+
+
+def test_check_cell_rejects_duplicate_history_rep(mod, tmp_path, monkeypatch):
+    cell = _full_cell(mod, tmp_path, monkeypatch,
+                      history_rep_id=[1_000_000] * mod.PER_CELL)
+    _, problems = mod.check_cell(cell)
+    assert any("history_rep_id 在 b 间重复" in p for p in problems), problems

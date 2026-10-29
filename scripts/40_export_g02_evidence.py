@@ -78,9 +78,11 @@ def check_cell(cell: str) -> tuple[pd.DataFrame, list[str]]:
         values = frame[col].dropna().unique()
         if len(values) != 1:
             problems.append(f"{cell}: {col} 不唯一 {values[:5]}")
-    for col in ("history_rep_id", "validation_rep"):
-        if frame[col].duplicated().any():
-            problems.append(f"{cell}: {col} 在 b 间重复")
+    if frame["history_rep_id"].duplicated().any():
+        problems.append(f"{cell}: history_rep_id 在 b 间重复（重抽总体不唯一）")
+    # 设计上 50 个 b 共用同一个验证 rep（VALIDATION_REP=0），重复是**要求**，不是缺陷。
+    if int(frame["validation_rep"].nunique(dropna=False)) != 1:
+        problems.append(f"{cell}: validation_rep 在 b 间不一致（验证 rep 必须固定）")
     return frame, problems
 
 

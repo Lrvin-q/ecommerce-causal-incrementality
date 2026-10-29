@@ -23,6 +23,10 @@
 >    状态在 `out/g03_logs/chain.status`。**收尾后先手动跑 `40 --check` 看 G02 合并是否自洽**（post 不等它）：
 >    `PYTHONUTF8=1 .venv/Scripts/python.exe scripts/40_export_g02_evidence.py --check`；
 >    期望 exit 0。若报 `b_count`/`policy_value_*` 不一致，先按实表复算再判断，**不得改宽容**。
+>    **（11:44 已修一处判据错误）** 40 原把"50 个 b 共用 `VALIDATION_REP=0`"报成
+>    `validation_rep 在 b 间重复`——完整正确格必被误判，会让 `g03_post` 的 40 `--check` ABORT。
+>    现为：`history_rep_id` 查唯一、`validation_rep` 查恒定；新增 3 例测试（6 passed）。
+>    未跑完时 `--check` 的退出码是 **1**（缺 run_state/rows≠50），不是 2。
 > 3. **G01 已通过（11:00 改判）**：边界见 GOAL G01 行；复评链 `review2.md` → `review3.md`。
 > 4. **已提交**：`a9d8405`（41 列契约）、`8c4e9c4`/`48bd696`（overlay 与 truth 口径纠正）、
 >    `239fa06`（磁盘实测）、`3e447d5`（H05 S12）、`10459ad`（S5 升 Crossref ✓）、`3d63ddc`（收尾链契约复核）。
