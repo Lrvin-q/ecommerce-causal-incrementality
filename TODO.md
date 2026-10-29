@@ -1,6 +1,6 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-29 19:43（北京时间；`date` 读数。12:30/12:31 两条写于本机时钟校正前，不追改）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-29 19:48（北京时间；`date` 读数。12:30/12:31 两条写于本机时钟校正前，不追改）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
 
@@ -36,6 +36,13 @@
 > overlay `c58d5a90…` 未改、`src/ sql/ configs/` git 洁净、42 号 19 条 claim 全回指、40 号 `--check` EXIT=0；
 > 33 号 `--dry-run` EXIT=2 属"待人工复核"INFO。结论记入注册表 §4.2。
 > Phase 1 于 19:36:30 起跑（4 格 / 40 分片 / 6 路），19:42 时首片尚未落 `repetitions.csv`（片内 10 rep 跑完才写，属正常）。
+> 最新动作（19:46）：**G03 报告 §4 已填**（24 格固定 bootstrap，取数脚本 `scripts/47_g03_fixed_report.py`
+> → `outputs/tables/v3_g03_fixed_bootstrap_summary.csv`）：Tier1 CI 跨零 2/4（L0、L3），Tier2 4/20、点差为正 19/20。
+> **同时发现并披露一处空转机制**：`L2_immature_negative_control` 的键 `dgp.l2.include_immature_analysis_control`
+> 源码从未读取，该格与 `L2_n200000_p050` 逐字节相同（md5 `69da7f4a…`）⇒ 24 格里只有 23 个不同机制，
+> 该格数字不得当作"未成熟快照假增益"证据；已写入报告 §4/§6 与反思日志 19:46 条。
+> 普查还发现 `models.train_fraction_of_training_pool`（3 个 `L1_learning_*` 格，不在 G03 24 格内）同样未被消费、
+> `dgp.l3.branch` 只是标签；**运行期不改源码**（会触发 source-hash 失败）。
 
 ### 接手清单（G02 → G04，按顺序执行；2026-10-29 12:47 写）
 
@@ -63,6 +70,11 @@
    并单独跑 `42_claim_number_gate.py --abstract paper/v3/abstract.md`（12:52 新增：摘要只准 Tier1 注册值）。
 8. **待用户裁决（不阻塞上述执行）**：GOAL 首句要求"50–100 页量级"长稿，当前 12 页；
    G02/G03 结果落地后若仍不足，需请用户裁决是补内容还是改 GOAL 措辞——**不得静默下调或填充凑页**。
+9. **空转机制（19:46 发现，Phase 2 收尾后处置）**：`L2_immature_negative_control` 的
+   `dgp.l2.include_immature_analysis_control` 未被源码读取，该格与 `L2_n200000_p050` 逐字节相同；
+   报告已披露。可选处置：① 保持披露、只在 §3 解读时排除该格；② 另立注册分析跑 `allow_immature=True`
+   的 7 天快照对照（需用户批准）。另 `models.train_fraction_of_training_pool` 在 3 个 `L1_learning_*`
+   格上同样空转（不在 G03 24 格内），将来启用前必须先接线。**运行期不得改 `src/causal_growth/**/v3*.py`**。
 
 **2026-10-29 12:46 更新。G02 53/200 b；H05 引用支持范围小节入正文；43 字数 56.32%、页 77.78%，12 页**：
 
