@@ -6,6 +6,11 @@
 
 **2026-10-29 11:52 更新。G02 稳定推进（33/200 b）；尾链判据缺陷已修（40 号），静态复核之外又做了真数据探针**：
 
+- **11:52 收尾体检脚本**：`out/scratch/g04_closeout_precheck.py`（只读）把 G04 的人工核对点收成一次运行：
+  三份 status、G02 四格 50 行、G03 `_final` 24 格覆盖、源码 49 文件对 `out/g03_snapshot` 逐文件比对、
+  overlay sha、`src/ sql/ configs/` git 洁净；可选 `--with-check`（40/41）与 `--with-register`（33 dry-run）。
+  基线跑 EXIT=2（G02 9/8/8/8、链未启动、快照未生成），与现状一致；它是**提醒器不是门禁**，
+  真门禁仍是 40/41 与 33。已写入 `AGENT_HANDOFF.md` 第 0 条。
 - **11:51 运行体检**：`out/scratch/status_now.sh` 与 `out/g04_monitor.log`（PID 4246，10 min 一采样）：
   9/8/8/8 = 33 b；盘 92 GB 空闲（门槛 15 GB）、内存空闲 12.3 GB、8 个 python 合计 RSS 6.9 GB；
   三个 status 文件均未出现 STOP/TIMEOUT/STALL，309/1493/3883/4246 四个看护进程都在。

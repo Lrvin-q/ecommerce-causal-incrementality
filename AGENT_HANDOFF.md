@@ -13,11 +13,15 @@
 >    恢复会话先 `tail -40 out/g04_logs/monitor.log` 就能看清断点前后的节奏。
 >    11:46 基线：总 RSS 6 937 MB / 空闲 12.3 GB（总 30.8）/ 磁盘 92 GB；`mem_free_gb < 3` 时必须人工降并发
 >    （先停链再改脚本，运行中的 bash 脚本不能热改）。
+>    **11:52 新增只读收尾体检** `out/scratch/g04_closeout_precheck.py`：一次输出三份 status、
+>    G02 四格行数、G03 `_final` 24 格覆盖、源码 49 文件对 `out/g03_snapshot` 逐文件比对、overlay sha、
+>    受绑路径 git 洁净；`--with-check` 再跑 40/41 `--check`，`--with-register` 跑 33 `--dry-run`。
+>    退出码 0=READY / 2=未跑完 / 3=不一致。11:52 基线跑出 EXIT=2（G02 9/8/8/8、链未启动），符合预期。
 >
 > **（10-29 11:45）七条不变，改动处已更新：**
 > 1. **G02 正在跑**：批准号 `G02-FORMAL-20261029`；10:39 起 4 个 core 格 × 50 b（`out/g02_retrain/`），
 >    快照 `out/g02_snapshot`（49 文件 `abaa338a…`，`v3_g_matrix.py` `6ec009b6…`）；10:53 越过失火点。
->    11:41 实测 **29/200 b（8/7/7/7）**，按 54 min 外推 **ETA ~17:20（16:40–18:00）**。
+>    11:51 实测 **33/200 b（9/8/8/8）**，按 54 min 外推 **ETA ~17:20（16:40–18:00）**。
 >    首轮 10:15 全灭的原因与修法见 TODO 顶部块与日志 10:26 条（冻结帧指纹原先含 `issued_action`）。
 > 2. **收尾与后续全自动**：`out/g02_post.sh`（PID 1457）校验 4 格 × 50 b、两个冻结指纹唯一、`status=formal`，
 >    然后 `39 … merge`；`out/g03_chain.sh`（PID 1493，14 h 期限）等 `post.status` 的 `OK:` → 建快照 →
