@@ -1,4 +1,4 @@
-# G 阶段运行注册表（2026-10-29 11:00，北京时间）
+# G 阶段运行注册表（2026-10-29 11:20，北京时间）
 
 > 合成数据 / 已知 DGP。本表对应 GOAL G04「失败重试 / 资源 / 真实进程记录，全入口可恢复」。
 > **状态：进行中**——**G01 已于 2026-10-29 11:00 改判"通过"**（第三轮窄复评 5/5 P2 关闭、0 新增 P0/P1，§2.5）；
@@ -187,3 +187,32 @@ git push origin codex/d03
 ```
 
 **禁止**：在导出/登记未成功前把 G01 记成"通过"；在 `out/g01_logs/*.exit` 未齐 12 个 0 之前做合并结论。
+
+## 6. G02/G03 收尾命令序列（2026-10-29 11:20 预置；链条结束后照抄）
+
+```bash
+# 0) 先看三个状态文件（OK / STOP / VERIFY FAIL / TIMEOUT）
+cat out/g02_logs/post.status out/g03_logs/chain.status out/g03_logs/g03_post.status
+
+# 1) G02 证据：先 --check 再导出（staging + 原子换名，旧目录留时间戳备份）
+.venv/Scripts/python.exe scripts/40_export_g02_evidence.py --check
+.venv/Scripts/python.exe scripts/40_export_g02_evidence.py
+
+# 2) G03 + 固定 bootstrap：g03_post 已自动跑过这两步，幂等可重跑
+.venv/Scripts/python.exe scripts/41_export_g03_evidence.py --check
+.venv/Scripts/python.exe scripts/41_export_g03_evidence.py
+
+# 3) 报告数字（只读；与 39 合并表 1e-9 对账，异常 exit 2）
+.venv/Scripts/python.exe out/scratch/g02_report_numbers.py
+
+# 4) 填 docs/v3_phase_G02_formal.md §3/§4、docs/v3_phase_G03_formal.md §2–§4
+# 5) 顶层登记：先 dry-run，人工复核 coverage.json 的 sha/bytes 后再正式执行
+.venv/Scripts/python.exe scripts/33_register_evidence_top.py --dirs g02_formal g03_formal --dry-run
+.venv/Scripts/python.exe scripts/33_register_evidence_top.py --dirs g02_formal g03_formal
+
+# 6) 翻 GOAL G02/G03 行，刷新 TODO / 决策日志 / AGENT_HANDOFF / 本注册表，提交推送
+```
+
+**续跑（任何阶段失败时）**：`--resume` 只救"半途被杀、留下 `repetitions_provisional.csv`"的分片；
+已完成分片会整片重跑。正确做法：先 `34 merge` 收已完成 → 缺口另起根重跑 → 多根 `merge` 且 `duplicates=0`。
+见 `AGENT_HANDOFF.md` 第 6 条与决策日志 2026-10-29 11:15 条。
