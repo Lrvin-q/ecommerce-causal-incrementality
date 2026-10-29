@@ -15,7 +15,8 @@
 >    （先停链再改脚本，运行中的 bash 脚本不能热改）。
 >    **11:52 新增只读收尾体检** `out/scratch/g04_closeout_precheck.py`：一次输出三份 status、
 >    G02 四格行数、G03 `_final` 24 格覆盖、源码 49 文件对 `out/g03_snapshot` 逐文件比对、overlay sha、
->    受绑路径 git 洁净；`--with-check` 再跑 40/41 `--check`，`--with-register` 跑 33 `--dry-run`。
+>    受绑路径 git 洁净；`--with-check` 再跑 40/41 `--check`，`--with-register` 跑 33 `--dry-run`，
+>    `--with-claims` 跑 42 号 H04 数字门禁（11:59 实测 EXIT=0，5 条 claim 全部回指）。
 >    退出码 0=READY / 2=未跑完 / 3=不一致。11:52 基线跑出 EXIT=2（G02 9/8/8/8、链未启动），符合预期。
 >
 > **（10-29 11:45）七条不变，改动处已更新：**
