@@ -33,7 +33,10 @@
 | 待填 | 阶段 B 完成（`g03_exit=0`） |
 
 **续跑纪律（失败时）**：`--resume` 只救"跑到一半被杀、有 `repetitions_provisional.csv`"的分片；
-已完成分片会整片重跑。正确做法见 `AGENT_HANDOFF.md` 第 6 条与日志 2026-10-29 11:15 条。
+已完成分片会整片重跑，且 `run_cell` 的 `existing` 只来自 `resume_from` ⇒ **重跑不是追加，会用本次 reps
+覆盖 `repetitions.csv`**（旧 `rep<k>/row.json` 仍在盘上，但逐 rep 表会少行，11:42 读码确认）。
+正确做法：先 `34 merge` 收已完成 → 缺口另起 `--out-root out/g03_repairN` → 多根 `merge` 且确认
+`duplicates=0`。见 `AGENT_HANDOFF.md` 第 6 条、注册表 §3 与日志 2026-10-29 11:15/11:42 条。
 
 ## 3. 矩阵结果（待填）
 
