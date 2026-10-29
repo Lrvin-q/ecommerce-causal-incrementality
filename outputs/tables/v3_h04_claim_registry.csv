@@ -26,3 +26,40 @@ C24,3.1,AA250 中 7 天支付购买率标签的合并假阳性率,0.040,3,Tier1,
 C25,3.1,AA250 中 30 天退款事件率标签的合并假阳性率,0.052,3,Tier1,no,outputs/evidence/g01_aa250/recomputed_fpr.csv,metric == 'any_refund_30d' and layer == 'POOLED',fpr,负对照标签，仅作机制检查，不作主指标
 C26,3.2,F02 同预算随机相对不发券的净利差（元/人）,0.0675,4,Tier1,no,outputs/tables/v3_phase_F02_formal_itt.csv,contrast == 'random_same_budget_minus_no_coupon',mean_diff_cny_per_user,"95% t 区间 [−0.0412, 0.1761] 跨零，不得读作正向收益"
 C27,3.2,F02 同预算随机臂净利差为正的重复数,169,0,Tier1,no,outputs/tables/v3_phase_F02_formal_itt.csv,contrast == 'random_same_budget_minus_no_coupon',positive_reps,分母 200；描述性计数，不是显著性判定
+C28,3.4,D03 因果森林贪心在 0.04 元/人档相对业务规则的配对差（元/人）,0.0007,4,Tier1,no,outputs/tables/v3_phase_D03_formal_paired_diff.csv,model == 'causal_forest' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.04,mean_diff_cny_per_user,R=200 配对
+C29,3.4,D03 因果森林贪心在 0.10 元/人档相对业务规则的配对差（元/人）,-0.0111,4,Tier1,no,outputs/tables/v3_phase_D03_formal_paired_diff.csv,model == 'causal_forest' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.1,mean_diff_cny_per_user,R=200 配对
+C30,3.4,D03 因果森林贪心在 0.30 元/人档相对业务规则的配对差（元/人）,0.0381,4,Tier1,no,outputs/tables/v3_phase_D03_formal_paired_diff.csv,model == 'causal_forest' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.3,mean_diff_cny_per_user,R=200 配对
+C31,3.4,D03 因果森林贪心在 0.40 元/人档相对业务规则的配对差（元/人）,0.0351,4,Tier1,no,outputs/tables/v3_phase_D03_formal_paired_diff.csv,model == 'causal_forest' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.4,mean_diff_cny_per_user,R=200 配对
+C32,3.4,D03 因果森林贪心在 0.60 元/人档相对业务规则的配对差（元/人）,0.0335,4,Tier1,no,outputs/tables/v3_phase_D03_formal_paired_diff.csv,model == 'causal_forest' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.6,mean_diff_cny_per_user,R=200 配对
+C33,3.4,D03 因果森林贪心在 0.80 元/人档相对业务规则的配对差（元/人）,0.1131,4,Tier1,no,outputs/tables/v3_phase_D03_formal_paired_diff.csv,model == 'causal_forest' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.8,mean_diff_cny_per_user,R=200 配对
+C34,3.4,D03 因果森林贪心在 1.00 元/人档相对业务规则的配对差（元/人）,0.1138,4,Tier1,no,outputs/tables/v3_phase_D03_formal_paired_diff.csv,model == 'causal_forest' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 1.0,mean_diff_cny_per_user,R=200 配对
+C35,3.4,D03 因果森林贪心在 0.60 元/人档的真实支出/预算均值,0.796,3,Tier1,no,outputs/tables/v3_phase_D03_formal_compliance.csv,model == 'causal_forest' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.6,mean_spend_to_budget_ratio,R=200
+C36,3.4,D03 因果森林贪心在 0.80 元/人档的真实支出/预算均值,0.597,3,Tier1,no,outputs/tables/v3_phase_D03_formal_compliance.csv,model == 'causal_forest' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.8,mean_spend_to_budget_ratio,R=200
+C37,3.4,D03 因果森林贪心在 1.00 元/人档的真实支出/预算均值,0.478,3,Tier1,no,outputs/tables/v3_phase_D03_formal_compliance.csv,model == 'causal_forest' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 1.0,mean_spend_to_budget_ratio,R=200
+C38,3.4,D03 因果森林贪心在 0.30 元/人档真实支出不超预算的重复占比,0.290,3,Tier1,no,outputs/tables/v3_phase_D03_formal_compliance.csv,model == 'causal_forest' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.3,share_within_budget_by_true,R=200
+C39,3.5,E 层真实支出不超预算的名单占比（0.04 元/人档，200 份名单）,0.640,3,Tier1,no,outputs/tables/v3_phase_E_random_summary.csv,per_user_budget_cny == 0.04,overrun_probability,R=200 名单
+C40,3.5,E 层真实支出不超预算的名单占比（0.10 元/人档）,0.730,3,Tier1,no,outputs/tables/v3_phase_E_random_summary.csv,per_user_budget_cny == 0.1,overrun_probability,R=200 名单
+C41,3.5,E 层真实支出不超预算的名单占比（0.40 元/人档）,0.985,3,Tier1,no,outputs/tables/v3_phase_E_random_summary.csv,per_user_budget_cny == 0.4,overrun_probability,R=200 名单
+C42,3.5,E 层单份名单最大超支（0.04 元/人档，元）,470,0,Tier1,no,outputs/tables/v3_phase_E_random_summary.csv,per_user_budget_cny == 0.04,max_overrun_cny,R=200 名单
+C43,3.5,E 层单份名单最大超支（0.60 元/人档，元）,1960,0,Tier1,no,outputs/tables/v3_phase_E_random_summary.csv,per_user_budget_cny == 0.6,max_overrun_cny,R=200 名单
+C44,3.5,E 层每 1 元真实支出换回的真实增量价值（0.04 元/人档）,0.3356,4,Tier1,no,outputs/tables/v3_phase_E_random_summary.csv,per_user_budget_cny == 0.04,mean_value_per_actual_spend,R=200 名单
+C45,3.5,E 层每 1 元真实支出换回的真实增量价值（0.10 元/人档）,0.3418,4,Tier1,no,outputs/tables/v3_phase_E_random_summary.csv,per_user_budget_cny == 0.1,mean_value_per_actual_spend,R=200 名单
+C46,3.2,F02 重复 0 的券价值逐 rep 差（元/人，200 次中最小）,0.0185,4,Tier1,no,outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_claims.csv,rep_id == 0 and claim == 'coupon_worth_issuing',diff_cny_per_user,R=200
+C47,3.2,F02 重复 186 的券价值逐 rep 差（元/人，200 次中最大）,0.4683,4,Tier1,no,outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_claims.csv,rep_id == 186 and claim == 'coupon_worth_issuing',diff_cny_per_user,R=200
+C48,3.2,F02 重复 160 的定向优先逐 rep 差（元/人，200 次中最小）,0.0021,4,Tier1,no,outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_claims.csv,rep_id == 160 and claim == 'targeting_better_than_random',diff_cny_per_user,R=200
+C49,3.2,F02 重复 190 的定向优先逐 rep 差（元/人，200 次中最大）,0.3832,4,Tier1,no,outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_claims.csv,rep_id == 190 and claim == 'targeting_better_than_random',diff_cny_per_user,R=200
+C50,3.2,F02 重复 0 券价值主张的逐 rep 标准误（元/人）,0.0553,4,Tier1,no,outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_claims.csv,rep_id == 0 and claim == 'coupon_worth_issuing',se,R=200
+C51,3.7,G02 L0_P_main 的 policy_value_sd,0.0497,4,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L0_P_main',policy_value_sd,4 格 × 50 b
+C52,3.7,G02 L1_main 的 policy_value_sd,0.0417,4,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L1_main',policy_value_sd,4 格 × 50 b
+C53,3.7,G02 L2_n200000_p050 的 policy_value_sd,0.0598,4,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L2_n200000_p050',policy_value_sd,4 格 × 50 b
+C54,3.7,G02 L3_fixed_lt000 的 policy_value_sd,0.0662,4,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L3_fixed_lt000',policy_value_sd,4 格 × 50 b
+C55,3.7,G02 L0_P_main 的 decision_lower_min_min,-0.2156,4,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L0_P_main',decision_lower_min_min,4 格 × 50 b
+C56,3.7,G02 L0_P_main 的 guardrail_upper_max,0.0021,4,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L0_P_main',guardrail_upper_max,4 格 × 50 b
+C57,3.8,G03 阶段 A L0_P_main 的 bootstrap_se,0.0487,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L0_P_main' and budget_cny_per_user == 0.2,bootstrap_se,rep 0 × 1000 次用户层重抽
+C58,3.8,G03 阶段 A L1_main 的 bootstrap_se,0.0560,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L1_main' and budget_cny_per_user == 0.2,bootstrap_se,rep 0 × 1000 次用户层重抽
+C59,3.8,G03 阶段 A L2_n200000_p050 的 bootstrap_se,0.0549,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L2_n200000_p050' and budget_cny_per_user == 0.2,bootstrap_se,rep 0 × 1000 次用户层重抽
+C60,3.8,G03 阶段 A L3_fixed_lt000 的 bootstrap_se,0.0552,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L3_fixed_lt000' and budget_cny_per_user == 0.2,bootstrap_se,rep 0 × 1000 次用户层重抽
+C61,3.8,G03 阶段 A L0_P_main 的 ci_width,0.1860,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L0_P_main' and budget_cny_per_user == 0.2,ci_width,rep 0 × 1000 次用户层重抽
+C62,3.8,G03 阶段 A L1_main 的 ci_width,0.2122,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L1_main' and budget_cny_per_user == 0.2,ci_width,rep 0 × 1000 次用户层重抽
+C63,3.8,G03 阶段 A L2_n200000_p050 的 ci_width,0.2111,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L2_n200000_p050' and budget_cny_per_user == 0.2,ci_width,rep 0 × 1000 次用户层重抽
+C64,3.8,G03 阶段 A L3_fixed_lt000 的 ci_width,0.2205,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L3_fixed_lt000' and budget_cny_per_user == 0.2,ci_width,rep 0 × 1000 次用户层重抽
