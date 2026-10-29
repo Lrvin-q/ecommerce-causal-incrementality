@@ -1,9 +1,9 @@
 # G03 正式报告 —— Tier1 core 四格 + Tier2 二十格矩阵（G03 骨架）
 
 > **合成数据 / 已知 DGP**。本报告只回答"在注册的 24 个机制场景下，策略价值与决策通过率如何"，
-> 不表示任何真实业务效果。维护时间：2026-10-29 19:46（北京时间）。
-> 当前状态：**阶段 A 已完成，§4 已填（24 格固定 bootstrap）**；阶段 B 拆批，Phase 1（core rep0–99）19:36 起跑中；
-> Phase 2（Tier2 20 格 + core rep100–499）待用户另约时间。§3 仍待填。
+> 不表示任何真实业务效果。维护时间：2026-10-29 20:06（北京时间）。
+> 当前状态：**阶段 A 已完成，§4 已填（24 格固定 bootstrap）**；阶段 B 拆批，Phase 1（core rep0–99）跑中
+> （20:06 落 25/400 rep）；Phase 2（Tier2 20 格 + core rep100–499）待用户另约时间。§3 仍待填。
 
 ## 1. 设计
 
@@ -39,6 +39,7 @@ core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **13–15 h**。
 | 18:37:06 | 阶段 B 首跑启动：24 格 / 60 分片 / 6 路（`--shard-size 50`） |
 | 19:36 | 按用户决定停链（`taskkill /T`），半成品归档 `out/g03_formal_interrupted_20261029_1935`；`g03_post` 停止，`chain.status` 记 paused |
 | 19:36:30 | **Phase 1 启动**：core 4 格 × rep0–99，40 分片 × 10 rep、6 路，`--out-root out/g03_core_prefix`；快照校验通过（`6fdaf7bb…`） |
+| 20:06 | Phase 1 进行中：25/400 rep 落盘（6 个 L0 分片并行，分片内 10 rep 跑完才写 `repetitions.csv`），最新写入 20:04，`phase1.log` 无 error/traceback；按 6–7 min/rep 外推 ETA 仍为 02:30–03:30 |
 | 待填 | Phase 1 完成（`out/g03_logs/phase1.status` 出现 `OK: G03 Phase1 core prefix 完成`） |
 | 待填 | Phase 2（Tier2 + core ATE 尾巴）与多根 merge（`g03_exit=0`） |
 

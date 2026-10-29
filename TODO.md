@@ -42,6 +42,9 @@
 > （`34_g_matrix_run.py:316-319`），已完成分片写的是正式 `repetitions.csv`（`v3_g_matrix.py:1274`），
 > 在原目录续跑会把整片重算（重片 7.2 h/片）。Phase 2 用新根，最后 `merge` 多根去重，`_final` 仍按 R_ate=500 判完整。
 > 19:40 已备好 `out/g03_phase2.sh`（含复合根 junction 与 merge，`bash -n` 通过），并在 G03 报告 §1/§2 记录了拆批与快照。
+> **20:07 加固**：merge 后新增 `_final` 逐格行数校验——行数≠500/30 或只有 `provisional` 文件就写
+> `ABORT: _final incomplete` 并 exit 9，不再无条件写 OK（2 格夹具 500/499 行实测 exit=1）。
+> 该脚本在 `out/`（不入库），只存在于本 worktree。
 > 最新动作（19:42）：跑完带校验的 G04 预检（`--with-check --with-register --with-claims`，日志
 > `out/scratch/g04_precheck_1942_full.log`，**EXIT=3**）——唯一失败是预期的"41 号 matrix 缺 `run_summary.json`（未跑完）"；
 > 其余全绿：G02 四格 50/50/50/50、`post.status` 含 `OK: G02 merge 完成 2026-10-29T17:17:51+08:00`、源码 49 文件对快照一致、
@@ -56,7 +59,13 @@
 > 普查还发现 `models.train_fraction_of_training_pool`（3 个 `L1_learning_*` 格，不在 G03 24 格内）同样未被消费、
 > `dgp.l3.branch` 只是标签；**运行期不改源码**（会触发 source-hash 失败）。
 
-### 接手清单（G02 → G04，按顺序执行；2026-10-29 12:47 写）
+### 接手清单（G02 → G04，按顺序执行；2026-10-29 12:47 写，20:06 校准定位）
+
+> **当前定位（20:06）**：第 5 条的 Phase 1 正在跑（25/400 rep，ETA 10-30 02:30–03:30），
+> 此刻**没有可推进的跑批步骤**；等待期只做不碰 `src/ sql/ configs/` 的文档与论文工作（本文件、`docs/`、`paper/`、`scripts/` 都安全）。
+> 恢复会话按三步确认：① `out/g03_logs/phase1.status` 是否出现 `OK: G03 Phase1 core prefix 完成`；
+> ② PowerShell `Get-CimInstance Win32_Process` 里还有没有 `34_g_matrix_run`（Git Bash `ps` 看不到属正常）；
+> ③ 本文件顶部「当前状态」最后一条的时间戳。**Phase 1 完成后不要在原 out-root 续跑**，直接跑 Phase 2。
 
 1. **等 G02 满 4×50**（ETA 18:00–19:00）。看护进程 `out/g02_post.sh`（PID **24128**，12:51 核实；
    Git Bash `ps` 看不到它，用 PowerShell 查 `Win32_Process` 的 CommandLine）会自动校验并 merge：
