@@ -18,6 +18,12 @@
 >    受绑路径 git 洁净；`--with-check` 再跑 40/41 `--check`，`--with-register` 跑 33 `--dry-run`，
 >    `--with-claims` 跑 42 号 H04 数字门禁（11:59 实测 EXIT=0，5 条 claim 全部回指）。
 >    退出码 0=READY / 2=未跑完 / 3=不一致。11:52 基线跑出 EXIT=2（G02 9/8/8/8、链未启动），符合预期。
+>    **12:15 新增长稿构建与篇幅审计（H02/H03 机制）**：`bash paper/v3/build.sh <body.md>` 产出
+>    `out/scratch/v3_paper_build/main.pdf` + `main.aux` + `main.pagemap`（封面/摘要/三级目录/跨页 longtable
+>    已逐页看过）；`scripts/43_long_draft_audit.py --body <md> --pdf <main.pdf> --aux <main.aux>`
+>    判"结果章有效字数 ≥50%、结果实质页占正文/占全稿 ≥50%"，接长稿时再加 `--min-pages 50 --max-pages 100`。
+>    **正文四个一级标题必须带属性** `{#ch-intro}`/`{#ch-method}`/`{#ch-results}`/`{#ch-conclusion}`，
+>    否则 43 直接报"缺章标签"（不是静默算 0）。探针稿故意红在 0.45%，说明判据真的在算。
 >
 > **（10-29 11:45）七条不变，改动处已更新：**
 > 1. **G02 正在跑**：批准号 `G02-FORMAL-20261029`；10:39 起 4 个 core 格 × 50 b（`out/g02_retrain/`），
