@@ -1,0 +1,161 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "purpose": "g02_retrain_bootstrap_formal_evidence",
+  "exported_at": "2026-10-29T18:04:39+08:00",
+  "approval": "G02-FORMAL-20261029",
+  "status": "formal",
+  "declared_per_cell": 50,
+  "declared_total": 200,
+  "cells": [
+    "L0_P_main",
+    "L1_main",
+    "L2_n200000_p050",
+    "L3_fixed_lt000"
+  ],
+  "files": [
+    {
+      "path": "per_cell/L0_P_main__repetitions.csv",
+      "bytes": 27777,
+      "sha256": "2df638d124aff077aa0cb36dc375792ed441e788e5bb980bed4fa4c9fb3ec1f9",
+      "kind": "g02_per_b_table",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_retrain/L0_P_main/repetitions.csv",
+      "note": "core 格 L0_P_main",
+      "rows": 50
+    },
+    {
+      "path": "per_cell/L0_P_main__run_state.json",
+      "bytes": 8948,
+      "sha256": "733aee43b8bf9a6fcad61ee133c25db73b00a9a075f763fb3d69f6656c2045f0",
+      "kind": "g02_run_state",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_retrain/L0_P_main/run_state.json",
+      "note": "core 格 L0_P_main"
+    },
+    {
+      "path": "per_cell/L1_main__repetitions.csv",
+      "bytes": 27697,
+      "sha256": "b728fd05a275a400328e1e7142094919540e18b4173e57f90e97cd21bb41e47d",
+      "kind": "g02_per_b_table",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_retrain/L1_main/repetitions.csv",
+      "note": "core 格 L1_main",
+      "rows": 50
+    },
+    {
+      "path": "per_cell/L1_main__run_state.json",
+      "bytes": 8946,
+      "sha256": "b80746203651c9efe5a089e532b45cded9722fb89ca490c597fead6b6f35a7be",
+      "kind": "g02_run_state",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_retrain/L1_main/run_state.json",
+      "note": "core 格 L1_main"
+    },
+    {
+      "path": "per_cell/L2_n200000_p050__repetitions.csv",
+      "bytes": 28100,
+      "sha256": "7e541ff186446bf87fe7f12257b61c6b4e16d20c8ce95800cd76f4ba04bec9a2",
+      "kind": "g02_per_b_table",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_retrain/L2_n200000_p050/repetitions.csv",
+      "note": "core 格 L2_n200000_p050",
+      "rows": 50
+    },
+    {
+      "path": "per_cell/L2_n200000_p050__run_state.json",
+      "bytes": 8954,
+      "sha256": "86f5d988f382af2c3eb0bd5fa5b4d91bff5d95f82e868106861e6e2014fa63bb",
+      "kind": "g02_run_state",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_retrain/L2_n200000_p050/run_state.json",
+      "note": "core 格 L2_n200000_p050"
+    },
+    {
+      "path": "per_cell/L3_fixed_lt000__repetitions.csv",
+      "bytes": 28022,
+      "sha256": "acb07490460d3bb8d512d9d28414303ec42ac806d2f71982dff343a2956d9636",
+      "kind": "g02_per_b_table",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_retrain/L3_fixed_lt000/repetitions.csv",
+      "note": "core 格 L3_fixed_lt000",
+      "rows": 50
+    },
+    {
+      "path": "per_cell/L3_fixed_lt000__run_state.json",
+      "bytes": 8953,
+      "sha256": "6f3fb277a31b1a88102bcf275fd38a3670ba9b4da1e1cd647482d3539c235f47",
+      "kind": "g02_run_state",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_retrain/L3_fixed_lt000/run_state.json",
+      "note": "core 格 L3_fixed_lt000"
+    },
+    {
+      "path": "binding/snapshot_binding.json",
+      "bytes": 5777,
+      "sha256": "a1d99d0d30280d1959fe72bf1aa2e37a3b529bb8e948016fe743d553508c0c27",
+      "kind": "g02_snapshot_binding",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_snapshot/snapshot_binding.json",
+      "note": "正式跑源码字节绑定；39 号运行前已与真树逐文件比对"
+    },
+    {
+      "path": "merged/v3_phase_G02_retrain_bootstrap.csv",
+      "bytes": 780,
+      "sha256": "837db0c84ab42832da7a6647ee3e12af669ca5a65dbc03c44e95aba09e0be651",
+      "kind": "g02_merged_summary",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/outputs/tables/v3_phase_G02_retrain_bootstrap.csv",
+      "rows": 4
+    },
+    {
+      "path": "merged/v3_phase_G02_retrain_bootstrap.json",
+      "bytes": 550,
+      "sha256": "62652feae1f8464baf2f3e17980edbb258e88d0d6abc67ba0269a5e1066276dc",
+      "kind": "g02_merged_summary",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/outputs/tables/v3_phase_G02_retrain_bootstrap.json"
+    },
+    {
+      "path": "logs/L0_P_main.log",
+      "bytes": 4638,
+      "sha256": "829761aee5c9a1197a5ae31a6d0b36f7b9f0f34ac7066b40b6c8d9133a92405e",
+      "kind": "g02_run_log",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_logs/L0_P_main.log",
+      "note": "日志行只有时分秒、无日期；权威日期见 runs_summary.json 的 note"
+    },
+    {
+      "path": "logs/L1_main.log",
+      "bytes": 4580,
+      "sha256": "f2ce1dd1d42220f2477d414c52b9c43f49c481f10be9ca8f5da666b044f00430",
+      "kind": "g02_run_log",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_logs/L1_main.log",
+      "note": "日志行只有时分秒、无日期；权威日期见 runs_summary.json 的 note"
+    },
+    {
+      "path": "logs/L2_n200000_p050.log",
+      "bytes": 4968,
+      "sha256": "660439d95f0e4b0c338c70dec60762da6649723ef286e90dd461fc2c909181b5",
+      "kind": "g02_run_log",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_logs/L2_n200000_p050.log",
+      "note": "日志行只有时分秒、无日期；权威日期见 runs_summary.json 的 note"
+    },
+    {
+      "path": "logs/L3_fixed_lt000.log",
+      "bytes": 4894,
+      "sha256": "e1026b8ea2acde19763eaa40ae6ee3218f5132f61d7bb8f23053b415a90a300e",
+      "kind": "g02_run_log",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_logs/L3_fixed_lt000.log",
+      "note": "日志行只有时分秒、无日期；权威日期见 runs_summary.json 的 note"
+    },
+    {
+      "path": "logs/post.log",
+      "bytes": 9093,
+      "sha256": "31555755a8f4bb7e90e3a3b71d4e03c7683c939ec9998c00897b9737421bf13d",
+      "kind": "g02_post_log",
+      "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_logs/post.log"
+    },
+    {
+      "path": "recomputed_bootstrap.csv",
+      "bytes": 775,
+      "sha256": "586f1d18c95962e2bddb769cccf616563c1512f02a7a5f668c515b7807e79d8f",
+      "kind": "g02_recomputed",
+      "note": "本脚本独立重算（不读 39 的 summarize 函数）",
+      "rows": 4
+    },
+    {
+      "path": "runs_summary.json",
+      "bytes": 26160,
+      "sha256": "53a9589f3e78bf2f5f3476947950ecd6b1f28c87ca944d2b2e34230fbe98a266",
+      "kind": "g02_runs_summary"
+    }
+  ]
+}

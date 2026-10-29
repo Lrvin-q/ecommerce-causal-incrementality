@@ -1,0 +1,19 @@
+{
+  "bootstrap_kind": "parametric_dgp_redraw",
+  "bootstrap_label": "参数化重复抽样（已知 DGP 重抽）",
+  "source_label": "合成数据 / 已知 DGP",
+  "retraining_bootstrap_total": 200,
+  "retraining_bootstrap_per_cell": 50,
+  "validation_rep": 0,
+  "retrain_offset": 1000000,
+  "cells": [
+    "L0_P_main",
+    "L1_main",
+    "L2_n200000_p050",
+    "L3_fixed_lt000"
+  ],
+  "rows": 200,
+  "provisional": false,
+  "merged_at": "2026-10-29T17:17:50+08:00",
+  "table": "outputs/tables/v3_phase_G02_retrain_bootstrap.csv"
+}
