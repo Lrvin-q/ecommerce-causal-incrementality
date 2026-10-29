@@ -157,3 +157,19 @@ C155,3.5,因果森林帧相对常数帧的价值倍数（0.04 元/人）,10.913,
 C156,3.6,F02 退款率护栏观测差均值（元/人当量）,0.001374,6,Tier1,no,outputs/tables/v3_phase_F02_formal_guardrail.csv,contrast == 'selected_targeted_policy_minus_no_coupon',mean_diff,200 rep，单侧 alpha=0.05，margin 0.005
 C157,3.6,F02 退款率护栏差的蒙特卡洛标准误,0.000039,6,Tier1,no,outputs/tables/v3_phase_F02_formal_guardrail.csv,contrast == 'selected_targeted_policy_minus_no_coupon',mc_se_diff,200 rep，单侧 alpha=0.05，margin 0.005
 C158,3.6,F02 退款率护栏单侧 95% 上界均值,0.002197,6,Tier1,no,outputs/tables/v3_phase_F02_formal_guardrail.csv,contrast == 'selected_targeted_policy_minus_no_coupon',mean_ci_one_sided_upper,200 rep，单侧 alpha=0.05，margin 0.005
+C159,3.1,L0 设计 MDE（元/人）,0.1133,4,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L0_power_mde000',design_mde,3 层 × 5 效应量 × 100 rep
+C160,3.1,L1 设计 MDE（元/人）,0.1303,4,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L1_power_mde000',design_mde,3 层 × 5 效应量 × 100 rep
+C161,3.1,L2 设计 MDE（元/人）,0.1283,4,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L2_power_mde000',design_mde,3 层 × 5 效应量 × 100 rep
+C162,3.1,L0 解析功效（1 倍 MDE）,0.824,3,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L0_power_mde100',nominal_power,双侧 5% 检验、正向方向
+C163,3.1,L1 解析功效（1 倍 MDE）,0.819,3,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L1_power_mde100',nominal_power,双侧 5% 检验、正向方向
+C164,3.1,L2 解析功效（1 倍 MDE）,0.808,3,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L2_power_mde100',nominal_power,双侧 5% 检验、正向方向
+C165,3.1,L0 实测拒绝率（1 倍 MDE）,0.87,2,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L0_power_mde100',rejection_rate,100 rep/格
+C166,3.1,L1 实测拒绝率（1 倍 MDE）,0.78,2,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L1_power_mde100',rejection_rate,100 rep/格
+C167,3.1,L2 实测拒绝率（1 倍 MDE）,0.85,2,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L2_power_mde100',rejection_rate,100 rep/格
+C168,3.1,L0 解析功效（0.5 倍 MDE）,0.307,3,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L0_power_mde050',nominal_power,双侧 5% 检验、正向方向
+C169,3.1,L0 实测拒绝率（0.5 倍 MDE）,0.28,2,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L0_power_mde050',rejection_rate,100 rep/格
+C170,3.1,L0 实测拒绝率（1.5 倍 MDE）,0.98,2,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L0_power_mde150',rejection_rate,100 rep/格
+C171,3.1,L1 实测拒绝率（1.5 倍 MDE）,0.97,2,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L1_power_mde150',rejection_rate,100 rep/格
+C172,3.1,L2 实测拒绝率（1.5 倍 MDE）,1.00,2,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L2_power_mde150',rejection_rate,100 rep/格
+C173,3.1,L0 实测拒绝率（2 倍 MDE）,1.00,2,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L0_power_mde200',rejection_rate,100 rep/格
+C174,3.1,L1 实测拒绝率（零效应）,0.08,2,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L1_power_mde000',rejection_rate,100 rep/格；不作 FPR 证据
