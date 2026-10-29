@@ -55,3 +55,15 @@ def test_ambiguous_filter_is_caught(tmp_path: Path):
 
 def test_self_test_all_pass():
     assert gate.self_test() == 0
+
+
+def test_draft_requires_marker_and_value(tmp_path: Path):
+    good = tmp_path / "good.md"
+    good.write_text("C01 见 [C01] 0.046；C02 [C02] 0.033871；C03 [C03] 0.98；"
+                    "C04 [C04] 0.2816；C05 [C05] 1.00", encoding="utf-8")
+    assert gate.check_draft(REGISTRY, good) == []
+    bad = tmp_path / "bad.md"
+    bad.write_text("只写了 [C01] 0.046", encoding="utf-8")
+    problems = gate.check_draft(REGISTRY, bad)
+    assert any("[C02]" in item for item in problems)
+    assert any("数字 1.00" in item for item in problems)
