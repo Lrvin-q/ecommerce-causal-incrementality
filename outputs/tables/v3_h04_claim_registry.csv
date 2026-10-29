@@ -226,3 +226,10 @@ C224,3.10,命中测试最优 RMSE 模型的占比,0.525,3,Tier1,no,outputs/table
 C225,3.10,命中测试最优 MAE 模型的占比,0.035,3,Tier1,no,outputs/tables/v3_phase_D03_selection_margin.csv,n_reps == 200,hit_rate_best_mae,D03 正式 R=200
 C226,3.10,验证分数与测试 RMSE 的平均 Spearman 相关,-0.3405,4,Tier1,no,outputs/tables/v3_phase_D03_selection_margin.csv,n_reps == 200,mean_spearman_score_rmse,D03 正式 R=200
 C227,3.10,验证分数与测试 |偏差| 的平均 Spearman 相关,0.0130,4,Tier1,no,outputs/tables/v3_phase_D03_selection_margin.csv,n_reps == 200,mean_spearman_score_abs_bias,D03 正式 R=200
+C228,3.7,重训 bootstrap L1 模型内合并 sd（元/人）,0.0133,4,Tier1,no,outputs/tables/v3_phase_G02_selection_split.csv,cell_id == 'L1_main',within_model_sd,G02 正式 4 格 × 50 b
+C229,3.7,重训 bootstrap L2 模型内合并 sd（元/人）,0.0096,4,Tier1,no,outputs/tables/v3_phase_G02_selection_split.csv,cell_id == 'L2_n200000_p050',within_model_sd,G02 正式 4 格 × 50 b
+C230,3.7,重训 bootstrap L0 模型间平均价值极差（元/人）,0.1630,4,Tier1,no,outputs/tables/v3_phase_G02_selection_split.csv,cell_id == 'L0_P_main',between_model_range,G02 正式 4 格 × 50 b
+C231,3.7,重训 bootstrap L2 模型间平均价值极差（元/人）,0.2449,4,Tier1,no,outputs/tables/v3_phase_G02_selection_split.csv,cell_id == 'L2_n200000_p050',between_model_range,G02 正式 4 格 × 50 b
+C232,3.7,重训 bootstrap L0 重选一致率,0.3088,4,Tier1,no,outputs/tables/v3_phase_G02_selection_split.csv,cell_id == 'L0_P_main',agree_prob,G02 正式 4 格 × 50 b
+C233,3.7,重训 bootstrap L1 重选一致率,0.4440,4,Tier1,no,outputs/tables/v3_phase_G02_selection_split.csv,cell_id == 'L1_main',agree_prob,G02 正式 4 格 × 50 b
+C234,3.7,重训 bootstrap L3 重选一致率,0.3048,4,Tier1,no,outputs/tables/v3_phase_G02_selection_split.csv,cell_id == 'L3_fixed_lt000',agree_prob,G02 正式 4 格 × 50 b
