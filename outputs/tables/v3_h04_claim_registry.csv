@@ -111,3 +111,17 @@ C109,3.5,E 期望口径贪心策略的超预算概率（单份名单，0.2 元/�
 C110,3.5,E 面值口径贪心策略的超预算概率（单份名单，0.2 元/人）,0.000,3,Tier1,no,outputs/tables/v3_phase_E_conservative.csv,mode == 'worst_case_face' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.2,overrun_probability,单份确定性名单（seeds=1），非频率
 C111,3.5,E 面值口径贪心策略的选择人数（0.2 元/人）,1200,0,Tier1,no,outputs/tables/v3_phase_E_conservative.csv,mode == 'worst_case_face' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.2,selected_count_mean,单份确定性名单（seeds=1），非频率
 C112,3.5,E 期望口径贪心策略的选择人数（0.2 元/人）,23437,0,Tier1,no,outputs/tables/v3_phase_E_conservative.csv,mode == 'expected' and policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.2,selected_count_mean,单份确定性名单（seeds=1），非频率
+C113,3.4,0.2 元/人档因果森林贪心策略的真实价值（元/人）,0.2934,4,Tier1,no,outputs/tables/v3_phase_D03_policy_value_020.csv,policy == 'greedy_incremental_profit_per_cost' and model == 'causal_forest',mean_true_value_per_user,R=200，0.2 元/人档
+C114,3.4,0.2 元/人档常数策略贪心策略的真实价值（元/人）,0.0767,4,Tier1,no,outputs/tables/v3_phase_D03_policy_value_020.csv,policy == 'greedy_incremental_profit_per_cost' and model == 'constant',mean_true_value_per_user,R=200，0.2 元/人档
+C115,3.4,0.2 元/人档业务规则的真实价值（元/人，与模型无关）,0.2718,4,Tier1,no,outputs/tables/v3_phase_D03_policy_value_020.csv,policy == 'business_rule_new_user_then_cart' and model == 'causal_forest',mean_true_value_per_user,R=200，0.2 元/人档
+C116,3.4,0.2 元/人档按购买倾向排序的真实价值（元/人）,-0.0005,4,Tier1,no,outputs/tables/v3_phase_D03_policy_value_020.csv,policy == 'purchase_propensity_rank' and model == 'causal_forest',mean_true_value_per_user,R=200，0.2 元/人档
+C117,3.4,0.2 元/人档按预测利润排序的真实价值（元/人）,0.0934,4,Tier1,no,outputs/tables/v3_phase_D03_policy_value_020.csv,policy == 'predicted_profit_rank' and model == 'causal_forest',mean_true_value_per_user,R=200，0.2 元/人档
+C118,3.4,0.2 元/人档同预算随机的真实价值（元/人）,0.0680,4,Tier1,no,outputs/tables/v3_phase_D03_policy_value_020.csv,policy == 'random_same_budget' and model == 'causal_forest',mean_true_value_per_user,R=200，0.2 元/人档
+C119,3.4,0.2 元/人档全券无约束参照的真实价值（元/人）,0.2841,4,Tier1,no,outputs/tables/v3_phase_D03_formal_policy_value.csv,policy == 'all_coupon_unconstrained_reference' and model == 'causal_forest' and per_user_budget_cny == 0.2,mean_true_value_per_user,R=200，0.2 元/人档
+C120,3.4,0.2 元/人档因果森林贪心的模型内后悔（元/人）,0.0007,4,Tier1,no,outputs/tables/v3_phase_D03_formal_oracle.csv,model == 'causal_forest' and per_user_budget_cny == 0.2 and policy == 'greedy_incremental_profit_per_cost',mean_regret_cny_per_user,R=200，0.2 元/人档
+C121,3.4,0.2 元/人档常数策略贪心的模型内后悔（元/人）,0.1951,4,Tier1,no,outputs/tables/v3_phase_D03_formal_oracle.csv,model == 'constant' and per_user_budget_cny == 0.2 and policy == 'greedy_incremental_profit_per_cost',mean_regret_cny_per_user,R=200，0.2 元/人档
+C122,3.4,0.2 元/人档因果森林贪心达到模型内最优的重复比例,0.815,3,Tier1,no,outputs/tables/v3_phase_D03_formal_oracle.csv,model == 'causal_forest' and per_user_budget_cny == 0.2 and policy == 'greedy_incremental_profit_per_cost',share_optimal,R=200，0.2 元/人档
+C123,3.4,选模后悔：所选模型相对五模型事后最优的差（元/人）,-0.0193,4,Tier1,no,outputs/tables/v3_phase_D03_selection_regret.csv,n_reps == 200,mean_chosen_minus_best,R=200，0.2 元/人档
+C124,3.4,选模后悔的标准误（元/人）,0.0030,4,Tier1,no,outputs/tables/v3_phase_D03_selection_regret.csv,n_reps == 200,se,R=200，0.2 元/人档
+C125,3.4,选模后悔非负的重复比例,0.485,3,Tier1,no,outputs/tables/v3_phase_D03_selection_regret.csv,n_reps == 200,share_nonnegative,R=200，0.2 元/人档
+C126,3.4,选模后悔最差的重复（元/人）,-0.2326,4,Tier1,no,outputs/tables/v3_phase_D03_selection_regret.csv,n_reps == 200,worst,R=200，0.2 元/人档
