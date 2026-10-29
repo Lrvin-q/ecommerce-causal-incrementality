@@ -37,7 +37,8 @@
   `tests/test_v3_g41_checks.py` 6 例（3 反例 + 3 正例：满 R 零问题、阶段 A 真实目录布局 24 格、坏预算被抓）已绿，
   连同 34 号 2 例共 8 passed。详见 G03 报告 §5、日志 11:22 条。
   冒烟没暴露它的原因：无完整帧时 `check_cell` 从未被调用。
-- **磁盘看护（11:26 估算）**：Stage B 2 600 rep × ~20 MB（按 n=2 000 冒烟 0.5 MB/rep 线性外推，`policy_list.csv`/`truth_users.csv` 随 n 线性）≈ 52 GB；当前空 93 GB。低于 15 GB 必须停链（人工观察项）。
+- **磁盘看护（11:26 估算）**：Stage B 2 600 rep × ~20 MB（按 n=2 000 冒烟 0.5 MB/rep 线性外推，`policy_list.csv`/`truth_users.csv` 随 n 线性）；实测 `out/g03_r1` 的 n=200k rep0 为 20–22 MB，
+  Stage B 2 600 rep ≈ 50 GB；当前空 93 GB。低于 15 GB 必须停链（人工观察项）。
 - **真值口径纠正（11:26）**：`truth_columns_present: false` 只指冻结决策表不含真值；`truth_users/` 等
   `truth_*` 文件在 freeze 后逐 rep 落盘。本轮未注册覆盖率统计量，报告仍不得写覆盖率。
 - **时钟校正（11:10 发现）**：本机时钟先前快约 25–30 min——11:04 写下的文件标着 11:15，
