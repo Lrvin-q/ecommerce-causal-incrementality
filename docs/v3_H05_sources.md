@@ -19,7 +19,7 @@
 | S9 | Kitagawa T, Tetenov A. Who should be treated? Empirical welfare maximization methods for treatment choice. *Econometrica*, 2018, 86(2): 591–616. | 经验福利最大化（EWM）与策略 regret 的统计框架 | 不支持连续处理/预算约束扩展；不支持本项目特定 DGP 的结论 | canonical |
 | S10 | Holm S. A simple sequentially rejective multiple test procedure. *Scandinavian Journal of Statistics*, 1979, 6(2): 65–70. | F02 单侧 Holm 两比较的多重性控制 | 不支持任意依赖结构下的 FWER 控制（论文假设为一般情形但保守）；不支持把 p 值当效应大小 | canonical |
 | S11 | Kohavi R, Tang D, Xu Y. *Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing*. Cambridge University Press, 2020. | AA 校准、样本比例失配、护栏指标、实验平台口径（E/G01 的实践依据） | 不支持把 AA 通过当作策略有效；不支持合成实验替代真实流量 | canonical |
-| S12 | Curth A, Svensson D, Weatherall J, van der Schaar M. Really doing great at estimating CATE? A critical look at ML benchmarking practices in treatment effect estimation. *NeurIPS 2021 Datasets and Benchmarks Track (round 2)*. | 合成/半合成 CATE 基准的评价陷阱（本项目"合成 DGP→不外推"的方法学依据） | 不支持对任何具体估计器优劣的结论；不支持替代真实数据验证 | 部分核验：题名/作者/年份/venue（含 round 2）见 arXiv 2410.08770、2410.00509 与 TabPFN-2.5 参考文献三处独立引文；2026-10-29 11:36 Crossref 精确查无记录、官方 proceedings 站内检索无结果，故不标 Crossref ✓ |
+| S12 | Curth A, Svensson D, Weatherall J, van der Schaar M. Really doing great at estimating CATE? A critical look at ML benchmarking practices in treatment effect estimation. *NeurIPS 2021 Datasets and Benchmarks Track (round 2)*. | 合成/半合成 CATE 基准的评价陷阱（本项目"合成 DGP→不外推"的方法学依据） | 不支持对任何具体估计器优劣的结论；不支持替代真实数据验证 | **官方 proceedings ✓（2026-10-29 11:54）**：官方摘要页 `datasets-benchmarks-proceedings.neurips.cc/paper_files/paper/2021/hash/2a79ea27c279e471f4d180b08d62b00a-Abstract-round2.html` 与 PDF `…/file/…-Paper-round2.pdf` 均可达；题名/四位作者/venue（"Proceedings of the NeurIPS Track on Datasets and Benchmarks 1"，D&B 2021）与条目一字不差。该轨道**无 DOI**（同日 11:36 Crossref 精确查无记录），故不标 Crossref ✓、只标 official ✓ |
 
 ## 使用规则（写进长稿时必须遵守）
 
@@ -32,10 +32,9 @@
 
 ## 待办（H05 收尾前）
 
-- [~] 核验 S5、S12 的卷期/页码。**11:36 实测**：Crossref 恢复，S5 精确命中
-  （DOI `10.1214/23-EJS2157`，17(2): 3008–3049）→ 已改 **Crossref ✓**；S12 在 Crossref
-  查无记录（NeurIPS D&B 轨道常无 DOI），官方 proceedings 域内检索无结果；题名/作者/venue
-  （含 round 2）由三处独立引文一致佐证，维持"部分核验"，长稿引用须加注。
-  在拿到 proceedings 直链或带 DOI 的正式版本之前**不得**写成"Crossref 已核"；
+- [x] 核验 S5、S12 的卷期/页码。**11:36**：S5 精确命中（DOI `10.1214/23-EJS2157`，
+  17(2): 3008–3049）→ **Crossref ✓**。**11:54**：S12 拿到官方 proceedings 直链与 PDF
+  （hash `2a79ea27…b00a`，round 2），题名/作者/venue 与条目一字不差 → **官方 proceedings ✓**；
+  该轨道无 DOI，长稿引用**不得**写"Crossref 已核"，只能写官方 proceedings 链接；
 - [ ] 逐条检查长稿引用编号与本表一致（12 篇，不多不少）；
 - [ ] 检查"无面额外推"：全文搜索"真实业务/上线/推广"等词，确认每处都带合成属性限定。
