@@ -1,11 +1,19 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-29 11:55（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-29 12:09（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
 
-**2026-10-29 11:52 更新。G02 稳定推进（33/200 b）；尾链判据缺陷已修（40 号），静态复核之外又做了真数据探针**：
+**2026-10-29 12:09 更新。G02 稳定推进（39/200 b）；H03 骨架四要素逐页验过并入库；H04 门禁可跑**：
 
+- **H03 骨架已建成并逐页验收（12:08，commit 826025c）**：`paper/v3/{main.tex,preamble.tex,abstract.md,build.sh}`
+  从 Markdown 正文一键构建（pandoc → xelatex ×2，`--disable-installer` 防 MiKTeX 交互卡死）。
+  5 页探针实测：① 封面（题目/副题/Lrvin/liliw@126.com/合成数据声明/\today）；② 摘要独立页；
+  ③ 目录独立页（三级条目 **带编号**、点线、页码、全条目 hyperref 可点）；④ 正文四个一级标题
+  “1 引言 / 2 研究方法 / 3 结果与分析 / 4 结论与展望”，105 个章节号前缀；⑤ 70 行长表跨 3 页，
+  续页**表头重复**（层级/指标/数值/行号）。三个坑已修并各留一条日志：pandoc 自带手写编号→双号；
+  `tocdepth=2` 丢三级；`ctexset` 只改字体吞编号、`\titlecontents` 第三槽留空吞目录编号。
+  **未验**：>50 页正文的真实分页、图表浮动体挤页、引用编号 12 篇（等正文成稿再验）。
 - **H02/H03 排版管线已打通（11:58 冒烟）**：本机有 `pandoc` + `xelatex`（无 LibreOffice/python-pptx/
   python-docx/reportlab）。实测 `pandoc cjk_probe.md -o cjk_probe.pdf --pdf-engine=xelatex
   -V CJKmainfont="Microsoft YaHei"` 成功，`pdftoppm` 渲染中文、引号、表格全部正常（`out/scratch/cjk_probe.pdf`
