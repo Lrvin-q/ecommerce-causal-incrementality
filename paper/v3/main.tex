@@ -1,0 +1,38 @@
+% v3 长稿主文件（H02/H03）。编译：bash paper/v3/build.sh <body.md>
+% 封面、摘要、三级目录各自独立起页；正文只含四部分：引言/研究方法/结果与分析/结论与展望。
+\documentclass[UTF8, fontset=windows, a4paper, zihao=5]{ctexart}
+\input{preamble}
+
+\begin{document}
+
+% ---------------- 封面（独立页） ----------------
+\begin{titlepage}
+\centering
+\vspace*{3.2cm}
+{\sffamily\bfseries\fontsize{22pt}{30pt}\selectfont
+ 预算约束下电商营销策略的\\[6pt]
+ 因果评估与增量利润优化\par}
+\vspace{1.2cm}
+{\sffamily\Large 基于已知数据生成过程的模拟验证研究\par}
+\vspace{2.4cm}
+{\sffamily\large Lrvin\par}
+\vspace{0.35cm}
+{\sffamily\large \texttt{liliw@126.com}\par}
+\vfill
+{\sffamily\small 合成数据 / 已知 DGP（非真实企业数据）\par}
+\vspace{0.5cm}
+{\sffamily\small \today\par}
+\end{titlepage}
+
+% ---------------- 摘要（独立页；单一来源 abstract.md） ----------------
+\input{abstract.tex}
+\newpage
+
+% ---------------- 三级目录（独立页） ----------------
+\tableofcontents
+\newpage
+
+% ---------------- 正文 ----------------
+\input{body.tex}
+
+\end{document}

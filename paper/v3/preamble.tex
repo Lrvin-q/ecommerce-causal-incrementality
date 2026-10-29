@@ -1,0 +1,68 @@
+% v3 长稿版式（H03）：封面/摘要/三级目录各自独立起页；longtable 保持可分页并重复表头。
+% 与 v2 的 paper/main.tex 的关键差异：
+%   1) 不再把 longtable 重定义为 minipage+tabular（那会禁止跨页、丢行）；
+%   2) 章节自动编号（正文 Markdown 不再手写“1.2”），secnumdepth=3 / tocdepth=3 即三级目录；
+%   3) 摘要单一来源（abstract.tex 由 abstract.md 经 pandoc 生成），不再在 main.tex 硬编码副本。
+\usepackage[a4paper, margin=1.95cm, top=2.15cm, bottom=1.95cm, footskip=0.9cm]{geometry}
+% 注意：本机 MiKTeX 缺 amsthm/bm，且缺包时会弹交互安装（nonstopmode 也停住）。
+% 长稿只需要公式排版，故只加载已安装的 amsmath/amssymb；缺包才能让 --disable-installer 快速报错。
+\usepackage{amsmath, amssymb}
+\allowdisplaybreaks[2]
+\usepackage{calc}
+\usepackage{booktabs, longtable, array, multirow, tabularx}
+\newcounter{none}                 % pandoc 无题表格会 \refstepcounter{none}
+\usepackage{graphicx}
+\usepackage{float}
+\floatplacement{figure}{t}
+\usepackage[font=small, labelfont=bf, labelsep=quad, skip=5pt]{caption}
+\usepackage{enumitem}
+\setlist{itemsep=2pt, topsep=4pt, parsep=0pt}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{titletoc}
+% 第 3 个参数是“有编号条目”的格式槽；留空会让目录条目只剩标题（编号被吞）。
+\titlecontents{section}[0pt]{\addvspace{3pt}\sffamily}
+  {\contentslabel{2.0em}}{}{\titlerule*[0.8pc]{.}\contentspage}
+\titlecontents{subsection}[2.0em]{\sffamily}
+  {\contentslabel{2.6em}}{}{\titlerule*[0.8pc]{.}\contentspage}
+\titlecontents{subsubsection}[4.6em]{\sffamily\small}
+  {\contentslabel{3.0em}}{}{\titlerule*[0.8pc]{.}\contentspage}
+\usepackage[hidelinks, unicode, bookmarksnumbered]{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue,
+  anchorcolor=blue, filecolor=blue, linktoc=all}
+\linespread{1.07}
+\setlength{\parskip}{1pt plus 1pt}
+% 标题：用 titlesec 显式给出“编号 + 字体”，否则 ctexset 只改字体会把编号吞掉。
+\titleformat{\section}{\Large\bfseries\sffamily}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\sffamily}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily}{\thesubsubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{9pt plus 2pt minus 2pt}{5pt plus 1pt}
+\titlespacing*{\subsection}{0pt}{9pt plus 2pt minus 2pt}{5pt plus 1pt}
+\titlespacing*{\subsubsection}{0pt}{10pt plus 1pt}{4pt}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}   % article: section=1, subsection=2, subsubsection=3
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\footnotesize\sffamily \thepage}
+\renewcommand{\headrulewidth}{0pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\footnotesize\sffamily \thepage}%
+  \renewcommand{\headrulewidth}{0pt}}
+\renewcommand{\abstractname}{\sffamily 摘\quad 要}
+\newcommand{\paperkeywords}[1]{%
+  \par\vspace{8pt}\noindent{\sffamily\bfseries 关键词：}#1\par\vspace{4pt}}
+\raggedbottom
+\tolerance=2000
+\emergencystretch=3em
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}\setlength{\topsep}{2pt}}
+\makeatletter
+\newsavebox{\pandocbdbox}
+\providecommand*{\pandocbounded}[1]{%
+  \sbox{\pandocbdbox}{#1}%
+  \ifdim\wd\pandocbdbox>\linewidth
+    \resizebox{\linewidth}{!}{\usebox{\pandocbdbox}}%
+  \else
+    \usebox{\pandocbdbox}%
+  \fi}
+\makeatother
