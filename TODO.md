@@ -22,7 +22,9 @@
 - **overlay 身份已补（11:12）**：`configs/budget/g02_bootstrap_overlay.yaml` 1 847 B、
   sha256 `c58d5a905ea75de5f67cb7b5e9e8d3eae85615bb8009d6b49ebb0bb329ec810b`、total 200 / per_cell 50，
   自 `24582f4` 未改、`git status` 干净。它**不在** `pipeline_source_hashes()` 内（刻意的覆盖目录），
-  快照不绑定它；39 号逐行 `overlay_sha256` 列为空、40 号不读。已写入
+  **也不在** `snapshot_binding.source_hashes`（49 文件全为 v3 集）；但 `create_snapshot` 会整树复制
+  `configs/`，所以快照目录里**有**它的字节副本——字节在、哈希账上没有。
+  39 号逐行 `overlay_sha256` 列为空、40 号不读。已写入
   `docs/v3_phase_G_run_registry.md` §2.3 与 `docs/v3_phase_G02_formal.md` §1，作为唯一可核凭据。
   另：`run_state.json` 只在该格 50 b 全跑完后写出，是摘要不是断点；续跑按 `repetitions.csv` 已有 b。
 - **开跑前冒烟拦下 G03 停链（11:14）**：链的 A/B 两段都没给 `--models`，而 34 号原样把 `None`

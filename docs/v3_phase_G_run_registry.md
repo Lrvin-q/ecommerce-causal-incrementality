@@ -86,7 +86,8 @@
   `retraining_bootstrap_total: 200` / `retraining_bootstrap_per_cell: 50`；自 `24582f4`
   （2026-10-29 00:13:54）起未改，`git status --short configs/budget/` 为空。
   **它不在 `pipeline_source_hashes()` 的 glob 内**（`configs/budget/` 是刻意的覆盖目录），
-  快照 `abaa338a…` 不覆盖它；且 39 号不填逐行 `overlay_sha256`（全空，40 号也不读）。
+  快照绑定哈希（49 文件）不含它——快照目录虽整树复制了 `configs/`，但 `source_hashes` 只记 v3 集；
+  且 39 号不填逐行 `overlay_sha256`（全空，40 号也不读）。
   ⇒ 审阅者核 overlay 只能以本 sha256 为准，空列不得当"未绑定"之外的任何结论。
 - **中途体检（11:32，只读）**：10 行（b 0–2）、0 重复、0 空值；`policy_value` 2.2061–3.0176；
   `validation_frame_hash` 4 个值（= 每格 1 个）；`validation_arm_hash` 全局 1 个值——四格

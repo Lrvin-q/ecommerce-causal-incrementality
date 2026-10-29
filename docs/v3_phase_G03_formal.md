@@ -74,6 +74,10 @@ R_ate 带 `_provisional` 后缀，41 号不读它；41 的固定 bootstrap 校�
   **不是** `n_total`（矩阵行 schema 无后者，旧写法在首格完整帧上必 `KeyError`）；另断言
   `n_treated + n_control == n`、`rep` 为 `0..R-1` 的排列、`status/block/tier/n` 逐格唯一。
   该修复**不触及源码哈希**（`scripts/` 不在 `pipeline_source_hashes` 内），可在运行期落地；
+- **overlay 不在哈希账上**：`configs/budget/tier2_overlay.yaml`（`02644767…`）与 G02 的
+  `g02_bootstrap_overlay.yaml` 都会被 `create_snapshot` 整树复制进快照目录，但
+  `snapshot_binding.source_hashes`（49 文件）只记 v3 集；`34 --snapshot` 也只校验"绑定 vs live 相等"，
+  不切换运行根。本次保护 = 冻结窗口 + 两文件运行期未改（收尾以 sha256/mtime 复核，记入 G04）；
 - 导出为 staging + 原子换名，旧目录保留时间戳备份（`%Y%m%d%H%M%S`）；
 - 顶层登记**留人工复核**后再执行。
 
