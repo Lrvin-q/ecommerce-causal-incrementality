@@ -9,9 +9,10 @@
 >    然后 `39 … merge`；`out/g03_chain.sh`（PID 1493，14 h 期限）等 `post.status` 的 `OK:` → 阶段 A
 >    固定 bootstrap（24 格 × rep 0，`out/g02_fixed`，~40 min）→ 阶段 B G03 24 格（`out/g03_formal`，~26.5 h）。
 >    任一失败标记（`VERIFY FAIL`/`STALL:`/`TIMEOUT:`/`merge_exit≠0`）链条即停，状态在 `out/g03_logs/chain.status`。
-> 3. **G01 已通过并完成两轮独立复评**：数据零不符、P1 4/4 关；复评 5 条 P2 已全部修完
->    （33 号反向校验、37/40/41 导出回滚、§3 功效带、§5.1 `config_hash` 措辞、注册表/TODO 旧数），
->    复评全文 `docs/reviews/v3_phase_G01_review2.md`。GOAL G01 行的改判边界见 `docs/v3_phase_G01_formal.md` §7。
+> 3. **G01 已通过（11:00 改判）**：第三轮窄复评 10:56 判 5/5 P2 关闭、0 新增 P0/P1
+>    （`docs/reviews/v3_phase_G01_review3.md`），4 条文字级 P3 同日修完。GOAL G01 行已写明边界：
+>    非新的独立 AA 样本、CP 下界低于预设带、0.81/0.96 是解析功效、不表示策略有效。
+>    复评链：`review2.md`（PASS WITH CONDITIONS）→ `review3.md`（5/5 CLOSED）。
 > 4. **已提交**：`daf9d80`（冻结帧改模型无关指纹、37/40/41 原子换名、33 反向校验、G01 复评 5 P2）
 >    与 `f5a3e52`（39 号 merge 的同一坏指纹，会在收尾合并时必败）。`out/g03_post.sh`（PID 1952）
 >    会在 G03 跑完后自动做 40/41 `--check` + 导出；**33 号顶层登记留人工复核**。

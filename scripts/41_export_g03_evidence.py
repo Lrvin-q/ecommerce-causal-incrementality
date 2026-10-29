@@ -276,7 +276,7 @@ def main(argv: list[str] | None = None) -> int:
     payload = _write_evidence(staging, matrix_root, fixed_root, frames, fixed_frame, recomputed_frame)
     json.loads((staging / "coverage.json").read_text(encoding="utf-8"))
     if dest.exists():
-        stamp = now().replace(":", "").replace("-", "")
+        stamp = datetime.now(BEIJING).strftime("%Y%m%d%H%M%S")
         dest.rename(ROOT / "out" / f"g03_evidence_bak_{stamp}")
     staging.rename(dest)
     print(json.dumps({k: v for k, v in payload.items() if k != "records"},

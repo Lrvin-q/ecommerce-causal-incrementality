@@ -151,7 +151,7 @@ def write_evidence(cells: list[str], recomputed: pd.DataFrame) -> dict:
         raise
     DEST = real
     if real.exists():
-        stamp = now().replace(":", "").replace("-", "")
+        stamp = datetime.now(BEIJING).strftime("%Y%m%d%H%M%S")
         real.rename(ROOT / "out" / f"g02_evidence_bak_{stamp}")
     staging.rename(real)
     return payload
