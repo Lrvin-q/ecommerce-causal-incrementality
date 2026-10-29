@@ -12,7 +12,8 @@
 
 ### 接手清单（G02 → G04，按顺序执行；2026-10-29 12:47 写）
 
-1. **等 G02 满 4×50**（ETA 18:00–19:00）。看护进程 `out/g02_post.sh`（PID 1457）会自动校验并 merge：
+1. **等 G02 满 4×50**（ETA 18:00–19:00）。看护进程 `out/g02_post.sh`（PID **24128**，12:51 核实；
+   Git Bash `ps` 看不到它，用 PowerShell 查 `Win32_Process` 的 CommandLine）会自动校验并 merge：
    `cat out/g02_logs/post.status` 应出现 `merge_exit=0` 与 `OK: G02 merge 完成 …`；
    若出现 `VERIFY FAIL`，按行修（逐格 50 行、b=0..49 唯一、validation_frame_hash/validation_arm_hash 跨 b 唯一、
    validation_rep 唯一、history_rep_id 不重复、status=formal），**不要在未满 50 时手工合并**。
@@ -22,7 +23,8 @@
 5. 链仍在等（`out/g03_logs/chain.status`）：14 h 等待 → Stage A 固定 bootstrap（24×rep0，~40 min）→ Stage B（24 格，~58 h）。
    等待期可写摘要骨架，但数字位留 `[Cxx]` 占位，不得预填。（12:50 更新：摘要已成稿并按 Tier1 注册值填数，D03/E 只作方向性表述；G02/G03 数字未进摘要，等结果落地后再决定是否补。）
 6. G03 完成后 `scripts/41_export_g03_evidence.py --check`，填 G03 §2–§4；**Tier2 数字不得与 Tier1 并列**。
-7. G04：注册表 + GOAL 收尾；收尾前跑 `--with-check --with-register --with-claims` 一致性预检。
+7. G04：注册表 + GOAL 收尾；收尾前跑 `--with-check --with-register --with-claims` 一致性预检，
+   并单独跑 `42_claim_number_gate.py --abstract paper/v3/abstract.md`（12:52 新增：摘要只准 Tier1 注册值）。
 8. **待用户裁决（不阻塞上述执行）**：GOAL 首句要求"50–100 页量级"长稿，当前 12 页；
    G02/G03 结果落地后若仍不足，需请用户裁决是补内容还是改 GOAL 措辞——**不得静默下调或填充凑页**。
 
