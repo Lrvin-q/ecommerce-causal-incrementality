@@ -22,6 +22,24 @@ fi
 
 pandoc "$BODY" -f markdown+pipe_tables+tex_math_dollars -t latex --biblatex --wrap=preserve \
   -o "$BUILD/body.tex"
+
+# 长路径（\texttt{...}）默认无法断行，会把块引用撑出版心（H03「无裁切」）。
+# 在每个 "/" 后插入 \allowbreak{}，让路径可以续行；不改内容，只加断行点。
+PY="$ROOT/.venv/Scripts/python.exe"
+[ -x "$PY" ] || PY=python
+"$PY" - "$BUILD/body.tex" <<'PYEOF'
+import pathlib, re, sys
+p = pathlib.Path(sys.argv[1])
+t = p.read_text(encoding="utf-8")
+
+def brk(m):
+    inner = m.group(1)
+    return m.group(0) if "/" not in inner else "\\texttt{" + inner.replace("/", "/\\allowbreak{}") + "}"
+
+out, n = re.subn(r"\\texttt\{([^{}]*)\}", brk, t)
+p.write_text(out, encoding="utf-8")
+print(f"tex path breaks: {n} inline spans scanned")
+PYEOF
 {
   printf '\\begin{abstract}\n\\linespread{1.04}\\selectfont\\small\n'
   pandoc "$HERE/abstract.md" -f markdown -t latex --wrap=preserve
