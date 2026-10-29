@@ -18,3 +18,7 @@ C16,3.7,G02 L0_P_main 决策通过率,0.04,2,Tier1,no,outputs/tables/v3_phase_G0
 C17,3.7,G02 L1_main 决策通过率,0.98,2,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L1_main',decision_pass_rate,49/50
 C18,3.7,G02 L2_n200000_p050 决策通过率,0.94,2,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L2_n200000_p050',decision_pass_rate,47/50
 C19,3.7,G02 L3_fixed_lt000 决策通过率,0.90,2,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L3_fixed_lt000',decision_pass_rate,45/50
+C20,3.8,G03 L0_P_main 固定 bootstrap 点差（定向−随机，元/人）,0.0538,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L0_P_main',point_diff,"1 000 次；rep0；95% CI [-0.0402, 0.1458] 跨零"
+C21,3.8,G03 L1_main 固定 bootstrap 点差（定向−随机，元/人）,0.2022,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L1_main',point_diff,"1 000 次；rep0；95% CI [0.1009, 0.3131]"
+C22,3.8,G03 L2_n200000_p050 固定 bootstrap 点差（定向−随机，元/人）,0.1788,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L2_n200000_p050',point_diff,"1 000 次；rep0；95% CI [0.0740, 0.2852]"
+C23,3.8,G03 L3_fixed_lt000 固定 bootstrap 点差（定向−随机，元/人）,0.0128,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L3_fixed_lt000',point_diff,"1 000 次；rep0；95% CI [-0.1000, 0.1205] 跨零"
