@@ -2,12 +2,23 @@
 # 编译 v3 长稿：bash paper/v3/build.sh <body.md>
 # 产物全部落在 out/scratch/v3_paper_build/（不入库），不改 paper/v3 源码目录。
 set -euo pipefail
-BODY=${1:?用法: bash paper/v3/build.sh <body.md>}
+BODY=${1:?用法: bash paper/v3/build.sh <body.md|body目录>}
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
 BUILD="$ROOT/out/scratch/v3_paper_build"
 mkdir -p "$BUILD"
 cp "$HERE/main.tex" "$HERE/preamble.tex" "$HERE/refs.bib" "$BUILD/"
+
+# 目录模式：按文件名顺序拼接各章，落盘成 body.md，供 build 与 43/44 共用同一份正文。
+if [ -d "$BODY" ]; then
+  : > "$BUILD/body.md"
+  for part in "$BODY"/*.md; do
+    [ -e "$part" ] || continue
+    cat "$part" >> "$BUILD/body.md"
+    printf '\n\n' >> "$BUILD/body.md"
+  done
+  BODY="$BUILD/body.md"
+fi
 
 pandoc "$BODY" -f markdown+pipe_tables+tex_math_dollars -t latex --biblatex --wrap=preserve \
   -o "$BUILD/body.tex"
