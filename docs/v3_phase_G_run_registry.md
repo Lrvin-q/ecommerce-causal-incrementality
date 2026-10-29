@@ -243,8 +243,9 @@ git push origin codex/d03
 ## 6. G02/G03 收尾命令序列（2026-10-29 11:20 预置；链条结束后照抄）
 
 ```bash
+export PYTHONUTF8=1 PYTHONIOENCODING=utf-8
 # 0) 先看三个状态文件（OK / STOP / VERIFY FAIL / TIMEOUT）
-cat out/g02_logs/post.status out/g03_logs/chain.status out/g03_logs/g03_post.status
+cat out/g02_logs/post.status out/g03_logs/chain.status out/g03_logs/post.status
 
 # 1) G02 证据：先 --check 再导出（staging + 原子换名，旧目录留时间戳备份）
 .venv/Scripts/python.exe scripts/40_export_g02_evidence.py --check

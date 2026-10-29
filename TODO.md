@@ -82,6 +82,7 @@
   `out/g03_chain.sh` 改为识别 `STALL/TIMEOUT/VERIFY FAIL/merge_exit≠0` 即停（10:39:57 重启，PID 1493）。
 - **10:48 补收尾看护**：`out/g03_post.sh`（PID 1952）等 `chain.status` 的 `OK:`，先跑 40/41 `--check`
   再自动导出 `outputs/evidence/g02_formal` 与 `g03_formal`；**顶层登记（33 号）不自动跑**，留人工复核。
+  （11:37 已重启为 PID 3883，窗口改为 120 h；见 11:38 条。）
   另确认 34 号 `run` 结束时会自动 `_finalize`，写出 `outputs/tables/v3_g_g_core.csv` / `v3_g_g_tier2.csv`
   与 `out/g03_formal/_final`，这正是 41 号校验所要求的汇总表。
 - **G01 复评（两轮并行，结论一致）**：`docs/reviews/v3_phase_G01_review2.md`——PASS WITH CONDITIONS，
