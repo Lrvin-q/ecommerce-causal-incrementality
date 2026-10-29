@@ -34,6 +34,10 @@
 > 44 EXIT=0（12 篇 / 36 次）、43 EXIT=0（四项判据全过），`results_char_share` 58.06% → **60.18%**，结果章实质页 7/9。
 > 42 的 `--draft` 只吃**单个文件**：传 `paper/v3/main.tex` 或 `paper/v3/body/` 目录都会 FAIL（"长稿不存在"），
 > 正确做法是按 `01→04` 拼一份 markdown 再传（本次 `out/scratch/draft_concat.md`，与 `build.sh` 生成的 `body.md` 同序）。
+> 最新动作（20:04）：结论章由"三条"改"四条"，补第四条的稳定性结论（两类重采样方向一致、区间不可互替、
+> 不构成覆盖率保证，**不写新数字**）；摘要末尾补一句稳定性层（同样不写数字，只述方向与"两层区间跨零"）。
+> 四门禁复跑仍全绿：42 EXIT=0（23 条）、44 EXIT=0（12 篇 / 36 次）、build OK、43 EXIT=0（12 页，
+> `results_char_share` 60.18% → **59.40%**，结论章字数 1213 → 1389，仍 ≥50%）。
 > 为什么必须换 out-root：34 号 `--resume` 只找未跑完分片的 `repetitions_provisional.csv`
 > （`34_g_matrix_run.py:316-319`），已完成分片写的是正式 `repetitions.csv`（`v3_g_matrix.py:1274`），
 > 在原目录续跑会把整片重算（重片 7.2 h/片）。Phase 2 用新根，最后 `merge` 多根去重，`_final` 仍按 R_ate=500 判完整。
