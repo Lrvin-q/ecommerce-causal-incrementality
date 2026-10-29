@@ -1,9 +1,9 @@
 # G03 正式报告 —— Tier1 core 四格 + Tier2 二十格矩阵（G03 骨架）
 
 > **合成数据 / 已知 DGP**。本报告只回答"在注册的 24 个机制场景下，策略价值与决策通过率如何"，
-> 不表示任何真实业务效果。维护时间：2026-10-29 23:25（北京时间）。
+> 不表示任何真实业务效果。维护时间：2026-10-30 00:35（北京时间）。
 > 当前状态：**阶段 A 已完成，§4 已填（24 格固定 bootstrap）**；阶段 B 拆批，Phase 1（core rep0–99）跑中
-> （23:16 落 136/400 rep，`L0_P_main` 100/100 已完成）；Phase 2（Tier2 20 格 + core rep100–499）待用户另约时间。
+> （00:34 落 182/400 rep，`L0_P_main` 100/100、`L1_main` 81/100）；Phase 2（Tier2 20 格 + core rep100–499）待用户另约时间。
 > §3 仍待填，但 **§3.0 的 D1-A 披露已按裁决原样写入**（空转格不构成机制证据）。
 
 ## 1. 设计
@@ -45,10 +45,11 @@ core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **16–17 h**（
 | 18:37:06 | 阶段 B 首跑启动：24 格 / 60 分片 / 6 路（`--shard-size 50`） |
 | 19:36 | 按用户决定停链（`taskkill /T`），半成品归档 `out/g03_formal_interrupted_20261029_1935`；`g03_post` 停止，`chain.status` 记 paused |
 | 19:36:30 | **Phase 1 启动**：core 4 格 × rep0–99，40 分片 × 10 rep、6 路，`--out-root out/g03_core_prefix`；快照校验通过（`6fdaf7bb…`） |
+| 20:06 | Phase 1 进行中：25/400 rep 落盘（6 个 L0 分片并行，分片内 10 rep 跑完才写 `repetitions.csv`），最新写入 20:04，`phase1.log` 无 error/traceback；按 6–7 min/rep 外推 ETA 仍为 02:30–03:30 |
 | 20:16 | Phase 1 进度 27/400 rep（6 分片各 4–5 rep，最新写入 20:15）；按 rep 目录 mtime 重测 **8.5–9 min/rep·worker**，ETA 更正为 10-30 04:45–05:45（点估计 ~05:10）；6 个 worker 各占满一核（2336 s CPU / 2340 s 墙钟），`phase1.log` 无 error |
 | 23:58 | Phase 2 入口加固（脚本从未运行过，先只读复核）：复合根 `out/g03_formal/shards` 残留非空直接 exit 10（否则 `cp -r` 回退会把分片套进自身，`merge_roots` 对这种根静默 continue）、建链后逐分片核对 `<分片>/<cell>/repetitions*.csv` 缺则 exit 11；提交 `ecb0407`，注册表 §2.6 已记 |
 | 00:02 | Phase 1 进度 **164/400**（`L0_P_main` 100/100 已完成，`L1_main` 6 个分片在跑）；23:44–00:12 三个读数 154→163→164，折 0.56–0.70 rep/min，ETA 顺延 **10-30 05:30–07:00**；`phase1.log` 无 error |
-| 20:06 | Phase 1 进行中：25/400 rep 落盘（6 个 L0 分片并行，分片内 10 rep 跑完才写 `repetitions.csv`），最新写入 20:04，`phase1.log` 无 error/traceback；按 6–7 min/rep 外推 ETA 仍为 02:30–03:30 |
+| 00:34 | Phase 1 进度 **182/400**（L0 100/100、L1 81/100、L2 1）；L1 批次耗时 5–15 min/10 rep，6 个 spawn worker 均在；`phase1.log` 无 error/traceback；ETA 维持 10-30 05:30–07:00 |
 | 待填 | Phase 1 完成（`out/g03_logs/phase1.status` 出现 `OK: G03 Phase1 core prefix 完成`） |
 | 待填 | Phase 2（Tier2 + core ATE 尾巴）与多根 merge（`g03_exit=0`） |
 
