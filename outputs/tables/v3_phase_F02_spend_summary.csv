@@ -1,0 +1,4 @@
+﻿arm,reps,predicted_per_assigned_cny_mean,realized_per_assigned_cny_mean,realized_per_assigned_cny_median,realized_to_predicted_mean,realized_to_predicted_median,realized_to_predicted_max,reps_over_planned_budget,reps_over_planned_budget_share,within_budget_by_predicted_share
+no_coupon,200,0.0,0.0,0.0,,,,0,0.0,1.0
+random_same_budget,200,0.19999965321552246,0.20056747939849293,0.20022919047938498,1.0028391400509546,1.0011466880220148,1.0889881394517085,104,0.52,1.0
+selected_targeted_policy,200,0.1999992392738169,0.21126817180374172,0.21017155563572254,1.056345050302437,1.050859989120389,1.3066746457587526,179,0.895,1.0
