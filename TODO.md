@@ -11,7 +11,10 @@
   验证队列本身确定（同 rep 协变量两次生成逐字节相同）。守卫在写 b 行之前抛——没写出任何坏行。
 - **修法（10:26–10:28）**：`run_validation_arm` 新增与模型无关的 `validation_frame_hash`
   （用户协变量）与 `validation_arm_hash`（臂标签 + 概率）；39 号改为断言这两个，观测哈希仍逐 b 记录；
-  续跑遇旧表缺列直接 `SystemExit`。设计档 §6.1.a 第 2 条同步更正。新测试 `tests/test_v3_g02_frozen_frame.py`（3 例）。
+  续跑遇旧表缺列直接 `SystemExit`。设计档 §6.1.a 第 2 条同步更正。新测试 `tests/test_v3_g02_frozen_frame.py`（6 例）。
+- **10:46 补修同一坏指纹的第二处**：`39 … merge` 仍在断言 `validation_observed_hash` 唯一，会在 19:30
+  收尾合并时必败并停链。已抽 `check_merge_frame` 只断言 b 不重复 + 两个新指纹唯一，缺列即拒；
+  3 例新测试 + 用失败现场实跑 `39 merge` 验证被拒（exit=1）。与导出测试合计 **9 passed**。
 - **验证**：n=2000 × 4 格 × 2 b 冒烟通过（`L0_P_main` b=1 选模从 constant 变 causal_forest，正是旧指纹误报的场景）；
   全量单进程串行 pytest **EXIT=0**（`out/pytest_g02fix_20261029_1029.log`，10:29–10:38）。
 - **重开（10:39）**：新快照 `out/g02_snapshot` 49 文件 `abaa338a…`（`v3_g_matrix.py` `6ec009b6…`）；

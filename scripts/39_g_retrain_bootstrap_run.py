@@ -407,6 +407,22 @@ def command_run(args) -> int:
     return 0
 
 
+def check_merge_frame(cell_id: str, frame: pd.DataFrame) -> None:
+    """合并前逐格校验：b 不重复，验证队列/随机化臂跨 b 冻结。
+
+    观测哈希含 `issued_action`，随每次拟合的打分变化，不能拿来做唯一性断言。
+    """
+    if frame["b"].duplicated().any():
+        raise SystemExit(f"{cell_id} 的 b 重复")
+    for column in FROZEN_COLUMNS:
+        if column not in frame.columns:
+            raise SystemExit(f"{cell_id} 的逐 b 表缺 {column}（旧版 39 号的表，不能合并）")
+        if int(frame[column].nunique()) != 1:
+            raise SystemExit(
+                f"{cell_id} 的 {column} 在 b 间不一致，验证队列/随机化臂被重抽，拒绝合并"
+            )
+
+
 def command_merge(args) -> int:
     root = args.root if args.root.is_absolute() else ROOT / args.root
     overlay = read_bootstrap_overlay()
@@ -418,10 +434,7 @@ def command_merge(args) -> int:
         if not path.is_file():
             raise SystemExit(f"缺少 {path}")
         frame = pd.read_csv(path)
-        if frame["b"].duplicated().any():
-            raise SystemExit(f"{cell_id} 的 b 重复")
-        if int(frame["validation_observed_hash"].nunique()) != 1:
-            raise SystemExit(f"{cell_id} 的验证帧哈希不一致，拒绝合并")
+        check_merge_frame(cell_id, frame)
         rows.append(frame)
     frame = pd.concat(rows, ignore_index=True)
     incomplete = {c: int((frame["cell_id"] == c).sum()) for c in cells}

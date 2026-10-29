@@ -71,3 +71,30 @@ def test_resume_refuses_legacy_table_without_frozen_columns(mod):
     legacy = pd.DataFrame([{"b": 0, "validation_observed_hash": "old"}])
     with pytest.raises(SystemExit, match="validation_frame_hash"):
         mod._frozen_seen(legacy, CORE)
+
+
+def _merge_frame(observed_per_b: bool) -> pd.DataFrame:
+    return pd.DataFrame({
+        "b": [0, 1],
+        "validation_frame_hash": ["frame-a", "frame-a"],
+        "validation_arm_hash": ["arm-b", "arm-b"],
+        "validation_observed_hash": ["obs-0", "obs-1"] if observed_per_b else ["obs-0", "obs-0"],
+    })
+
+
+def test_merge_accepts_changing_observed_hash(mod):
+    mod.check_merge_frame(CORE, _merge_frame(observed_per_b=True))
+
+
+def test_merge_rejects_drifted_frozen_fingerprints(mod):
+    frame = _merge_frame(observed_per_b=True)
+    frame.loc[1, "validation_arm_hash"] = "arm-y"
+    with pytest.raises(SystemExit, match="validation_arm_hash"):
+        mod.check_merge_frame(CORE, frame)
+
+
+def test_merge_rejects_duplicate_b(mod):
+    frame = _merge_frame(observed_per_b=True)
+    frame.loc[1, "b"] = 0
+    with pytest.raises(SystemExit, match="b 重复"):
+        mod.check_merge_frame(CORE, frame)
