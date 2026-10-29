@@ -21,6 +21,10 @@
   4 格重新从 b=0 跑，ETA **19:20–20:40**。失败现场保留在 `out/g02_retrain_failed_20261029_1026/`
   （4 格 b=0 表 + failure_logs）。`out/g02_post.sh` 改为断言两个新指纹 + 停滞 3 h 即失败；
   `out/g03_chain.sh` 改为识别 `STALL/TIMEOUT/VERIFY FAIL/merge_exit≠0` 即停（10:39:57 重启，PID 1493）。
+- **10:48 补收尾看护**：`out/g03_post.sh`（PID 1952）等 `chain.status` 的 `OK:`，先跑 40/41 `--check`
+  再自动导出 `outputs/evidence/g02_formal` 与 `g03_formal`；**顶层登记（33 号）不自动跑**，留人工复核。
+  另确认 34 号 `run` 结束时会自动 `_finalize`，写出 `outputs/tables/v3_g_g_core.csv` / `v3_g_g_tier2.csv`
+  与 `out/g03_formal/_final`，这正是 41 号校验所要求的汇总表。
 - **G01 复评（两轮并行，结论一致）**：`docs/reviews/v3_phase_G01_review2.md`——PASS WITH CONDITIONS，
   P1 4/4 全关、数据零不符。复评提的 5 条 P2 **已全部关闭**：
   ① 33 号反向校验补上目录级白名单（反例 `out/review_g01_round2/fixture_ev` 当场 exit 2，真树 91 条 dry-run 仍 exit 0）；
