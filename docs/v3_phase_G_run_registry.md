@@ -75,6 +75,11 @@
 - **ETA 依据（11:32 用重开后的实测墙钟改写）**：b=0/1 的墙钟为 L0 6.5/6.6 min、L1 9.1/6.9、
   L2 7.1/9.2、L3 9.5 min（4 路并行互相抢核；CPU 386–562 s/b）。按均值 ~7.8 min/b ⇒ 50 b ≈ 6.5 h/格，
   **ETA 16:40–18:40（中心 ~17:10）**。旧的 19:20–20:30 是按 11 min/b 的偏保守外推，作废但保留于 Git 历史。
+- **合并/导出门禁预核（11:40，只读）**：`check_counts` 给出 4 格 × 50 = 200（与 overlay 一致）；
+  当前逐格表已含 merge 所需全部列，`check_merge_frame` 的两个指纹逐格唯一、b 不重复；
+  40 号复算列名（`b_count`/`policy_value_mean`/`policy_value_sd`/`ci95_low`/`ci95_high`/
+  `decision_pass_rate`/`guardrail_pass_rate`）与 39 号 summary **完全对应**；
+  33 号 `--dirs g01_aa250 f02_formal --dry-run` 91 条一致、幂等、EXIT=0。⇒ 17:10 的 merge → 40 → 33 链路已预核。
 - **中途体检（11:32，只读）**：10 行（b 0–2）、0 重复、0 空值；`policy_value` 2.2061–3.0176；
   `validation_frame_hash` 4 个值（= 每格 1 个）；`validation_arm_hash` 全局 1 个值——四格
   `n_history = n_validation = 200000`、用户编号同为 0..n−1、臂随机化与格无关，故臂表逐字节相同，
