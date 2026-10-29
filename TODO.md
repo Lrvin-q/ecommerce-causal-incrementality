@@ -4,6 +4,22 @@
 
 ## 当前状态
 
+### 接手清单（G02 → G04，按顺序执行；2026-10-29 12:47 写）
+
+1. **等 G02 满 4×50**（ETA 18:00–19:00）。看护进程 `out/g02_post.sh`（PID 1457）会自动校验并 merge：
+   `cat out/g02_logs/post.status` 应出现 `merge_exit=0` 与 `OK: G02 merge 完成 …`；
+   若出现 `VERIFY FAIL`，按行修（逐格 50 行、b=0..49 唯一、validation_frame_hash/validation_arm_hash 跨 b 唯一、
+   validation_rep 唯一、history_rep_id 不重复、status=formal），**不要在未满 50 时手工合并**。
+2. `PYTHONUTF8=1 .venv/Scripts/python.exe scripts/40_export_g02_evidence.py --check`
+3. 顶登：`scripts/33_register_evidence_top.py --dirs g02_formal g03_formal --dry-run` 核对后去掉 `--dry-run`。
+4. 填 G02 报告 §3–§5：数字只从 merge 产物与证据表读，**禁止手抄**；改完按 §12.4 grep 旧值。
+5. 链仍在等（`out/g03_logs/chain.status`）：14 h 等待 → Stage A 固定 bootstrap（24×rep0，~40 min）→ Stage B（24 格，~58 h）。
+   等待期可写摘要骨架，但数字位留 `[Cxx]` 占位，不得预填。
+6. G03 完成后 `scripts/41_export_g03_evidence.py --check`，填 G03 §2–§4；**Tier2 数字不得与 Tier1 并列**。
+7. G04：注册表 + GOAL 收尾；收尾前跑 `--with-check --with-register --with-claims` 一致性预检。
+8. **待用户裁决（不阻塞上述执行）**：GOAL 首句要求"50–100 页量级"长稿，当前 12 页；
+   G02/G03 结果落地后若仍不足，需请用户裁决是补内容还是改 GOAL 措辞——**不得静默下调或填充凑页**。
+
 **2026-10-29 12:46 更新。G02 53/200 b；H05 引用支持范围小节入正文；43 字数 56.32%、页 77.78%，12 页**：
 
 - **12:46 H05 两项落地**：①方法章新增「引用与支持范围」小节，逐条声明 12 篇引用只支撑"方法与做法"（元学习器/因果森林/R-learner/双稳健 CATE/Neyman 正交/OPE/策略学习/EWM/Holm/AA 实务/CATE 基准批评），**没有一篇描述本项目 DGP，正文数字不以引用为依据**，唯一依据是 outputs/tables 与 outputs/evidence；②清掉一处预设结论——原文"失效是识别假设被破坏后的**必然**结果"改为"一致性后果，方向与幅度由实验给出"，符合 AGENTS §5"不预设结论"。**代价**：方法章变长，43 字数占比 57.93% → **56.32%**（仍 ≥50%）、页占比 75% → **77.78%**，12 页；42/44 全绿（引用次数 24 → 36）。
