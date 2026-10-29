@@ -24,6 +24,10 @@
 >    判"结果章有效字数 ≥50%、结果实质页占正文/占全稿 ≥50%"，接长稿时再加 `--min-pages 50 --max-pages 100`。
 >    **正文四个一级标题必须带属性** `{#ch-intro}`/`{#ch-method}`/`{#ch-results}`/`{#ch-conclusion}`，
 >    否则 43 直接报"缺章标签"（不是静默算 0）。探针稿故意红在 0.45%，说明判据真的在算。
+>    **12:22 引用核验**：`scripts/44_citation_check.py --bib paper/v3/refs.bib --body-tex
+>    out/scratch/v3_paper_build/body.tex --bbl out/scratch/v3_paper_build/main.bbl` 查"12 篇不多不少、
+>    全部被引用、无表外键、正文与 .bbl 一致、无 `{[}@` 字面量"。首次在真实产物上跑就叫停了
+>    探针残留的 `[@dummy]`——构建全绿但引用是假的，正是它要防的形态。
 >
 > **（10-29 11:45）七条不变，改动处已更新：**
 > 1. **G02 正在跑**：批准号 `G02-FORMAL-20261029`；10:39 起 4 个 core 格 × 50 b（`out/g02_retrain/`），
