@@ -4,6 +4,26 @@
 
 ## 当前状态
 
+**2026-10-29 10:10 更新。G01 评审条件已全关（待复评确认改判）；G02 正式跑 10:09 开跑**：
+
+- **G01 独立评审**：`docs/reviews/v3_phase_G01_review.md`，**PASS WITH CONDITIONS，0 P0 / 4 P1 / 9 P2**；
+  数值零不符（46/1 000、CP [0.033871, 0.060884]、逐层 14/11/10/11、与 17 号表 max|Δ| = 0.0）。
+- **条件关闭（10:10）**：证据区补 `binding/snapshot_binding.json` + `runs/` 12 份运行汇总 + `runs_summary.json`
+  （窗口 22:42:39 → 05:15:38、failures 0）；manifest 的 `started_at_utc` 实为完成时刻，逐条 note；
+  33 号加逐条白名单把 `runs_summary.json` 提到顶层（89→91、16 964 194 B）；报告加"计划/成功/失败/有效/哈希"表，
+  §5.1 改为逐 rep 比对（1 000/1 000，69 可比列中 60 列 max|Δ|=0.0），9 条 P2 全修。提交 `e01e5e0`。
+- **P1-4 主负责复核**：`aa/all_repetitions.csv` 1 384→1 000 行，与 G01 1 000 行 both=1000/0/0；
+  9 个非零列 = 8 个计时列 + `file_lock_retries`（≤1），比评审口径更严。
+- **事故**：37 号首次重跑因 `record()` 参数重复抛错，而 `export()` 先删目录——45 个已登记文件被删空，
+  `git checkout` 复原后改为"旧目录改名备份→成功才删/失败还原"。已写入反思日志。
+- **用户裁决**：预算 **A 保持范围**（222.6 h，超自设上限 6%）；**G02 + G03 都批**
+  （`G02-FORMAL-20261029` / `G03-FORMAL-20261029`）。
+- [~] **G02 正式跑（10:09:04 起）**：4 格并行（`L0_P_main` / `L1_main` / `L2_n200000_p050` / `L3_fixed_lt000`），
+  每格 50 b、n=200 000；快照 `out/g02_snapshot` 49 文件绑定 `f39ec0a3…`；日志 `out/g02_logs/<cell>.log`；
+  ETA 约 15:30–17:00。完成后 `39 merge` → 40 号导出 → 33 登记。
+- [ ] **G01 复评代理**：第二轮窄范围复核进行中（产物 `docs/reviews/v3_phase_G01_review2.md`），
+  通过后由主负责改 GOAL G01 状态（含义仅限合并 FPR 与 0.05 相容，不含"新增独立证据"）。
+
 **2026-10-29 05:40 更新。G01 已跑完待评审；G02 补丁已落真树、全量测试绿灯；下一步 R=1 实测**：
 - **G02 补丁落真树（05:19）**：`v3_g_matrix.py` `fd3ca127…` → `3f4d677f…`（+66/−6）。新增
   `require_bootstrap_scope` / `bootstrap_budget_scopes` / `require_primary_budget`；
