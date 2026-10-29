@@ -6,6 +6,12 @@
 
 **2026-10-29 11:52 更新。G02 稳定推进（33/200 b）；尾链判据缺陷已修（40 号），静态复核之外又做了真数据探针**：
 
+- **H01 前置缺口（11:55 实测，正式跑期间不动）**：本机**没有 LibreOffice**（`soffice` 不存在），
+  `.venv` **没有 `python-pptx`**——"原生 PPTX + SVG/PNG + 元素清单"两个渲染条件都不具备。
+  **不在 G02/G03 运行期装包**：`pip install python-pptx` 会连带升级 lxml/Pillow，可能影响后续
+  阶段 A/B 子进程的导入行为（同一 `.venv`）。等链收尾后再定路线：装 python-pptx 生成原生元素 +
+  matplotlib 同源重绘 SVG/PNG（元素清单两版映射），或装 LibreOffice 做真渲染（PPTX→PNG/SVG 一份口径）。
+  未定之前 H01 保持未开始，不写半成品。
 - **11:54 H05 的 S12 关闭**：官方 D&B 2021 索引页 → 摘要页 → PDF 三段互证，题名/四位作者/venue
   一字不差（hash `2a79ea27…b00a`，round 2），升级为**官方 proceedings ✓**；该轨道无 DOI，
   不冒充 Crossref ✓。11:36 的"站内检索无结果"是检索方式不对，且我手拼 URL 时把哈希写错两位得到 404
