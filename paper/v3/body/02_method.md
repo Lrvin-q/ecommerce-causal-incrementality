@@ -342,6 +342,29 @@ LightGBM 的公共超参数在所有使用它的模型上固定：300 棵树、�
 沿用平台实践 [@s11]。策略比较本身用双重稳健的离策略估计 [@s7]，
 验证臂上的复核与护栏判定沿用同一套实验口径 [@s11]。
 
+### 两条主张与护栏的检验构造
+
+逐重复的判定有明确的统计形式，不是"跑出正数就通过"。两个随机化臂互不重叠，
+每臂的净贡献均值 $\bar Y_a$ 与标准误 $\mathrm{se}_a/\sqrt{n_a}$ 独立计算，主张 $c$ 的差与标准误为
+
+$$\hat\Delta_c=\bar Y_{\text{left}}-\bar Y_{\text{right}},\qquad
+\widehat{\mathrm{se}}_c=\sqrt{\mathrm{se}_{\text{left}}^2+\mathrm{se}_{\text{right}}^2}.$$
+
+零假设取"差不超过 0"（`benefit_threshold_cny_per_user = 0`），单侧 p 值为
+$p_c=1-\Phi\!\left(\hat\Delta_c/\widehat{\mathrm{se}}_c\right)$。两条主张组成家族，
+用 Holm step-down 控制单侧家族水平 0.05：升序后第一条按 $\alpha/2$ 判定，通过则第二条按 $\alpha$ 判定。
+报出的区间不是未调整的 95% 区间，而是按各自被检验时的阈值反演的下界，因此与判定一一对应。
+
+护栏是另一条独立的单侧检验，方向相反：它要证明"退款率的恶化不超过界值"。
+记处理组与对照组的退款率为 $\hat p_t,\hat p_c$（分母是随机分配用户），
+
+$$\hat\Delta_{ref}=\hat p_t-\hat p_c,\quad
+\widehat{\mathrm{se}}_{ref}=\sqrt{\tfrac{\hat p_t(1-\hat p_t)}{n_t}+\tfrac{\hat p_c(1-\hat p_c)}{n_c}},\quad
+U_{ref}=\hat\Delta_{ref}+z_{0.95}\,\widehat{\mathrm{se}}_{ref},$$
+
+$U_{ref}<\delta_{NI}=0.005$ 才算非劣效。这里用非合并方差，判据是上界而不是 p 值：
+"差异不显著"不构成安全证据，只有上界落在界值以内才行。三条同时成立，一个重复才算通过。
+
 ### 遗憾的分解：四个来源，一个恒等式
 
 策略层的误差容易被笼统地叫成"模型不准"，但预算分配里至少有四个不同来源，
@@ -394,6 +417,30 @@ $$\text{MDE}=(z_{1-\alpha/2}+z_{1-\beta})\sqrt{\frac{\sigma_1^2}{n_1}+\frac{\sig
 协议还带一套可靠性门禁：按策略实际用到的臂计算等效样本量（ESS），
 任一臂低于 200 或占比低于 0.05 就判"无法可靠评估"。判不过的格子不参与收益主张，
 只作为结果报出来——它们标记的是"这个估计不再代表这群人"，而不是"这个策略不好"。
+
+### 策略价值的三个估计量与权重诊断
+
+只有观测数据时，策略价值有三个并列的估计量，公式在方法上要交代清楚。
+记 $\pi_i\in\{0,1\}$ 为策略是否给用户 $i$ 发券、$T_i$ 为实际处理、$e_i$ 为倾向得分、
+$Y_i$ 为含券成本的净贡献：
+
+- **IPW**：$\hat V=\frac1n\sum_i\left[\frac{\pi_iT_iY_i}{e_i}+\frac{(1-\pi_i)(1-T_i)Y_i}{1-e_i}\right]$；
+- **SNIPS**：两臂分别归一化后按选择份额还原，
+  $\hat V=\bar\pi\frac{\sum_i\pi_iT_iY_i/e_i}{\sum_i\pi_iT_i/e_i}+(1-\bar\pi)\frac{\sum_i(1-\pi_i)(1-T_i)Y_i/(1-e_i)}{\sum_i(1-\pi_i)(1-T_i)/(1-e_i)}$，
+  牺牲无偏性换取对权重极端值的不敏感；
+- **DR**：$\hat V=\frac1n\sum_i\left\{\pi_i\left[\hat m_1+\frac{T_i(Y_i-\hat m_1)}{e_i}\right]+(1-\pi_i)\left[\hat m_0+\frac{(1-T_i)(Y_i-\hat m_0)}{1-e_i}\right]\right\}$，
+  响应面 $\hat m_w$ 由交叉拟合得到，两者之一正确即一致。
+
+标准误一律取影响函数的大样本近似 $\widehat{\mathrm{se}}=\mathrm{sd}(\mathrm{IF})/\sqrt n$；
+配对差用 $\mathrm{sd}(\mathrm{IF}_A-\mathrm{IF}_B)/\sqrt n$，协方差自动进入，不假设两策略独立。
+随机化层用观测表记录的设计概率、不截断；只有观察性层才估计倾向得分并截断，
+截断计数与原始值同时保存。
+
+权重诊断用等效样本量。按臂定义 $w_{1i}=\pi_iT_i/e_i$ 与 $w_{0i}=(1-\pi_i)(1-T_i)/(1-e_i)$，
+$\mathrm{ESS}=\left(\sum_i w_i\right)^2/\sum_i w_i^2$，再除以该臂人数得到占比。
+权重必须带臂指示变量，否则占比的分子与分母不是同一批人。用 ESS 而不是最大权重，
+是因为它同时惩罚权重的极端值与集中度；门禁只在策略实际用到的臂上判定——
+一侧完全不用时，那一侧的 ESS 再低也不影响估计。
 
 ## 复现与证据
 
