@@ -40,6 +40,10 @@
 | 10:39 | 新快照 `out/g02_snapshot`，4 格从 b=0 重开 |
 | 10:46 | 补修 `command_merge` 里**同一坏指纹的第二次出现**（原会在收尾合并时必败）；新增 3 例合并守卫测试 |
 | 10:53 | 越过首轮失败点：b=1 写出，两新指纹跨 b 唯一，观测哈希 2 个值 |
+| 11:37 | 按运行期实测每 b 墙钟中位 **8.0 min**（24 个间隔，4 路），把 `g03_post` 看护窗口从 40 h 改为 **120 h** 并重启（PID 3883）——原窗口必然在阶段 B 结束前超时 |
+| 11:41 | 启动只读取样器 `out/g04_monitor.sh`（10 min/次，120 h）：磁盘、四格行数、python 进程数与总 RSS、三个状态文件末行 → `out/g04_logs/monitor.log`（G04 运行期证据） |
+| 11:42 | 用真数据半成品跑 `39 merge` 探针：**EXIT=0**、帧校验全过、`rows=29`、`provisional=true`；写到 `outputs/tables` 的 `_provisional` 件当场删除，防止误当证据 |
+| 11:44 | 修 40 `--check` 判据错误：原把"50 个 b 共用 `VALIDATION_REP=0`"报成 `validation_rep` 重复——完整正确格必被误判、尾链必 ABORT。改为 `history_rep_id` 查唯一、`validation_rep` 查恒定；新增 3 例测试（6 passed），真数据半成品复跑只剩"未跑完"类问题 |
 
 失败现场保留：`out/g02_retrain_failed_20261029_1026/`（4 格 b=0 表 + 日志）与
 `out/g02_snapshot_failed_20261029_1026/`。事故根因与反思见 `docs/v3_决策与反思日志.md` 10:26、10:46 两条。
