@@ -19,7 +19,7 @@
 | S9 | Kitagawa T, Tetenov A. Who should be treated? Empirical welfare maximization methods for treatment choice. *Econometrica*, 2018, 86(2): 591–616. | 经验福利最大化（EWM）与策略 regret 的统计框架 | 不支持连续处理/预算约束扩展；不支持本项目特定 DGP 的结论 | canonical |
 | S10 | Holm S. A simple sequentially rejective multiple test procedure. *Scandinavian Journal of Statistics*, 1979, 6(2): 65–70. | F02 单侧 Holm 两比较的多重性控制 | 不支持任意依赖结构下的 FWER 控制（论文假设为一般情形但保守）；不支持把 p 值当效应大小 | canonical |
 | S11 | Kohavi R, Tang D, Xu Y. *Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing*. Cambridge University Press, 2020. | AA 校准、样本比例失配、护栏指标、实验平台口径（E/G01 的实践依据） | 不支持把 AA 通过当作策略有效；不支持合成实验替代真实流量 | canonical |
-| S12 | Curth A, Svensson D, Weatherall J, van der Schaar M. Really doing great at estimating CATE? A critical look at ML benchmarking practices. *NeurIPS 2021 Datasets and Benchmarks Track*. | 合成/半合成 CATE 基准的评价陷阱（本项目"合成 DGP→不外推"的方法学依据） | 不支持对任何具体估计器优劣的结论；不支持替代真实数据验证 | 待核验 |
+| S12 | Curth A, Svensson D, Weatherall J, van der Schaar M. Really doing great at estimating CATE? A critical look at ML benchmarking practices in treatment effect estimation. *NeurIPS 2021 Datasets and Benchmarks Track*. | 合成/半合成 CATE 基准的评价陷阱（本项目"合成 DGP→不外推"的方法学依据） | 不支持对任何具体估计器优劣的结论；不支持替代真实数据验证 | 部分核验：题名/作者/年份见 arXiv 2410.08770 与 2410.00509 两处独立引文；官方 proceedings 页未直连 |
 
 ## 使用规则（写进长稿时必须遵守）
 
