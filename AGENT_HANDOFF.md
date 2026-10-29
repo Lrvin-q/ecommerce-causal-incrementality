@@ -1,17 +1,17 @@
 # AGENT 交接说明 —— v3 重建
 
-> **最新交接时间：2026-10-29 11:29（北京时间；本机时钟此前快约 25–30 min，11:15/11:32/11:40
+> **最新交接时间：2026-10-29 11:34（北京时间；本机时钟此前快约 25–30 min，11:15/11:32/11:40
 > 的旧标注偏早，见 `TODO.md` 11:12 时钟校正条）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
-> **（10-29 11:29）恢复会话先做这三步，再读下面七条：**
+> **（10-29 11:34）恢复会话先做这三步，再读下面七条：**
 > 0. 读 `TODO.md` 顶部"当前状态"；跑 `out/scratch/status_now.sh`（若无则手查）：
 >    `for c in L0_P_main L1_main L2_n200000_p050 L3_fixed_lt000; do wc -l out/g02_retrain/$c/repetitions.csv; done`、
 >    `cat out/g02_logs/post.status`、`cat out/g03_logs/chain.status`、`cat out/g03_logs/post.status`、`df -h /c`。
 >    四个看护进程应在：`ps -ef | grep -E "g02_post|g03_chain|g03_post"`。
 >
-> **（10-29 11:29）七条不变，改动处已更新：**
+> **（10-29 11:34）七条不变，改动处已更新：**
 > 1. **G02 正在跑**：批准号 `G02-FORMAL-20261029`；10:39 起 4 个 core 格 × 50 b（`out/g02_retrain/`），
 >    快照 `out/g02_snapshot`（49 文件 `abaa338a…`，`v3_g_matrix.py` `6ec009b6…`）；10:53 越过失火点。
->    11:28 实测 **24/200 b（7/6/6/5）**，~6.5 min/b/格，**ETA ~16:20（15:45–17:00）**。
+>    11:33 实测 **25/200 b（7/6/6/6）**，按 54 min 外推 **ETA ~17:20（16:40–18:00）**。
 >    首轮 10:15 全灭的原因与修法见 TODO 顶部块与日志 10:26 条（冻结帧指纹原先含 `issued_action`）。
 > 2. **收尾与后续全自动**：`out/g02_post.sh`（PID 1457）校验 4 格 × 50 b、两个冻结指纹唯一、`status=formal`，
 >    然后 `39 … merge`；`out/g03_chain.sh`（PID 1493，14 h 期限）等 `post.status` 的 `OK:` → 建快照 →
@@ -20,7 +20,8 @@
 >    状态在 `out/g03_logs/chain.status`。**收尾后先手动跑 `40 --check` 看 G02 合并是否自洽**（post 不等它）。
 > 3. **G01 已通过（11:00 改判）**：边界见 GOAL G01 行；复评链 `review2.md` → `review3.md`。
 > 4. **已提交**：`a9d8405`（41 列契约）、`8c4e9c4`/`48bd696`（overlay 与 truth 口径纠正）、
->    `239fa06`（磁盘实测）、`3e447d5`（H05 S12）。`out/g03_post.sh`（PID 1952）会在 G03 跑完后自动做
+>    `239fa06`（磁盘实测）、`3e447d5`（H05 S12）、`10459ad`（S5 升 Crossref ✓）、`3d63ddc`（收尾链契约复核）。
+>    `out/g03_post.sh`（PID 1952）会在 G03 跑完后自动做
 >    40/41 `--check` + 导出；**33 号顶层登记留人工复核**（`--dirs g02_formal g03_formal --dry-run` 先看）。
 > 5. **纪律不变**：`configs/v3/*.yaml` 七份冻结（hash `00723dc2…`）；正式跑期间不写 `src/`（改脚本/文档安全）；
 >    不削弱 17/19/33/40/41 校验器；证据只认 `outputs/evidence/`。
@@ -35,6 +36,9 @@
 >    阶段 A 每格只跑 rep0；`formal` 且分片计划 rep 全部完成时写正式 `repetitions.csv`
 >    （`_provisional` 只在 engineering 或分片未跑满时出现）；41 只读 `fixed_bootstrap.csv` 与 `run_summary.json`。
 >    overlay 与 `truth_*` 的准确口径见 TODO 11:25/11:26 两条（不要再说"快照不含 overlay"或"真值未落盘"）。
+>    **11:33 静态契约复核**：40 号 24 个列名对实表全存在、39 输出键与 40 `compare` 同名、34 的
+>    `--bootstrap-*` 旗标与 `fixed_bootstrap.csv` 路径/键满足 41、`g02_post` 的 `merge_exit=` 与链 STOP 一致；
+>    未再发现跑满才炸的缺口（注册表 §2.4）。
 >
 > **历史块（2026-10-28 23:01）**
 >
