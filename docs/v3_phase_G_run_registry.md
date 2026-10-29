@@ -191,6 +191,24 @@
 | `scripts/36_g_aa_run.py` | 同上 | `--resume`（`_resume_source` 按 mtime 取该层最近的完整表） | AA 专用；`plan|run|merge` |
 | `scripts/17_merge_aa_layers.py` | 无（纯合并） | 幂等：重跑覆盖同名产物 | 多根合并 + `(block, rep)` 去重 |
 | `scripts/37_export_g01_evidence.py` | 无 | 幂等：重跑覆盖证据目录 | `--check` 只复算不写盘 |
+| `scripts/39_g_retrain_bootstrap_run.py` | 无（读已落盘逐 b 表） | 幂等：重跑覆盖合并表 | 缺 b 只写 `_provisional`；b 重复/冻结指纹多于 1 值/缺列**硬拒**（10:46 修复后口径，见 §2.5） |
+| `scripts/40_export_g02_evidence.py` | 无 | `--check` 只复算；导出为 staging + 原子换名，旧目录留时间戳备份 | 要求每格 `run_state.json` + 50 行 + b 0–49；不满足即非零退出，**不得绕过** |
+| `scripts/41_export_g03_evidence.py` | 无 | 同上 | 缺格/未跑满/非 formal/矩阵 resamples≠0 一律 exit 2（11:20 列契约修复后，见 §2.4） |
+| `scripts/33_register_evidence_top.py` | 无 | 幂等：已登记同 sha 跳过 | **先 `--dry-run` 人工复核**；读不懂的记录硬失败（AGENTS §12.7） |
+| `out/g02_post.sh` | 整脚本可重跑 | 状态机看 `out/g02_logs/post.status`（`OK:` / `STOP`） | 重跑会重做 40/39 校验，幂等；不跑 33 |
+| `out/g03_chain.sh` | 整脚本可重跑 | 状态看 `out/g03_logs/chain.status`（`fixed_exit=` / `g03_exit=` / `OK:`） | **重跑不是追加（11:42 读码确认）**：`run_cell` 的 `existing` 只来自 `resume_from`，而 `--resume` 只认 `repetitions_provisional.csv`；不带 `--resume`（或只有正式表）时 `existing=[]`，本次跑完**用本次 reps 重写** `repetitions.csv`，早先 rep 的 `row.json` 还在但表里没了。修复走"另起根 + 多根 merge"，不要原地重跑（§2.4 预案同） |
+| `out/g03_post.sh` | 整脚本可重跑 | 状态看 `out/g03_logs/post.status`（`OK:` / `ABORT` / `TIMEOUT`） | 120 h 窗口（11:38 起，PID 3883）；超时只会漏自动导出，手动按 §6 执行等价 |
+
+**已知事故与修复（G02/G03 相关，均不改冻结配置）**：
+
+| 时间 | 现象 | 根因 | 修复/判据 |
+|---|---|---|---|
+| 10:15–10:26 | 4 core 格 b=1 全部 `验证帧哈希与 b=0 不同` | 39 断言用 `validation_observed_hash`（含 `issued_action`，逐 b 必变） | 改用 `validation_frame_hash`/`validation_arm_hash`（模型无关）；`tests/test_v3_g02_frozen_frame.py` 6 例（§2.5） |
+| 10:46 | 合并必 `SystemExit` 同源缺陷 | 同上，`command_merge` 残留旧断言 | `check_merge_frame`：b 不重 + 两指纹各 1 值 + 缺列硬拒 |
+| 11:14 | 阶段 A 一启动 L0 必停链 | 34 `--models` 缺省传 `None` = 试全部模型，L0 的 `dr_learner` 抛 `ModelNotApplicableError` | 按层解析 `common ∪ additional_by_level`；2 例单测 + 冒烟 EXIT=0 |
+| 11:20 | 跑满后在导出阶段必 `KeyError: n_total` | 41 取矩阵逐 rep 表不存在的列 | 改取 `n` + 缺列守卫 + `n_treated+n_control==n`；6 例单测 |
+| 11:37 | `g03_post` 必在阶段 B 结束前超时 | 40 h 窗口基于未经运行期验证的 26.5 h 估算 | 按 G02 实测 8.0 min/rep 改 120 h（PID 3883）；旧 1952 已停（§2.4） |
+| 10:18 | 本机 `TZ=Asia/Shanghai date` 输出 UTC | Git Bash 环境 | 链条与状态文件一律用裸 `date`/`zoneinfo` |
 
 **重跑纪律**：17 号合并会覆盖 `outputs/tables/v3_phase_D_aa_formal_merged.*`（D 阶段同名产物）；
 D 阶段原字节已归档到 `outputs/evidence/d02_aa_phase_d_20261027/`（8 文件 + manifest.json，含 sha256/bytes），
