@@ -37,9 +37,14 @@
 逐 rep 原件在 `out/g03_formal/shards/<cell>_s####/`，导出后为 `outputs/evidence/g03_formal/per_cell/`。
 
 待填内容：
-- 24 格逐格：`policy_value` 均值 / sd / 95% CI / 覆盖目标值与否；
+- 24 格逐格：`ate` / `ate_test` / `ate_paid_purchase_7d` / `ate_any_refund_30d` 的均值、sd、MC SE、
+  95% CI（1.96×MC SE，与 39 号同口径）；
 - 4 个 core 格与 20 个 Tier2 格**分区呈现**（禁止同表并列排序）；
 - 每格是否跑满注册 R、`provisional` 必须为 `False`。
+
+**不做覆盖率**：逐 rep 的 manifest 写明 `truth_columns_present: false`（真值列未落盘），
+因此**不得**事后用 DGP 解析式"补算"覆盖率冒充运行期证据；GOAL G03 的验收口径是
+"冻结矩阵 20 格逐格正式结果"，不要求覆盖率。若后续确需覆盖率，必须另起一次带真值导出的运行。
 
 ## 4. 固定 bootstrap 结果（待填）
 
@@ -66,6 +71,8 @@
    也不得据此宣称某机制"稳健"或"失效"。
 3. **单策略单预算**：只评贪心增量利润/成本策略在 0.2 元档；fixed bootstrap 也只覆盖该档。
 4. **core 四格不是新证据**：它们与 G02 共享同设计，结论一致是预期，不构成独立复现。
+5. **无覆盖率口径**：`truth_columns_present: false`，逐 rep 真值未落盘；报告只报估计精度，
+   不得出现"95% CI 覆盖真值 X%"这类未落盘证据支持的表述。
 5. **结论失效条件**：若快照哈希与实际运行源码不符、任一格 `provisional=True`、或 Tier2 出现
    rep 缺失/重复，本报告作废并重跑缺口（按 §2 续跑纪律）。
 
