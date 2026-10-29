@@ -354,6 +354,10 @@ cat out/g02_logs/post.status out/g03_logs/chain.status out/g03_logs/post.status
 # 6) 翻 GOAL G02/G03 行，刷新 TODO / 决策日志 / AGENT_HANDOFF / 本注册表，提交推送
 ```
 
+**读退出码的坑（20:12 实测）**：`python x.py | tail -3; echo $?` 拿到的是 `tail` 的退出码，
+不是脚本的。本次 41/48 在未跑完状态都打印了失败清单，接管道后却显示 `=0`；
+去掉管道（或看 `${PIPESTATUS[0]}`）后分别为 **2 / 2**，与预期一致。
+
 **续跑（任何阶段失败时）**：`--resume` 只救"半途被杀、留下 `repetitions_provisional.csv`"的分片；
 已完成分片会整片重跑。正确做法：先 `34 merge` 收已完成 → 缺口另起根重跑 → 多根 `merge` 且 `duplicates=0`。
 见 `AGENT_HANDOFF.md` 第 6 条与决策日志 2026-10-29 11:15 条。
