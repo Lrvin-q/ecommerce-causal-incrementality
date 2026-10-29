@@ -6,6 +6,12 @@
 
 **2026-10-29 11:52 更新。G02 稳定推进（33/200 b）；尾链判据缺陷已修（40 号），静态复核之外又做了真数据探针**：
 
+- **H02/H03 排版管线已打通（11:58 冒烟）**：本机有 `pandoc` + `xelatex`（无 LibreOffice/python-pptx/
+  python-docx/reportlab）。实测 `pandoc cjk_probe.md -o cjk_probe.pdf --pdf-engine=xelatex
+  -V CJKmainfont="Microsoft YaHei"` 成功，`pdftoppm` 渲染中文、引号、表格全部正常（`out/scratch/cjk_probe.pdf`
+  与 `probe-1.png` 留作证据）；pandoc 亦可直出 docx。**注意**：`pdftotext` 抽不到中文（xeCJK 文本层
+  无 ToUnicode），所以 H03 的"无缺字裁切"只能按**逐页视觉**审计，文本层检索另设口径或换字体方案。
+  H01 仍缺 python-pptx/LibreOffice，等链收尾再定（不在运行期装包）。
 - **H04 数字门禁已起步（11:57）**：`outputs/tables/v3_h04_claim_registry.csv` 先登记 5 条已冻结的 Tier1 结论
   （G01 的 FPR 0.046 / CP 下界 0.033871，F02 的 0.98 / 0.2816 / 1.00），
   `scripts/42_claim_number_gate.py` 逐条回指 `source_csv` + `filter` 恰好 1 行 + 按 `decimals` 复算字符串相等，
