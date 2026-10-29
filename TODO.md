@@ -1,13 +1,13 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-29 11:15（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-29 11:12（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
 
-**2026-10-29 11:15 更新。G02 稳定推进（4 格均已越过 b=0，3 格已在 b=1）；无人值守链与 G03 续跑预案已核**：
+**2026-10-29 11:12 更新。G02 稳定推进（4 格均已越过 b=0）；无人值守链与 G03 续跑预案已核；overlay 身份补齐**：
 
-- **进度**：10:39 重开 → 11:15 时 L0_P_main/L1_main/L2_n200000_p050 各 2 b、L3_fixed_lt000 1 b 完、正在 b=1；
-  b=0 每格 CPU 386–562 s。**ETA 16:40–18:40（中心 ~17:10）**（11:32 按重开后实测墙钟 6.5–9.5 min/b 修正）。
+- **进度**：10:39 重开 → 11:10 实测 L0_P_main 4 行、L1_main/L2_n200000_p050/L3_fixed_lt000 各 3 行（b 从 0 连续）；
+  b=0 每格 CPU 386–562 s。**ETA 16:40–18:40（中心 ~17:10）**（按重开后实测墙钟 6.5–9.5 min/b 修正）。
 - **越过失火点**：10:53 起 b=1 行正常落盘——`validation_frame_hash`/`validation_arm_hash` 各 1 值、
   `validation_observed_hash` 2 值，正是首轮全灭的场景，现按设计放行。
   11:32 中途体检：10 行 0 重复 0 空值，`guardrail_pass` 全 True、`decision_all_pass` L0 全 False 其余全 True。
@@ -18,6 +18,16 @@
   已完成分片无论带不带 `--resume` 都会整片重跑。预案：先 `34 merge` 收已完成 → 缺口 `--cells/--rep-start/
   --rep-stop --out-root out/g03_repairN` 另起根 → 多根 `merge` 且确认 `duplicates=0`。
   已写入 `AGENT_HANDOFF.md` 第 6 条与 `docs/v3_决策与反思日志.md` 11:15 条。
+- **overlay 身份已补（11:12）**：`configs/budget/g02_bootstrap_overlay.yaml` 1 847 B、
+  sha256 `c58d5a905ea75de5f67cb7b5e9e8d3eae85615bb8009d6b49ebb0bb329ec810b`、total 200 / per_cell 50，
+  自 `24582f4` 未改、`git status` 干净。它**不在** `pipeline_source_hashes()` 内（刻意的覆盖目录），
+  快照不绑定它；39 号逐行 `overlay_sha256` 列为空、40 号不读。已写入
+  `docs/v3_phase_G_run_registry.md` §2.3 与 `docs/v3_phase_G02_formal.md` §1，作为唯一可核凭据。
+  另：`run_state.json` 只在该格 50 b 全跑完后写出，是摘要不是断点；续跑按 `repetitions.csv` 已有 b。
+- **时钟校正（11:10 发现）**：本机时钟先前快约 25–30 min——11:04 写下的文件标着 11:15，
+  标注 11:32/11:40 的体检与预核实际不晚于 11:10（受文件 mtime 约束，精确时刻不可知）。
+  按 AGENTS §10 不追改旧标注、不猜缺失时分；自本条起按校正后时钟记录。ETA 与进度不受影响
+  （间隔按数据文件 mtime 计）。
 - **轮次**：目标 41/60 轮；后台链不受暂停影响，恢复时按现场状态判断。
 - **H05 底表已起（11:25）**：`docs/v3_H05_sources.md` 落 12 篇来源 + "支持/不支持"两列 + 使用规则。
   S5（Kennedy DR-learner 卷期）、S12（Curth NeurIPS D&B）待核验——Crossref/OpenAlex 本机均 429，

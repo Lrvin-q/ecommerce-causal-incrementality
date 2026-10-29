@@ -70,8 +70,9 @@
   `scripts/39_g_retrain_bootstrap_run.py run --status formal --formal-approval G02-FORMAL-20261029 --snapshot out/g02_snapshot --out-root out/g02_retrain --cells <cell>`
 - **快照（重开后）**：`out/g02_snapshot` 49 文件 `abaa338a…`（10:39 重建；首轮 10:09 用的
   `f39ec0a3…` 已随失败现场留档）。39 号运行前用 `_verify_snapshot` 与真树逐文件比对。
-- **日志与产物**：`out/g02_logs/<cell>.log`；每格 `out/g02_retrain/<cell>/repetitions.csv` + `run_state.json`；
-  断点入口 `--resume`（按 `run_state.json` 的 b 列表续跑）。
+- **日志与产物**：`out/g02_logs/<cell>.log`；每格 `out/g02_retrain/<cell>/repetitions.csv`（逐 b 追加）；
+  `run_state.json` 只在该格全部 b 跑完后写出（39 号 397–405 行），属摘要而非断点——
+  `run` 的续跑按 `repetitions.csv` 已有 b 跳过（39 号 370–371 行），中途缺 `run_state.json` 属正常。
 - **ETA 依据（11:32 用重开后的实测墙钟改写）**：b=0/1 的墙钟为 L0 6.5/6.6 min、L1 9.1/6.9、
   L2 7.1/9.2、L3 9.5 min（4 路并行互相抢核；CPU 386–562 s/b）。按均值 ~7.8 min/b ⇒ 50 b ≈ 6.5 h/格，
   **ETA 16:40–18:40（中心 ~17:10）**。旧的 19:20–20:30 是按 11 min/b 的偏保守外推，作废但保留于 Git 历史。
@@ -80,6 +81,13 @@
   40 号复算列名（`b_count`/`policy_value_mean`/`policy_value_sd`/`ci95_low`/`ci95_high`/
   `decision_pass_rate`/`guardrail_pass_rate`）与 39 号 summary **完全对应**；
   33 号 `--dirs g01_aa250 f02_formal --dry-run` 91 条一致、幂等、EXIT=0。⇒ 17:10 的 merge → 40 → 33 链路已预核。
+- **overlay 身份（11:12 补记，只读核验）**：`configs/budget/g02_bootstrap_overlay.yaml` 1 847 B，
+  sha256 `c58d5a905ea75de5f67cb7b5e9e8d3eae85615bb8009d6b49ebb0bb329ec810b`，
+  `retraining_bootstrap_total: 200` / `retraining_bootstrap_per_cell: 50`；自 `24582f4`
+  （2026-10-29 00:13:54）起未改，`git status --short configs/budget/` 为空。
+  **它不在 `pipeline_source_hashes()` 的 glob 内**（`configs/budget/` 是刻意的覆盖目录），
+  快照 `abaa338a…` 不覆盖它；且 39 号不填逐行 `overlay_sha256`（全空，40 号也不读）。
+  ⇒ 审阅者核 overlay 只能以本 sha256 为准，空列不得当"未绑定"之外的任何结论。
 - **中途体检（11:32，只读）**：10 行（b 0–2）、0 重复、0 空值；`policy_value` 2.2061–3.0176；
   `validation_frame_hash` 4 个值（= 每格 1 个）；`validation_arm_hash` 全局 1 个值——四格
   `n_history = n_validation = 200000`、用户编号同为 0..n−1、臂随机化与格无关，故臂表逐字节相同，

@@ -1,7 +1,7 @@
 # G02 正式报告 —— 再训练 bootstrap（200 次）与固定策略 bootstrap（1000 次）
 
 > **合成数据 / 已知 DGP**。本报告只回答"策略价值与决策通过率在 DGP 重抽下是否稳定"，
-> 不表示任何真实业务效果。维护时间：2026-10-29 10:55（北京时间）。
+> 不表示任何真实业务效果。维护时间：2026-10-29 11:12（北京时间）。
 > 当前状态：**正式跑进行中**（10:39 起）；本文件的 §3/§4 数字待收尾后填入，占位符一律写「待填」。
 
 ## 1. 设计
@@ -18,10 +18,14 @@
 | 模型 | 各层适用集合中按验证选模 | 选模频率逐格报告（§3） |
 | 批准号 | `G02-FORMAL-20261029` | 用户 2026-10-29 批准 |
 | 快照 | `out/g02_snapshot`（49 文件，`abaa338a…`） | `v3_g_matrix.py` `6ec009b6…` |
+| 预算 overlay | `configs/budget/g02_bootstrap_overlay.yaml`，1 847 B，sha256 `c58d5a905ea75de5f67cb7b5e9e8d3eae85615bb8009d6b49ebb0bb329ec810b`（total 200 / per_cell 50，自 `24582f4` 未改） | `configs/budget/` 不在 `pipeline_source_hashes()` 内，只能以 sha256 绑定；逐行 `overlay_sha256` 列为空（39 号不填、40 号不读） |
 
 **冻结帧契约**：验证队列（用户协变量）与随机化臂（`assigned_policy_arm` / `policy_arm_probability`）
 必须跨 b 恒定；每个 b 只允许"重训模型 → 重新打分 → 重新发券"这条链变化。
 因此 `validation_observed_hash`（整张观测表）**逐 b 变化是设计使然**，不是漂移。
+
+**证据边界**：快照哈希不覆盖 `configs/budget/`（刻意的覆盖目录），overlay 只以表中 sha256 绑定；
+`run_state.json` 在该格 50 b 全部跑完后才写出，是摘要而非运行期凭据（续跑按 `repetitions.csv` 已有 b）。
 
 ## 2. 执行与事故记录
 
