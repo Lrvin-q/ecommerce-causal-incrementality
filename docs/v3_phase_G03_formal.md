@@ -1,7 +1,7 @@
 # G03 正式报告 —— Tier1 core 四格 + Tier2 二十格矩阵（G03 骨架）
 
 > **合成数据 / 已知 DGP**。本报告只回答"在注册的 24 个机制场景下，策略价值与决策通过率如何"，
-> 不表示任何真实业务效果。维护时间：2026-10-29 11:20（北京时间）。
+> 不表示任何真实业务效果。维护时间：2026-10-29 11:16（北京时间）。
 > 当前状态：**未开跑**（由 `out/g03_chain.sh` 在 G02 收尾后自动启动）；§3/§4 待填。
 
 ## 1. 设计
@@ -11,6 +11,7 @@
 | 格数 | **24 = 4 个 Tier1 core + 20 个 Tier2 选中格** | `GOAL.md` G03 行的 20 格指 Tier2 子集；core 格同批跑以对齐 Tier1 口径 |
 | 重复数 | core `R_ate=500`（学习/验证 100）；Tier2 `R=30` | `configs/budget/tier2_overlay.yaml`（`02644767…`）与协议注册值 |
 | 策略 | `greedy_incremental_profit_per_cost` | 与 E/F/G 主口径一致 |
+| 模型 | 各层适用集合 `common ∪ additional_by_level[level]`（L0/L2 四项；L1/L3 另加 `dr_learner`），按验证选模 | `configs/v3/models.yaml`（冻结集内）；34 号未给 `--models` 时按格解析（11:14 冒烟修复） |
 | 固定 bootstrap | **仅主预算 0.2 元档，1 000 次，24 格 × rep 0**（阶段 A） | 用户 2026-10-28 22:26 裁决② |
 | 批准号 | `G03-FORMAL-20261029`（矩阵）／`G02-FORMAL-20261029`（固定 bootstrap） | 用户 2026-10-29 批准 |
 | 快照 | `out/g03_snapshot`（链条启动时由 `create_snapshot` 生成，哈希待填） | AGENTS §11 冻结窗口 + 哈希绑定校验 |
@@ -23,6 +24,7 @@
 
 | 时刻 | 事件 |
 |---|---|
+| 11:14 | 开跑前冒烟发现：34 号不带 `--models` 时把 `dr_learner` 也交给 L0，抛 `ModelNotApplicableError`——阶段 A/B 都会在 L0 立即失败。修 `_worker` 按层解析；L0+L1 两格 n=2000 × rep0 × 1000 次重抽 **EXIT=0**（`out/smoke_g03b.log`），41 `--check` 对半成品报缺格并 **EXIT=2**（符合预期） |
 | 待填 | 链条启动（等 `out/g02_logs/post.status` 出现 `OK:`） |
 | 待填 | 快照生成（文件数 / `source_hashes_sha256`） |
 | 待填 | 阶段 A 完成（`fixed_exit=0`） |
@@ -50,6 +52,10 @@
 
 数据源：`out/g02_fixed/shards/<cell>_s0000/<cell>/rep0/validation/fixed_bootstrap.csv`（24 格）；
 导出后为 `outputs/evidence/g03_formal/fixed_bootstrap.csv`。
+
+**阶段 A 的文件形态**：每格只跑 rep 0（1/R_ate），34 号按设计写 `repetitions_provisional.csv`
+而不是正式 `repetitions.csv`；41 号的固定 bootstrap 校验只读 `fixed_bootstrap.csv` 与 `run_summary.json`，
+不要求固定根有正式逐 rep 表。不要把 `_provisional` 误读为"没跑完固定 bootstrap"。
 
 待填内容：
 - 每格预算（应恒为 0.2）、`resamples`（应恒为 1000）、点差、95% CI、CI 是否覆盖 0；

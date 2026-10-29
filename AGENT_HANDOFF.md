@@ -1,7 +1,8 @@
 # AGENT 交接说明 —— v3 重建
 
-> **最新交接时间：2026-10-29 11:15（北京时间）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
-> **（10-29 11:15）恢复会话先读这六条：**
+> **最新交接时间：2026-10-29 11:17（北京时间；本机时钟此前快约 25–30 min，11:15/11:32/11:40
+> 的旧标注偏早，见 `TODO.md` 11:12 时钟校正条）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
+> **（10-29 11:17）恢复会话先读这七条：**
 > 1. **G02 正在跑**：批准号 `G02-FORMAL-20261029`；10:39 起 4 个 core 格 × 50 b（`out/g02_retrain/`），
 >    快照 `out/g02_snapshot`（49 文件 `abaa338a…`，`v3_g_matrix.py` `6ec009b6…`）；10:53 越过失火点
 >    （b=1 两指纹唯一），**ETA 16:40–18:40（中心 ~17:10）**（11:32 按实测 6.5–9.5 min/b 修正；
@@ -26,6 +27,10 @@
 >    `--resume` 都会整片重跑**。所以别原样重跑整条命令——先 `34 merge out/g03_formal`，
 >    再只为缺口 `--cells <cell> --rep-start a --rep-stop b --out-root out/g03_repairN` 重跑，
 >    最后 `34 merge out/g03_formal out/g03_repairN`，并确认 `duplicates=0`。详见日志 11:15 条。
+> 7. **G03 模型口径已在开跑前修复（11:14）**：34 号在 `--models` 缺省时原会试全部模型，
+>    L0 的 `dr_learner` 会抛 `ModelNotApplicableError`（阶段 A 会立即停链）。现 34 号按格解析
+>    `common ∪ additional_by_level[level]`（与 39 号同口径）；L0+L1 冒烟 EXIT=0。阶段 A 每格
+>    只跑 rep0，按设计写 `repetitions_provisional.csv`（41 只读 `fixed_bootstrap.csv`，不要误判）。
 >
 > **历史块（2026-10-28 23:01）**
 >

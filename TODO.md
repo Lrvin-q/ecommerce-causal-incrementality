@@ -24,6 +24,11 @@
   快照不绑定它；39 号逐行 `overlay_sha256` 列为空、40 号不读。已写入
   `docs/v3_phase_G_run_registry.md` §2.3 与 `docs/v3_phase_G02_formal.md` §1，作为唯一可核凭据。
   另：`run_state.json` 只在该格 50 b 全跑完后写出，是摘要不是断点；续跑按 `repetitions.csv` 已有 b。
+- **开跑前冒烟拦下 G03 停链（11:14）**：链的 A/B 两段都没给 `--models`，而 34 号原样把 `None`
+  传给 `fit_history_models`（= 试全部模型），L0 的 `dr_learner` 抛 `ModelNotApplicableError`——
+  **阶段 A 一启动就会在 L0 失败并停链**。已修 34 号按层解析 `common ∪ additional_by_level[level]`
+  （与 39 号同口径）；L0 + L1_heterogeneity_000 冒烟（n=2000，rep0，1000 次重抽）**EXIT=0**，
+  41 `--check` 对半成品报缺格并 **EXIT=2**（符合预期）。详见 G03 报告 §2、注册表 §2.4、日志 11:16 条。
 - **时钟校正（11:10 发现）**：本机时钟先前快约 25–30 min——11:04 写下的文件标着 11:15，
   标注 11:32/11:40 的体检与预核实际不晚于 11:10（受文件 mtime 约束，精确时刻不可知）。
   按 AGENTS §10 不追改旧标注、不猜缺失时分；自本条起按校正后时钟记录。ETA 与进度不受影响

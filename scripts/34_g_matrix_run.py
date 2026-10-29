@@ -46,6 +46,7 @@ if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 
 from causal_growth.evaluation import v3_g_matrix as g  # noqa: E402
+from causal_growth.estimate.v3_models import MODEL_NAMES  # noqa: E402
 from causal_growth.v3_config import load_v3_protocol  # noqa: E402
 
 BEIJING = ZoneInfo("Asia/Shanghai")
@@ -74,14 +75,37 @@ def _chunks(values: list[int], size: int) -> list[list[int]]:
     return [values[index:index + size] for index in range(0, len(values), size)]
 
 
+def _applicable_models(protocol, cell: str) -> tuple[str, ...]:
+    """未显式给 --models 时按层选适用集（common ∪ additional_by_level[level]）。
+
+    不能把 None 传给 `fit_history_models`：它会试全部模型，L0/L2 的 dr_learner
+    直接抛 ModelNotApplicableError。与 39 号 same-cell 口径一致。
+    """
+    cfg = protocol.scenario(cell)
+    level = str(cfg.require("active_scenario.level"))
+    additional = cfg.section("models.additional_by_level")
+    if level not in additional:
+        raise SystemExit(f"未注册层级 {level!r}；additional_by_level={sorted(additional)}")
+    allowed = {str(name) for name in cfg.require("models.common")}
+    allowed |= {str(name) for name in additional[level]}
+    names = tuple(name for name in MODEL_NAMES if name in allowed)
+    if not names:
+        raise SystemExit(f"{cell}（{level}）没有可用模型")
+    return names
+
+
 def _worker(task: dict) -> dict:
     protocol = load_v3_protocol()
     plan = g.load_budget_plan(protocol, overlay=task["overlay"])
+    models = (
+        tuple(task["models"]) if task["models"]
+        else _applicable_models(protocol, task["cell"])
+    )
     result = g.run_cell(
         protocol, task["cell"], out_root=task["root"], reps=task["reps"],
         target_reps=len(task["reps"]), status=task["status"],
         formal_approval=task["formal_approval"], plan=plan, n=task["n"],
-        models=tuple(task["models"]) if task["models"] else None,
+        models=models,
         policy=task["policy"], with_learning=task["with_learning"],
         with_validation=task["with_validation"],
         bootstrap_resamples=int(task["bootstrap_resamples"]), snapshot=task["snapshot"],

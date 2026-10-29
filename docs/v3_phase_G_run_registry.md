@@ -113,6 +113,15 @@
 - **34 号补丁（10:16）**：`--bootstrap-budget-scope` 贯通 CLI → task → `_worker` → `run_cell`；
   `formal + resamples>0 + scope≠primary_0.2` 在 argparse 层直接失败（不新建目录）；
   `run_summary.json` 回写 `bootstrap_resamples`/`bootstrap_budget_scope`。守卫本身未改。
+- **模型解析修复（11:14，开跑前冒烟）**：链的 A/B 两段都没给 `--models`，而 34 号 `_worker`
+  把 `None` 原样传给 `fit_history_models`——它会试全部模型，L0/L2 的 `dr_learner` 直接抛
+  `ModelNotApplicableError`。**阶段 A 一启动就会在 L0 失败并停链**。修法：34 号新增
+  `_applicable_models`（`common ∪ additional_by_level[level]`，与 39 号同口径），`--models` 缺省时
+  按格解析。冒烟 `out/smoke_g03b`（L0 + L1_heterogeneity_000，n=2000，rep0，1000 次重抽）**EXIT=0**，
+  `fixed_bootstrap.csv` 预算 0.2、resamples 1000、点差在 CI 内；41 `--check` 对该半成品
+  报缺格并 **EXIT=2**。改动在 `scripts/`，不进 `pipeline_source_hashes`，不影响运行中的 G02。
+- **阶段 A 的文件形态**：每格只有 rep0（1/R_ate），34 号按设计写 `repetitions_provisional.csv`；
+  41 号固定 bootstrap 校验只读 `fixed_bootstrap.csv` 与 `run_summary.json`，不要求固定根有正式逐 rep 表。
 - **快照**：链内 `create_snapshot("out/g03_snapshot")` 于阶段 A 前生成；A/B 共用同一绑定。
 - **状态文件**：`out/g03_logs/chain.status`（`fixed_exit=` / `g03_exit=` / 末行 `OK:`）；
   日志 `out/g03_logs/chain.log`、`g02_fixed.log`、`g03.log`。
