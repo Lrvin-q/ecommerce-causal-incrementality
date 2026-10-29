@@ -1,6 +1,6 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-29 18:06（北京时间；`date` 读数。12:30/12:31 两条写于本机时钟校正前，不追改）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-29 19:40（北京时间；`date` 读数。12:30/12:31 两条写于本机时钟校正前，不追改）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
 
@@ -20,6 +20,15 @@
 > Stage B 首批分片尚未完成（core 每片 50 rep，预计 4–6 h），未出现失败行。
 > 最新动作（19:30）：论文结果章新增「重采样稳定性：200 次再训练 bootstrap」（3.7，G02），注册 C12–C19；
 > 原「本章结论的边界」顺延为 3.8，导语同步改 3.6–3.8。重建 12 页，42 OK（19 条）、44 OK、43 EXIT=0，`results_char_share` 56.32% → **58.06%**。
+> 最新动作（19:36，用户决定）：**Stage B 拆批跑，先只跑 core 前 100 rep**。查明 core 的
+> `tier1_learning_reps/validation_reps=100`（`configs/budget/tier2_overlay.yaml:17-18`）：只有 rep0–99 走
+> 学习+选模+验证，rep100–499 只做 ATE；实测两档墙钟 **8.6 vs 1.9 min/rep**，所以 19:30 前按"2 600 rep × 8 min"
+> 估的 ~58 h 是上界（真实约 28–35 h）。已停旧链与 `g03_post`、归档半成品
+> `out/g03_formal_interrupted_20261029_1935`；Phase 1 = `out/g03_phase1_core.sh` → `out/g03_core_prefix`
+> （40 分片 × 10 rep、6 路，ETA 约 9–10 h，10-30 05:00 前后），状态看 `out/g03_logs/phase1.status`。
+> 为什么必须换 out-root：34 号 `--resume` 只找未跑完分片的 `repetitions_provisional.csv`
+> （`34_g_matrix_run.py:316-319`），已完成分片写的是正式 `repetitions.csv`（`v3_g_matrix.py:1274`），
+> 在原目录续跑会把整片重算（重片 7.2 h/片）。Phase 2 用新根，最后 `merge` 多根去重，`_final` 仍按 R_ate=500 判完整。
 
 ### 接手清单（G02 → G04，按顺序执行；2026-10-29 12:47 写）
 
@@ -31,10 +40,17 @@
 2. `PYTHONUTF8=1 .venv/Scripts/python.exe scripts/40_export_g02_evidence.py --check`
 3. 顶登：`scripts/33_register_evidence_top.py --dirs g02_formal g03_formal --dry-run` 核对后去掉 `--dry-run`。
 4. 填 G02 报告 §3–§5：数字只从 merge 产物与证据表读，**禁止手抄**；改完按 §12.4 grep 旧值。
-5. 链仍在等（`out/g03_logs/chain.status`）：14 h 等待 → Stage A 固定 bootstrap（24×rep0，~40 min）→ Stage B（24 格，~58 h）。
+5. （19:40 改写）Stage A 已完成（18:37，24 格 `fixed_exit=0`）；Stage B 拆两批，**不要**在原 out-root 续跑：
+   - **Phase 1（19:36 起跑中）**：core 4 格 × rep0–99 → `out/g03_core_prefix`；脚本 `out/g03_phase1_core.sh`；
+     完成标志 `out/g03_logs/phase1.status` 出现 `OK: G03 Phase1 core prefix 完成 …`；
+   - **Phase 2（用户另找时间）**：Tier2 20 格 `--rep-start 0 --rep-stop 29` → `out/g03_tier2`；
+     core rep100–499（仅 ATE）`--rep-start 100 --rep-stop 499` → `out/g03_core_ate`；
+   - **收尾**：`34_g_matrix_run.py merge out/g03_core_prefix/shards/* out/g03_tier2/shards/* out/g03_core_ate/shards/*`
+     （多根去重；`_final` 按 R_ate=500 判完整，未齐只写 provisional）。
    等待期可写摘要骨架，但数字位留 `[Cxx]` 占位，不得预填。（12:50 更新：摘要已成稿并按 Tier1 注册值填数，D03/E 只作方向性表述；G02/G03 数字未进摘要，等结果落地后再决定是否补。）
 6. G03 完成后 `scripts/41_export_g03_evidence.py --check`，填 G03 §2–§4；**Tier2 数字不得与 Tier1 并列**。
-7. G04：注册表 + GOAL 收尾；收尾前跑 `--with-check --with-register --with-claims` 一致性预检，
+7. G04：注册表 + GOAL 收尾；收尾前跑 `PYTHONUTF8=1 .venv/Scripts/python.exe out/scratch/g04_closeout_precheck.py --with-check --with-register --with-claims`
+   （19:33 实测：无 flag 基线 EXIT=2 属"未跑完"；脚本在 `out/scratch/`，不在 `scripts/`），
    并单独跑 `42_claim_number_gate.py --abstract paper/v3/abstract.md`（12:52 新增：摘要只准 Tier1 注册值）。
 8. **待用户裁决（不阻塞上述执行）**：GOAL 首句要求"50–100 页量级"长稿，当前 12 页；
    G02/G03 结果落地后若仍不足，需请用户裁决是补内容还是改 GOAL 措辞——**不得静默下调或填充凑页**。
