@@ -109,6 +109,8 @@
    正式表落地后一条命令出 Tier1/Tier2 分表与 CI；中间态需 `--allow-partial`。）
 7. G04：注册表 + GOAL 收尾；收尾前跑 `PYTHONUTF8=1 .venv/Scripts/python.exe scripts/49_g04_closeout_precheck.py --with-check --with-register --with-claims`
    （20:17 起为已提交版本；`out/scratch` 下同名旧文件仅作历史，不再引用）
+   **论文四门禁一律用一条命令**：`bash scripts/52_paper_gates.sh [--build]`（20:25 入库，四步各写独立日志、
+   单独取退出码，末行 PASS/FAIL；反例已验证：缺 `body.md` 时 `long_draft rc=3`、整体 EXIT=1）。
    （19:33 实测：无 flag 基线 EXIT=2 属"未跑完"；脚本在 `out/scratch/`，不在 `scripts/`），
    并单独跑 `42_claim_number_gate.py --abstract paper/v3/abstract.md`（12:52 新增：摘要只准 Tier1 注册值）。
 8. **待用户裁决（不阻塞上述执行）**：GOAL 首句要求"50–100 页量级"长稿，当前 12 页；

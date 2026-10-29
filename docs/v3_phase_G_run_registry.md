@@ -331,6 +331,10 @@ git push origin codex/d03
 
 ## 6. G02/G03 收尾命令序列（2026-10-29 11:20 预置；链条结束后照抄）
 
+> **论文四门禁不要再手打**：`bash scripts/52_paper_gates.sh [--build]`（20:25 入库）。
+> 它按顺序跑 42 数字（先拼 `01→04` 为单文件）、42 摘要、44 引用、43 长稿，每步独立日志与退出码，
+> 末行给 PASS/FAIL；反例已验证（缺 `body.md` ⇒ `long_draft rc=3`、整体 EXIT=1）。
+
 ```bash
 export PYTHONUTF8=1 PYTHONIOENCODING=utf-8
 # 0) 先看三个状态文件（OK / STOP / VERIFY FAIL / TIMEOUT）
