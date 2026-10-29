@@ -30,7 +30,8 @@
 > 7. **G03 模型口径已在开跑前修复（11:14）**：34 号在 `--models` 缺省时原会试全部模型，
 >    L0 的 `dr_learner` 会抛 `ModelNotApplicableError`（阶段 A 会立即停链）。现 34 号按格解析
 >    `common ∪ additional_by_level[level]`（与 39 号同口径）；L0+L1 冒烟 EXIT=0。阶段 A 每格
->    只跑 rep0，按设计写 `repetitions_provisional.csv`（41 只读 `fixed_bootstrap.csv`，不要误判）。
+>    只跑 rep0；`formal` 且分片计划 rep 全部完成时写正式 `repetitions.csv`（`_provisional` 只在
+>    engineering 或分片未跑满时出现）；41 只读 `fixed_bootstrap.csv` 与 `run_summary.json`，不要误判。
 >
 > **历史块（2026-10-28 23:01）**
 >

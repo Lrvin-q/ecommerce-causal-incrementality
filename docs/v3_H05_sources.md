@@ -1,7 +1,7 @@
 # H05 来源底表 —— 12 篇文献与"支持 / 不支持"范围
 
 > **合成数据 / 已知 DGP**。本表是 H05 验收（12 篇来源 + 支持范围 + 合成属性/局限/失败条件）
-> 的工作底表；最终长稿的引用必须逐条回指本表编号。维护时间：2026-10-29 11:25（北京时间）。
+> 的工作底表；最终长稿的引用必须逐条回指本表编号。维护时间：2026-10-29 11:20（北京时间）。
 >
 > 纪律：每条只写它能支持的方法学结论；**任何来源都不支持"本项目合成 DGP 结论可外推到真实业务"**。
 > 标注 `Crossref ✓` 的元数据已在线核验；标 `canonical` 的是领域内标准引用，元数据按通行版本记录。
@@ -12,7 +12,7 @@
 | S2 | Wager S, Athey S. Estimation and inference of heterogeneous treatment effects using random forests. *JASA*, 2018, 113(523): 1223–1232. | `causal_forest` 的渐近正态性与诚实分箱机制；AIPW 型得分 | 不支持把森林的点估计当无偏个体效应；不支持在合成 DGP 外推 | canonical |
 | S3 | Athey S, Tibshirani J, Wager S. Generalized random forests. *Annals of Statistics*, 2019, 47(2): 1148–1178. | GRF 框架（局部矩估计、诚实性）；causal_forest 的实现基础 | 不支持高维/弱重叠下的有效性（论文有明确正则条件） | canonical |
 | S4 | Nie X, Wager S. Quasi-oracle estimation of heterogeneous treatment effects. *Biometrika*, 2021, 108(2): 299–319. | R-learner（`r_learner`）的目标函数与准 oracle 性质 | 不支持倾向得分或结局模型严重误设时仍有效（需交叉拟合与 nuisance 质量） | canonical |
-| S5 | Kennedy E H. Towards optimal doubly robust estimation of heterogeneous causal effects. *Electronic Journal of Statistics*, 2023, 17(2): 3008–3049. | DR-learner（`dr_learner`）的伪结局构造与一阶最优性 | 不支持小样本/重尾伪结局下的稳定性；不支持与本项目不同的损失 | 待核验 |
+| S5 | Kennedy E H. Towards optimal doubly robust estimation of heterogeneous causal effects. *Electronic Journal of Statistics*, 2023, 17(2): 3008–3049. | DR-learner（`dr_learner`）的伪结局构造与一阶最优性 | 不支持小样本/重尾伪结局下的稳定性；不支持与本项目不同的损失 | 部分核验：DOI `10.1214/23-EJS2157`，卷期页见二手引文（出版社页 429，未直连） |
 | S6 | Chernozhukov V, Chetverikov D, Demirer M, Duflo E, Hansen C, Newey W, Robins J. Double/debiased machine learning for treatment and structural parameters. *The Econometrics Journal*, 2018, 21(1): C1–C68. | 交叉拟合 + Neyman 正交的 DML 框架；本项目 nuisance 估计的纪律来源 | 不支持"任意 ML 模型 + 任意样本量都近似无偏"；正则条件不满足时失效 | canonical |
 | S7 | Dudík M, Langford J, Li L. Doubly robust policy evaluation and learning. *ICML*, 2011: 1097–1104. | 策略价值的 DR 估计（本项目 DR 估值口径的来源） | 不支持重叠性失败时的策略比较；不支持把 off-policy 估值当在线 A/B 结论 | canonical |
 | S8 | Athey S, Wager S. Policy learning with observational data. *Econometrica*, 2021, 89(1): 133–161. | 观察性数据下的策略学习与 regret 界；策略评估的目标量定义 | 不支持无重叠/强混淆下的策略最优性；不支持预算约束场景（本项目贪心另有来源） | canonical |
@@ -32,8 +32,10 @@
 
 ## 待办（H05 收尾前）
 
-- [ ] 核验 S5、S12 的卷期/页码。**2026-10-29 11:26 实测**：Crossref（429）与 OpenAlex（429，
-  `retry after 75431 s`）在本机出口 IP 均被限流，程序化核验暂不可用；恢复后按
+- [~] 核验 S5、S12 的卷期/页码。**11:20 进展**：S5 已补 DOI `10.1214/23-EJS2157`，
+  卷期页 `17(2): 3008–3049` 见第三方引用列表（`https://ouci.dntb.gov.ua/works/7pXKVjMk/`），
+  出版社 Project Euclid 页仍 429；S12 仍无可靠元数据。**11:26 实测**：Crossref 429、OpenAlex 429
+  （`retry after 75431 s`），程序化核验不可用。恢复后按
   `api.crossref.org/works?query.bibliographic=<title>` 或出版社页面逐条核，核过的把"待核验"改"Crossref ✓"。
   在此之前**不得**把这两条写进长稿参考文献而不加注；
 - [ ] 逐条检查长稿引用编号与本表一致（12 篇，不多不少）；

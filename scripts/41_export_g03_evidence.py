@@ -100,19 +100,32 @@ def load_cell(root: Path, cell: str) -> tuple[pd.DataFrame, list[str]]:
 
 def check_cell(cell: str, block: str, frame: pd.DataFrame) -> list[str]:
     problems: list[str] = []
+    required = (
+        "rep", "status", "protocol_config_hash", "block", "tier", "n",
+        "n_treated", "n_control", "validation_bootstrap_resamples",
+    )
+    missing = [col for col in required if col not in frame.columns]
+    if missing:
+        return [f"{cell}: 缺列 {missing}（逐 rep 表契约）"]
     want_r = CORE_R if block == "g_core" else TIER2_R
     if len(frame) != want_r:
         problems.append(f"{cell}: rows={len(frame)} != R={want_r}")
     if sorted(frame["rep"].tolist()) != list(range(want_r)):
         problems.append(f"{cell}: rep 不是 0..{want_r - 1}（缺口或越界）")
-    for col in ("status", "protocol_config_hash", "n_total", "block", "tier"):
+    for col in ("status", "protocol_config_hash", "block", "tier", "n"):
         values = frame[col].dropna().unique()
         if len(values) != 1:
             problems.append(f"{cell}: {col} 不唯一 {list(values)[:5]}")
-    if len(values) == 1 and str(frame["status"].iloc[0]) != "formal":
+    if str(frame["status"].iloc[0]) != "formal":
         problems.append(f"{cell}: status={frame['status'].iloc[0]!r} 不是 formal")
     if str(frame["block"].iloc[0]) != block:
         problems.append(f"{cell}: block={frame['block'].iloc[0]!r} != {block}")
+    split_bad = (
+        frame["n_treated"].astype(int) + frame["n_control"].astype(int)
+        != frame["n"].astype(int)
+    )
+    if bool(split_bad.any()):
+        problems.append(f"{cell}: n_treated+n_control != n（{int(split_bad.sum())} 行）")
     if int(frame["validation_bootstrap_resamples"].fillna(0).max()) != 0:
         problems.append(f"{cell}: 矩阵臂不应带 bootstrap（found resamples>0）")
     return problems

@@ -120,8 +120,17 @@
   按格解析。冒烟 `out/smoke_g03b`（L0 + L1_heterogeneity_000，n=2000，rep0，1000 次重抽）**EXIT=0**，
   `fixed_bootstrap.csv` 预算 0.2、resamples 1000、点差在 CI 内；41 `--check` 对该半成品
   报缺格并 **EXIT=2**。改动在 `scripts/`，不进 `pipeline_source_hashes`，不影响运行中的 G02。
-- **阶段 A 的文件形态**：每格只有 rep0（1/R_ate），34 号按设计写 `repetitions_provisional.csv`；
-  41 号固定 bootstrap 校验只读 `fixed_bootstrap.csv` 与 `run_summary.json`，不要求固定根有正式逐 rep 表。
+- **阶段 A 的文件形态**：每格只有 rep0（1/R_ate），但 `status=formal` 且分片计划 rep 全部完成，
+  34 号按 `provisional = completed < target_reps or status != "formal"` 写正式 `repetitions.csv`；
+  `out/g02_fixed/summaries/` 的汇总表因未覆盖 R_ate 带 `_provisional` 后缀（41 不读）。
+  冒烟里的 `_provisional` 是 engineering 状态所致，勿据此推断正式跑。
+- **41 号列契约修复（11:20）**：41 的 `check_cell` 原取 `n_total`，而矩阵逐 rep 表只有
+  `n / n_treated / n_control`（56 列 schema 无 `n_total`）——首格完整帧会直接 `KeyError`，
+  即"跑满 26.5 h 后在导出阶段才炸"。改为取 `n`，加缺列守卫（缺一列即报 `缺列 [...]`），
+  并新增 `n_treated + n_control == n` 断言；原有 `rep=0..R-1`、`status/block/tier/n` 唯一、
+  矩阵 `resamples==0` 检查全部保留。`tests/test_v3_g41_checks.py` 6 例已绿（含满 R 正例与阶段 A
+  真实目录布局的 24 格固定 bootstrap 装载），连同 34 号 2 例共 8 passed。
+  此前冒烟没暴露它，是因为根目录无完整帧、`check_cell` 根本没被调用。
 - **快照**：链内 `create_snapshot("out/g03_snapshot")` 于阶段 A 前生成；A/B 共用同一绑定。
 - **状态文件**：`out/g03_logs/chain.status`（`fixed_exit=` / `g03_exit=` / 末行 `OK:`）；
   日志 `out/g03_logs/chain.log`、`g02_fixed.log`、`g03.log`。

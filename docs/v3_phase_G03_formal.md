@@ -53,9 +53,11 @@
 数据源：`out/g02_fixed/shards/<cell>_s0000/<cell>/rep0/validation/fixed_bootstrap.csv`（24 格）；
 导出后为 `outputs/evidence/g03_formal/fixed_bootstrap.csv`。
 
-**阶段 A 的文件形态**：每格只跑 rep 0（1/R_ate），34 号按设计写 `repetitions_provisional.csv`
-而不是正式 `repetitions.csv`；41 号的固定 bootstrap 校验只读 `fixed_bootstrap.csv` 与 `run_summary.json`，
-不要求固定根有正式逐 rep 表。不要把 `_provisional` 误读为"没跑完固定 bootstrap"。
+**阶段 A 的文件形态**：每格只跑 rep 0（1/R_ate），但状态是 `formal` 且该分片计划 rep 已全部完成，
+按 `provisional = completed < target_reps or status != "formal"`，34 号写的是正式 `repetitions.csv`
+（冒烟里出现 `_provisional` 是因为那次是 engineering）。`out/g02_fixed/summaries/` 的汇总表因未覆盖
+R_ate 带 `_provisional` 后缀，41 号不读它；41 的固定 bootstrap 校验只读 `fixed_bootstrap.csv`
+与 `run_summary.json`。
 
 待填内容：
 - 每格预算（应恒为 0.2）、`resamples`（应恒为 1000）、点差、95% CI、CI 是否覆盖 0；
@@ -67,6 +69,11 @@
   （预算恒 0.2 / 次数恒 1000）、复算汇总 4 指标 × 24 格 = 96 行并与 `outputs/tables/v3_g_g_{core,tier2}.csv`
   对账、两个根的 `run_summary.json` 均 `status=formal` 且 `failures=[]`、`bootstrap_resamples` 分别为
   0（矩阵）与 1000（固定）→ 全过后才导出 → `scripts/33_register_evidence_top.py --dirs g03_formal`；
+- **逐 rep 表契约列**（41 号 `check_cell`，2026-10-29 11:20 修）：`rep / status / protocol_config_hash /
+  block / tier / n / n_treated / n_control / validation_bootstrap_resamples` 缺一即失败；列名是 `n`
+  **不是** `n_total`（矩阵行 schema 无后者，旧写法在首格完整帧上必 `KeyError`）；另断言
+  `n_treated + n_control == n`、`rep` 为 `0..R-1` 的排列、`status/block/tier/n` 逐格唯一。
+  该修复**不触及源码哈希**（`scripts/` 不在 `pipeline_source_hashes` 内），可在运行期落地；
 - 导出为 staging + 原子换名，旧目录保留时间戳备份（`%Y%m%d%H%M%S`）；
 - 顶层登记**留人工复核**后再执行。
 
@@ -79,7 +86,7 @@
 4. **core 四格不是新证据**：它们与 G02 共享同设计，结论一致是预期，不构成独立复现。
 5. **无覆盖率口径**：`truth_columns_present: false`，逐 rep 真值未落盘；报告只报估计精度，
    不得出现"95% CI 覆盖真值 X%"这类未落盘证据支持的表述。
-5. **结论失效条件**：若快照哈希与实际运行源码不符、任一格 `provisional=True`、或 Tier2 出现
+6. **结论失效条件**：若快照哈希与实际运行源码不符、任一格 `provisional=True`、或 Tier2 出现
    rep 缺失/重复，本报告作废并重跑缺口（按 §2 续跑纪律）。
 
 ## 7. 判定边界
