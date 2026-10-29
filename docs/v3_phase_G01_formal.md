@@ -25,26 +25,30 @@
 | 起止（北京时间） | 首片启动 **2026-10-28 22:42:39** → 末片完成 **2026-10-29 05:15:38**（编排器 05:15:45 落 `finished_at`），墙钟 **6 h 33 m**（23 579 s） |
 | 单 rep 成本 | `total_cpu_s` 中位 **136.6 s**、p5–p95 **134.3–141.8 s**、极值 **128.7–181.4 s**（落在 [132,137] 的仅 67.4%）；合计 **137 931.22 CPU·s = 38.31 CPU·h**（GOAL 预算口径 44.4 CPU·h） |
 | 内存 | 开跑前 6 路**压力测试**峰值 10.69 GB（**不是**本次实跑遥测，来源见运行注册表 §2）；实跑期 23:00 健康检查：12 进程合计 3.82 GB、单进程峰值 815 MB、空闲 14.76 GB |
-| 源码/配置 | 快照 49 文件绑定 `526ff53d…`；运行期未写 `src/ sql/ configs/v3`（真树 `v3_g_matrix.py` 全程 `fd3ca127…`） |
+| 源码/配置 | 快照 49 文件绑定 `526ff53d…`；运行期可核的 `v3_g_matrix.py` 值为 `fd3ca127…`（快照值；补丁在 05:19/05:41，晚于 05:15:38 收尾）。**没有运行期前后 `pipeline_source_hashes()` 落盘**，故"全程未变"只能按快照与补丁时点推断 |
 | 事后源码变动 | 2026-10-29 **05:19 改盘 / 05:41 提交**（`ade0571`）：G02 补丁把 `v3_g_matrix.py` 改为 `3f4d677f…`（+66/−6，守卫与清单，不改 AA 路径）。**G01 的字节绑定以快照与各分片 manifest 为准；用当前真树重算 `pipeline_source_hashes()` 会得到新哈希，这是预期的，不是漂移** |
-| 编排 | `out/g01_runner.sh` → `out/g01_verify.py` → `scripts/17` 合并 → `scripts/37` 导出 → `scripts/33` 登记；分片/合并/校验 exit **14/14 = 0** |
+| 编排 | `out/g01_runner.sh` → `out/g01_verify.py` → `scripts/17` 合并 → `scripts/37` 导出 → `scripts/33` 登记；12 个分片 `.exit` 全 0，验证/合并/导出/登记 exit 全 0（后四者记在 `out/g01_logs/` 与 `post.status`，不在证据区） |
 
 ## 3. 结果（主口径 `net_profit`，`population=full`）
 
 表头口径：主口径为 `full_net_profit_*`（**随机分配的全部用户**，R1）。同一批 rep 若改用 `test_*` 列复算为
 **45/1 000 [0.033010, 0.059753]**，不是本报告口径；第三方复算时必须用 full 列。
 
-| 层 | reps | 拒绝数 | FPR | CP 95% | MC SE | 解析功效（真值 0.08，带 [0.037, 0.065]） |
+| 层 | reps | 拒绝数 | FPR | CP 95% | MC SE | 解析功效（真值 0.08，带 [0.035, 0.065]） |
 |---|---|---|---|---|---|---|
-| L0 | 250 | 14 | 0.0560 | [0.030950, 0.092174] | 0.0145 | 0.82 |
-| L1 | 250 | 11 | 0.0440 | [0.022166, 0.077363] | 0.0130 | 0.82 |
-| L2 | 250 | 10 | 0.0400 | [0.019345, 0.072329] | 0.0124 | 0.82 |
-| L3 | 250 | 11 | 0.0440 | [0.022166, 0.077363] | 0.0130 | 0.82 |
+| L0 | 250 | 14 | 0.0560 | [0.030950, 0.092174] | 0.0145 | 0.81 |
+| L1 | 250 | 11 | 0.0440 | [0.022166, 0.077363] | 0.0130 | 0.81 |
+| L2 | 250 | 10 | 0.0400 | [0.019345, 0.072329] | 0.0124 | 0.81 |
+| L3 | 250 | 11 | 0.0440 | [0.022166, 0.077363] | 0.0130 | 0.81 |
 | **POOLED** | **1 000** | **46** | **0.0460** | **[0.033871, 0.060884]** | 0.0066 | 0.96 |
 
 "解析功效"即 merged 表 `detect_power_if_true_0_08` 列：**正态近似解析计算，不是实测功效**。
-用 GOAL 的 [0.037, 0.065] 带：R=250 得 0.8151（表中 0.82）、R=1 000 得 0.9598（0.96）；
-若用更宽的 [0.035, 0.065] 带则为 0.8134 / 0.9598（0.81 / 0.96）——两种带的差异只在 R=250。
+该列用 17 号默认带 **[0.035, 0.065]**（merge 命令未传 `--band-*`），R=250 值 **0.813364（0.81）**、
+R=1 000 值 **0.959807（0.96）**。
+另按 GOAL 的 [0.037, 0.065] 带手算：R=250 为 **0.8151**、R=1 000 为 0.9598——两种带只在 R=250 有 0.002 的差，**都不是表里的列**。
+GOAL 原文「FPR≥0.09 约 91%（合并）、FPR≥0.08 约 60%」与本表口径不同：
+91% 对应 merged `detect_power_if_true_0_09` 的 R=250 值 **0.9176**（R=1 000 为 0.9971）；
+60% 对应单侧 z 近似、R=250、真值 0.08 的 **0.5855**，与本报告任一列都不相等。两个数不能与 0.81/0.96 互换。
 
 ## 4. 次级指标（`population=full`，描述性，未校正）
 
@@ -73,13 +77,13 @@
 | 判定项 | 值 | 证据 |
 |---|---|---|
 | 计划 | 4 层 × 250 = **1 000** rep | `runs_summary.json` 的 `shards[].rows` 合计 1 000 |
-| 成功 | **1 000 行**；分片 + 合并 + 校验 exit **14/14 = 0** | `per_rep/` 24 张表；`shards/*.exit`；`runs_summary.json` |
+| 成功 | **1 000 行**；12 个分片 `.exit` 全 0（证据区 `shards/*.exit`）+ 合并/校验/导出/登记 exit 0（`out/g01_logs/` 与 `post.status`，**不**在证据区） | `per_rep/` 12 张 CSV + 12 份 manifest；`shards/*.exit`；`runs_summary.json` |
 | 失败 | **0**（12 份汇总 `failures=[]`；`source_retries`=0、`file_lock_retries`=0，逐 rep 合计均 0） | `runs_summary.json`；逐 rep 表 |
 | 有效 | **1 000**（`block=true_aa` 1 000/1 000；`n_total=200 000` 唯一；full 人群 `n_treated` 99 407–100 768；test 人群 29 693–30 372；主键无 NaN） | 逐 rep 表 |
 | 哈希 | protocol `00723dc2…`；merged `2c6d6e91…`；binding `526ff53d…`；`v3_aa.py` `95edd77c…` | `merged/`；`binding/` |
 
 - **证据**：`outputs/evidence/g01_aa250/` 登记 **59** 个文件（磁盘 60 = 59 + `coverage.json`），合计 **1 275 048 B ≈ 1.28 MB**；
-  `per_rep/` 24 张分片表合计 **1 000 行**；`binding/snapshot_binding.json`（49 文件绑定，`git_commit` 为 null，
+  `per_rep/` 24 个文件 = **12 张分片 CSV + 12 份 manifest**，CSV 合计 **1 000 行**；`binding/snapshot_binding.json`（49 文件绑定，`git_commit` 为 null，
   身份由 49 条 `source_hashes` 自校验）+ `runs_summary.json`（12 片权威起止与 `failures`）+ `runs/` 12 份原件。
   登记后顶层 `outputs/evidence/coverage.json` 由 77 条增至 **91** 条，`total_bytes` **16 964 194 B ≈ 16.96 MB**
   （G01 新增 14 条：12 个 manifest + binding + runs_summary；逐 rep 表与日志按 33 号规则只进目录级）。
@@ -93,11 +97,14 @@
   15 行（3 指标 × 5 层）拒绝数全同；同名 `.json` 不同，差异仅在 `roots`（本次指向 `out/g01_aa250/s01..s12`）。
 - **逐 rep 层**：D02 的逐 rep 表**确实在证据包内**——`outputs/evidence/aa/all_repetitions.csv`
   （顶层登记 `kind=aa_repetitions_merged`，1 384 行去重后 1 000 行，sha256 `77a2a386…`）。按 `(level,rep)` 与本次 1 000 行连接：
-  **both=1 000 / left_only=0 / right_only=0**，`run_id` 1 000/1 000 相同；69 个可比数值/布尔列中 **60 列 max|Δ| = 0.0**，
-  其余 9 列是运行期计量（8 个 `*_cpu_s`/`*_wall_s` + `file_lock_retries`，最大差 1 次）。
-  所以"逐字节相同"不是聚合层面的巧合，而是**逐 rep 逐比特相同**。
-- **协议指纹其实变了**：D02 的 `protocol_config_hash = 30511a32bcee9db5…`、L0 `config_hash = 1d0d83c5…`
-  （证据包内可查：`outputs/evidence/aa/all_repetitions.csv` 的这两列 1 000 行唯一）；本次为 `00723dc2…` / `a0eb214e…`。
+  **both=1 000 / left_only=0 / right_only=0**，`run_id` 1 000/1 000 相同；69 个可比数值/布尔列中 **60 列 max|Δ| = 0.0**。
+  其余 9 列全是运行期计量：8 个 `*_cpu_s`/`*_wall_s` 最大差 **60.5 s**，`file_lock_retries` 最大差 **1 次**。
+  另有 3 个字符串列不同（`config_hash`/`protocol_config_hash`/`retry_attempt_dirs`），`source_root` 只在 D02 侧存在。
+  所以同的不是"整行逐字节"，而是**统计列逐比特相同（60/69）**；这是确定性复现的直接证据。
+- **协议指纹其实变了**：D02 的 `protocol_config_hash = 30511a32bcee9db5…`（证据包内 `outputs/evidence/aa/all_repetitions.csv`
+  1 000 行唯一）；`config_hash` **每层一个值、共 4 个**（D02：L0 `1d0d83c5…`/L1 `7ab83d75…`/L2 `d5266240…`/L3 `2671bded…`）。
+  本次 `protocol_config_hash = 00723dc2…`，`config_hash` 同样是 4 个值：
+  L0 `a0eb214e…`/L1 `8a36a14b…`/L2 `c07d2f02…`/L3 `59958e1d…`。
   评审另对照 D02 原始根的 `protocol_source_hashes`（**仓库外旁证**）：`business / models / policy / evaluation` 四份相同，
   **`design / execution / scenarios` 三份不同**（AA250 修订所改的 R 与计数类字段）。`v3_aa.py` 两边同为 `95edd77c…`。
   即：**协议指纹变了、数据逐比特没变**。

@@ -190,8 +190,12 @@ G03 的验收状态里，不能等跑完再解释。
    若将来真要 `dgp.retrain_bootstrap` 专用流，那是 src 改动 → 全量测试 + 源码重绑，不在 G02 窗口做。
 2. **验证帧固定在一个 rep**。`run_validation_arm` 的 `rep_id` 同时决定验证队列与 bootstrap 种子
    （内部 `run_id=...validation:rep{rep_id}`）。39 号对 4 个 core 格 × 50 个 b **一律传同一个
-   `VALIDATION_REP`**（取该格正式 rep 0），只让 `history_rep_id` 随 b 变；并用返回值里的
-   `validation_observed_hash` 断言 50 次逐字节相同——不同就说明验证帧被重抽了，直接失败。
+   `VALIDATION_REP`**（取该格正式 rep 0），只让 `history_rep_id` 随 b 变。
+   **修正（2026-10-29 10:26，正式跑炸过 4 格后）**：原定用 `validation_observed_hash` 断言
+   逐字节相同是错的——该哈希覆盖整张观测表，含由本次 b 的打分决定的 `issued_action`，
+   50 个 b 必然不同。改为两个与模型无关的指纹：`validation_frame_hash`（用户协变量）与
+   `validation_arm_hash`（`user_id`/`assigned_policy_arm`/`policy_arm_probability`），
+   任一漂移即失败。`validation_observed_hash` 仍逐 b 记录，只作"这一次实际评估了什么"的证据。
 3. **每格次数自校验**：core 格 = `cell_meta(...)["tier"] == 1` 且 `"core" in roles`；
    `per_cell × len(core_cells) != total` 或 `per_cell != retraining_bootstrap_total // len(core)`
    一律拒绝，不得回落到冻结配置的 800。

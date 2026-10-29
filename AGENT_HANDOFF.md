@@ -1,6 +1,24 @@
 # AGENT 交接说明 —— v3 重建
 
-> **最新交接时间：2026-10-28 23:01（北京时间）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
+> **最新交接时间：2026-10-29 10:45（北京时间）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
+> **（10-29 10:45）恢复会话先读这五条：**
+> 1. **G02 正在跑**：批准号 `G02-FORMAL-20261029`；10:39 起 4 个 core 格 × 50 b（`out/g02_retrain/`），
+>    快照 `out/g02_snapshot`（49 文件 `abaa338a…`，`v3_g_matrix.py` `6ec009b6…`），ETA **19:20–20:40**。
+>    首轮 10:15 全灭的原因与修法见 TODO 顶部块与日志 10:26 条（冻结帧指纹原先含 `issued_action`）。
+> 2. **收尾与后续全自动**：`out/g02_post.sh`（PID 1457）校验 4 格 × 50 b、两个冻结指纹唯一、`status=formal`，
+>    然后 `39 … merge`；`out/g03_chain.sh`（PID 1493，14 h 期限）等 `post.status` 的 `OK:` → 阶段 A
+>    固定 bootstrap（24 格 × rep 0，`out/g02_fixed`，~40 min）→ 阶段 B G03 24 格（`out/g03_formal`，~26.5 h）。
+>    任一失败标记（`VERIFY FAIL`/`STALL:`/`TIMEOUT:`/`merge_exit≠0`）链条即停，状态在 `out/g03_logs/chain.status`。
+> 3. **G01 已通过并完成两轮独立复评**：数据零不符、P1 4/4 关；复评 5 条 P2 已全部修完
+>    （33 号反向校验、37/40/41 导出回滚、§3 功效带、§5.1 `config_hash` 措辞、注册表/TODO 旧数），
+>    复评全文 `docs/reviews/v3_phase_G01_review2.md`。GOAL G01 行的改判边界见 `docs/v3_phase_G01_formal.md` §7。
+> 4. **未提交工作**：本段（srv 修复 + 测试 + 33/37/39/40/41 + 文档）已在 10:45 提交；
+>    之后只需按链子产出写 `docs/v3_phase_G02_formal.md` / G03 报告、跑 40/41 导出与 33 登记、刷新注册表。
+> 5. **纪律不变**：`configs/v3/*.yaml` 七份冻结（hash `00723dc2…`）；正式跑期间不写 `src/`（改脚本/文档安全）；
+>    不削弱 17/19/33/40/41 校验器；证据只认 `outputs/evidence/`。
+>
+> **历史块（2026-10-28 23:01）**
+>
 > **（2026-10-28 22:44 更新）G 阶段四项裁决已落地；G01 AA250 正式跑运行中（22:42:39 起，ETA 2026-10-29 05:00–07:30）；G02/G03/G04 未启动。**
 > **（23:01 增补）收尾链已修完并预演；恢复会话从这三条开始：**
 > 1. **G01 跑完会自动收尾**：`out/g01_runner.sh` → `out/g01_verify.py` → `36 merge` → 无人值守 `out/g01_post.sh`（等 `out/g01_logs/finished_at.txt`，校验 `verify.exit`/`merge.exit`=0 后跑 `scripts/37_export_g01_evidence.py` 与 `scripts/33 --dirs g01_aa250`）。进度看 `out/g01_logs/post.status`（含 OK/ABORT 即结束）。

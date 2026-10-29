@@ -269,21 +269,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.check:
         return 0
 
+    # 先写 staging 并校验 coverage.json，再原子替换；旧目录改名留档，不删（复评 R2-P2-2）。
+    staging = ROOT / "out" / "g03_evidence_staging"
+    if staging.exists():
+        shutil.rmtree(staging)
+    payload = _write_evidence(staging, matrix_root, fixed_root, frames, fixed_frame, recomputed_frame)
+    json.loads((staging / "coverage.json").read_text(encoding="utf-8"))
     if dest.exists():
-        backup = ROOT / "out" / "g03_evidence_bak"
-        if backup.exists():
-            shutil.rmtree(backup)
-        dest.rename(backup)
-        try:
-            payload = _write_evidence(dest, matrix_root, fixed_root, frames, fixed_frame, recomputed_frame)
-        except BaseException:
-            if dest.exists():
-                shutil.rmtree(dest)
-            backup.rename(dest)
-            raise
-        shutil.rmtree(backup)
-    else:
-        payload = _write_evidence(dest, matrix_root, fixed_root, frames, fixed_frame, recomputed_frame)
+        stamp = now().replace(":", "").replace("-", "")
+        dest.rename(ROOT / "out" / f"g03_evidence_bak_{stamp}")
+    staging.rename(dest)
     print(json.dumps({k: v for k, v in payload.items() if k != "records"},
                      ensure_ascii=False, indent=2))
     return 0

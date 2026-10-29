@@ -8,7 +8,11 @@
 重抽观测表会直接破坏校验）；报告与表头一律写"参数化 bootstrap（已知 DGP 重抽）"。
 
 验证帧固定：`VALIDATION_REP = 0`。`run_validation_arm` 的 `rep_id` 同时决定验证队列
-与 bootstrap 种子，50 个 b 全传同一个值，并用 `validation_observed_hash` 断言逐字节相同。
+与 bootstrap 种子，50 个 b 全传同一个值，并用 `validation_frame_hash`（用户协变量）与
+`validation_arm_hash`（随机化臂标签与概率）断言逐字节相同。
+
+注意：`validation_observed_hash` **不能**当冻结证据——观测表含 `issued_action`，
+由本次 b 的打分决定，跨 b 必然变化（2026-10-29 10:26 因此炸过 4 格）。
 
 用法::
 
@@ -206,7 +210,8 @@ ROW_COLUMNS = [
     "cell_id", "b", "history_rep_id", "validation_rep", "chosen_model",
     "policy_value", "decision_all_pass", "decision_lower_min",
     "guardrail_pass", "guardrail_upper",
-    "n_history", "n_validation", "validation_observed_hash", "freeze_hash",
+    "n_history", "n_validation", "validation_observed_hash",
+    "validation_frame_hash", "validation_arm_hash", "freeze_hash",
     "status", "config_hash", "protocol_config_hash", "overlay_sha256",
     "retraining_bootstrap_total", "cpu_seconds_history", "cpu_seconds_fit",
     "cpu_seconds_validation",
@@ -262,6 +267,8 @@ def run_one(protocol, cell_id: str, b: int, *, n: int | None, status: str,
         "n_history": n_use,
         "n_validation": int(validation["validation_n"]),
         "validation_observed_hash": str(validation["validation_observed_hash"]),
+        "validation_frame_hash": str(validation["validation_frame_hash"]),
+        "validation_arm_hash": str(validation["validation_arm_hash"]),
         "freeze_hash": str(validation["validation_freeze_hash"]),
         "status": status,
         "config_hash": cfg.hash(64),
@@ -272,6 +279,39 @@ def run_one(protocol, cell_id: str, b: int, *, n: int | None, status: str,
         "cpu_seconds_fit": fit_seconds,
         "cpu_seconds_validation": validation_seconds,
     }
+
+
+FROZEN_COLUMNS = ("validation_frame_hash", "validation_arm_hash")
+
+
+def _frozen_of(row: dict) -> tuple[str, str]:
+    return tuple(str(row[column]) for column in FROZEN_COLUMNS)  # type: ignore[return-value]
+
+
+def _frozen_seen(done: pd.DataFrame, cell_id: str) -> tuple[str, str] | None:
+    """续跑时从既有表取冻结指纹；旧表缺列必须响，不许退回坏指纹。"""
+    if done.empty:
+        return None
+    missing = [column for column in FROZEN_COLUMNS if column not in done.columns]
+    if missing:
+        raise SystemExit(
+            f"{cell_id} 的既有逐 b 表缺少 {missing}，无法校验验证帧是否固定。"
+            "旧表的 validation_observed_hash 含 issued_action、会随 b 变化；"
+            "请把该目录归档后从 b=0 重跑。"
+        )
+    return _frozen_of(done.iloc[0])
+
+
+def check_frozen_validation(cell_id: str, b: int, seen: tuple[str, str] | None,
+                            row: dict) -> None:
+    if seen is None:
+        return
+    for column, old, new in zip(FROZEN_COLUMNS, seen, _frozen_of(row)):
+        if old != new:
+            raise RuntimeError(
+                f"{cell_id} b={b} 的 {column} 与 b=0 不同：验证队列/随机化臂被重抽了"
+                "（issued_action 允许随 b 变，用户协变量与臂标签不允许）"
+            )
 
 
 def command_plan(args) -> int:
@@ -325,7 +365,7 @@ def command_run(args) -> int:
     for cell_id in cells:
         cell_dir = out_root / cell_id
         done = _load_done(cell_dir)
-        seen_hash = None if done.empty else str(done["validation_observed_hash"].iloc[0])
+        seen = _frozen_seen(done, cell_id)
         for b in range(reps):
             if not done.empty and int(b) in set(done["b"].astype(int)):
                 continue
@@ -334,11 +374,9 @@ def command_run(args) -> int:
                 approval=args.formal_approval, plan=plan, total=total, snapshot=snapshot,
                 models=tuple(args.models) if args.models else None,
             )
-            if seen_hash is not None and row["validation_observed_hash"] != seen_hash:
-                raise RuntimeError(
-                    f"{cell_id} b={b} 的验证帧哈希与 b=0 不同：验证帧被重抽了"
-                )
-            seen_hash = row["validation_observed_hash"]
+            check_frozen_validation(cell_id, b, seen, row)
+            if seen is None:
+                seen = _frozen_of(row)
             _append_row(cell_dir, row, ROW_COLUMNS)
             _say(
                 f"{cell_id} b={b} (hist rep {row['history_rep_id']}) "

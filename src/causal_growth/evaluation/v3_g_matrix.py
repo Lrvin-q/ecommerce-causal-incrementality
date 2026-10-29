@@ -742,6 +742,12 @@ def run_validation_arm(
     assignment, info = f02.build_validation_assignment(
         scored, cfg, policy=policy, rep_id=int(rep_id)
     )
+    # 冻结验证帧的指纹只能取与模型无关的部分：用户协变量、随机化臂标签与概率。
+    # issued_action 由本次拟合的打分决定，跨 rep/b 变化是设计使然，不能当冻结证据。
+    validation_frame_hash = dataframe_sha256(users)
+    validation_arm_hash = dataframe_sha256(
+        assignment[["user_id", "assigned_policy_arm", "policy_arm_probability"]]
+    )
     population = generate_v3_population(
         cfg, rep_id=int(rep_id), n=int(n_validation), population_kind="validation",
         validation_assignment=assignment,
@@ -822,6 +828,8 @@ def run_validation_arm(
         "validation_budget_per_user": float(info["budget_cny_per_user"]),
         "validation_freeze_hash": freeze_hash,
         "validation_observed_hash": dataset.content_hash,
+        "validation_frame_hash": validation_frame_hash,
+        "validation_arm_hash": validation_arm_hash,
         "source_hashes": source_hashes,
         "build_info": build_info,
         "validation_fixed_bootstrap": bootstrap,

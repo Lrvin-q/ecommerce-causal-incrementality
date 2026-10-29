@@ -67,8 +67,12 @@ def check_cell(cell: str) -> tuple[pd.DataFrame, list[str]]:
         problems.append(f"{cell}: b 不是 0..{PER_CELL - 1}")
     if frame["b"].duplicated().any():
         problems.append(f"{cell}: b 重复")
-    if int(frame["validation_observed_hash"].nunique()) != 1:
-        problems.append(f"{cell}: 验证帧哈希在 b 间不一致（验证帧被重抽）")
+    # 冻结指纹只查与模型无关的两列；validation_observed_hash 含 issued_action，跨 b 本就该变。
+    for col in ("validation_frame_hash", "validation_arm_hash"):
+        if col not in frame.columns:
+            problems.append(f"{cell}: 缺 {col}（旧版 39 号的表，不能作为正式证据）")
+        elif int(frame[col].nunique()) != 1:
+            problems.append(f"{cell}: {col} 在 b 间不一致（验证队列/随机化臂被重抽）")
     for col in ("status", "protocol_config_hash", "n_history", "n_validation",
                 "retraining_bootstrap_total"):
         values = frame[col].dropna().unique()
@@ -126,22 +130,30 @@ def compare(recomputed: pd.DataFrame) -> list[str]:
 
 
 def write_evidence(cells: list[str], recomputed: pd.DataFrame) -> dict:
-    """旧目录先改名备份，写成功才删；中途抛错就还原（37 号删空证据区的教训）。"""
-    backup = ROOT / "out" / "g02_evidence_bak"
-    if backup.exists():
-        shutil.rmtree(backup)
-    if DEST.exists():
-        DEST.rename(backup)
+    """写进 staging，校验 coverage.json 可解析后再原子替换；不删任何旧备份。
+
+    37 号曾因"先 rmtree 再写"删空证据区；G01 复评又指出"先删旧备份"会在二次故障时
+    用半写副本覆盖完好副本。这里两条都避开：DEST 只通过完整 staging 改名出现，
+    旧 DEST 改名为带时间戳的备份（不删），失败时 DEST 原样保留、异常原样抛出。
+    """
+    global DEST
+    real = DEST
+    staging = ROOT / "out" / "g02_evidence_staging"
+    if staging.exists():
+        shutil.rmtree(staging)
+    staging.mkdir(parents=True)
+    DEST = staging
     try:
         payload = _write_evidence(cells, recomputed)
+        json.loads((staging / "coverage.json").read_text(encoding="utf-8"))
     except BaseException:
-        if DEST.exists():
-            shutil.rmtree(DEST)
-        if backup.exists():
-            backup.rename(DEST)
+        DEST = real
         raise
-    if backup.exists():
-        shutil.rmtree(backup)
+    DEST = real
+    if real.exists():
+        stamp = now().replace(":", "").replace("-", "")
+        real.rename(ROOT / "out" / f"g02_evidence_bak_{stamp}")
+    staging.rename(real)
     return payload
 
 

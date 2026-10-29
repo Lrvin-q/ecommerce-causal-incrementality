@@ -154,25 +154,32 @@ def compare(recomputed: pd.DataFrame) -> list[str]:
 
 
 def export(data: pd.DataFrame, recomputed: pd.DataFrame) -> dict:
-    """先把旧证据目录改名腾开，写成功才删旧；中途失败自动还原。
+    """写进 staging 并校验 coverage.json 后再原子替换；不删任何旧备份。
 
     2026-10-29 修评审 P1 时真实发生过一次：重写过程中抛异常，
     ``rmtree(DEST)`` 已经把 45 个已登记文件删空、新目录却没建完。
-    证据区不能有"写一半"的状态。
+    复评 R2-P2-2 又指出旧写法会先删完好备份、并在二次故障时掩盖原始异常。
+    现在：DEST 只通过完整 staging 改名出现；旧 DEST 改名为带时间戳的备份（不删）；
+    失败时 DEST 原样保留、异常原样抛出。
     """
-    backup = ROOT / "out" / "g01_evidence_bak"
-    if backup.exists():
-        shutil.rmtree(backup)
-    if DEST.exists():
-        DEST.rename(backup)
+    global DEST
+    real = DEST
+    staging = ROOT / "out" / "g01_evidence_staging"
+    if staging.exists():
+        shutil.rmtree(staging)
+    staging.mkdir(parents=True)
+    DEST = staging
     try:
         payload = _write_evidence(data, recomputed)
+        json.loads((staging / "coverage.json").read_text(encoding="utf-8"))
     except BaseException:
-        if DEST.exists():
-            shutil.rmtree(DEST)
-        backup.rename(DEST)
+        DEST = real
         raise
-    shutil.rmtree(backup)
+    DEST = real
+    if real.exists():
+        stamp = datetime.now(ZoneInfo("Asia/Shanghai")).strftime("%Y%m%d%H%M%S")
+        real.rename(ROOT / "out" / f"g01_evidence_bak_{stamp}")
+    staging.rename(real)
     return payload
 
 

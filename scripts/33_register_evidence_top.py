@@ -305,9 +305,10 @@ def collect(subdirs: list[str], evidence_root: Path) -> tuple[list[dict], list[s
         # 磁盘上有、目录级索引里没有的身份类 JSON = 索引漏登记，硬失败。
         # 没有这一条，"读不懂的记录"只会让候选数悄悄变少。
         indexed = {rec["rel"] for rec in normalized}
+        extra_names = set(DIR_EXTRA_IDENTITY.get(subdir, {}))
         on_disk = sorted(
             rel for rel in (p.relative_to(d).as_posix() for p in d.rglob("*.json"))
-            if _is_identity(rel) and rel not in indexed
+            if (_is_identity(rel) or rel in extra_names) and rel not in indexed
         )
         for rel in on_disk:
             bad.append(f"{subdir}/{rel}: 磁盘上存在身份类文件，但目录级 coverage.json 未登记")
