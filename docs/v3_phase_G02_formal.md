@@ -1,8 +1,9 @@
 # G02 正式报告 —— 再训练 bootstrap（200 次）与固定策略 bootstrap（1000 次）
 
 > **合成数据 / 已知 DGP**。本报告只回答"策略价值与决策通过率在 DGP 重抽下是否稳定"，
-> 不表示任何真实业务效果。维护时间：2026-10-29 11:12（北京时间）。
-> 当前状态：**正式跑进行中**（10:39 起）；本文件的 §3/§4 数字待收尾后填入，占位符一律写「待填」。
+> 不表示任何真实业务效果。维护时间：2026-10-29 19:22（北京时间）。
+> 当前状态：**再训练 200 b 已完成**（17:17:51，`merge_exit=0`），§3 已填；
+> §4 固定 bootstrap 的 Stage A 已完成（18:37，`fixed_exit=0`），数字待 G03 阶段 B 收尾后由 41 号导出统一填入。
 
 ## 1. 设计
 
@@ -44,25 +45,54 @@
 | 11:41 | 启动只读取样器 `out/g04_monitor.sh`（10 min/次，120 h）：磁盘、四格行数、python 进程数与总 RSS、三个状态文件末行 → `out/g04_logs/monitor.log`（G04 运行期证据） |
 | 11:42 | 用真数据半成品跑 `39 merge` 探针：**EXIT=0**、帧校验全过、`rows=29`、`provisional=true`；写到 `outputs/tables` 的 `_provisional` 件当场删除，防止误当证据 |
 | 11:44 | 修 40 `--check` 判据错误：原把"50 个 b 共用 `VALIDATION_REP=0`"报成 `validation_rep` 重复——完整正确格必被误判、尾链必 ABORT。改为 `history_rep_id` 查唯一、`validation_rep` 查恒定；新增 3 例测试（6 passed），真数据半成品复跑只剩"未跑完"类问题 |
+| 17:17:51 | **4 格 × 50 b 全部完成，39 号合并成功**（`post.status`：`merge_exit=0`）；40 号复算一致（200 行，max\|Δ\| ≤ 1e-12）并导出 18 个文件到 `outputs/evidence/g02_formal/`；33 号登记 92 条（幂等、CRLF 保留） |
+| 17:20–17:51 | 固定策略 bootstrap（Stage A，24 格 × rep 0）首跑：23 格成功，`L1_cost_prediction_under` 因成本预测乘子 0.8 未实现而 `NotImplementedError`，`fixed_exit=1` |
+| 18:05–18:37 | 实现乘子（预测端生效、真实成本不变；对数噪声仍拒绝）并补测试后重跑；新快照 `6fdaf7bb…`（旧尝试归档 `out/g02_fixed_attempt1_20261029_1751`），24 格全过（`fixed_exit=0`），18:37:06 进入阶段 B |
 
 失败现场保留：`out/g02_retrain_failed_20261029_1026/`（4 格 b=0 表 + 日志）与
 `out/g02_snapshot_failed_20261029_1026/`。事故根因与反思见 `docs/v3_决策与反思日志.md` 10:26、10:46 两条。
 
-## 3. 再训练 bootstrap 结果（待填）
+## 3. 再训练 bootstrap 结果
 
 数据源：`outputs/tables/v3_phase_G02_retrain_bootstrap.csv`（39 号合并表）与
-`outputs/evidence/g02_formal/`（逐 b 表）。取数脚本：`out/scratch/g02_report_numbers.py`。
+`outputs/evidence/g02_formal/`（逐 b 表）。取数脚本：`scripts/46_g02_report_numbers.py`
+（只读上述两处，不写证据区；2026-10-29 19:22 运行）。
 
-待填内容：
-- 4 格 × 50 b 的 `policy_value` 均值 / sd / 95% CI / MC SE；
-- `decision_all_pass` 与 `guardrail_pass` 的通过率；
-- 选模频率（逐格）；
-- 每格 CPU·h 与合计。
+**表 3-1　再训练 bootstrap：4 格 × 50 b（`policy_value` 单位：元/人）**
 
-**解读纪律**：50 b 的 MC SE 只够判断"量级与方向是否稳定"，不得把 4 格的点估计当作
-总体参数的无偏估计；不同格之间不得按"独立证据"平均（AGENTS §12.5）。
+| 格 | b | 均值 | sd | MC SE | 95% CI | decision 通过 | guardrail 通过 | CPU·h |
+|---|---:|---:|---:|---:|---|---:|---:|---:|
+| L0_P_main | 50 | 2.3556 | 0.0497 | 0.0070 | [2.3419, 2.3694] | 2/50（0.04） | 50/50 | 6.03 |
+| L1_main | 50 | 2.8573 | 0.0417 | 0.0059 | [2.8458, 2.8689] | 49/50（0.98） | 50/50 | 6.50 |
+| L2_n200000_p050 | 50 | 2.8514 | 0.0598 | 0.0085 | [2.8348, 2.8680] | 47/50（0.94） | 50/50 | 6.36 |
+| L3_fixed_lt000 | 50 | 2.9839 | 0.0662 | 0.0094 | [2.9656, 3.0023] | 45/50（0.90） | 50/50 | 6.48 |
+| **合计** | **200** | — | — | — | — | **143/200** | **200/200** | **25.37** |
+
+选模频率（逐格，50 b）：
+
+- L0_P_main：causal_forest 21、s_learner 15、t_learner 9、constant 5、dr_learner 0；
+- L1_main：causal_forest 30、s_learner 14、t_learner 3、dr_learner 2、constant 1；
+- L2_n200000_p050：causal_forest 28、s_learner 16、constant 3、t_learner 3、dr_learner 0；
+- L3_fixed_lt000：causal_forest 21、s_learner 16、dr_learner 6、constant 5、t_learner 2。
+
+**L0 的低通过率不是"策略价值低"，而是"决策口径是两条比较的合取"。**
+`decision_all_pass` 要求两个 Holm 校正比较同时拒绝（定向 vs 不发券、定向 vs 同预算随机），
+`decision_lower_min` 取两者校正后下界的较小值：L0 的最小值为 **-0.2156**，
+说明多数 b 里"定向 vs 同预算随机"这条比较的下界仍在 0 以下。
+策略价值本身（2.3556，MC SE 0.0070）与另三格同量级；两者不矛盾——
+"发券比不发券值钱"与"定向比随机发券更值钱"是两句话，决策通过率只回答后者的合取。
+这与 F02 的结果方向一致（定向 vs 同预算随机的区间跨零），不是新结论。
+
+**解读纪律**：50 b 的 MC SE 只有 0.006–0.009，只够判断"量级与方向是否稳定"，
+不得把 4 格的点估计当作总体参数的无偏估计；四格同属一个 DGP 家族的层水平偏移，
+**不同格之间不得按"独立证据"平均**（AGENTS §12.5）。guardrail 200/200 只说明退款率护栏未报警，
+不说明策略最优。
 
 ## 4. 固定策略 bootstrap 结果（待填）
+
+**状态（19:22）**：Stage A 已于 18:37 完成，24 格 × rep 0、`resamples=1000`、预算档 0.2 元/人，`fixed_exit=0`。
+按 §12.1，数字要等 41 号把 `fixed_bootstrap.csv` 导出到 `outputs/evidence/g03_formal/` 后再填，
+**不从 `out/` 手抄**。
 
 数据源：`out/g02_fixed/shards/<cell>_s0000/<cell>/rep0/validation/fixed_bootstrap.csv`（24 格）；
 导出后为 `outputs/evidence/g03_formal/fixed_bootstrap.csv`。
