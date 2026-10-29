@@ -1,5 +1,23 @@
 # AGENT 交接说明 —— v3 重建
 
+## 最新交接（2026-10-29 23:25，北京时间）
+
+- **进度**：G02 正式跑完（17:17:51，`merge_exit=0`）；独立评审 23:08 判 **PASS WITH CONDITIONS**，
+  P1-1 与 7 条 P2 已于 23:18 修完（`docs/reviews/v3_phase_G02_review.md` §6），复评代理已起飞。
+  G03 **Phase 1 跑中**：23:16 落 **136/400** rep（`L0_P_main` 100/100 完成），ETA **10-30 04:30–06:30**；
+  Phase 2 仍待用户给窗口，**不要在 `out/g03_core_prefix` 上续跑**。
+- **恢复三步**：① `cat out/g03_logs/phase1.status`（找 `OK: G03 Phase1 core prefix 完成`）；
+  ② PowerShell `Get-CimInstance Win32_Process` 查 `34_g_matrix_run`（Git Bash `ps` 看不到属正常）；
+  ③ 读 `TODO.md` 顶部「当前状态」最新块（现在应 ≥ 23:18）。
+- **长稿状态**：2026-10-29 23:18 重建，**50 页**、五门禁全绿、H03 审计 `docs/v3_H03_编译审计.md` 已同步
+  （人眼抽检 18/50 页，**不记逐页通过**）。**改一个字就要重跑** `bash scripts/52_paper_gates.sh --build`
+  ＋ `scripts/61_paper_page_scan.py`，并更新审计文档 §1 的构建时刻与数字。
+- **运行期红线**：G03 worker 在跑，`src/causal_growth/**/v3*.py`、`sql/v3*.sql`、`configs/v3*.yaml`、
+  `configs/v3/*.yaml` 一律只读；不装包；不跑全量 pytest（并发写盘 + 抢核）。
+- **待办**：G02 复评确认 → 改判；H05 独立评审（代理在跑，产物 `docs/reviews/v3_phase_H05_review.md`）；
+  G03 Phase 1 收尾 → `34 merge` → `41 --check` → 导出/登记 → 填 G03 §3（**必须带 §3.0 的 D1-A 披露**）；
+  Tier2 附录单独成节（H02 #28）；G04 `49 --with-check --with-register --with-claims` 全绿 + 一次失败→恢复演练。
+
 > **最新交接时间：2026-10-29 11:45（北京时间；本机时钟此前快约 25–30 min，11:15/11:32/11:40
 > 的旧标注偏早，见 `TODO.md` 11:12 时钟校正条）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
 > **（10-29 11:45）恢复会话先做这三步，再读下面七条：**
