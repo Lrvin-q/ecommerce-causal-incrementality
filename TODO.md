@@ -69,6 +69,8 @@
      Phase 2b 的分片链成 `s1xxx`，避免与 Phase 1 的 `s0xxx` 重名。
    等待期可写摘要骨架，但数字位留 `[Cxx]` 占位，不得预填。（12:50 更新：摘要已成稿并按 Tier1 注册值填数，D03/E 只作方向性表述；G02/G03 数字未进摘要，等结果落地后再决定是否补。）
 6. G03 完成后 `scripts/41_export_g03_evidence.py --check`，填 G03 §2–§4；**Tier2 数字不得与 Tier1 并列**。
+   （19:55：§4 已填；**§3 取数脚本 `scripts/48_g03_matrix_report.py` 已备好并用 6 例夹具跑通**，
+   正式表落地后一条命令出 Tier1/Tier2 分表与 CI；中间态需 `--allow-partial`。）
 7. G04：注册表 + GOAL 收尾；收尾前跑 `PYTHONUTF8=1 .venv/Scripts/python.exe out/scratch/g04_closeout_precheck.py --with-check --with-register --with-claims`
    （19:33 实测：无 flag 基线 EXIT=2 属"未跑完"；脚本在 `out/scratch/`，不在 `scripts/`），
    并单独跑 `42_claim_number_gate.py --abstract paper/v3/abstract.md`（12:52 新增：摘要只准 Tier1 注册值）。
