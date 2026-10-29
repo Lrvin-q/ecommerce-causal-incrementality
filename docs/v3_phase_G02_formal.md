@@ -1,9 +1,10 @@
 # G02 正式报告 —— 再训练 bootstrap（200 次）与固定策略 bootstrap（1000 次）
 
 > **合成数据 / 已知 DGP**。本报告只回答"策略价值与决策通过率在 DGP 重抽下是否稳定"，
-> 不表示任何真实业务效果。维护时间：2026-10-29 19:22（北京时间）。
+> 不表示任何真实业务效果。维护时间：2026-10-29 19:50（北京时间）。
 > 当前状态：**再训练 200 b 已完成**（17:17:51，`merge_exit=0`），§3 已填；
-> §4 固定 bootstrap 的 Stage A 已完成（18:37，`fixed_exit=0`），数字待 G03 阶段 B 收尾后由 41 号导出统一填入。
+> §4 固定 bootstrap 已填 4 个 core 格（24 格全表见 G03 §4，取数脚本 `scripts/47_g03_fixed_report.py`）；
+> §5 待 41 号在 G03 矩阵跑完后复检。
 
 ## 1. 设计
 
@@ -88,24 +89,39 @@
 **不同格之间不得按"独立证据"平均**（AGENTS §12.5）。guardrail 200/200 只说明退款率护栏未报警，
 不说明策略最优。
 
-## 4. 固定策略 bootstrap 结果（待填）
+## 4. 固定策略 bootstrap 结果（2026-10-29 19:50 填；Stage A 18:37 完成）
 
-**状态（19:22）**：Stage A 已于 18:37 完成，24 格 × rep 0、`resamples=1000`、预算档 0.2 元/人，`fixed_exit=0`。
-按 §12.1，数字要等 41 号把 `fixed_bootstrap.csv` 导出到 `outputs/evidence/g03_formal/` 后再填，
-**不从 `out/` 手抄**。
+**状态**：Stage A 于 18:37 完成，24 格 × rep 0、`resamples=1000`、预算档 0.2 元/人，`fixed_exit=0`。
+本文数字的唯一来源是 `outputs/tables/v3_g03_fixed_bootstrap_summary.csv`（`scripts/47_g03_fixed_report.py`
+从 `out/g02_fixed/shards/<cell>_s0000/<cell>/rep0/validation/fixed_bootstrap.csv` 生成，逐格断言
+"单行 / 预算 0.2 / 重抽 1 000"），不是手工从 `out/` 抄写；41 号收尾时会把 24 行原件导出到
+`outputs/evidence/g03_formal/fixed_bootstrap.csv` 并再做一次同口径校验。**24 格全表见 G03 报告 §4**
+（Tier1 4 格 + Tier2 20 格分区呈现，Tier2 不得与本表并列）。本节只列 4 个 core 格：
 
-数据源：`out/g02_fixed/shards/<cell>_s0000/<cell>/rep0/validation/fixed_bootstrap.csv`（24 格）；
-导出后为 `outputs/evidence/g03_formal/fixed_bootstrap.csv`。
+| 格 | n_targeted | n_random | 点差 | bootstrap SE | 95% CI | CI 跨零 |
+|---|---|---|---|---|---|---|
+| `L0_P_main` | 66,594 | 66,713 | +0.0538 | 0.0487 | [−0.0402, +0.1458] | 是 |
+| `L1_main` | 66,594 | 66,713 | +0.2022 | 0.0560 | [+0.1009, +0.3131] | 否 |
+| `L2_n200000_p050` | 66,594 | 66,713 | +0.1788 | 0.0549 | [+0.0740, +0.2852] | 否 |
+| `L3_fixed_lt000` | 66,594 | 66,713 | +0.0128 | 0.0552 | [−0.1000, +0.1205] | 是 |
 
-待填内容：
-- 24 格的预算（应恒为 0.2）、`resamples`（应恒为 1000）、点差、95% CI、CI 是否覆盖 0；
-- 点差 = 定向臂 − 随机臂的净利润差（同 rep、同批用户、同预算，按模型配对）。
+**口径**：点差 = 定向臂 − 随机臂的净利润差（同 rep、同批用户、同预算，按选中模型配对，AGENTS §12.6）；
+CI 为 1 000 次用户级 bootstrap 的 2.5%/97.5% 分位。预算恒 0.2、`resamples` 恒 1 000（脚本断言通过）。
 
-## 5. 证据与复现（待填）
+**解读**：`L1_main`、`L2_n200000_p050` 的区间完全在 0 上方；`L0_P_main`、`L3_fixed_lt000` 的区间跨零——
+后者只表示"rep 0 这一批用户里两臂差不可分辨"，**不是**"定向无效"，也不构成覆盖率证据（§6 第 5 条口径
+同 G03 报告：本轮没有注册覆盖率统计量）。这与 §3 的再训练 bootstrap 是两种不同的不确定性口径，
+不能混为一谈：§3 每个 b 重抽历史总体并**重训模型**（验证队列固定），本节固定已验证策略、**只重抽用户**。
 
-- 证据区：`outputs/evidence/g02_formal/`（40 号导出）、`outputs/evidence/g03_formal/`（41 号，含固定 bootstrap）；
-- 校验：`scripts/40_export_g02_evidence.py --check`、`scripts/41_export_g03_evidence.py --check`；
-- 顶层登记：`scripts/33_register_evidence_top.py --dirs g02_formal g03_formal`（人工复核后执行）。
+
+## 5. 证据与复现（2026-10-29 19:50 状态）
+
+- 证据区：`outputs/evidence/g02_formal/`（40 号导出；**19:42 复检 `--check` EXIT=0**）、
+  `outputs/evidence/g03_formal/`（41 号，含固定 bootstrap；**待 G03 矩阵跑完**，当前 `--check` 报
+  `matrix: 缺 run_summary.json`，属预期）；
+- 校验：`scripts/40_export_g02_evidence.py --check`（已过）、`scripts/41_export_g03_evidence.py --check`（待跑完）；
+- 顶层登记：`scripts/33_register_evidence_top.py --dirs g02_formal g03_formal`（人工复核后执行；
+  19:42 `--dry-run` 返回 EXIT=2 表示"仍有未完成目录"，不是错误）。
 
 ## 6. 局限与结论失效条件
 

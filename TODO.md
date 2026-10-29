@@ -1,6 +1,6 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-29 19:48（北京时间；`date` 读数。12:30/12:31 两条写于本机时钟校正前，不追改）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-29 19:50（北京时间；`date` 读数。12:30/12:31 两条写于本机时钟校正前，不追改）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
 
@@ -54,6 +54,8 @@
 2. `PYTHONUTF8=1 .venv/Scripts/python.exe scripts/40_export_g02_evidence.py --check`
 3. 顶登：`scripts/33_register_evidence_top.py --dirs g02_formal g03_formal --dry-run` 核对后去掉 `--dry-run`。
 4. 填 G02 报告 §3–§5：数字只从 merge 产物与证据表读，**禁止手抄**；改完按 §12.4 grep 旧值。
+   （19:50：§3 已于 19:25 填、**§4 已填**（4 个 core 格，来源 `outputs/tables/v3_g03_fixed_bootstrap_summary.csv`
+   + `scripts/47_g03_fixed_report.py`，已逐行对表复核）；§5 只差 41 号在 G03 跑完后复检。）
 5. （19:40 改写）Stage A 已完成（18:37，24 格 `fixed_exit=0`）；Stage B 拆两批，**不要**在原 out-root 续跑：
    - **Phase 1（19:36 起跑中）**：core 4 格 × rep0–99 → `out/g03_core_prefix`；脚本 `out/g03_phase1_core.sh`；
      完成标志 `out/g03_logs/phase1.status` 出现 `OK: G03 Phase1 core prefix 完成 …`；
