@@ -210,6 +210,11 @@
 | 11:37 | `g03_post` 必在阶段 B 结束前超时 | 40 h 窗口基于未经运行期验证的 26.5 h 估算 | 按 G02 实测 8.0 min/rep 改 120 h（PID 3883）；旧 1952 已停（§2.4） |
 | 10:18 | 本机 `TZ=Asia/Shanghai date` 输出 UTC | Git Bash 环境 | 链条与状态文件一律用裸 `date`/`zoneinfo` |
 
+**运行期取样（2026-10-29 11:41 起）**：`out/g04_monitor.sh`（PID 4019，10 min/次，120 h 窗口）
+把磁盘余量、四格逐 b 行数、python 进程数与总 RSS、三个状态文件末行追加到 `out/g04_logs/monitor.log`。
+首样本：29 行（8/7/7/7）、8 进程 4 765 MB、93 GB 空余。G04 的"真实进程/资源记录"以该日志为运行期原件，
+不得用事后回忆替代。
+
 **重跑纪律**：17 号合并会覆盖 `outputs/tables/v3_phase_D_aa_formal_merged.*`（D 阶段同名产物）；
 D 阶段原字节已归档到 `outputs/evidence/d02_aa_phase_d_20261027/`（8 文件 + manifest.json，含 sha256/bytes），
 任何重跑后都必须先确认该归档仍在，再引用 D 阶段数字。

@@ -1,17 +1,20 @@
 # AGENT 交接说明 —— v3 重建
 
-> **最新交接时间：2026-10-29 11:34（北京时间；本机时钟此前快约 25–30 min，11:15/11:32/11:40
+> **最新交接时间：2026-10-29 11:45（北京时间；本机时钟此前快约 25–30 min，11:15/11:32/11:40
 > 的旧标注偏早，见 `TODO.md` 11:12 时钟校正条）。当前分支：`codex/d03`；HEAD 见 `git log -1`。**
-> **（10-29 11:34）恢复会话先做这三步，再读下面七条：**
+> **（10-29 11:45）恢复会话先做这三步，再读下面七条：**
 > 0. 读 `TODO.md` 顶部"当前状态"；跑 `out/scratch/status_now.sh`（若无则手查）：
 >    `for c in L0_P_main L1_main L2_n200000_p050 L3_fixed_lt000; do wc -l out/g02_retrain/$c/repetitions.csv; done`、
 >    `cat out/g02_logs/post.status`、`cat out/g03_logs/chain.status`、`cat out/g03_logs/post.status`、`df -h /c`。
->    四个看护进程应在：`ps -ef | grep -E "g02_post|g03_chain|g03_post"`。
+>    四个看护进程应在：`ps -ef | grep -E "g02_post|g03_chain|g03_post|g04_monitor"`。
+>    **11:41 起另有只读取样器** `out/g04_monitor.sh`（PID 4019，10 min/次，120 h）：把磁盘、四格行数、
+>    python 进程数与总 RSS、三个状态文件末行写进 `out/g04_logs/monitor.log`——这是 G04"真实进程/资源记录"
+>    的运行期证据，**不要删**；恢复会话先 `tail -40 out/g04_logs/monitor.log` 就能看清断点前后的节奏。
 >
-> **（10-29 11:34）七条不变，改动处已更新：**
+> **（10-29 11:45）七条不变，改动处已更新：**
 > 1. **G02 正在跑**：批准号 `G02-FORMAL-20261029`；10:39 起 4 个 core 格 × 50 b（`out/g02_retrain/`），
 >    快照 `out/g02_snapshot`（49 文件 `abaa338a…`，`v3_g_matrix.py` `6ec009b6…`）；10:53 越过失火点。
->    11:33 实测 **25/200 b（7/6/6/6）**，按 54 min 外推 **ETA ~17:20（16:40–18:00）**。
+>    11:41 实测 **29/200 b（8/7/7/7）**，按 54 min 外推 **ETA ~17:20（16:40–18:00）**。
 >    首轮 10:15 全灭的原因与修法见 TODO 顶部块与日志 10:26 条（冻结帧指纹原先含 `issued_action`）。
 > 2. **收尾与后续全自动**：`out/g02_post.sh`（PID 1457）校验 4 格 × 50 b、两个冻结指纹唯一、`status=formal`，
 >    然后 `39 … merge`；`out/g03_chain.sh`（PID 1493，14 h 期限）等 `post.status` 的 `OK:` → 建快照 →
@@ -30,9 +33,10 @@
 >    `out/scratch/g03_report_numbers.py`（缺格/未跑满会 exit 2；正式跑完再跑，勿加 `--lenient`）。
 > 5. **纪律不变**：`configs/v3/*.yaml` 七份冻结（hash `00723dc2…`）；正式跑期间不写 `src/`（改脚本/文档安全）；
 >    不削弱 17/19/33/40/41 校验器；证据只认 `outputs/evidence/`。
-> 6. **G03 失败时的唯一正确续跑法（11:15 读码确认）**：`--resume` 只救"跑到一半被杀、
+> 6. **G03 失败时的唯一正确续跑法（11:15 读码确认；11:42 补精确语义）**：`--resume` 只救"跑到一半被杀、
 >    留下 `repetitions_provisional.csv`"的分片；**已完成分片（只有 `repetitions.csv`）无论带不带
->    `--resume` 都会整片重跑**。先 `34 merge out/g03_formal`，再只为缺口
+>    `--resume` 都会整片重跑**，而且 `run_cell` 的 `existing` 只来自 `resume_from` ⇒ 重跑**不是追加**，
+>    会用本次 reps **覆盖** `repetitions.csv`（旧 `rep<k>/row.json` 还在，表却少行）。先 `34 merge out/g03_formal`，再只为缺口
 >    `--cells <cell> --rep-start a --rep-stop b --out-root out/g03_repairN` 重跑，最后
 >    `34 merge out/g03_formal out/g03_repairN`，确认 `duplicates=0`。详见日志 11:15 条。
 > 7. **开跑前两处"跑满才炸"已修**：34 号 `--models` 缺省按层解析（否则阶段 A 在 L0 停链）；
