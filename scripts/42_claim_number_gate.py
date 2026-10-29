@@ -4,6 +4,7 @@
 用法：
     python scripts/42_claim_number_gate.py                 # 校验注册表
     python scripts/42_claim_number_gate.py --draft draft.md # 再查长稿引用（[Cxx] + 数字字面）
+    python scripts/42_claim_number_gate.py --abstract paper/v3/abstract.md  # 摘要只准 Tier1 注册值
     python scripts/42_claim_number_gate.py --self-test      # 反例夹具：证明门禁会拦
 退出码：0 全过；1 有问题；2 注册表结构错误。
 """
@@ -91,6 +92,22 @@ def check_draft(registry: Path, draft: Path) -> list[str]:
     return problems
 
 
+def check_abstract(registry: Path, abstract: Path) -> list[str]:
+    if not abstract.is_file():
+        return [f"摘要不存在：{abstract}"]
+    text = abstract.read_text(encoding="utf-8")
+    frame = pd.read_csv(registry, encoding="utf-8-sig", keep_default_na=False, dtype=str)
+    problems: list[str] = []
+    for _, row in frame.iterrows():
+        cid = row["claim_id"]
+        value = str(row["display_value"]).strip()
+        if str(row["in_abstract"]).strip().lower() == "yes" and value not in text:
+            problems.append(f"{cid}: 摘要未包含注册值 {value}（in_abstract=yes）")
+        if str(row["tier"]).strip() == "Tier2" and value in text:
+            problems.append(f"{cid}: Tier2 数值 {value} 不得出现在摘要")
+    return problems
+
+
 def _write_registry(path: Path, rows: list[dict[str, str]]) -> Path:
     with path.open("w", encoding="utf-8-sig", newline="") as fh:
         writer = csv.writer(fh)
@@ -128,7 +145,25 @@ def self_test() -> int:
             ok = failed if name in expected_fail else not failed
             print(f"[{'PASS' if ok else 'FAIL'}] {name}：{problems or '无问题'}")
             bad += 0 if ok else 1
-    print(f"自检 {len(cases) - bad}/{len(cases)} 通过")
+        reg = _write_registry(Path(tmp) / "reg_abs.csv", [
+            dict(base, in_abstract="yes"),
+            dict(base, claim_id="T02", tier="Tier2", display_value="0.123456",
+                 precision_note="R=30 精度"),
+        ])
+        abstract_cases = {
+            "摘要缺注册值": ("正文没有数字", True),
+            "摘要混入 Tier2": ("0.046 与 0.123456", True),
+            "摘要正例": ("0.046 只写 Tier1", False),
+        }
+        for name, (text, expect_fail) in abstract_cases.items():
+            ap = Path(tmp) / f"abs_{name}.md"
+            ap.write_text(text, encoding="utf-8")
+            problems = check_abstract(reg, ap)
+            ok = bool(problems) if expect_fail else not problems
+            print(f"[{'PASS' if ok else 'FAIL'}] {name}：{problems or '无问题'}")
+            bad += 0 if ok else 1
+    total = len(cases) + len(abstract_cases)
+    print(f"自检 {total - bad}/{total} 通过")
     return 0 if bad == 0 else 1
 
 
@@ -136,6 +171,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--registry", type=Path, default=REGISTRY)
     parser.add_argument("--draft", type=Path)
+    parser.add_argument("--abstract", type=Path)
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
     if args.self_test:
@@ -143,6 +179,8 @@ def main() -> int:
     problems = validate(args.registry)
     if args.draft:
         problems += check_draft(args.registry, args.draft)
+    if args.abstract:
+        problems += check_abstract(args.registry, args.abstract)
     if problems:
         print(f"FAIL：{len(problems)} 个问题")
         for item in problems:
