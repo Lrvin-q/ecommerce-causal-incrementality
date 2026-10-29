@@ -56,6 +56,8 @@
   **EXIT=0**、帧校验全过、`rows=29`、`provisional=true`；探针写到 `outputs/tables` 的 `_provisional` 件
   **已当场删除**（防以后误当证据）。观察：`decision_pass_rate` L0 0.000 / L1 1.000 / L2 0.857 / L3 1.000，
   `guardrail_pass_rate` 全 1.000——L0 的 0 来自 `passes_adjusted_test` 在零效应格不显著，**不是故障**。
+- **源码只读复核（11:49）**：跑中重算 `pipeline_source_hashes()` 与 `out/g02_snapshot` 绑定逐键比对，
+  **49 文件 / `abaa338a0c7705ae…` / 差异 0**；`config_hash=00723dc2…`；工作树干净。收尾时（阶段 B 后）须再算一次。
 - **G04 运行期取样器（11:41 起，11:46 重启为 PID 4246）**：`out/g04_monitor.sh`（10 min/次，120 h）→
   `out/g04_logs/monitor.log`，每样本记磁盘余量、四格逐 b 行数、python 进程数与总 RSS + top3、空闲内存、
   三个状态文件末行。11:46 样本：29 行、总 RSS **6 937 MB**（top3 2 023/1 940/1 734）、空闲 **12.3 / 30.8 GB**、

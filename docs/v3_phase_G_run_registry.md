@@ -211,6 +211,11 @@
 | 11:44 | 40 `--check` 在**完整正确**的格上必报"validation_rep 在 b 间重复" | `check_cell` 把"50 个 b 共用 VALIDATION_REP=0"的**设计**当成重复缺陷（11:33 静态复核只看列名，没看判据） | 改为 `history_rep_id` 查唯一、`validation_rep` 查**恒定**；`tests/test_v3_g02_export_rollback.py` 新增 3 例（正例 / rep 漂移 / history 重复），6 passed；真数据半成品复跑 `--check` 只剩"未跑完"类问题，EXIT=1 |
 | 10:18 | 本机 `TZ=Asia/Shanghai date` 输出 UTC | Git Bash 环境 | 链条与状态文件一律用裸 `date`/`zoneinfo` |
 
+**源码只读复核（2026-10-29 11:49，跑中）**：现场重算 `pipeline_source_hashes()` 与
+`out/g02_snapshot/snapshot_binding.json` 逐键比对：**49 文件、`source_hashes_sha256=abaa338a0c7705ae…`、
+差异 0**；同时 `load_v3_protocol().config_hash = 00723dc2…`（与冻结值一致），`git status --porcelain` 为空。
+即 G02 开跑至今未发生 AGENTS §11 的源码绑定漂移。收尾时须再算一次（阶段 B 跑期间同样可能被踩）。
+
 **合并探针（2026-10-29 11:42，真数据半成品）**：把四格 `repetitions.csv` 复制到
 `out/scratch/g02_merge_probe/<cell>/` 后跑 `39 … merge`：**EXIT=0**，四格帧校验全过，
 输出 `rows=29`、`provisional=true`（8/7/7/7），`b_count` 无 NaN。探针产物
