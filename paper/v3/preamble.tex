@@ -84,10 +84,12 @@
 \makeatother
 
 % 表题注的最小空间守卫：剩余竖直空间不足时先分页，避免题注孤行（build.sh 在表题注前插入）。
+% 先 \penalty0 让页面构建器跑一次：紧跟在 longtable 后面时 \pagetotal 还停在上一页的旧值，
+% 不刷新会把"其实有大半页空"误判成"只剩几行"，在 00:06 构建里造出过一整页空白（PDF 38）。
 \makeatletter
 \newif\if@needbreak
 \newcommand{\needspace}[1]{%
-  \par\@needbreakfalse
+  \par\penalty0 \@needbreakfalse
   \dimen@=#1\relax
   \dimen@ii=\pagegoal \advance\dimen@ii by -\pagetotal
   \ifdim\dimen@>\dimen@ii \@needbreaktrue\fi

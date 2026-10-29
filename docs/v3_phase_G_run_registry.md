@@ -205,7 +205,7 @@
   154→163，折 0.56 rep/min；19:50 的 6.3 min/rep 是 `L0_P_main` 单层数字，`L1_main` 分片起跑后
   变慢（学习/验证更重），故 ETA 由 02:30–03:30 顺延为 **05:30–07:00**。6 个 worker 仍在满核跑，
   `phase1.log` 无 error/traceback。
-- **10-30 00:05 Phase 2 脚本加固**（`scripts/51_g03_phase2.sh`，exec → 提交 `ecb0407`）：
+- **10-29 23:58 Phase 2 脚本加固**（`scripts/51_g03_phase2.sh`，exec → 提交 `ecb0407`）：
   ① 复合根 `out/g03_formal/shards` 若**残留非空**直接 exit 10——否则 junction 失败回退的
   `cp -r src dst` 会静默套成 `dst/<分片名>/<分片名>`，merge 只少读、不报错；
   ② 建链后逐分片核对 `<分片>/<cell>/repetitions*.csv` 存在，缺则 exit 11（只数顶层条目数抓不到嵌套）。
