@@ -101,7 +101,8 @@
 6. G03 完成后 `scripts/41_export_g03_evidence.py --check`，填 G03 §2–§4；**Tier2 数字不得与 Tier1 并列**。
    （19:55：§4 已填；**§3 取数脚本 `scripts/48_g03_matrix_report.py` 已备好并用 6 例夹具跑通**，
    正式表落地后一条命令出 Tier1/Tier2 分表与 CI；中间态需 `--allow-partial`。）
-7. G04：注册表 + GOAL 收尾；收尾前跑 `PYTHONUTF8=1 .venv/Scripts/python.exe out/scratch/g04_closeout_precheck.py --with-check --with-register --with-claims`
+7. G04：注册表 + GOAL 收尾；收尾前跑 `PYTHONUTF8=1 .venv/Scripts/python.exe scripts/49_g04_closeout_precheck.py --with-check --with-register --with-claims`
+   （20:17 起为已提交版本；`out/scratch` 下同名旧文件仅作历史，不再引用）
    （19:33 实测：无 flag 基线 EXIT=2 属"未跑完"；脚本在 `out/scratch/`，不在 `scripts/`），
    并单独跑 `42_claim_number_gate.py --abstract paper/v3/abstract.md`（12:52 新增：摘要只准 Tier1 注册值）。
 8. **待用户裁决（不阻塞上述执行）**：GOAL 首句要求"50–100 页量级"长稿，当前 12 页；

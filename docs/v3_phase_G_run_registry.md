@@ -282,6 +282,12 @@ D 阶段原字节已归档到 `outputs/evidence/d02_aa_phase_d_20261027/`（8 �
 命令：`PYTHONUTF8=1 ./.venv/Scripts/python.exe out/scratch/g04_closeout_precheck.py
 --with-check --with-register --with-claims`，日志 `out/scratch/g04_precheck_1942_full.log`，**EXIT=3**——
 唯一失败项是预期的"G03 矩阵未跑完"，其余全绿：
+（**20:17 起改引用已提交的 `scripts/49_g04_closeout_precheck.py`**：`out/scratch/` 不入库，
+换个 checkout 就没有；49 号与旧版判据相同，另修三处——`ROOT` 由 `parents[2]` 改 `parents[1]`、
+`33 --dry-run` 的非零退出码不再被吞、`os.environ` 提到顶部。9 例测试见
+`tests/test_g04_closeout_precheck.py`。20:18 在实时树上跑出 **EXIT=2**：
+g02 四项全绿、源码 49 文件与 g03 快照逐文件一致、overlay `c58d5a90…` 未变、
+`src/ sql/ configs/` git 干净，待完成项 = `chain` / `g03_post` / `g03 _final`。）
 
 | 检查 | 结果 |
 |---|---|
