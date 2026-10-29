@@ -1,4 +1,4 @@
-# G 阶段运行注册表（2026-10-29 19:45，北京时间）
+# G 阶段运行注册表（2026-10-29 20:12，北京时间）
 
 > 合成数据 / 已知 DGP。本表对应 GOAL G04「失败重试 / 资源 / 真实进程记录，全入口可恢复」。
 > **状态：进行中**——G01 已通过（11:00 改判）；**G02 已跑完**（200 b，`merge_exit=0` 17:17:51）；
@@ -197,6 +197,8 @@
   剩余约 6.9 h ⇒ ETA **10-30 02:30–03:30**；首片预计 20:40 前后写 `repetitions.csv`（片内 10 rep 跑完才写盘）。
 - **Phase 2 入口**：`nohup bash out/g03_phase2.sh`（Tier2 → `out/g03_tier2`；core rep100–499 →
   `out/g03_core_ate`；再建 `out/g03_formal/shards` 复合根并合并）。脚本先查 `phase1.status` 的 OK 行。
+  **20:07 加固**：merge 之后逐格核对 `_final` 行数（core 500 / Tier2 30，且必须是正式 `repetitions.csv`），
+  不齐写 `ABORT: _final incomplete` 并 exit 9——此前它只打印行数就写 OK，缺口要等 41 号才暴露。
 - **断点续跑口径**：34 号 `--resume` 只认未跑完分片的 `repetitions_provisional.csv`，已完成分片写正式
   `repetitions.csv`，在原 out-root 续跑会整片重算；因此一律换新 out-root 分批、最后多根合并去重。
 
@@ -332,14 +334,17 @@ cat out/g02_logs/post.status out/g03_logs/chain.status out/g03_logs/post.status
 .venv/Scripts/python.exe scripts/40_export_g02_evidence.py --check
 .venv/Scripts/python.exe scripts/40_export_g02_evidence.py
 
-# 2) G03 + 固定 bootstrap：g03_post 已自动跑过这两步，幂等可重跑
-.venv/Scripts/python.exe scripts/41_export_g03_evidence.py --check
-.venv/Scripts/python.exe scripts/41_export_g03_evidence.py
+# 2) G03 证据：先 --check 再导出（20:11 更正：g03_post 已于 19:36 停，必须手动跑；
+#    分批执行后矩阵根就是 41 号的默认根 out/g03_formal（复合根），此处显式写出以防默认值变动）
+.venv/Scripts/python.exe scripts/41_export_g03_evidence.py --check --matrix-root out/g03_formal
+.venv/Scripts/python.exe scripts/41_export_g03_evidence.py --matrix-root out/g03_formal
 
-# 3) 报告数字（只读；与 39 合并表 1e-9 对账，异常 exit 2）
+# 3) 报告数字（只读）
 .venv/Scripts/python.exe out/scratch/g02_report_numbers.py
-# G03：24 格 × 4 指标的均值/sd/MC SE/95% CI，core 与 Tier2 分区；缺格/未跑满/非 formal 即 exit 2
-.venv/Scripts/python.exe out/scratch/g03_report_numbers.py
+# G03：24 格 × 4 指标的均值/sd/MC SE 与 mean±1.96·MC_SE，core 与 Tier2 分区，附 CI；
+# 未跑满默认 exit 3（中间态加 --allow-partial）；缺格/非 formal/块与注册不符即 exit 2
+.venv/Scripts/python.exe scripts/48_g03_matrix_report.py
+# 交叉核对（非必须）：out/scratch/g03_report_numbers.py 用 sd/√R 口径算 CI，与 48 号的 MC_SE 口径可互验
 
 # 4) 填 docs/v3_phase_G02_formal.md §3/§4、docs/v3_phase_G03_formal.md §2–§4
 # 5) 顶层登记：先 dry-run，人工复核 coverage.json 的 sha/bytes 后再正式执行
