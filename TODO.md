@@ -18,6 +18,9 @@
   --rep-stop --out-root out/g03_repairN` 另起根 → 多根 `merge` 且确认 `duplicates=0`。
   已写入 `AGENT_HANDOFF.md` 第 6 条与 `docs/v3_决策与反思日志.md` 11:15 条。
 - **轮次**：目标 41/60 轮；后台链不受暂停影响，恢复时按现场状态判断。
+- **H05 底表已起（11:25）**：`docs/v3_H05_sources.md` 落 12 篇来源 + "支持/不支持"两列 + 使用规则。
+  S5（Kennedy DR-learner 卷期）、S12（Curth NeurIPS D&B）待核验——Crossref/OpenAlex 本机均 429，
+  恢复后补；未核验前不得直接进长稿参考文献。
 
 **2026-10-29 10:40 更新。G02 首轮正式跑 4 格全灭（冻结帧指纹选错），已修并在 10:39 重开；全量测试绿灯**：
 
