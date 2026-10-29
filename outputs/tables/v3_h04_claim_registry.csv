@@ -173,3 +173,40 @@ C171,3.1,L1 实测拒绝率（1.5 倍 MDE）,0.97,2,Tier1,no,outputs/tables/v3_p
 C172,3.1,L2 实测拒绝率（1.5 倍 MDE）,1.00,2,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L2_power_mde150',rejection_rate,100 rep/格
 C173,3.1,L0 实测拒绝率（2 倍 MDE）,1.00,2,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L0_power_mde200',rejection_rate,100 rep/格
 C174,3.1,L1 实测拒绝率（零效应）,0.08,2,Tier1,no,outputs/tables/v3_phase_D_local_power_formal.csv,cell_id == 'L1_power_mde000',rejection_rate,100 rep/格；不作 FPR 证据
+C175,3.9,F01 定向策略 0.20 档 OPE 增量（元/人）,0.0655,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.2,ope_value_cny_per_user,F01 单帧 R=0
+C176,3.9,F01 定向策略 0.20 档审计真值（元/人）,0.0856,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.2,audit_value_cny_per_user,F01 单帧 R=0
+C177,3.9,F01 定向策略 0.20 档 OPE 误差（元/人）,-0.0202,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.2,value_error_cny_per_user,F01 单帧 R=0
+C178,3.9,F01 定向策略 0.20 档 OPE 标准误（元/人）,0.0308,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.2,ope_se_cny_per_user,F01 单帧 R=0
+C179,3.9,F01 定向策略 0.04 档 OPE 误差（元/人）,0.0138,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.04,value_error_cny_per_user,F01 单帧 R=0
+C180,3.9,F01 定向策略 0.40 档 OPE 误差（元/人）,-0.0631,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.4,value_error_cny_per_user,F01 单帧 R=0
+C181,3.9,F01 定向策略 1.00 档 OPE 误差（元/人）,-0.0431,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 1.0,value_error_cny_per_user,F01 单帧 R=0
+C182,3.9,F01 定向策略 0.40 档 |误差|/SE（八档最大）,1.33,2,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.4,abs_error_over_se,F01 单帧 R=0
+C183,3.9,F01 随机臂 0.04 档 OPE 增量（元/人）,-0.0154,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.04,ope_value_cny_per_user,F01 单帧 R=0
+C184,3.9,F01 随机臂 0.04 档审计真值（元/人）,0.0145,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.04,audit_value_cny_per_user,F01 单帧 R=0
+C185,3.9,F01 随机臂 0.10 档 OPE 增量（元/人）,-0.0200,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.1,ope_value_cny_per_user,F01 单帧 R=0
+C186,3.9,F01 随机臂 0.10 档审计真值（元/人）,0.0313,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.1,audit_value_cny_per_user,F01 单帧 R=0
+C187,3.9,F01 随机臂 0.20 档 OPE 增量（元/人）,-0.0203,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.2,ope_value_cny_per_user,F01 单帧 R=0
+C188,3.9,F01 随机臂 0.20 档审计真值（元/人）,0.0538,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.2,audit_value_cny_per_user,F01 单帧 R=0
+C189,3.9,F01 随机臂 0.20 档 OPE 误差（元/人）,-0.0740,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.2,value_error_cny_per_user,F01 单帧 R=0
+C190,3.9,F01 随机臂 0.20 档 |误差|/SE,1.86,2,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.2,abs_error_over_se,F01 单帧 R=0
+C191,3.9,F01 随机臂 0.04 档处理组 ESS 占比,0.048,3,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.04,ess_fraction_treated,F01 单帧 R=0
+C192,3.9,F01 随机臂 0.04 档处理组 ESS（人数）,1445,0,Tier1,no,outputs/tables/v3_phase_F01_value.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.04 and estimator == 'dr_increment',ess_treated,F01 单帧 R=0
+C193,3.9,F01 定向策略 0.80 档对照组 ESS（人数）,215,0,Tier1,no,outputs/tables/v3_phase_F01_value.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.8 and estimator == 'dr_increment',ess_control,F01 单帧 R=0
+C194,3.9,F01 定向策略 0.80 档对照组 ESS 占比,0.007,3,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.8,ess_fraction_control,F01 单帧 R=0
+C195,3.9,F01 随机臂 0.80 档对照组 ESS 占比,0.024,3,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.8,ess_fraction_control,F01 单帧 R=0
+C196,3.9,F01 定向策略 0.20 档 IPW 增量（元/人）,0.0802,4,Tier1,no,outputs/tables/v3_phase_F01_estimator_compare.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.2,ipw_increment,F01 单帧 R=0
+C197,3.9,F01 定向策略 0.20 档 SNIPS 增量（元/人）,0.0677,4,Tier1,no,outputs/tables/v3_phase_F01_estimator_compare.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.2,snips_increment,F01 单帧 R=0
+C198,3.9,F01 定向策略 0.20 档三估计量极差（元/人）,0.0147,4,Tier1,no,outputs/tables/v3_phase_F01_estimator_compare.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 0.2,estimator_spread,F01 单帧 R=0
+C199,3.9,F01 随机臂 0.20 档 IPW 增量（元/人）,0.0054,4,Tier1,no,outputs/tables/v3_phase_F01_estimator_compare.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.2,ipw_increment,F01 单帧 R=0
+C200,3.9,F01 随机臂 0.20 档 SNIPS 增量（元/人）,0.0035,4,Tier1,no,outputs/tables/v3_phase_F01_estimator_compare.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.2,snips_increment,F01 单帧 R=0
+C201,3.9,F01 随机臂 0.20 档三估计量极差（元/人）,0.0256,4,Tier1,no,outputs/tables/v3_phase_F01_estimator_compare.csv,policy == 'random_same_budget' and per_user_budget_cny == 0.2,estimator_spread,F01 单帧 R=0
+C202,3.9,F01 定向−不发券 单侧 p 值,0.0167,4,Tier1,no,outputs/tables/v3_phase_F01_contrast_audit.csv,contrast == 'selected_targeted_minus_no_coupon',one_sided_p_value,F01 单帧 R=0
+C203,3.9,F01 两条主张的 Holm 调整 p 值,0.0334,4,Tier1,no,outputs/tables/v3_phase_F01_contrast_audit.csv,contrast == 'selected_targeted_minus_no_coupon',holm_adjusted_p_value,F01 单帧 R=0
+C204,3.9,F01 定向−不发券 Holm 单侧下界（元/人）,0.0051,4,Tier1,no,outputs/tables/v3_phase_F01_contrast_audit.csv,contrast == 'selected_targeted_minus_no_coupon',holm_lower_bound_cny_per_user,F01 单帧 R=0
+C205,3.9,F01 定向−同预算随机 OPE 差（元/人）,0.0857,4,Tier1,no,outputs/tables/v3_phase_F01_contrast_audit.csv,contrast == 'selected_targeted_minus_same_budget_random',diff_cny_per_user,F01 单帧 R=0
+C206,3.9,F01 定向−同预算随机 审计差（元/人）,0.0319,4,Tier1,no,outputs/tables/v3_phase_F01_contrast_audit.csv,contrast == 'selected_targeted_minus_same_budget_random',audit_diff,F01 单帧 R=0
+C207,3.9,F01 定向−随机 OPE 差减审计差（元/人）,0.0538,4,Tier1,no,outputs/tables/v3_phase_F01_contrast_audit.csv,contrast == 'selected_targeted_minus_same_budget_random',ope_minus_audit,F01 单帧 R=0
+C208,3.9,F01 定向−随机 差的标准误（元/人）,0.0459,4,Tier1,no,outputs/tables/v3_phase_F01_contrast_audit.csv,contrast == 'selected_targeted_minus_same_budget_random',se_diff,F01 单帧 R=0
+C209,3.9,F01 定向−随机 单侧 p 值,0.0309,4,Tier1,no,outputs/tables/v3_phase_F01_contrast_audit.csv,contrast == 'selected_targeted_minus_same_budget_random',one_sided_p_value,F01 单帧 R=0
+C210,3.9,F01 定向−随机 Holm 单侧下界（元/人）,0.0102,4,Tier1,no,outputs/tables/v3_phase_F01_contrast_audit.csv,contrast == 'selected_targeted_minus_same_budget_random',holm_lower_bound_cny_per_user,F01 单帧 R=0
+C211,3.9,F01 定向策略 1.00 档支出误差（元/人）,-0.0239,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 1.0,spend_error_cny_per_user,F01 单帧 R=0
