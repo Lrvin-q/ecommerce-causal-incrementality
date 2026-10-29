@@ -110,7 +110,10 @@
 - **阶段 B（G03 矩阵臂）**：24 格 × 注册 R（core `R_ate=500` / Tier2 `R=30`），
   `--workers 6 --shard-size 50 --out-root out/g03_formal --summary-dir outputs/tables`，
   批准号 `G03-FORMAL-20261029`，`bootstrap_resamples=0`（bootstrap 已在阶段 A 交付）。
-  成本按 §H.2 实测外推 **159.2 CPU·h** ⇒ 6 路约 **26.5 h**。
+  成本按 §H.2 为 **159.2 CPU·h**；但 `plan` 的 26.5 h 墙钟未用运行期实测。**11:38 更正**：
+  G02 每 rep 墙钟中位 **8.0 min**（4 路并发，24 个间隔），2 600 rep / 6 路 ≈ **58 h**（下界，
+  6 路争用可能 60–70 h）；`g03_post` 看护窗口已由 40 h 改为 **120 h**（PID 3883，
+  旧 40 h 会在阶段 B 完成前必然超时）。
 - **34 号补丁（10:16）**：`--bootstrap-budget-scope` 贯通 CLI → task → `_worker` → `run_cell`；
   `formal + resamples>0 + scope≠primary_0.2` 在 argparse 层直接失败（不新建目录）；
   `run_summary.json` 回写 `bootstrap_resamples`/`bootstrap_budget_scope`。守卫本身未改。

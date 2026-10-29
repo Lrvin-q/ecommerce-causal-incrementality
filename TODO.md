@@ -1,6 +1,6 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-29 11:34（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-29 11:38（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
 
@@ -13,8 +13,8 @@
   `validation_observed_hash` 2 值，正是首轮全灭的场景，现按设计放行。
   11:32 中途体检：10 行 0 重复 0 空值，`guardrail_pass` 全 True、`decision_all_pass` L0 全 False 其余全 True。
 - **三个后台进程**：`out/g02_post.sh`（PID 1457，校验+merge）→ `out/g03_chain.sh`（PID 1493，14 h 期限，
-  阶段 A 固定 bootstrap 24 格 × rep0 → 阶段 B G03 24 格 ~26.5 h）→ `out/g03_post.sh`（PID 1952，40/41
-  `--check` + 导出；**33 登记留人工**）。
+  阶段 A 固定 bootstrap 24 格 × rep0 → 阶段 B G03 24 格 ~58 h）→ `out/g03_post.sh`（PID 3883，120 h 窗口，
+  40/41 `--check` + 导出；**33 登记留人工**）。旧 40 h 看护（PID 1952）已于 11:37 停掉重启。
 - **G03 续跑陷阱（11:15 读码确认）**：`--resume` 只救"半途被杀、有 `repetitions_provisional.csv`"的分片；
   已完成分片无论带不带 `--resume` 都会整片重跑。预案：先 `34 merge` 收已完成 → 缺口 `--cells/--rep-start/
   --rep-stop --out-root out/g03_repairN` 另起根 → 多根 `merge` 且确认 `duplicates=0`。
@@ -33,7 +33,7 @@
   （与 39 号同口径）；L0 + L1_heterogeneity_000 冒烟（n=2000，rep0，1000 次重抽）**EXIT=0**，
   41 `--check` 对半成品报缺格并 **EXIT=2**（符合预期）。详见 G03 报告 §2、注册表 §2.4、日志 11:16 条。
 - **41 号列契约修复（11:20）**：`check_cell` 原取 `n_total`，矩阵逐 rep 表只有 `n/n_treated/n_control`
-  ——跑满 26.5 h 后在导出阶段必 `KeyError`。改为取 `n` + 缺列守卫 + `n_treated+n_control==n` 断言；
+  ——跑满后在导出阶段必 `KeyError`。改为取 `n` + 缺列守卫 + `n_treated+n_control==n` 断言；
   `tests/test_v3_g41_checks.py` 6 例（3 反例 + 3 正例：满 R 零问题、阶段 A 真实目录布局 24 格、坏预算被抓）已绿，
   连同 34 号 2 例共 8 passed。详见 G03 报告 §5、日志 11:22 条。
   冒烟没暴露它的原因：无完整帧时 `check_cell` 从未被调用。
@@ -42,6 +42,10 @@
   缺快照守卫只在 `snapshot is None` 时触发；34 写 `fixed_bootstrap.csv` 的路径与键满足 41；
   `g02_post` 的 `merge_exit=` 与链 STOP 正则一致。结论：未再发现"跑满后才炸"的缺口。
   （详见注册表 §2.4）
+- **G03 阶段 B 墙钟更正（11:38）**：`plan` 的 159.2 CPU·h / 6 ≈ 26.5 h 未用运行期墙钟。G02 日志实测
+  每 b 墙钟中位 **8.0 min**（24 个间隔，4 路并发），2 600 rep / 6 路 ≈ **58 h**（下界，争用可能 60–70 h）。
+  因此 `g03_post` 原 40 h 窗口（10-30 02:48 到期）**必然先超时**；已改为 120 h 并重启（PID 3883），
+  旧进程 1952 已停。链条预计 10-31 04:00–06:00 收尾；磁盘按 2 600 × 20–22 MB ≈ 52–57 GB。
 - **磁盘看护（11:26 估算）**：Stage B 2 600 rep × ~20 MB（按 n=2 000 冒烟 0.5 MB/rep 线性外推，`policy_list.csv`/`truth_users.csv` 随 n 线性）；实测 `out/g03_r1` 的 n=200k rep0 为 20–22 MB，
   Stage B 2 600 rep ≈ 50 GB；当前空 93 GB。低于 15 GB 必须停链（人工观察项）。
 - **真值口径纠正（11:26）**：`truth_columns_present: false` 只指冻结决策表不含真值；`truth_users/` 等
@@ -111,6 +115,7 @@
   `--workers 6 --shard-size 50`，`out/g03_formal`）。任一阶段非零即停，状态写 `out/g03_logs/chain.status`。
   阶段 B 按 159.2 h / 6 路 ≈ **26.5 h**；按 G02 修正后的 ETA（20:30 收尾）推，
   链条整体约 **10-30 23:30–01:00** 结束（±3 h；6 路并行效率尚未实测，决策单 §H.2 给的是 159–184 h 区间）。
+  **（11:38 更正）** 26.5 h 作废：运行期实测 8.0 min/rep，2 600 rep / 6 路 ≈ 58 h，链条预计 10-31 04:00–06:00。
 - **环境事实**：本机 Git Bash 的 `TZ=Asia/Shanghai date` 输出 **UTC**（实测 10:18 → 02:18），裸 `date`
   已是北京时间；链条改用裸 `date`。G01 的 `started_at.txt` 记为 UTC 正是此故。
 
