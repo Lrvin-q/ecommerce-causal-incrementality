@@ -10,3 +10,11 @@ C08,3.4,D03 因果森林贪心的真实支出不超预算比例,0.11,2,Tier1,no,
 C09,3.4,D03 因果森林下 incremental_profit_rank 胜过业务规则的重复数,102,0,Tier1,no,outputs/tables/v3_phase_D03_formal_paired_diff.csv,model == 'causal_forest' and per_user_budget_cny == 0.2 and policy == 'incremental_profit_rank' and baseline == 'business_rule_new_user_then_cart',wins,200 对中 102 胜 98 负；均值差 -0.0007
 C10,3.5,E 层随机名单在真实成本下的超预算比例（0.2 元/人档）,0.895,3,Tier1,no,outputs/tables/v3_phase_E_random_summary.csv,n_total == 60000 and per_user_budget_cny == 0.2,overrun_probability,200 seeds；均值真实支出 12335.4 vs 预算 12000；最大超支 1170
 C11,3.5,E 层遗憾分解中学习误差（元/人，pool 500、0.2 元/人档）,0.9178,4,Tier1,no,outputs/tables/v3_phase_E_decomposition.csv,pool_size == 500 and per_user_budget_cny == 0.2 and actual_solver == 'greedy',learning_error_cny_per_user,同格优化误差 0.0000；总遗憾 0.9178
+C12,3.7,G02 L0_P_main 策略价值均值（元/人）,2.3556,4,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L0_P_main',policy_value_mean,50 b；MC SE 0.0070
+C13,3.7,G02 L1_main 策略价值均值（元/人）,2.8573,4,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L1_main',policy_value_mean,50 b；MC SE 0.0059
+C14,3.7,G02 L2_n200000_p050 策略价值均值（元/人）,2.8514,4,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L2_n200000_p050',policy_value_mean,50 b；MC SE 0.0085
+C15,3.7,G02 L3_fixed_lt000 策略价值均值（元/人）,2.9839,4,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L3_fixed_lt000',policy_value_mean,50 b；MC SE 0.0094
+C16,3.7,G02 L0_P_main 决策通过率,0.04,2,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L0_P_main',decision_pass_rate,2/50；决策为两条 Holm 主张的合取
+C17,3.7,G02 L1_main 决策通过率,0.98,2,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L1_main',decision_pass_rate,49/50
+C18,3.7,G02 L2_n200000_p050 决策通过率,0.94,2,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L2_n200000_p050',decision_pass_rate,47/50
+C19,3.7,G02 L3_fixed_lt000 决策通过率,0.90,2,Tier1,no,outputs/tables/v3_phase_G02_retrain_bootstrap.csv,cell_id == 'L3_fixed_lt000',decision_pass_rate,45/50
