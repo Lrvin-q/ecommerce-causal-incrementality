@@ -28,6 +28,13 @@
   {\contentslabel{2.6em}}{}{\titlerule*[0.8pc]{.}\contentspage}
 \titlecontents{subsubsection}[4.6em]{\sffamily\small}
   {\contentslabel{3.0em}}{}{\titlerule*[0.8pc]{.}\contentspage}
+% 参考文献：biblatex + biber，数字编号按首次引用顺序；不允许出现 refs.bib 之外的条目。
+\usepackage[backend=biber, style=numeric, sorting=none, giveninits=true,
+  maxbibnames=10, url=false, isbn=false]{biblatex}
+\addbibresource{refs.bib}
+\DefineBibliographyStrings{english}{bibliography = {参考文献}}
+\DeclareFieldFormat{doi}{DOI\addcolon\space\href{https://doi.org/#1}{\nolinkurl{#1}}}
+
 \usepackage[hidelinks, unicode, bookmarksnumbered]{hyperref}
 \hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue,
   anchorcolor=blue, filecolor=blue, linktoc=all}

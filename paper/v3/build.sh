@@ -7,9 +7,9 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
 BUILD="$ROOT/out/scratch/v3_paper_build"
 mkdir -p "$BUILD"
-cp "$HERE/main.tex" "$HERE/preamble.tex" "$BUILD/"
+cp "$HERE/main.tex" "$HERE/preamble.tex" "$HERE/refs.bib" "$BUILD/"
 
-pandoc "$BODY" -f markdown+pipe_tables+tex_math_dollars -t latex --wrap=preserve \
+pandoc "$BODY" -f markdown+pipe_tables+tex_math_dollars -t latex --biblatex --wrap=preserve \
   -o "$BUILD/body.tex"
 {
   printf '\\begin{abstract}\n\\linespread{1.04}\\selectfont\\small\n'
@@ -20,6 +20,9 @@ pandoc "$BODY" -f markdown+pipe_tables+tex_math_dollars -t latex --wrap=preserve
 cd "$BUILD"
 xelatex --disable-installer -interaction=nonstopmode -halt-on-error main.tex > pass1.log 2>&1 || {
   echo "PASS1 FAILED"; tail -30 pass1.log; exit 1; }
-xelatex --disable-installer -interaction=nonstopmode -halt-on-error main.tex > pass2.log 2>&1 || {
-  echo "PASS2 FAILED"; tail -30 pass2.log; exit 1; }
+biber main > biber.log 2>&1 || { echo "BIBER FAILED"; tail -30 biber.log; exit 1; }
+for pass in pass2 pass3; do
+  xelatex --disable-installer -interaction=nonstopmode -halt-on-error main.tex > "$pass.log" 2>&1 || {
+    echo "${pass^^} FAILED"; tail -30 "$pass.log"; exit 1; }
+done
 echo "BUILD OK: $BUILD/main.pdf"
