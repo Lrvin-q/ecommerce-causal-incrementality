@@ -72,9 +72,82 @@ def fig_d03_by_model() -> Path:
     return path
 
 
+def fig_cost_calibration() -> Path:
+    src = ROOT / "outputs/evidence/e_evidence_rep0_a/calibration_validation_treated_constant.csv"
+    df = pd.read_csv(src)
+    df["decile"] = pd.qcut(df["predicted_cost_cny"], 10, labels=False) + 1
+    rows = []
+    for decile, block in df.groupby("decile"):
+        obs = block["observed_coupon_cost_cny"]
+        rows.append({
+            "decile": int(decile),
+            "n": int(len(block)),
+            "mean_predicted_cny": float(block["predicted_cost_cny"].mean()),
+            "mean_observed_cny": float(obs.mean()),
+            "se_observed_cny": float(obs.std(ddof=1) / (len(block) ** 0.5)),
+        })
+    table = pd.DataFrame(rows)
+    table_path = ROOT / "outputs/tables/v3_phase_E_cost_deciles.csv"
+    table.to_csv(table_path, index=False, encoding="utf-8-sig", lineterminator="\r\n")
+
+    fig, ax = plt.subplots(figsize=(5.6, 3.8))
+    ax.errorbar(table.mean_predicted_cny, table.mean_observed_cny,
+                yerr=1.96 * table.se_observed_cny, fmt="o", color="#4c72b0",
+                ecolor="#9aa7c7", capsize=3, markersize=5,
+                label="预测十分位：均值 ± 95% CI")
+    lo = min(table.mean_predicted_cny.min(), table.mean_observed_cny.min()) - 0.05
+    hi = max(table.mean_predicted_cny.max(), table.mean_observed_cny.max()) + 0.05
+    ax.plot([lo, hi], [lo, hi], color="black", linewidth=1.0, linestyle="--",
+            label="y = x（完美校准）")
+    ax.set_xlim(lo, hi)
+    ax.set_ylim(lo, hi)
+    ax.set_xlabel("预测期望券成本（元/人，十分位均值）")
+    ax.set_ylabel("观测券成本（元/人，同组均值）")
+    ax.set_title("成本预测的十分位校准：均值贴合，斜率偏平")
+    ax.legend(fontsize=8, loc="upper left")
+    ax.text(0.98, 0.03, "源：E 层 rep0 验证期处理组 19 987 人\n点越接近对角线，排序越准",
+            transform=ax.transAxes, ha="right", va="bottom", fontsize=7)
+    fig.tight_layout()
+    path = OUT / "e_cost_calibration.png"
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+    return path
+
+
+def fig_refund_sweep() -> Path:
+    src = ROOT / "outputs/tables/v3_phase_F01_refund_sweep.csv"
+    df = pd.read_csv(src)
+    fig, ax = plt.subplots(figsize=(6.0, 3.6))
+    styles = {
+        "greedy": ("定向贪心", "#c44e52", "o"),
+        "random": ("同预算随机", "#4c72b0", "s"),
+    }
+    for contrast, (label, color, marker) in styles.items():
+        block = df[df["contrast"] == contrast].sort_values("per_user_budget_cny")
+        ax.errorbar(block.per_user_budget_cny, block.diff_pp,
+                    yerr=1.96 * block.se_diff_pp, fmt=marker + "-", color=color,
+                    capsize=3, markersize=4, linewidth=1.2, label=label)
+    ax.axhline(0.5, color="black", linewidth=1.2, linestyle="--")
+    ax.text(df.per_user_budget_cny.max(), 0.515, "非劣效界值 0.5 pp", ha="right", va="bottom",
+            fontsize=8)
+    ax.axhline(0.0, color="grey", linewidth=0.8)
+    ax.set_xlabel("计划预算（元/人）")
+    ax.set_ylabel("退款事件率差：发券臂 − 不发券（百分点）")
+    ax.set_title("退款率差随预算上升：0.6 档以后误差线上沿逼近界值")
+    ax.legend(fontsize=8, loc="upper left")
+    ax.text(0.98, 0.03, "误差线：±1.96 SE；单帧 R=0，不与 200 rep 护栏并列",
+            transform=ax.transAxes, ha="right", va="bottom", fontsize=7)
+    fig.tight_layout()
+    path = OUT / "f01_refund_sweep.png"
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+    return path
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    for p in (fig_f02_per_rep(), fig_d03_by_model()):
+    for p in (fig_f02_per_rep(), fig_d03_by_model(), fig_cost_calibration(),
+              fig_refund_sweep()):
         print(f"WROTE {p.relative_to(ROOT)}")
 
 

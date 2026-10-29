@@ -8,6 +8,9 @@ ROOT=$(cd "$HERE/../.." && pwd)
 BUILD="$ROOT/out/scratch/v3_paper_build"
 mkdir -p "$BUILD"
 cp "$HERE/main.tex" "$HERE/preamble.tex" "$HERE/refs.bib" "$BUILD/"
+# 正文插图以相对路径 figures/*.png 引用，xelatex 在 BUILD 目录下运行，需同目录可见。
+rm -rf "$BUILD/figures"
+cp -r "$HERE/figures" "$BUILD/figures"
 
 # 目录模式：按文件名顺序拼接各章，落盘成 body.md，供 build 与 43/44 共用同一份正文。
 if [ -d "$BODY" ]; then

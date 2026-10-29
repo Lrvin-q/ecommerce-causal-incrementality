@@ -244,3 +244,32 @@ C242,3.9,F01 0.04 档定向臂覆盖人群平均真值效应（元/人）,0.0751
 C243,3.9,F01 0.20 档差额分解：覆盖项（元/人）,0.0326,4,Tier1,no,outputs/tables/v3_phase_F01_targeting.csv,policy == 'greedy_incremental_profit_per_cost' and baseline == 'random_same_budget' and per_user_budget_cny == 0.2,audit_coverage_effect,F01 单帧 R=0
 C244,3.9,F01 0.20 档差额分解：每人项（元/人）,-0.0007,4,Tier1,no,outputs/tables/v3_phase_F01_targeting.csv,policy == 'greedy_incremental_profit_per_cost' and baseline == 'random_same_budget' and per_user_budget_cny == 0.2,audit_per_user_effect,F01 单帧 R=0
 C245,3.9,F01 1.00 档覆盖人群平均真值效应（全人群，元/人）,0.2791,4,Tier1,no,outputs/tables/v3_phase_F01_targeting.csv,policy == 'greedy_incremental_profit_per_cost' and baseline == 'random_same_budget' and per_user_budget_cny == 1.0,audit_mean_tau_policy,F01 单帧 R=0
+C246,3.9,F01 0.04 档不发券臂的 30 天退款率,0.0079,4,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'greedy' and per_user_budget_cny == 0.04,refund_no_coupon,F01 单帧 R=0；greedy 对 no_coupon，不合并方差
+C247,3.9,F01 0.04 档定向臂的 30 天退款率,0.0082,4,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'greedy' and per_user_budget_cny == 0.04,refund_policy,F01 单帧 R=0；greedy 对 no_coupon，不合并方差
+C248,3.9,F01 0.20 档定向臂的 30 天退款率,0.0088,4,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'greedy' and per_user_budget_cny == 0.2,refund_policy,F01 单帧 R=0；greedy 对 no_coupon，不合并方差
+C249,3.9,F01 0.60 档定向臂的 30 天退款率,0.0109,4,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'greedy' and per_user_budget_cny == 0.6,refund_policy,F01 单帧 R=0；greedy 对 no_coupon，不合并方差
+C250,3.9,F01 1.00 档定向臂的 30 天退款率,0.0115,4,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'greedy' and per_user_budget_cny == 1.0,refund_policy,F01 单帧 R=0；greedy 对 no_coupon，不合并方差
+C251,3.9,F01 0.80 档同预算随机臂的 30 天退款率,0.0116,4,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'random' and per_user_budget_cny == 0.8,refund_policy,F01 单帧 R=0；random 对 no_coupon，不合并方差
+C252,3.9,F01 0.20 档定向相对不发券的退款率差（百分点）,0.09,2,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'greedy' and per_user_budget_cny == 0.2,diff_pp,F01 单帧 R=0；greedy 对 no_coupon，不合并方差
+C253,3.9,F01 1.00 档定向相对不发券的退款率差（百分点）,0.36,2,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'greedy' and per_user_budget_cny == 1.0,diff_pp,F01 单帧 R=0；greedy 对 no_coupon，不合并方差
+C254,3.9,F01 1.00 档定向退款率差的 z 值,4.4,1,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'greedy' and per_user_budget_cny == 1.0,z,F01 单帧 R=0；greedy 对 no_coupon，不合并方差
+C255,3.9,F01 0.04 档定向退款率差的 z 值,0.4,1,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'greedy' and per_user_budget_cny == 0.04,z,F01 单帧 R=0；greedy 对 no_coupon，不合并方差
+C256,3.9,F01 1.00 档距 0.5 个百分点界值的余量（百分点）,0.14,2,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'greedy' and per_user_budget_cny == 1.0,margin_left_pp,F01 单帧 R=0；greedy 对 no_coupon，不合并方差
+C257,3.9,F01 1.00 档余量折合标准误倍数,1.73,2,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'greedy' and per_user_budget_cny == 1.0,margin_over_se,F01 单帧 R=0；greedy 对 no_coupon，不合并方差
+C258,3.9,F01 定向与随机退款率的最大差距（百分点，0.10 档）,0.0448,4,Tier1,no,outputs/tables/v3_phase_F01_refund_sweep.csv,contrast == 'greedy' and per_user_budget_cny == 0.1,gap_vs_random_pp,F01 单帧 R=0；greedy 对 no_coupon，不合并方差
+C259,3.2,F02 重复 89 券价值主张的逐 rep 差（元/人，失败重复第 2 小）,0.0333,4,Tier1,no,outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_claims.csv,rep_id == 89 and claim == 'coupon_worth_issuing',diff_cny_per_user,F02 正式 200 rep
+C260,3.2,F02 重复 160 券价值主张的逐 rep 差（元/人）,0.0403,4,Tier1,no,outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_claims.csv,rep_id == 160 and claim == 'coupon_worth_issuing',diff_cny_per_user,F02 正式 200 rep
+C261,3.2,F02 重复 27 券价值主张的逐 rep 差（元/人，失败重复最大）,0.0457,4,Tier1,no,outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_claims.csv,rep_id == 27 and claim == 'coupon_worth_issuing',diff_cny_per_user,F02 正式 200 rep
+C262,3.2,F02 重复 0 券价值主张的单侧 95% 下界（元/人）,-0.0725,4,Tier1,no,outputs/evidence/f02_formal/aggregate/v3_phase_F02_formal_per_rep_claims.csv,rep_id == 0 and claim == 'coupon_worth_issuing',adjusted_lower_confidence_limit,F02 正式 200 rep
+C263,3.2,F02 券价值主张逐 rep SE 中位数（元/人）,0.0563,4,Tier1,no,outputs/tables/v3_phase_F02_rep_power.csv,claim == 'coupon_worth_issuing',se_median,F02 正式 200 rep；MDE 按 z0.975+z0.80 乘实测 SE 折算
+C264,3.2,F02 券价值主张 80% 功效 MDE 中位数（元/人）,0.1577,4,Tier1,no,outputs/tables/v3_phase_F02_rep_power.csv,claim == 'coupon_worth_issuing',mde80_median,F02 正式 200 rep；MDE 按 z0.975+z0.80 乘实测 SE 折算
+C265,3.2,F02 券价值主张逐 rep 差超过 MDE 的占比,0.965,3,Tier1,no,outputs/tables/v3_phase_F02_rep_power.csv,claim == 'coupon_worth_issuing',share_diff_above_mde,F02 正式 200 rep；MDE 按 z0.975+z0.80 乘实测 SE 折算
+C266,3.2,F02 券价值主张逐 rep 中位 t,5.06,2,Tier1,no,outputs/tables/v3_phase_F02_rep_power.csv,claim == 'coupon_worth_issuing',t_median,F02 正式 200 rep；MDE 按 z0.975+z0.80 乘实测 SE 折算
+C267,3.2,F02 券价值主张差均值与 MDE 之比,1.79,2,Tier1,no,outputs/tables/v3_phase_F02_rep_power.csv,claim == 'coupon_worth_issuing',diff_mean_over_mde,F02 正式 200 rep；MDE 按 z0.975+z0.80 乘实测 SE 折算
+C268,3.2,F02 定向优先主张逐 rep SE 中位数（元/人）,0.0565,4,Tier1,no,outputs/tables/v3_phase_F02_rep_power.csv,claim == 'targeting_better_than_random',se_median,F02 正式 200 rep；MDE 按 z0.975+z0.80 乘实测 SE 折算
+C269,3.2,F02 定向优先主张 80% 功效 MDE 中位数（元/人）,0.1583,4,Tier1,no,outputs/tables/v3_phase_F02_rep_power.csv,claim == 'targeting_better_than_random',mde80_median,F02 正式 200 rep；MDE 按 z0.975+z0.80 乘实测 SE 折算
+C270,3.2,F02 定向优先主张逐 rep 差超过 MDE 的占比,0.785,3,Tier1,no,outputs/tables/v3_phase_F02_rep_power.csv,claim == 'targeting_better_than_random',share_diff_above_mde,F02 正式 200 rep；MDE 按 z0.975+z0.80 乘实测 SE 折算
+C271,3.2,F02 定向优先主张逐 rep 中位 t,3.80,2,Tier1,no,outputs/tables/v3_phase_F02_rep_power.csv,claim == 'targeting_better_than_random',t_median,F02 正式 200 rep；MDE 按 z0.975+z0.80 乘实测 SE 折算
+C272,3.2,F02 定向优先主张差均值与 MDE 之比,1.35,2,Tier1,no,outputs/tables/v3_phase_F02_rep_power.csv,claim == 'targeting_better_than_random',diff_mean_over_mde,F02 正式 200 rep；MDE 按 z0.975+z0.80 乘实测 SE 折算
+C273,3.2,F02 券价值主张逐 rep SE 的极差（元/人）,0.0023,4,Tier1,no,outputs/tables/v3_phase_F02_rep_power.csv,claim == 'coupon_worth_issuing',se_range,F02 正式 200 rep；MDE 按 z0.975+z0.80 乘实测 SE 折算
+C274,3.2,F02 定向优先失败重复的差最大值（元/人）,0.0836,4,Tier1,no,outputs/tables/v3_phase_F02_rep_power.csv,claim == 'targeting_better_than_random',fail_diff_max,F02 正式 200 rep；MDE 按 z0.975+z0.80 乘实测 SE 折算
