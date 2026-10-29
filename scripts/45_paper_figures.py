@@ -58,10 +58,12 @@ def fig_d03_by_model() -> Path:
     ax.set_ylabel("贪心 − 业务规则的净利差（元/人）")
     ax.set_title("同一贪心策略：按模型配对后符号相反（0.2 元/人，200 对）")
     lo, hi = sel.mean_diff_cny_per_user.min(), sel.mean_diff_cny_per_user.max()
-    ax.set_ylim(lo * 1.20 if lo < 0 else lo, hi * 1.28 if hi > 0 else hi)
+    pad = 0.10 * (hi - lo)
+    ax.set_ylim(min(lo * 1.20, lo - pad), hi + pad)
     for i, (v, w) in enumerate(zip(sel.mean_diff_cny_per_user, sel.wins)):
         if v > 0:
-            ax.text(i, v * 1.06, f"{w:.0f} 胜", ha="center", va="bottom", fontsize=8)
+            ax.annotate(f"{w:.0f} 胜", (i, v), textcoords="offset points",
+                        xytext=(0, 4), ha="center", va="bottom", fontsize=8)
         else:
             ax.text(i, v * 0.55, f"{w:.0f} 胜", ha="center", va="center", fontsize=8,
                     color="white")
@@ -128,8 +130,10 @@ def fig_refund_sweep() -> Path:
                     yerr=1.96 * block.se_diff_pp, fmt=marker + "-", color=color,
                     capsize=3, markersize=4, linewidth=1.2, label=label)
     ax.axhline(0.5, color="black", linewidth=1.2, linestyle="--")
-    ax.text(df.per_user_budget_cny.max(), 0.515, "非劣效界值 0.5 pp", ha="right", va="bottom",
-            fontsize=8)
+    hi = (df.diff_pp + 1.96 * df.se_diff_pp).max()
+    ax.set_ylim(top=max(hi, 0.55) + 0.06)
+    ax.text(df.per_user_budget_cny.max(), max(hi, 0.55) + 0.02, "非劣效界值 0.5 pp",
+            ha="right", va="bottom", fontsize=8)
     ax.axhline(0.0, color="grey", linewidth=0.8)
     ax.set_xlabel("计划预算（元/人）")
     ax.set_ylabel("退款事件率差：发券臂 − 不发券（百分点）")

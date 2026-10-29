@@ -56,6 +56,15 @@
 \fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\footnotesize\sffamily \thepage}%
   \renewcommand{\headrulewidth}{0pt}}
 \renewcommand{\abstractname}{\sffamily 摘\quad 要}
+% article 的 abstract 环境默认左右各内缩 1cm（\list 的 \leftmargin/\rightmargin）。
+% H03 要求封面/摘要/目录"版心一致"，这里把它还原成与正文同宽，只保留题头与 \small。
+\makeatletter
+\renewenvironment{abstract}{%
+  \par\small
+  \begin{center}\bfseries\abstractname\end{center}%
+  \par\ignorespaces
+}{\par\vspace{6pt}}
+\makeatother
 \newcommand{\paperkeywords}[1]{%
   \par\vspace{8pt}\noindent{\sffamily\bfseries 关键词：}#1\par\vspace{4pt}}
 \raggedbottom
@@ -72,6 +81,17 @@
   \else
     \usebox{\pandocbdbox}%
   \fi}
+\makeatother
+
+% 表题注的最小空间守卫：剩余竖直空间不足时先分页，避免题注孤行（build.sh 在表题注前插入）。
+\makeatletter
+\newif\if@needbreak
+\newcommand{\needspace}[1]{%
+  \par\@needbreakfalse
+  \dimen@=#1\relax
+  \dimen@ii=\pagegoal \advance\dimen@ii by -\pagetotal
+  \ifdim\dimen@>\dimen@ii \@needbreaktrue\fi
+  \if@needbreak \newpage \fi}
 \makeatother
 
 % 页码映射：每行“物理页|印刷页码”，供 scripts/43 把 aux 的印刷页码对到渲染页。

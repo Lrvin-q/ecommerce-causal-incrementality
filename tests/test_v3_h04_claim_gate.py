@@ -57,13 +57,26 @@ def test_self_test_all_pass():
     assert gate.self_test() == 0
 
 
+def _registry_rows() -> list[dict[str, str]]:
+    with REGISTRY.open(encoding="utf-8-sig", newline="") as fh:
+        return list(csv.DictReader(fh))
+
+
+def _draft_from(rows: list[dict[str, str]], path: Path) -> Path:
+    """按登记表现取生成"合格长稿"，不手抄 claim_id——登记表增行后夹具自动跟上。"""
+    path.write_text(
+        "\n".join(f"{r['claim_id']} 见 [{r['claim_id']}] {r['display_value']}" for r in rows),
+        encoding="utf-8",
+    )
+    return path
+
+
 def test_draft_requires_marker_and_value(tmp_path: Path):
-    good = tmp_path / "good.md"
-    good.write_text("C01 见 [C01] 0.046；C02 [C02] 0.033871；C03 [C03] 0.98；"
-                    "C04 [C04] 0.2816；C05 [C05] 1.00", encoding="utf-8")
+    rows = _registry_rows()
+    good = _draft_from(rows, tmp_path / "good.md")
     assert gate.check_draft(REGISTRY, good) == []
-    bad = tmp_path / "bad.md"
-    bad.write_text("只写了 [C01] 0.046", encoding="utf-8")
+
+    dropped = rows[-1]
+    bad = _draft_from(rows[:-1], tmp_path / "bad.md")
     problems = gate.check_draft(REGISTRY, bad)
-    assert any("[C02]" in item for item in problems)
-    assert any("数字 1.00" in item for item in problems)
+    assert any(dropped["claim_id"] in item for item in problems)

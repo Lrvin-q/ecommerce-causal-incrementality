@@ -27,7 +27,7 @@ pandoc "$BODY" -f markdown+pipe_tables+tex_math_dollars -t latex --biblatex --wr
   -o "$BUILD/body.tex"
 
 # 长路径（\texttt{...}）默认无法断行，会把块引用撑出版心（H03「无裁切」）。
-# 在每个 "/" 后插入 \allowbreak{}，让路径可以续行；不改内容，只加断行点。
+# 在每个 "/" 与 "\_" 之后插入 \allowbreak{}，让路径可以续行；不改内容，只加断行点。
 PY="$ROOT/.venv/Scripts/python.exe"
 [ -x "$PY" ] || PY=python
 "$PY" - "$BUILD/body.tex" <<'PYEOF'
@@ -37,11 +37,32 @@ t = p.read_text(encoding="utf-8")
 
 def brk(m):
     inner = m.group(1)
-    return m.group(0) if "/" not in inner else "\\texttt{" + inner.replace("/", "/\\allowbreak{}") + "}"
+    if "/" not in inner and r"\_" not in inner:
+        return m.group(0)
+    inner = inner.replace("/", "/\\allowbreak{}")
+    inner = inner.replace("\\_", "\\_\\allowbreak{}")
+    return "\\texttt{" + inner + "}"
 
 out, n = re.subn(r"\\texttt\{([^{}]*)\}", brk, t)
+# 表题注前要求最小剩余竖直空间：不够就先分页，避免题注孤零零留在页底（H03 逐页目检）。
+# 只对表生效——图题注在图片之后，往前推会把图与题注分开。
+out, n_cap = re.subn(r"(?m)^(\\textbf\{表 \d+-\d+[^\n]*\})$",
+                     lambda m: "\\needspace{6\\baselineskip}\n" + m.group(1), out)
+
+# 数据来源注里路径多、可断点少，两端对齐会把整行拉出大空隙（badness 10000）。
+# 这类块引用改成左对齐：断行位置不变，只是不再拉伸字距。
+def ragged(m):
+    block = m.group(0)
+    if "数据来源" in block or "源表" in block:
+        ragged.done += 1
+        return "{\\raggedright\n" + block + "\n\\par}"
+    return block
+
+ragged.done = 0
+out, n_quote = re.subn(r"\\begin\{quote\}.*?\\end\{quote\}", ragged, out, flags=re.S)
 p.write_text(out, encoding="utf-8")
-print(f"tex path breaks: {n} inline spans scanned")
+print(f"tex path breaks: {n} inline spans scanned; caption orphans guarded: {n_cap}; "
+      f"quotes scanned: {n_quote}, source notes set ragged: {ragged.done}")
 PYEOF
 {
   printf '\\begin{abstract}\n\\linespread{1.04}\\selectfont\\small\n'
