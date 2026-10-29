@@ -91,7 +91,7 @@ def _full_cell(mod, tmp_path, monkeypatch, **overrides):
     cell = "L0_P_main"
     cell_dir = tmp_path / cell
     cell_dir.mkdir(parents=True)
-    (cell_dir / "run_state.json").write_text("{}", encoding="utf-8")
+    (cell_dir / "run_state.json").write_text('{"validation_rep": 0}', encoding="utf-8")
     n = mod.PER_CELL
     data = {
         "b": list(range(n)),
@@ -128,3 +128,10 @@ def test_check_cell_rejects_duplicate_history_rep(mod, tmp_path, monkeypatch):
                       history_rep_id=[1_000_000] * mod.PER_CELL)
     _, problems = mod.check_cell(cell)
     assert any("history_rep_id 在 b 间重复" in p for p in problems), problems
+
+
+def test_check_cell_rejects_validation_rep_mismatch_with_run_state(mod, tmp_path, monkeypatch):
+    cell = _full_cell(mod, tmp_path, monkeypatch)
+    (tmp_path / cell / "run_state.json").write_text('{"validation_rep": 1}', encoding="utf-8")
+    _, problems = mod.check_cell(cell)
+    assert any("与 run_state 声明 1 不一致" in p for p in problems), problems

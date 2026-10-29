@@ -83,6 +83,14 @@ def check_cell(cell: str) -> tuple[pd.DataFrame, list[str]]:
     # 设计上 50 个 b 共用同一个验证 rep（VALIDATION_REP=0），重复是**要求**，不是缺陷。
     if int(frame["validation_rep"].nunique(dropna=False)) != 1:
         problems.append(f"{cell}: validation_rep 在 b 间不一致（验证 rep 必须固定）")
+    state_path = RUN_ROOT / cell / "run_state.json"
+    if state_path.is_file():
+        declared = json.loads(state_path.read_text(encoding="utf-8")).get("validation_rep")
+        if declared is not None and int(frame["validation_rep"].iloc[0]) != int(declared):
+            problems.append(
+                f"{cell}: validation_rep={int(frame['validation_rep'].iloc[0])} "
+                f"与 run_state 声明 {int(declared)} 不一致"
+            )
     return frame, problems
 
 
