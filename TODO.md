@@ -1,8 +1,29 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-28 22:50（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-29 10:22（北京时间）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
+
+**2026-10-29 10:22 更新。34 号补上 bootstrap scope 贯通；G03 范围澄清为 24 格；G02→固定 bootstrap→G03 已串成无人值守链**：
+
+- **34 号补丁（10:16）**：新增 `--bootstrap-budget-scope`，贯通 task 字典 → `_worker` → `g.run_cell`；
+  `formal` 且 `resamples>0` 而 scope≠`primary_0.2` 时 **argparse 直接失败**（在 mkdir 之前，实测不落目录）；
+  `run_summary.json` 回写 `bootstrap_resamples` / `bootstrap_budget_scope`。
+  验证：`py_compile`；`require_bootstrap_scope` 三例（`primary_0.2` 过、`None`/`all` 拒）；engineering 不受限；
+  **n=2000 冒烟**跑通并产出 `fixed_bootstrap.csv`（`budget=0.2`、`resamples=1000`、CI 覆盖 0）。
+  这不是"放松守卫"：34 此前根本不传 scope，正式跑必被 `v3_g_matrix.py:963` 拒绝。
+- **G03 范围澄清（与已批 159.2 CPU·h 对齐）**：G03 正式跑 **24 格**——4 个 Tier1 core（`R_ate=500`，
+  学习/验证 100）+ 20 个 Tier2 选中格（`R=30`）。GOAL G03 行写的"20 格"是 Tier2 子集；
+  决策单 §H.2 的 159.2 h = 95.9（core）+ 63.3（Tier2）。**不是**只跑 20 格。
+- **固定 bootstrap 必须单列 rep 0**：`v3_g_matrix.py:959` 在 `resamples>0` 且 `rep!=0` 时抛错，
+  所以"一条分片含 0..R-1 且带 1000 次 bootstrap"会在 rep 1 就失败。G02 的固定 bootstrap 臂因此
+  独立成一次 formal 跑（24 格 × rep 0，`--shard-size 1`，`out/g02_fixed`，约 3.3 CPU·h / 6 路 ~40 min）。
+- **无人值守链 `out/g03_chain.sh`（10:19 起，PID 1291）**：等 `post.status` 出现 `OK:` → 建快照
+  `out/g03_snapshot` → 阶段 A（固定 bootstrap，24 格 × rep 0）→ 阶段 B（G03 24 格 × 注册 R，
+  `--workers 6 --shard-size 50`，`out/g03_formal`）。任一阶段非零即停，状态写 `out/g03_logs/chain.status`。
+  阶段 B 按 159.2 h / 6 路 ≈ **26.5 h**（ETA 约 10-30 13:00，±2 h）。
+- **环境事实**：本机 Git Bash 的 `TZ=Asia/Shanghai date` 输出 **UTC**（实测 10:18 → 02:18），裸 `date`
+  已是北京时间；链条改用裸 `date`。G01 的 `started_at.txt` 记为 UTC 正是此故。
 
 **2026-10-29 10:10 更新。G01 评审条件已全关（待复评确认改判）；G02 正式跑 10:09 开跑**：
 

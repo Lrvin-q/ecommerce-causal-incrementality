@@ -85,6 +85,7 @@ def _worker(task: dict) -> dict:
         policy=task["policy"], with_learning=task["with_learning"],
         with_validation=task["with_validation"],
         bootstrap_resamples=int(task["bootstrap_resamples"]), snapshot=task["snapshot"],
+        bootstrap_budget_scope=task.get("bootstrap_budget_scope"),
         resume_from=task["resume_from"],
     )
     return {"cell": task["cell"], "reps": task["reps"], "shard": str(task["root"]), **result}
@@ -205,6 +206,10 @@ def main(argv: list[str] | None = None) -> int:
         "--bootstrap-resamples", type=int, default=0,
         help="验证臂固定策略 bootstrap 重抽次数（0=不跑；协议要求 1000）",
     )
+    parser.add_argument(
+        "--bootstrap-budget-scope", default=None,
+        help="bootstrap 覆盖的预算档声明；正式跑且 resamples>0 时必须为 primary_0.2",
+    )
     parser.add_argument("--out-root", type=Path, default=ROOT / "out" / "g_matrix")
     parser.add_argument("--summary-dir", type=Path, default=ROOT / "outputs" / "tables")
     parser.add_argument("--overlay", type=Path, default=DEFAULT_OVERLAY)
@@ -254,6 +259,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.status == "formal" and not args.formal_approval:
         parser.error("--status formal 必须带 --formal-approval（用户批准的登记号）")
+    if (args.status == "formal" and int(args.bootstrap_resamples) > 0
+            and args.bootstrap_budget_scope != "primary_0.2"):
+        parser.error("正式跑且 --bootstrap-resamples>0 时必须显式 "
+                     "--bootstrap-budget-scope primary_0.2（v3_g_matrix.require_bootstrap_scope）")
     started_at = _now()
     snapshot = None
     if args.snapshot_out is not None:
@@ -291,6 +300,7 @@ def main(argv: list[str] | None = None) -> int:
                 "with_learning": not args.no_learning,
                 "with_validation": not args.no_validation,
                 "bootstrap_resamples": int(args.bootstrap_resamples),
+                "bootstrap_budget_scope": args.bootstrap_budget_scope,
                 "snapshot": snapshot, "resume_from": resume_from,
                 "overlay": args.overlay.as_posix(),
             })
@@ -318,6 +328,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     payload["failures"] = failures
     payload["status"] = args.status
+    payload["bootstrap_resamples"] = int(args.bootstrap_resamples)
+    payload["bootstrap_budget_scope"] = args.bootstrap_budget_scope
     payload["started_at"] = started_at
     payload["finished_at"] = _now()
     (args.out_root / "run_summary.json").write_text(

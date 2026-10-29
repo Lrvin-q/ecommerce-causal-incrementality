@@ -71,6 +71,30 @@
   断点入口 `--resume`（按 `run_state.json` 的 b 列表续跑）。
 - **ETA 依据**：R=1 实测 340/471/350/483 s/b × 50 ⇒ **4.7–6.7 h/格**，取 15:30–17:00（北京时间）。
 - **内存纪律**：G03 不与之并行启动，避免 8 进程同时逼近 19.5 GB。
+  串行由 `out/g03_chain.sh` 强制：它先等 `out/g02_logs/post.status` 出现 `OK:`，再建快照并开下一段。
+
+## 2.4 G02 固定 bootstrap + G03 矩阵（串行链 `out/g03_chain.sh`，2026-10-29 10:19 起）
+
+- **为什么要拆两段**：`v3_g_matrix.py:959` 在 `bootstrap_resamples>0` 且 `rep != 0` 时抛错，
+  而 34 号的任务粒度是"一格 × 一段 rep"。所以带 1 000 次 bootstrap 的分片只能是 rep 0 单点，
+  不能与 30/500 个 rep 混在一条任务里。
+- **阶段 A（G02 固定 bootstrap 臂）**：24 格 × rep 0，`--bootstrap-resamples 1000
+  --bootstrap-budget-scope primary_0.2 --shard-size 1 --workers 6 --out-root out/g02_fixed
+  --summary-dir out/g02_fixed/summaries`，批准号 `G02-FORMAL-20261029`。
+  产物：`out/g02_fixed/shards/<cell>_s0000/<cell>/rep0/validation/fixed_bootstrap.csv`
+  （列：`rep,budget_cny_per_user,resamples,…`，budget 恒为 0.2）。成本约 3.3 CPU·h / 6 路 ≈ 40 min。
+- **阶段 B（G03 矩阵臂）**：24 格 × 注册 R（core `R_ate=500` / Tier2 `R=30`），
+  `--workers 6 --shard-size 50 --out-root out/g03_formal --summary-dir outputs/tables`，
+  批准号 `G03-FORMAL-20261029`，`bootstrap_resamples=0`（bootstrap 已在阶段 A 交付）。
+  成本按 §H.2 实测外推 **159.2 CPU·h** ⇒ 6 路约 **26.5 h**。
+- **34 号补丁（10:16）**：`--bootstrap-budget-scope` 贯通 CLI → task → `_worker` → `run_cell`；
+  `formal + resamples>0 + scope≠primary_0.2` 在 argparse 层直接失败（不新建目录）；
+  `run_summary.json` 回写 `bootstrap_resamples`/`bootstrap_budget_scope`。守卫本身未改。
+- **快照**：链内 `create_snapshot("out/g03_snapshot")` 于阶段 A 前生成；A/B 共用同一绑定。
+- **状态文件**：`out/g03_logs/chain.status`（`fixed_exit=` / `g03_exit=` / 末行 `OK:`）；
+  日志 `out/g03_logs/chain.log`、`g02_fixed.log`、`g03.log`。
+- **环境事实**：本机 Git Bash `TZ=Asia/Shanghai date` 输出 UTC（实测 10:18→02:18），裸 `date` 才是北京时间；
+  链条与状态文件一律用裸 `date`/`zoneinfo`。
 
 ## 3. 失败重试与可恢复入口
 
