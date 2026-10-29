@@ -6,6 +6,12 @@
 
 **2026-10-29 11:52 更新。G02 稳定推进（33/200 b）；尾链判据缺陷已修（40 号），静态复核之外又做了真数据探针**：
 
+- **H04 数字门禁已起步（11:57）**：`outputs/tables/v3_h04_claim_registry.csv` 先登记 5 条已冻结的 Tier1 结论
+  （G01 的 FPR 0.046 / CP 下界 0.033871，F02 的 0.98 / 0.2816 / 1.00），
+  `scripts/42_claim_number_gate.py` 逐条回指 `source_csv` + `filter` 恰好 1 行 + 按 `decimals` 复算字符串相等，
+  并强制"摘要只许 Tier1""Tier2 必须带 R=30 精度说明"。自检 8/8（改数字/缺文件/Tier2 缺精度/Tier2 进摘要/
+  重复 id/空命中/缺列全部被拦），pytest `tests/test_v3_h04_claim_gate.py` 5 passed。
+  `--draft` 已实现（长稿须含 `[Cxx]` 标记与数字字面），等长稿出来再跑。
 - **H01 前置缺口（11:55 实测，正式跑期间不动）**：本机**没有 LibreOffice**（`soffice` 不存在），
   `.venv` **没有 `python-pptx`**——"原生 PPTX + SVG/PNG + 元素清单"两个渲染条件都不具备。
   **不在 G02/G03 运行期装包**：`pip install python-pptx` 会连带升级 lxml/Pillow，可能影响后续
