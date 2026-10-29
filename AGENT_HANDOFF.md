@@ -7,9 +7,12 @@
 >    `for c in L0_P_main L1_main L2_n200000_p050 L3_fixed_lt000; do wc -l out/g02_retrain/$c/repetitions.csv; done`、
 >    `cat out/g02_logs/post.status`、`cat out/g03_logs/chain.status`、`cat out/g03_logs/post.status`、`df -h /c`。
 >    四个看护进程应在：`ps -ef | grep -E "g02_post|g03_chain|g03_post|g04_monitor"`。
->    **11:41 起另有只读取样器** `out/g04_monitor.sh`（PID 4019，10 min/次，120 h）：把磁盘、四格行数、
->    python 进程数与总 RSS、三个状态文件末行写进 `out/g04_logs/monitor.log`——这是 G04"真实进程/资源记录"
->    的运行期证据，**不要删**；恢复会话先 `tail -40 out/g04_logs/monitor.log` 就能看清断点前后的节奏。
+>    **11:41 起另有只读取样器** `out/g04_monitor.sh`（**PID 4246**，11:46 重启，10 min/次，120 h）：
+>    把磁盘、四格行数、python 进程数与总 RSS + top3、空闲内存、三个状态文件末行写进
+>    `out/g04_logs/monitor.log`——这是 G04"真实进程/资源记录"的运行期证据，**不要删**；
+>    恢复会话先 `tail -40 out/g04_logs/monitor.log` 就能看清断点前后的节奏。
+>    11:46 基线：总 RSS 6 937 MB / 空闲 12.3 GB（总 30.8）/ 磁盘 92 GB；`mem_free_gb < 3` 时必须人工降并发
+>    （先停链再改脚本，运行中的 bash 脚本不能热改）。
 >
 > **（10-29 11:45）七条不变，改动处已更新：**
 > 1. **G02 正在跑**：批准号 `G02-FORMAL-20261029`；10:39 起 4 个 core 格 × 50 b（`out/g02_retrain/`），
