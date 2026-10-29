@@ -191,7 +191,7 @@
 | `scripts/36_g_aa_run.py` | 同上 | `--resume`（`_resume_source` 按 mtime 取该层最近的完整表） | AA 专用；`plan|run|merge` |
 | `scripts/17_merge_aa_layers.py` | 无（纯合并） | 幂等：重跑覆盖同名产物 | 多根合并 + `(block, rep)` 去重 |
 | `scripts/37_export_g01_evidence.py` | 无 | 幂等：重跑覆盖证据目录 | `--check` 只复算不写盘 |
-| `scripts/39_g_retrain_bootstrap_run.py` | 无（读已落盘逐 b 表） | 幂等：重跑覆盖合并表 | 缺 b 只写 `_provisional`；b 重复/冻结指纹多于 1 值/缺列**硬拒**（10:46 修复后口径，见 §2.5） |
+| `scripts/39_g_retrain_bootstrap_run.py` | 无（读已落盘逐 b 表） | `run` **按 `repetitions.csv` 已有 b 跳过**（append-only，遇重复 b 抛错）；`merge` 重跑覆盖合并表 | **G02 中断可直接重跑同一条 `run` 命令**（11:48 读码确认）。缺 b 只写 `_provisional`；b 重复/冻结指纹多于 1 值/缺列**硬拒**。`run_state.json` 只在该格循环结束后写，重跑会刷新 |
 | `scripts/40_export_g02_evidence.py` | 无 | `--check` 只复算；导出为 staging + 原子换名，旧目录留时间戳备份 | 要求每格 `run_state.json` + 50 行 + b 0–49；不满足即非零退出，**不得绕过** |
 | `scripts/41_export_g03_evidence.py` | 无 | 同上 | 缺格/未跑满/非 formal/矩阵 resamples≠0 一律 exit 2（11:20 列契约修复后，见 §2.4） |
 | `scripts/33_register_evidence_top.py` | 无 | 幂等：已登记同 sha 跳过 | **先 `--dry-run` 人工复核**；读不懂的记录硬失败（AGENTS §12.7） |

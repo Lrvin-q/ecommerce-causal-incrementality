@@ -46,6 +46,11 @@
 >    会用本次 reps **覆盖** `repetitions.csv`（旧 `rep<k>/row.json` 还在，表却少行）。先 `34 merge out/g03_formal`，再只为缺口
 >    `--cells <cell> --rep-start a --rep-stop b --out-root out/g03_repairN` 重跑，最后
 >    `34 merge out/g03_formal out/g03_repairN`，确认 `duplicates=0`。详见日志 11:15 条。
+> 6b. **G02 中断怎么恢复（11:48 读码确认）**：39 号 `run` 读 `repetitions.csv` 已有的 b 并跳过、
+>    追加新 b 且遇重复 b 抛错 ⇒ **直接重跑同一条 `run` 命令即可续跑**（不需 `--resume`）。
+>    若 `g02_post` 超时/停滞退出：重新 `nohup bash out/g02_post.sh`（脚本会删旧 status 重新等）；
+>    若 `g03_chain` 的 14 h 等待超时：G02 已 `OK:` 后重新 `nohup bash out/g03_chain.sh`，
+>    它会立刻进阶段 A（阶段 A 的 34 对已存在 rep0 会重跑，先看是否可接受）。
 > 7. **开跑前两处"跑满才炸"已修**：34 号 `--models` 缺省按层解析（否则阶段 A 在 L0 停链）；
 >    41 号契约列由不存在的 `n_total` 改 `n`（否则 26.5 h 后导出 `KeyError`），并补 6 例正/反例夹具。
 >    `tests/test_v3_g41_checks.py` + `tests/test_v3_g34_models.py` 共 **8 passed**。
