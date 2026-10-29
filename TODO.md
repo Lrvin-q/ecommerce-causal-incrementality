@@ -113,10 +113,13 @@
    并单独跑 `42_claim_number_gate.py --abstract paper/v3/abstract.md`（12:52 新增：摘要只准 Tier1 注册值）。
 8. **待用户裁决（不阻塞上述执行）**：GOAL 首句要求"50–100 页量级"长稿，当前 12 页；
    G02/G03 结果落地后若仍不足，需请用户裁决是补内容还是改 GOAL 措辞——**不得静默下调或填充凑页**。
+   20:22 已写成决策单 `docs/v3_G04_待裁决事项.md` §D2（含实测换算 1 365 字符/页、到 50 页需再写 5.2 万字、
+   三个选项与成本）。
 9. **空转机制（19:46 发现，Phase 2 收尾后处置）**：`L2_immature_negative_control` 的
    `dgp.l2.include_immature_analysis_control` 未被源码读取，该格与 `L2_n200000_p050` 逐字节相同；
-   报告已披露。可选处置：① 保持披露、只在 §3 解读时排除该格；② 另立注册分析跑 `allow_immature=True`
-   的 7 天快照对照（需用户批准）。另 `models.train_fraction_of_training_pool` 在 3 个 `L1_learning_*`
+   报告已披露。20:22 决策单 `docs/v3_G04_待裁决事项.md` §D1 给了三选项与成本（A 披露 0 成本／
+   B 剔除需改已批准的 20 格范围／C 实现诊断＝跑 `allow_immature=True` 的 7 天快照对照、要动绑定源码、
+   属新注册分析），推荐 A。另 `models.train_fraction_of_training_pool` 在 3 个 `L1_learning_*`
    格上同样空转（不在 G03 24 格内），将来启用前必须先接线。**运行期不得改 `src/causal_growth/**/v3*.py`**。
 
 **2026-10-29 12:46 更新。G02 53/200 b；H05 引用支持范围小节入正文；43 字数 56.32%、页 77.78%，12 页**：
