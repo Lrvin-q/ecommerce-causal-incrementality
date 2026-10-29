@@ -40,6 +40,11 @@
 > `results_char_share` 60.18% → **59.40%**，结论章字数 1213 → 1389，仍 ≥50%）。
 > 20:08 逐页视觉抽查（`pdftoppm` 90 dpi，p9–p11）：3.8 节与结论"四条"排版正常，负号、区间无缺字、无跨页裁切。
 > H03 的"逐页视觉审计"仍需在 G03 定稿后整篇重做一遍。
+> 最新动作（20:12）：把注册表 §6 的收尾命令**当真跑了一遍**，改掉两处会误事的旧写法——第 3 步原指向
+> 不入库的 `out/scratch/g03_report_numbers.py`（改为已提交的 `scripts/48_g03_matrix_report.py`），
+> 第 2 步原写"g03_post 已自动跑过 41"（`g03_post` 19:36 已停，须手动跑并显式 `--matrix-root out/g03_formal`）。
+> 半成品态实测 41 / 48 均 **exit 2**（缺分片 / 1 格 != 注册 4）。**坑**：`python … | tail` 后 `$?` 是 tail 的退出码，
+> 一度读出"都给 0"，已写进注册表 §6。
 > 为什么必须换 out-root：34 号 `--resume` 只找未跑完分片的 `repetitions_provisional.csv`
 > （`34_g_matrix_run.py:316-319`），已完成分片写的是正式 `repetitions.csv`（`v3_g_matrix.py:1274`），
 > 在原目录续跑会把整片重算（重片 7.2 h/片）。Phase 2 用新根，最后 `merge` 多根去重，`_final` 仍按 R_ate=500 判完整。
