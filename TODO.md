@@ -26,6 +26,8 @@
 > 估的 ~58 h 是上界（真实约 28–35 h）。已停旧链与 `g03_post`、归档半成品
 > `out/g03_formal_interrupted_20261029_1935`；Phase 1 = `out/g03_phase1_core.sh` → `out/g03_core_prefix`
 > （40 分片 × 10 rep、6 路，ETA 约 9–10 h，10-30 05:00 前后），状态看 `out/g03_logs/phase1.status`。
+> **19:50 实测修正**：运行 14 min 已落 8/400 rep，活跃分片 **6.3 min/rep**（6 路并行，全是 L0 分片），
+> 按此速度剩余 ≈ 6.9 h ⇒ **ETA 10-30 02:30–03:30**，比 9–10 h 的估计快。
 > 为什么必须换 out-root：34 号 `--resume` 只找未跑完分片的 `repetitions_provisional.csv`
 > （`34_g_matrix_run.py:316-319`），已完成分片写的是正式 `repetitions.csv`（`v3_g_matrix.py:1274`），
 > 在原目录续跑会把整片重算（重片 7.2 h/片）。Phase 2 用新根，最后 `merge` 多根去重，`_final` 仍按 R_ate=500 判完整。

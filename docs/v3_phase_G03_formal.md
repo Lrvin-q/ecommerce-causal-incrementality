@@ -24,6 +24,9 @@
 （`tier1_learning_reps/validation_reps=100`），rep100–499 只出 ATE；运行期实测
 **8.6 min/rep（rep0–99）vs 1.9 min/rep（rep≥100）**，整批一次跑完约 28–35 h。
 58 h 不再作为 ETA 引用（看护窗口仍留 120 h 覆盖最坏情况）。
+**Phase 1 实测（19:50）**：6 路并行下活跃分片 6.3 min/rep，400 rep / 6 路 ≈ 7 h，
+ETA **10-30 02:30–03:30**；Phase 2 的 Tier2 600 rep（20 格 × 30，同样走学习+验证）≈ 10.5 h、
+core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **13–15 h**。
 
 ## 2. 执行记录（待填）
 
