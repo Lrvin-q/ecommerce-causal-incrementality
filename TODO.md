@@ -29,6 +29,7 @@
 > 为什么必须换 out-root：34 号 `--resume` 只找未跑完分片的 `repetitions_provisional.csv`
 > （`34_g_matrix_run.py:316-319`），已完成分片写的是正式 `repetitions.csv`（`v3_g_matrix.py:1274`），
 > 在原目录续跑会把整片重算（重片 7.2 h/片）。Phase 2 用新根，最后 `merge` 多根去重，`_final` 仍按 R_ate=500 判完整。
+> 19:40 已备好 `out/g03_phase2.sh`（含复合根 junction 与 merge，`bash -n` 通过），并在 G03 报告 §1/§2 记录了拆批与快照。
 
 ### 接手清单（G02 → G04，按顺序执行；2026-10-29 12:47 写）
 
@@ -43,10 +44,12 @@
 5. （19:40 改写）Stage A 已完成（18:37，24 格 `fixed_exit=0`）；Stage B 拆两批，**不要**在原 out-root 续跑：
    - **Phase 1（19:36 起跑中）**：core 4 格 × rep0–99 → `out/g03_core_prefix`；脚本 `out/g03_phase1_core.sh`；
      完成标志 `out/g03_logs/phase1.status` 出现 `OK: G03 Phase1 core prefix 完成 …`；
-   - **Phase 2（用户另找时间）**：Tier2 20 格 `--rep-start 0 --rep-stop 29` → `out/g03_tier2`；
-     core rep100–499（仅 ATE）`--rep-start 100 --rep-stop 499` → `out/g03_core_ate`；
-   - **收尾**：`34_g_matrix_run.py merge out/g03_core_prefix/shards/* out/g03_tier2/shards/* out/g03_core_ate/shards/*`
-     （多根去重；`_final` 按 R_ate=500 判完整，未齐只写 provisional）。
+   - **Phase 2（用户另找时间）**：直接跑 `nohup bash out/g03_phase2.sh >/dev/null 2>&1 &`
+     （内含 Tier2 → `out/g03_tier2`、core rep100–499 → `out/g03_core_ate`、建 junction 复合根
+     `out/g03_formal/shards`、`34 merge` → `outputs/tables` 与 `_final`）。脚本先查
+     `phase1.status` 的 OK 行，缺则拒绝启动；完成后 `out/g03_logs/phase2.status` 出现 OK。
+   - **为什么要有复合根**：41 号只认一个 matrix root 的 `shards/<cell>_s*/<cell>`，而三批分片在三个根；
+     Phase 2b 的分片链成 `s1xxx`，避免与 Phase 1 的 `s0xxx` 重名。
    等待期可写摘要骨架，但数字位留 `[Cxx]` 占位，不得预填。（12:50 更新：摘要已成稿并按 Tier1 注册值填数，D03/E 只作方向性表述；G02/G03 数字未进摘要，等结果落地后再决定是否补。）
 6. G03 完成后 `scripts/41_export_g03_evidence.py --check`，填 G03 §2–§4；**Tier2 数字不得与 Tier1 并列**。
 7. G04：注册表 + GOAL 收尾；收尾前跑 `PYTHONUTF8=1 .venv/Scripts/python.exe out/scratch/g04_closeout_precheck.py --with-check --with-register --with-claims`

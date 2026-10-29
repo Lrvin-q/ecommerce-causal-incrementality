@@ -1,8 +1,9 @@
 # G03 正式报告 —— Tier1 core 四格 + Tier2 二十格矩阵（G03 骨架）
 
 > **合成数据 / 已知 DGP**。本报告只回答"在注册的 24 个机制场景下，策略价值与决策通过率如何"，
-> 不表示任何真实业务效果。维护时间：2026-10-29 11:16（北京时间）。
-> 当前状态：**未开跑**（由 `out/g03_chain.sh` 在 G02 收尾后自动启动）；§3/§4 待填。
+> 不表示任何真实业务效果。维护时间：2026-10-29 19:42（北京时间）。
+> 当前状态：**阶段 A 已完成；阶段 B 拆批，Phase 1（core rep0–99）19:36 起跑中**；
+> Phase 2（Tier2 20 格 + core rep100–499）待用户另约时间。§3/§4 仍待填。
 
 ## 1. 设计
 
@@ -14,23 +15,29 @@
 | 模型 | 各层适用集合 `common ∪ additional_by_level[level]`（L0/L2 四项；L1/L3 另加 `dr_learner`），按验证选模 | `configs/v3/models.yaml`（冻结集内）；34 号未给 `--models` 时按格解析（11:14 冒烟修复） |
 | 固定 bootstrap | **仅主预算 0.2 元档，1 000 次，24 格 × rep 0**（阶段 A） | 用户 2026-10-28 22:26 裁决② |
 | 批准号 | `G03-FORMAL-20261029`（矩阵）／`G02-FORMAL-20261029`（固定 bootstrap） | 用户 2026-10-29 批准 |
-| 快照 | `out/g03_snapshot`（链条启动时由 `create_snapshot` 生成，哈希待填） | AGENTS §11 冻结窗口 + 哈希绑定校验 |
-| 并发 | 6 workers；阶段 B `--shard-size 50`（core 每格 10 片、Tier2 每格 1 片） | 决策单 §H.2 |
+| 快照 | `out/g03_snapshot`，49 文件，`6fdaf7bb7ee3c63ef8af7e77eea39c34157af71c7fd9e6d70bcce8ff2d3b60a3`（18:05 重建） | AGENTS §11 冻结窗口 + 哈希绑定校验 |
+| 并发 | 6 workers；单跑时 `--shard-size 50`；**Phase 1 用 `--shard-size 10`**（40 片 × 10 rep，按 8.6 min/rep 均摊） | 决策单 §H.2 + 19:40 实测 |
 
 **预算口径**：决策单 §H.2 的 159.2 CPU·h = 95.9（core）+ 63.3（Tier2）；链条两个阶段串行，
-阶段 A 约 3.3 CPU·h。**阶段 B 墙钟（11:38 更正）**：`plan` 的 159.2/6 ≈ 26.5 h 是 CPU 估算，未用
-运行期墙钟；G02 实测每 rep 墙钟中位 **8.0 min**（4 路并发，24 个间隔），按 2 600 rep / 6 路外推
-≈ **58 h**（下界；6 路争用可能 60–70 h）。原 26.5 h 作废。
+阶段 A 约 3.3 CPU·h。**阶段 B 墙钟（19:40 更正）**：11:38 记的"2 600 rep × 8 min / 6 路 ≈ 58 h"
+把全部 rep 都当成完整流程，只是**上界**。实际只有 core 的 rep0–99 走学习+选模+验证
+（`tier1_learning_reps/validation_reps=100`），rep100–499 只出 ATE；运行期实测
+**8.6 min/rep（rep0–99）vs 1.9 min/rep（rep≥100）**，整批一次跑完约 28–35 h。
+58 h 不再作为 ETA 引用（看护窗口仍留 120 h 覆盖最坏情况）。
 
 ## 2. 执行记录（待填）
 
 | 时刻 | 事件 |
 |---|---|
 | 11:14 | 开跑前冒烟发现：34 号不带 `--models` 时把 `dr_learner` 也交给 L0，抛 `ModelNotApplicableError`——阶段 A/B 都会在 L0 立即失败。修 `_worker` 按层解析；L0+L1 两格 n=2000 × rep0 × 1000 次重抽 **EXIT=0**（`out/smoke_g03b.log`），41 `--check` 对半成品报缺格并 **EXIT=2**（符合预期） |
-| 待填 | 链条启动（等 `out/g02_logs/post.status` 出现 `OK:`） |
-| 待填 | 快照生成（文件数 / `source_hashes_sha256`） |
-| 待填 | 阶段 A 完成（`fixed_exit=0`） |
-| 待填 | 阶段 B 完成（`g03_exit=0`） |
+| 17:17:51 | G02 收尾 `merge_exit=0`，链条解除 14 h 等待 |
+| 17:51 | **阶段 A 首跑失败**：`L1_cost_prediction_under`（成本预测乘子 0.8）按设计抛 `NotImplementedError`，23/24 格完成；旧产物归档 `out/g02_fixed_attempt1_20261029_1751`、`out/g03_snapshot_attempt1_20261029_1751` |
+| 18:05–18:37 | 实现预测端乘子（真实成本不变，对数噪声仍拒绝）+ 补测试，提交 `d2d1423`；快照重建（49 文件，`6fdaf7bb…`）；重跑阶段 A **`fixed_exit=0`**（24 格 × rep0 × 1000 次，约 31 min） |
+| 18:37:06 | 阶段 B 首跑启动：24 格 / 60 分片 / 6 路（`--shard-size 50`） |
+| 19:36 | 按用户决定停链（`taskkill /T`），半成品归档 `out/g03_formal_interrupted_20261029_1935`；`g03_post` 停止，`chain.status` 记 paused |
+| 19:36:30 | **Phase 1 启动**：core 4 格 × rep0–99，40 分片 × 10 rep、6 路，`--out-root out/g03_core_prefix`；快照校验通过（`6fdaf7bb…`） |
+| 待填 | Phase 1 完成（`out/g03_logs/phase1.status` 出现 `OK: G03 Phase1 core prefix 完成`） |
+| 待填 | Phase 2（Tier2 + core ATE 尾巴）与多根 merge（`g03_exit=0`） |
 
 **续跑纪律（失败时）**：`--resume` 只救"跑到一半被杀、有 `repetitions_provisional.csv`"的分片；
 已完成分片会整片重跑，且 `run_cell` 的 `existing` 只来自 `resume_from` ⇒ **重跑不是追加，会用本次 reps
@@ -38,10 +45,19 @@
 正确做法：先 `34 merge` 收已完成 → 缺口另起 `--out-root out/g03_repairN` → 多根 `merge` 且确认
 `duplicates=0`。见 `AGENT_HANDOFF.md` 第 6 条、注册表 §3 与日志 2026-10-29 11:15/11:42 条。
 
+**分批跑法（19:36 起）**：Stage B 拆成 Phase 1（core rep0–99 → `out/g03_core_prefix`）与
+Phase 2（Tier2 → `out/g03_tier2`；core rep100–499 → `out/g03_core_ate`）。每批都是独立 out-root、
+分片编号互不覆盖，最后多根 `merge` 合并去重；`_final` 仍按 `R_ate=500` 判完整。
+这是唯一安全的断点续跑方式——**不要**在原 out-root 上 `--resume`（已完成分片会被整片重算）。
+
 ## 3. 矩阵结果（待填）
 
 数据源：`outputs/tables/v3_g_g_core.csv`、`v3_g_g_tier2.csv`（34 号 `_finalize`），
-逐 rep 原件在 `out/g03_formal/shards/<cell>_s####/`，导出后为 `outputs/evidence/g03_formal/per_cell/`。
+逐 rep 原件在**多根**：Phase 1 `out/g03_core_prefix/shards/<cell>_s####/`；
+Phase 2 `out/g03_tier2/shards/…` 与 `out/g03_core_ate/shards/…`。
+合并用 `34_g_matrix_run.py merge <各分片根…>`，按 `[scenario_id, block, rep]` 去重
+（`duplicates` 必须为 0）；`_final` 只在 24 格都覆盖 `R_ate` 时才写正式表。
+导出后为 `outputs/evidence/g03_formal/per_cell/`。
 
 待填内容：
 - 24 格逐格：`ate` / `ate_test` / `ate_paid_purchase_7d` / `ate_any_refund_30d` 的均值、sd、MC SE、
