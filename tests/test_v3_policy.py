@@ -456,22 +456,59 @@ def test_random_baseline_rejects_invalid_quantiles() -> None:
         pol.summarize_random_baseline([1.0, 2.0], quantiles=[1.5])
 
 
-def test_cost_options_reject_non_default_values(monkeypatch) -> None:
-    """偏差倍数/噪声当前是 1.0/0.0（等于无操作）。改成别的值必须响，不能静默忽略。"""
+def test_cost_options_allow_bias_but_reject_noise(monkeypatch) -> None:
+    """偏差乘子已实现（L1_cost_prediction_under/over）；对数噪声仍未实现，必须响。"""
     from causal_growth.config import Config
     from causal_growth.v3_config import load_v3_protocol
 
     cfg = load_v3_protocol().config
     original = Config.require
 
+    def with_value(key: str, value: float):
+        def patched(self: Config, dotted: str):
+            if dotted == key:
+                return value
+            return original(self, dotted)
+        return patched
+
+    monkeypatch.setattr(Config, "require",
+                        with_value("policy.cost_model.prediction_bias_multiplier", 1.1))
+    pol._require_supported_cost_options(cfg)
+    monkeypatch.setattr(Config, "require",
+                        with_value("policy.cost_model.multiplicative_noise_log_sd", 0.2))
+    with pytest.raises(NotImplementedError, match="噪声"):
+        pol._require_supported_cost_options(cfg)
+    monkeypatch.setattr(Config, "require",
+                        with_value("policy.cost_model.prediction_bias_multiplier", 0.0))
+    with pytest.raises(ValueError, match="有限正数"):
+        pol._require_supported_cost_options(cfg)
+
+
+def test_cost_prediction_bias_scales_expected_cost(monkeypatch) -> None:
+    """乘子 0.8 应把期望成本逐点乘 0.8（下界之上），且不改变真实成本。"""
+    from causal_growth.config import Config
+    from causal_growth.v3_config import load_v3_protocol
+
+    cfg = load_v3_protocol().config
+    X, treatment, bought, coupon_cost, _ = _synthetic_cost_data()
+    model = pol.fit_cost_model(X, treatment, bought, coupon_cost, cfg)
+    base = pol.predict_expected_cost(model, X, cfg)
+    floor = float(cfg.require("policy.cost_model.cost_floor_cny"))
+    original = Config.require
+
     def patched(self: Config, dotted: str):
         if dotted == "policy.cost_model.prediction_bias_multiplier":
-            return 1.1
+            return 0.8
         return original(self, dotted)
 
     monkeypatch.setattr(Config, "require", patched)
-    with pytest.raises(NotImplementedError, match="尚未实现"):
-        pol._require_supported_cost_options(cfg)
+    biased = pol.predict_expected_cost(model, X, cfg)
+
+    above = base > floor * 1.05
+    assert int(above.sum()) > 100
+    ratio = biased[above] / base[above]
+    assert np.allclose(ratio, 0.8, rtol=1e-12, atol=1e-12)
+    assert biased.min() >= floor - 1e-12
 
 
 def test_milp_time_limit_without_incumbent_is_explicit_not_error(monkeypatch) -> None:

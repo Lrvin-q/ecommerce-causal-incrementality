@@ -222,18 +222,21 @@ def tie_break_order(user_ids: Any) -> NDArray[np.int64]:
 # 成本模型（已实现）
 # ---------------------------------------------------------------------------
 def _require_supported_cost_options(cfg: Config) -> None:
-    """成本模型只支持"无偏差、无噪声"的配置；别的值必须显式拒绝。
+    """偏差乘子已实现；乘性对数噪声仍未实现，必须显式拒绝。
 
-    ``prediction_bias_multiplier = 1.0`` 与 ``multiplicative_noise_log_sd = 0.0``
-    当前都等于"不做任何事"。若有人把它们改掉，本模块**不能静默忽略**——
-    那会让"做了敏感性分析"变成一句空话。要么实现，要么在这里响。
+    ``prediction_bias_multiplier`` 在 :func:`predict_expected_cost` 中乘到预测期望成本上
+    （真实成本不变），用于 ``L1_cost_prediction_under/over`` 两格；必须是有限正数。
+    ``multiplicative_noise_log_sd`` 当前只支持 0.0——若改成别的值，本模块
+    **不能静默忽略**，那会让"做了敏感性分析"变成一句空话。
     """
     bias = float(cfg.require("policy.cost_model.prediction_bias_multiplier"))
     noise = float(cfg.require("policy.cost_model.multiplicative_noise_log_sd"))
-    if bias != 1.0 or noise != 0.0:
+    if not np.isfinite(bias) or bias <= 0.0:
+        raise ValueError(f"成本预测偏差倍数必须是有限正数，实际 {bias}")
+    if noise != 0.0:
         raise NotImplementedError(
-            f"成本模型的偏差倍数={bias}、对数噪声={noise} 尚未实现；"
-            "当前只支持 1.0 / 0.0。请先实现再加到配置里，不要静默忽略"
+            f"成本模型的对数噪声={noise} 尚未实现；当前只支持 0.0。"
+            "请先实现再加到配置里，不要静默忽略"
         )
 
 
@@ -318,16 +321,20 @@ def predict_expected_cost(model: CostModel, X: FloatArray, cfg: Config) -> Float
 
     成本必须是**期望核销成本**而不是面额：用面额做预算约束会把预算高估十倍以上，
     策略会选得过少、看起来"保守"，实际是口径错。
+
+    预测偏差乘子 ``prediction_bias_multiplier`` 在**预测端**乘到期望成本上，
+    真实成本不变；下界 ``cost_floor_cny`` 在乘子之后施加。
     """
     features = np.asarray(X, dtype=np.float64)
     if features.ndim != 2:
         raise ValueError("X 必须是二维特征矩阵")
     face = float(cfg.require("policy.face_value_cny"))
     floor = float(cfg.require("policy.cost_model.cost_floor_cny"))
+    bias = float(cfg.require("policy.cost_model.prediction_bias_multiplier"))
 
     p_purchase = model.stage_purchase.predict_proba(features)[:, 1]
     p_redeem_given_purchase = model.stage_redemption.predict_proba(features)[:, 1]
-    expected = face * p_purchase * p_redeem_given_purchase
+    expected = bias * face * p_purchase * p_redeem_given_purchase
     return np.maximum(expected, floor)
 
 
