@@ -132,6 +132,17 @@
   矩阵 `resamples==0` 检查全部保留。`tests/test_v3_g41_checks.py` 6 例已绿（含满 R 正例与阶段 A
   真实目录布局的 24 格固定 bootstrap 装载），连同 34 号 2 例共 8 passed。
   此前冒烟没暴露它，是因为根目录无完整帧、`check_cell` 根本没被调用。
+- **收尾链静态契约复核（11:33）**：① 40 号 `check_cell/summarize/compare` 用到的列名与
+  G02 逐 b **实表表头**逐一对照（24 列）全部存在；39 号 merge 输出的键
+  `b_count/policy_value_mean/sd/ci95_*/decision_pass_rate/guardrail_pass_rate/decision_lower_min_min/guardrail_upper_max/total_cpu_seconds`
+  与 40 的 `compare` 完全同名。② 34 号阶段 A 的 CLI（`--bootstrap-resamples
+  --bootstrap-budget-scope primary_0.2 --rep-start 0 --rep-stop 0 --shard-size 1`）均在 argparse 中；
+  "正式跑缺快照必须 `CG_G_ALLOW_LIVE_FORMAL=1`" 的守卫只在 `snapshot is None` 时触发，链传
+  `--snapshot` 不受影响；批准号只做非空校验。③ 34 号把 `fixed_bootstrap.csv` 写到
+  `<out>/shards/<cell>_s0000/<cell>/rep0/validation/`，键含 41 号所需的
+  `resamples/point_diff/ci_low/ci_high`（另有 n_targeted/n_random 等）。④ `g02_post.sh` 逐格等
+  `rows==50` 后才 merge，merge 退出码写入 `merge_exit=`，与 `g03_chain.sh` 的 STOP 正则一致。
+  结论：本轮未再发现"跑满后才炸"的契约缺口。
 - **快照**：链内 `create_snapshot("out/g03_snapshot")` 于阶段 A 前生成；A/B 共用同一绑定。
 - **状态文件**：`out/g03_logs/chain.status`（`fixed_exit=` / `g03_exit=` / 末行 `OK:`）；
   日志 `out/g03_logs/chain.log`、`g02_fixed.log`、`g03.log`。
