@@ -1,9 +1,10 @@
 # G03 正式报告 —— Tier1 core 四格 + Tier2 二十格矩阵（G03 骨架）
 
 > **合成数据 / 已知 DGP**。本报告只回答"在注册的 24 个机制场景下，策略价值与决策通过率如何"，
-> 不表示任何真实业务效果。维护时间：2026-10-30 00:35（北京时间）。
+> 不表示任何真实业务效果。维护时间：2026-10-30 00:41（北京时间）。
 > 当前状态：**阶段 A 已完成，§4 已填（24 格固定 bootstrap）**；阶段 B 拆批，Phase 1（core rep0–99）跑中
-> （00:34 落 182/400 rep，`L0_P_main` 100/100、`L1_main` 81/100）；Phase 2（Tier2 20 格 + core rep100–499）待用户另约时间。
+> （00:39 **整分片口径** 170/400：`L0_P_main` 100/100、`L1_main` 70/100；00:32/00:34 的 181/182 是
+> rep 目录口径、含在跑分片已开始的 rep，两口径不可混用，见 §2 00:40 行）；Phase 2（Tier2 20 格 + core rep100–499）待用户另约时间。
 > §3 仍待填，但 **§3.0 的 D1-A 披露已按裁决原样写入**（空转格不构成机制证据）。
 
 ## 1. 设计
@@ -50,6 +51,7 @@ core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **16–17 h**（
 | 23:58 | Phase 2 入口加固（脚本从未运行过，先只读复核）：复合根 `out/g03_formal/shards` 残留非空直接 exit 10（否则 `cp -r` 回退会把分片套进自身，`merge_roots` 对这种根静默 continue）、建链后逐分片核对 `<分片>/<cell>/repetitions*.csv` 缺则 exit 11；提交 `ecb0407`，注册表 §2.6 已记 |
 | 00:02 | Phase 1 进度 **164/400**（`L0_P_main` 100/100 已完成，`L1_main` 6 个分片在跑）；23:44–00:12 三个读数 154→163→164，折 0.56–0.70 rep/min，ETA 顺延 **10-30 05:30–07:00**；`phase1.log` 无 error |
 | 00:34 | Phase 1 进度 **182/400**（L0 100/100、L1 81/100、L2 1）；L1 批次耗时 5–15 min/10 rep，6 个 spawn worker 均在；`phase1.log` 无 error/traceback；ETA 维持 10-30 05:30–07:00 |
+| 00:40 | Phase 1 **整分片完成 170/400**（`repetitions.csv` 数据行口径：L0 100/100、L1 70/100；在跑分片 `L1_main_s0006/s0008/s0009` 已开 10/4/3 个 rep 目录，未计入）。**口径变更**：00:02/00:32/00:34 的 164/181/182 数的是 rep 目录（含在跑分片已开始的 rep），此后一律用整分片口径。同刻 `phase1.log` 无 error |
 | 待填 | Phase 1 完成（`out/g03_logs/phase1.status` 出现 `OK: G03 Phase1 core prefix 完成`） |
 | 待填 | Phase 2（Tier2 + core ATE 尾巴）与多根 merge（`g03_exit=0`） |
 
@@ -173,6 +175,12 @@ Tier2 小计：CI 跨零 4/20（`L0_zero_purchase_effect`、`L1_heterogeneity_00
   （预算恒 0.2 / 次数恒 1000）、复算汇总 4 指标 × 24 格 = 96 行并与 `outputs/tables/v3_g_g_{core,tier2}.csv`
   对账、两个根的 `run_summary.json` 均 `status=formal` 且 `failures=[]`、`bootstrap_resamples` 分别为
   0（矩阵）与 1000（固定）→ 全过后才导出 → `scripts/33_register_evidence_top.py --dirs g03_formal`；
+  **矩阵根的 `run_summary.json` 是合成的**：`34 merge` 只写 `merge_report.json`（且落在 `roots[0]`），
+  故 51 号末尾新增 exit 12 步，把三份源 summary（core_prefix / tier2 / core_ate，各自校验 formal、
+  无 failures、resamples=0）与本复合根**原始分片**合成一份 `{status: formal, composite: true,
+  derived_from: […sha256], shard_rows: …}`；分片侧独立核对 24 格各 500/30 行、rep 恰为 0..R-1、
+  跨分片无重复、无未注册格、无 provisional，任一不符即非零退出。该步不读 `merge_report`——junction
+  回退成 `cp -r` 时报告会出现多份，读它反而脆（2026-10-30 00:39 预检发现，7 例夹具演练见日志）；
 - **逐 rep 表契约列**（41 号 `check_cell`，2026-10-29 11:20 修）：`rep / status / protocol_config_hash /
   block / tier / n / n_treated / n_control / validation_bootstrap_resamples` 缺一即失败；列名是 `n`
   **不是** `n_total`（矩阵行 schema 无后者，旧写法在首格完整帧上必 `KeyError`）；另断言

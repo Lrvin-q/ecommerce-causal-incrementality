@@ -1,6 +1,20 @@
 # AGENT 交接说明 —— v3 重建
 
-## 最新交接（2026-10-30 00:34，北京时间）
+## 最新交接（2026-10-30 00:41，北京时间）
+
+- **Phase 2 脚本已加一步（00:39，`scripts/51_g03_phase2.sh`）**：41 号要 `out/g03_formal/run_summary.json`，
+  而 `34 merge` 只写 `merge_report.json`（落在 `roots[0]`）。脚本末尾新增 exit 12 步，合成
+  `{status: formal, composite: true, derived_from: 三份源 summary + sha256}`，并独立核对原始分片
+  （24 格 500/30 行、rep 恰 `0..R-1`、无跨分片重复 / 无未注册格 / 无 provisional、拒绝覆盖）。
+  **不读 `merge_report`**（junction 回退 `cp -r` 时会有多份）。7 例夹具演练全过，见日志 00:41 条。
+  Phase 2 前置不变：`out/g03_logs/phase1.status` 必须出现 `OK: G03 Phase1`。
+- **进度口径已统一（00:39）**：**整分片完成 170/400**（`repetitions.csv` 数据行；L0 100/100、L1 70/100）。
+  此前的 164/181/182 数的是 `rep*` 目录（含在跑分片已开始的 rep），**不要拿新旧口径比快慢**；
+  ETA 维持 10-30 05:30–07:00。
+- **下一步**：盯 Phase 1 → 400/400；窗口一到 `nohup bash scripts/51_g03_phase2.sh`（脚本已含 merge、
+  `_final` 行数核对、复合 summary 三步）→ `41 --check` → 导出 → `33` 登记 → 填 §3（带 §3.0 D1-A 披露）。
+
+## 交接（2026-10-30 00:34，北京时间）
 
 - **H05 已改判「通过」（00:32）**：窄口径复核 00:29 判 **PASS WITH CONDITIONS、7 条全 CLOSED**
   （`docs/reviews/v3_phase_H05_recheck.md`）；唯一条件 R-1（底表"仅 3.6"应为 2/11）与建议 R-2

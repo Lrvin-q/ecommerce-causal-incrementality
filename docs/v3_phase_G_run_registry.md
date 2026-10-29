@@ -210,6 +210,13 @@
   `cp -r src dst` 会静默套成 `dst/<分片名>/<分片名>`，merge 只少读、不报错；
   ② 建链后逐分片核对 `<分片>/<cell>/repetitions*.csv` 存在，缺则 exit 11（只数顶层条目数抓不到嵌套）。
   两处都只影响 Phase 2 入口，不触碰正在跑的 worker。
+- **10-30 00:39 Phase 2 脚本再加固**（exit 12）：41 号要 `out/g03_formal/run_summary.json`
+  （`status=formal`、`failures=[]`、`bootstrap_resamples=0`），而 `34 merge` 只写 `merge_report.json`
+  且落在 `roots[0]`；不改则 Phase 2 跑完会在导出前判"缺 run_summary.json（未跑完）"。脚本末尾改为
+  **合成复合 summary**（`composite=true`、`derived_from` 三份源 summary + sha256、`shard_rows`），
+  并从复合根**原始分片**独立核对（24 格各 500/30 行、rep 恰 `0..R-1`、跨分片无重复、无未注册格、
+  无 provisional、拒绝覆盖），任一不符 exit 12。**不读 `merge_report`**：junction 回退 `cp -r` 时
+  会有多份。7 例夹具演练见反思日志 00:41 条。
 
 ## 3. 失败重试与可恢复入口
 
@@ -236,6 +243,7 @@
 | 11:14 | 阶段 A 一启动 L0 必停链 | 34 `--models` 缺省传 `None` = 试全部模型，L0 的 `dr_learner` 抛 `ModelNotApplicableError` | 按层解析 `common ∪ additional_by_level`；2 例单测 + 冒烟 EXIT=0 |
 | 11:20 | 跑满后在导出阶段必 `KeyError: n_total` | 41 取矩阵逐 rep 表不存在的列 | 改取 `n` + 缺列守卫 + `n_treated+n_control==n`；6 例单测 |
 | 11:37 | `g03_post` 必在阶段 B 结束前超时 | 40 h 窗口基于未经运行期验证的 26.5 h 估算 | 按 G02 实测 8.0 min/rep 改 120 h（PID 3883）；旧 1952 已停（§2.4） |
+| 00:39 | Phase 2 跑完会在 41 号处判"缺 run_summary.json（未跑完）" | 41 要矩阵根 `run_summary.json`；`34 merge` 只写 `merge_report.json` 且落 `roots[0]`，正式矩阵根是临时复合根 | 51 号末尾 exit 12 合成复合 summary（三份源 summary + 原始分片独立核对），7 例夹具演练（§2.6） |
 | 11:44 | 40 `--check` 在**完整正确**的格上必报"validation_rep 在 b 间重复" | `check_cell` 把"50 个 b 共用 VALIDATION_REP=0"的**设计**当成重复缺陷（11:33 静态复核只看列名，没看判据） | 改为 `history_rep_id` 查唯一、`validation_rep` 查**恒定**；`tests/test_v3_g02_export_rollback.py` 新增 3 例（正例 / rep 漂移 / history 重复），6 passed；真数据半成品复跑 `--check` 只剩"未跑完"类问题，EXIT=1 |
 | 10:18 | 本机 `TZ=Asia/Shanghai date` 输出 UTC | Git Bash 环境 | 链条与状态文件一律用裸 `date`/`zoneinfo` |
 
