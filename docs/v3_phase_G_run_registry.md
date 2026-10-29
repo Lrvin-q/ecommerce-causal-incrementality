@@ -273,6 +273,28 @@ D 阶段原字节已归档到 `outputs/evidence/d02_aa_phase_d_20261027/`（8 �
 ⇒ **本次不是第二个独立样本**；要检验源码漂移对 AA 的影响必须换种子（另立实验）。
 另注：正因 CSV 逐字节相同，`git` 对该文件**无差异**，本次入库只改了 `.json`（含 roots 等元数据）。
 
+### 4.2 收尾一致性预检（2026-10-29 19:42，G02 已完成 / G03 Phase 1 运行中）
+
+命令：`PYTHONUTF8=1 ./.venv/Scripts/python.exe out/scratch/g04_closeout_precheck.py
+--with-check --with-register --with-claims`，日志 `out/scratch/g04_precheck_1942_full.log`，**EXIT=3**——
+唯一失败项是预期的"G03 矩阵未跑完"，其余全绿：
+
+| 检查 | 结果 |
+|---|---|
+| `out/g02_logs/post.status` | `[OK]` 含 `OK: G02 merge 完成 2026-10-29T17:17:51+08:00` |
+| G02 四格行数 | `[OK]` L0/L1/L2/L3 = 50/50/50/50 |
+| 源码 ↔ 快照 | `[OK]` 49 文件逐文件一致（快照 `6fdaf7bb…`） |
+| overlay sha256 | `[OK]` `c58d5a905ea75de5…`（1847 B，运行期未改） |
+| 受绑路径 git | `[OK]` `src/ sql/ configs/` 洁净 |
+| 42 号 H04 数字门禁 | `[OK]` EXIT=0，19 条 claim 全部回指且与源表复算一致（Tier1 19 / Tier2 0） |
+| 40 号 G02 证据导出 `--check` | `[OK]` EXIT=0 |
+| 33 号顶层登记 `--dry-run` | `[INFO]` EXIT=2（登记仍需人工复核，非失败） |
+| 41 号 G03 证据导出 `--check` | `[FAIL]` EXIT=2：`matrix: 缺 run_summary.json（未跑完）`——预期 |
+| `chain.status` / `g03_post.status` | `[WAIT]` 尚无 OK（Phase 1 于 19:36:30 起跑） |
+
+⇒ 结论：**G02 证据链已端到端自洽**（导出/登记/数字门禁全过）；G03 只差时间。Phase 2 收尾后
+重跑同一命令，41 转绿、33 由 INFO 转可执行，才算 READY（EXIT=0）。
+
 ## 5. 跑完后的命令序列（照抄即可，全部在项目根目录执行）
 
 ```bash
