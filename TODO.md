@@ -26,8 +26,12 @@
 > 估的 ~58 h 是上界（真实约 28–35 h）。已停旧链与 `g03_post`、归档半成品
 > `out/g03_formal_interrupted_20261029_1935`；Phase 1 = `out/g03_phase1_core.sh` → `out/g03_core_prefix`
 > （40 分片 × 10 rep、6 路，ETA 约 9–10 h，10-30 05:00 前后），状态看 `out/g03_logs/phase1.status`。
-> **19:50 实测修正**：运行 14 min 已落 8/400 rep，活跃分片 **6.3 min/rep**（6 路并行，全是 L0 分片），
-> 按此速度剩余 ≈ 6.9 h ⇒ **ETA 10-30 02:30–03:30**，比 9–10 h 的估计快。
+> **20:16 更正（撤回 19:50 的 6.3 min/rep）**：那个数是用"14 min 内落 8 rep"除以 6 路得到的，
+> 但 8 个 rep 是 6 个分片各自的首个 rep 加零头，启动开销把斜率压扁了。按 6 个 worker 的
+> `rep<k>/row.json` mtime 量 21 个连续区间（19:42–20:15）：mean 8.5 / median 9 min/rep，
+> 与单跑 8.6 min/rep 一致 ⇒ 6 路是近线性吞吐（6 份算力并行，不是每 rep 变快）。
+> 400 rep ≈ 9.5 h，**ETA 10-30 04:45–05:45（点估计 ~05:10）**；Phase 2 合计 ≈ 16–17 h
+> （Tier2 600 rep 14.2 h + core rep100–499 2.1 h）。
 > 最新动作（20:00）：论文结果章新增「固定策略的 bootstrap：只重抽用户」（3.8，G03 阶段 A），注册 C20–C23
 > （Tier1、`in_abstract=no`，源表 `outputs/tables/v3_g03_fixed_bootstrap_summary.csv`、取数 `scripts/47`）；
 > 原「本章结论的边界」顺延为 3.9，导语同步改 3.6–3.9。重建 12 页：**42 EXIT=0（23 条：Tier1 23 / Tier2 0）**、
@@ -68,7 +72,7 @@
 
 ### 接手清单（G02 → G04，按顺序执行；2026-10-29 12:47 写，20:06 校准定位）
 
-> **当前定位（20:06）**：第 5 条的 Phase 1 正在跑（25/400 rep，ETA 10-30 02:30–03:30），
+> **当前定位（20:16）**：第 5 条的 Phase 1 正在跑（27/400 rep，ETA 10-30 04:45–05:45），
 > 此刻**没有可推进的跑批步骤**；等待期只做不碰 `src/ sql/ configs/` 的文档与论文工作（本文件、`docs/`、`paper/`、`scripts/` 都安全）。
 > 恢复会话按三步确认：① `out/g03_logs/phase1.status` 是否出现 `OK: G03 Phase1 core prefix 完成`；
 > ② PowerShell `Get-CimInstance Win32_Process` 里还有没有 `34_g_matrix_run`（Git Bash `ps` 看不到属正常）；

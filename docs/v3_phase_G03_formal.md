@@ -24,9 +24,14 @@
 （`tier1_learning_reps/validation_reps=100`），rep100–499 只出 ATE；运行期实测
 **8.6 min/rep（rep0–99）vs 1.9 min/rep（rep≥100）**，整批一次跑完约 28–35 h。
 58 h 不再作为 ETA 引用（看护窗口仍留 120 h 覆盖最坏情况）。
-**Phase 1 实测（19:50）**：6 路并行下活跃分片 6.3 min/rep，400 rep / 6 路 ≈ 7 h，
-ETA **10-30 02:30–03:30**；Phase 2 的 Tier2 600 rep（20 格 × 30，同样走学习+验证）≈ 10.5 h、
-core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **13–15 h**。
+**Phase 1 实测（20:16 更正，撤回 19:50 的 6.3 min/rep）**：19:50 那个数是用"运行 14 min 落 8 rep"
+除以 6 路得到的，但 8 个 rep 是 6 个分片各自的首个 rep 加零头，启动开销把斜率压扁了。
+按 6 个 worker 的 `rep<k>/row.json` 目录 mtime 量 21 个连续间隔（19:42–20:15）：mean **8.5**、
+median **9 min/rep**，与单跑 8.6 min/rep 一致 ⇒ 6 路是**近线性吞吐**（6 份算力并行），不是"每 rep 变快"。
+旁证：6 个 worker 进程各占满一核，39 min 墙钟内 CPU 2336 s ≈ 100%。
+据此 400 rep ≈ **9.5 h**，ETA **10-30 04:45–05:45，点估计 ~05:10**；
+Phase 2 的 Tier2 600 rep（20 格 × 30，同样走学习+验证）≈ 14.2 h、
+core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **16–17 h**（原记 13–15 h 同样偏乐观）。
 
 ## 2. 执行记录（待填）
 
@@ -39,6 +44,7 @@ core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **13–15 h**。
 | 18:37:06 | 阶段 B 首跑启动：24 格 / 60 分片 / 6 路（`--shard-size 50`） |
 | 19:36 | 按用户决定停链（`taskkill /T`），半成品归档 `out/g03_formal_interrupted_20261029_1935`；`g03_post` 停止，`chain.status` 记 paused |
 | 19:36:30 | **Phase 1 启动**：core 4 格 × rep0–99，40 分片 × 10 rep、6 路，`--out-root out/g03_core_prefix`；快照校验通过（`6fdaf7bb…`） |
+| 20:16 | Phase 1 进度 27/400 rep（6 分片各 4–5 rep，最新写入 20:15）；按 rep 目录 mtime 重测 **8.5–9 min/rep·worker**，ETA 更正为 10-30 04:45–05:45（点估计 ~05:10）；6 个 worker 各占满一核（2336 s CPU / 2340 s 墙钟），`phase1.log` 无 error |
 | 20:06 | Phase 1 进行中：25/400 rep 落盘（6 个 L0 分片并行，分片内 10 rep 跑完才写 `repetitions.csv`），最新写入 20:04，`phase1.log` 无 error/traceback；按 6–7 min/rep 外推 ETA 仍为 02:30–03:30 |
 | 待填 | Phase 1 完成（`out/g03_logs/phase1.status` 出现 `OK: G03 Phase1 core prefix 完成`） |
 | 待填 | Phase 2（Tier2 + core ATE 尾巴）与多根 merge（`g03_exit=0`） |
