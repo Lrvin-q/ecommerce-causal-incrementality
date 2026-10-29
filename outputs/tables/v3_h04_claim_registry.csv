@@ -1,6 +1,6 @@
 ﻿claim_id,chapter,statement,display_value,decimals,tier,in_abstract,source_csv,filter,column,precision_note
 C01,3.1,AA250 合并 1000 rep 的净利假阳性率,0.046,3,Tier1,yes,outputs/evidence/g01_aa250/recomputed_fpr.csv,metric == 'net_profit' and layer == 'POOLED',fpr,"1000 rep 合并；Wilson CP [0.033871, 0.060884]"
 C02,3.1,AA250 净利 FPR 的 95% 区间下界,0.033871,6,Tier1,yes,outputs/evidence/g01_aa250/recomputed_fpr.csv,metric == 'net_profit' and layer == 'POOLED',cp_low,"同上；下界低于预设带 [0.037, 0.065]"
-C03,4.2,F02「券值得发」通过率,0.98,2,Tier1,yes,outputs/tables/v3_phase_F02_formal_claims.csv,claim == 'coupon_worth_issuing',pass_rate,"200 rep；CP [0.9496, 0.9945]"
-C04,4.2,F02 定向策略相对不发券的净利差（元/人）,0.2816,4,Tier1,yes,outputs/tables/v3_phase_F02_formal_itt.csv,contrast == 'selected_targeted_policy_minus_no_coupon',mean_diff_cny_per_user,"200 rep；MC SE 0.0051；95% CI [0.1714, 0.3919]"
-C05,4.3,F02 退款率护栏通过率,1.00,2,Tier1,no,outputs/tables/v3_phase_F02_formal_guardrail.csv,contrast == 'selected_targeted_policy_minus_no_coupon',pass_rate,200 rep；单侧 alpha=0.05；margin 0.005
+C03,3.2,F02「券值得发」通过率,0.98,2,Tier1,yes,outputs/tables/v3_phase_F02_formal_claims.csv,claim == 'coupon_worth_issuing',pass_rate,"200 rep；CP [0.9496, 0.9945]"
+C04,3.2,F02 定向策略相对不发券的净利差（元/人）,0.2816,4,Tier1,yes,outputs/tables/v3_phase_F02_formal_itt.csv,contrast == 'selected_targeted_policy_minus_no_coupon',mean_diff_cny_per_user,"200 rep；MC SE 0.0051；95% CI [0.1714, 0.3919]"
+C05,3.3,F02 退款率护栏通过率,1.00,2,Tier1,no,outputs/tables/v3_phase_F02_formal_guardrail.csv,contrast == 'selected_targeted_policy_minus_no_coupon',pass_rate,200 rep；单侧 alpha=0.05；margin 0.005
