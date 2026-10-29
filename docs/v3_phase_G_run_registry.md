@@ -68,12 +68,18 @@
   一进程一格、每格 50 b 顺序跑；39 号本身单线程，没有 `--workers`。
 - **命令（每格一份，仅 `--cells` 不同）**：
   `scripts/39_g_retrain_bootstrap_run.py run --status formal --formal-approval G02-FORMAL-20261029 --snapshot out/g02_snapshot --out-root out/g02_retrain --cells <cell>`
-- **快照**：`out/g02_snapshot` 49 文件 `f39ec0a3…`；39 号运行前用 `_verify_snapshot` 与真树逐文件比对。
+- **快照（重开后）**：`out/g02_snapshot` 49 文件 `abaa338a…`（10:39 重建；首轮 10:09 用的
+  `f39ec0a3…` 已随失败现场留档）。39 号运行前用 `_verify_snapshot` 与真树逐文件比对。
 - **日志与产物**：`out/g02_logs/<cell>.log`；每格 `out/g02_retrain/<cell>/repetitions.csv` + `run_state.json`；
   断点入口 `--resume`（按 `run_state.json` 的 b 列表续跑）。
-- **ETA 依据**：R=1 顺序实测 340/471/350/483 s/b × 50 ⇒ 4.7–6.7 h/格；但 **10:20 首个 b 的实测墙钟约 11 min**
-  （CPU 369–532 s/b，4 路并行互相抢核）⇒ 实际 **~9.2 h/格**，ETA **19:20–20:30**。
-  两种口径都留着：前者是顺序成本，后者是并行墙钟；排期用后者。
+- **ETA 依据（11:32 用重开后的实测墙钟改写）**：b=0/1 的墙钟为 L0 6.5/6.6 min、L1 9.1/6.9、
+  L2 7.1/9.2、L3 9.5 min（4 路并行互相抢核；CPU 386–562 s/b）。按均值 ~7.8 min/b ⇒ 50 b ≈ 6.5 h/格，
+  **ETA 16:40–18:40（中心 ~17:10）**。旧的 19:20–20:30 是按 11 min/b 的偏保守外推，作废但保留于 Git 历史。
+- **中途体检（11:32，只读）**：10 行（b 0–2）、0 重复、0 空值；`policy_value` 2.2061–3.0176；
+  `validation_frame_hash` 4 个值（= 每格 1 个）；`validation_arm_hash` 全局 1 个值——四格
+  `n_history = n_validation = 200000`、用户编号同为 0..n−1、臂随机化与格无关，故臂表逐字节相同，
+  格间差异由 `validation_frame_hash` 承担；`validation_observed_hash` 10 个值（逐 b 变，符合设计）；
+  `guardrail_pass` 全 True；`decision_all_pass` L0 全 False、其余全 True。**不作验收结论**。
 - **内存纪律**：G03 不与之并行启动，避免 8 进程同时逼近 19.5 GB。
   串行由 `out/g03_chain.sh` 强制：它先等 `out/g02_logs/post.status` 出现 `OK:`，再建快照并开下一段。
 

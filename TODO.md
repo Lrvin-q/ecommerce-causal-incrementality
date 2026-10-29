@@ -7,9 +7,10 @@
 **2026-10-29 11:15 更新。G02 稳定推进（4 格均已越过 b=0，3 格已在 b=1）；无人值守链与 G03 续跑预案已核**：
 
 - **进度**：10:39 重开 → 11:15 时 L0_P_main/L1_main/L2_n200000_p050 各 2 b、L3_fixed_lt000 1 b 完、正在 b=1；
-  b=0 每格 CPU 386–562 s。**ETA 16:15–17:30**。
+  b=0 每格 CPU 386–562 s。**ETA 16:40–18:40（中心 ~17:10）**（11:32 按重开后实测墙钟 6.5–9.5 min/b 修正）。
 - **越过失火点**：10:53 起 b=1 行正常落盘——`validation_frame_hash`/`validation_arm_hash` 各 1 值、
   `validation_observed_hash` 2 值，正是首轮全灭的场景，现按设计放行。
+  11:32 中途体检：10 行 0 重复 0 空值，`guardrail_pass` 全 True、`decision_all_pass` L0 全 False 其余全 True。
 - **三个后台进程**：`out/g02_post.sh`（PID 1457，校验+merge）→ `out/g03_chain.sh`（PID 1493，14 h 期限，
   阶段 A 固定 bootstrap 24 格 × rep0 → 阶段 B G03 24 格 ~26.5 h）→ `out/g03_post.sh`（PID 1952，40/41
   `--check` + 导出；**33 登记留人工**）。
