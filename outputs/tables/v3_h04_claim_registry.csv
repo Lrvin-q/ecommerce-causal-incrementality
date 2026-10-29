@@ -210,3 +210,19 @@ C208,3.9,F01 定向−随机 差的标准误（元/人）,0.0459,4,Tier1,no,outp
 C209,3.9,F01 定向−随机 单侧 p 值,0.0309,4,Tier1,no,outputs/tables/v3_phase_F01_contrast_audit.csv,contrast == 'selected_targeted_minus_same_budget_random',one_sided_p_value,F01 单帧 R=0
 C210,3.9,F01 定向−随机 Holm 单侧下界（元/人）,0.0102,4,Tier1,no,outputs/tables/v3_phase_F01_contrast_audit.csv,contrast == 'selected_targeted_minus_same_budget_random',holm_lower_bound_cny_per_user,F01 单帧 R=0
 C211,3.9,F01 定向策略 1.00 档支出误差（元/人）,-0.0239,4,Tier1,no,outputs/tables/v3_phase_F01_audit_by_budget.csv,policy == 'greedy_incremental_profit_per_cost' and per_user_budget_cny == 1.0,spend_error_cny_per_user,F01 单帧 R=0
+C212,3.10,因果森林 平均选模名次,1.710,3,Tier1,no,outputs/tables/v3_phase_D03_selection_quality.csv,model == 'causal_forest',mean_rank,D03 正式 R=200
+C213,3.10,S-learner 平均选模名次,1.855,3,Tier1,no,outputs/tables/v3_phase_D03_selection_quality.csv,model == 's_learner',mean_rank,D03 正式 R=200
+C214,3.10,常数策略 平均选模名次,4.505,3,Tier1,no,outputs/tables/v3_phase_D03_selection_quality.csv,model == 'constant',mean_rank,D03 正式 R=200
+C215,3.10,因果森林 验证分数中位数,0.0605,4,Tier1,no,outputs/tables/v3_phase_D03_selection_quality.csv,model == 'causal_forest',median_selection_score,D03 正式 R=200
+C216,3.10,常数策略 验证分数中位数,-0.0183,4,Tier1,no,outputs/tables/v3_phase_D03_selection_quality.csv,model == 'constant',median_selection_score,D03 正式 R=200
+C217,3.10,常数策略 平均绝对偏差（测试集 τ̂−τ，元/人）,0.0484,4,Tier1,no,outputs/tables/v3_phase_D03_selection_quality.csv,model == 'constant',mean_abs_bias,D03 正式 R=200
+C218,3.10,DR-learner 平均绝对偏差（五模型最大）,0.0529,4,Tier1,no,outputs/tables/v3_phase_D03_selection_quality.csv,model == 'dr_learner',mean_abs_bias,D03 正式 R=200
+C219,3.10,因果森林 测试 RMSE 最优重复占比,0.995,3,Tier1,no,outputs/tables/v3_phase_D03_selection_quality.csv,model == 'causal_forest',share_best_rmse,D03 正式 R=200
+C220,3.10,常数策略 测试 MAE 最优重复占比,1.000,3,Tier1,no,outputs/tables/v3_phase_D03_selection_quality.csv,model == 'constant',share_best_mae,D03 正式 R=200
+C221,3.10,选模边际中位数（元/人）,0.0116,4,Tier1,no,outputs/tables/v3_phase_D03_selection_margin.csv,n_reps == 200,margin_median,D03 正式 R=200
+C222,3.10,选模边际 25% 分位（元/人）,0.0042,4,Tier1,no,outputs/tables/v3_phase_D03_selection_margin.csv,n_reps == 200,margin_q25,D03 正式 R=200
+C223,3.10,边际低于 0.005 元/人的重复占比,0.285,3,Tier1,no,outputs/tables/v3_phase_D03_selection_margin.csv,n_reps == 200,share_margin_below_cut,D03 正式 R=200
+C224,3.10,命中测试最优 RMSE 模型的占比,0.525,3,Tier1,no,outputs/tables/v3_phase_D03_selection_margin.csv,n_reps == 200,hit_rate_best_rmse,D03 正式 R=200
+C225,3.10,命中测试最优 MAE 模型的占比,0.035,3,Tier1,no,outputs/tables/v3_phase_D03_selection_margin.csv,n_reps == 200,hit_rate_best_mae,D03 正式 R=200
+C226,3.10,验证分数与测试 RMSE 的平均 Spearman 相关,-0.3405,4,Tier1,no,outputs/tables/v3_phase_D03_selection_margin.csv,n_reps == 200,mean_spearman_score_rmse,D03 正式 R=200
+C227,3.10,验证分数与测试 |偏差| 的平均 Spearman 相关,0.0130,4,Tier1,no,outputs/tables/v3_phase_D03_selection_margin.csv,n_reps == 200,mean_spearman_score_abs_bias,D03 正式 R=200

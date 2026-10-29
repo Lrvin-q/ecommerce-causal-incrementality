@@ -1,0 +1,2 @@
+﻿n_reps,margin_mean,margin_q25,margin_median,margin_q75,margin_max,share_margin_below_cut,margin_cut,hit_rate_best_rmse,hit_rate_best_mae,mean_spearman_score_rmse,mean_spearman_score_abs_bias,n_spearman
+200,0.016342887169208727,0.004181219883390409,0.0116391982027455,0.021926623333829647,0.07357941603044858,0.285,0.005,0.525,0.035,-0.34049999999999997,0.01300000000000001,200
