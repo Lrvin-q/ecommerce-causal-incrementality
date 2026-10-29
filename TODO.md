@@ -52,7 +52,7 @@
 > 为什么必须换 out-root：34 号 `--resume` 只找未跑完分片的 `repetitions_provisional.csv`
 > （`34_g_matrix_run.py:316-319`），已完成分片写的是正式 `repetitions.csv`（`v3_g_matrix.py:1274`），
 > 在原目录续跑会把整片重算（重片 7.2 h/片）。Phase 2 用新根，最后 `merge` 多根去重，`_final` 仍按 R_ate=500 判完整。
-> 19:40 已备好 `out/g03_phase2.sh`（含复合根 junction 与 merge，`bash -n` 通过），并在 G03 报告 §1/§2 记录了拆批与快照。
+> 19:40 已备好 `scripts/51_g03_phase2.sh`（20:19 从 `out/g03_phase2.sh` 入库，逻辑逐行一致；含复合根 junction 与 merge 硬门，`bash -n` 通过），并在 G03 报告 §1/§2 记录了拆批与快照。
 > **20:07 加固**：merge 后新增 `_final` 逐格行数校验——行数≠500/30 或只有 `provisional` 文件就写
 > `ABORT: _final incomplete` 并 exit 9，不再无条件写 OK（2 格夹具 500/499 行实测 exit=1）。
 > 该脚本在 `out/`（不入库），只存在于本 worktree。
@@ -91,7 +91,7 @@
 5. （19:40 改写）Stage A 已完成（18:37，24 格 `fixed_exit=0`）；Stage B 拆两批，**不要**在原 out-root 续跑：
    - **Phase 1（19:36 起跑中）**：core 4 格 × rep0–99 → `out/g03_core_prefix`；脚本 `out/g03_phase1_core.sh`；
      完成标志 `out/g03_logs/phase1.status` 出现 `OK: G03 Phase1 core prefix 完成 …`；
-   - **Phase 2（用户另找时间）**：直接跑 `nohup bash out/g03_phase2.sh >/dev/null 2>&1 &`
+   - **Phase 2（用户另找时间）**：直接跑 `nohup bash scripts/51_g03_phase2.sh >/dev/null 2>&1 &`
      （内含 Tier2 → `out/g03_tier2`、core rep100–499 → `out/g03_core_ate`、建 junction 复合根
      `out/g03_formal/shards`、`34 merge` → `outputs/tables` 与 `_final`）。脚本先查
      `phase1.status` 的 OK 行，缺则拒绝启动；完成后 `out/g03_logs/phase2.status` 出现 OK。

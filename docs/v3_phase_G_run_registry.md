@@ -195,7 +195,7 @@
   每个累计 CPU 约 3 020 s / 50 min（接近饱和），单进程 RSS 0.7–2.0 GB。
   **19:50 吞吐实测**：14 min 落 8/400 rep，活跃分片 **6.3 min/rep**（6 路并行，当时全是 `L0_P_main` 分片），
   剩余约 6.9 h ⇒ ETA **10-30 02:30–03:30**；首片预计 20:40 前后写 `repetitions.csv`（片内 10 rep 跑完才写盘）。
-- **Phase 2 入口**：`nohup bash out/g03_phase2.sh`（Tier2 → `out/g03_tier2`；core rep100–499 →
+- **Phase 2 入口**：`nohup bash scripts/51_g03_phase2.sh`（Tier2 → `out/g03_tier2`；core rep100–499 →
   `out/g03_core_ate`；再建 `out/g03_formal/shards` 复合根并合并）。脚本先查 `phase1.status` 的 OK 行。
   **20:07 加固**：merge 之后逐格核对 `_final` 行数（core 500 / Tier2 30，且必须是正式 `repetitions.csv`），
   不齐写 `ABORT: _final incomplete` 并 exit 9——此前它只打印行数就写 OK，缺口要等 41 号才暴露。
