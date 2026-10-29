@@ -17,12 +17,17 @@
 >    然后 `39 … merge`；`out/g03_chain.sh`（PID 1493，14 h 期限）等 `post.status` 的 `OK:` → 建快照 →
 >    阶段 A 固定 bootstrap（24 格 × rep 0，`out/g02_fixed`，~40 min）→ 阶段 B G03 24 格
 >    （`out/g03_formal`，~26.5 h）。任一失败标记（`VERIFY FAIL`/`STALL:`/`TIMEOUT:`/`merge_exit≠0`）链条即停，
->    状态在 `out/g03_logs/chain.status`。**收尾后先手动跑 `40 --check` 看 G02 合并是否自洽**（post 不等它）。
+>    状态在 `out/g03_logs/chain.status`。**收尾后先手动跑 `40 --check` 看 G02 合并是否自洽**（post 不等它）：
+>    `PYTHONUTF8=1 .venv/Scripts/python.exe scripts/40_export_g02_evidence.py --check`；
+>    期望 exit 0。若报 `b_count`/`policy_value_*` 不一致，先按实表复算再判断，**不得改宽容**。
 > 3. **G01 已通过（11:00 改判）**：边界见 GOAL G01 行；复评链 `review2.md` → `review3.md`。
 > 4. **已提交**：`a9d8405`（41 列契约）、`8c4e9c4`/`48bd696`（overlay 与 truth 口径纠正）、
 >    `239fa06`（磁盘实测）、`3e447d5`（H05 S12）、`10459ad`（S5 升 Crossref ✓）、`3d63ddc`（收尾链契约复核）。
 >    `out/g03_post.sh`（PID 1952）会在 G03 跑完后自动做
 >    40/41 `--check` + 导出；**33 号顶层登记留人工复核**（`--dirs g02_formal g03_formal --dry-run` 先看）。
+>    报告取数：G02 用 `out/scratch/g02_report_numbers.py`（它同时读 `out/g02_fixed`，
+>    因此**要等阶段 A 跑完**才能整跑；§3 重训部分可先按逐 b 表手工复算），G03 用
+>    `out/scratch/g03_report_numbers.py`（缺格/未跑满会 exit 2；正式跑完再跑，勿加 `--lenient`）。
 > 5. **纪律不变**：`configs/v3/*.yaml` 七份冻结（hash `00723dc2…`）；正式跑期间不写 `src/`（改脚本/文档安全）；
 >    不削弱 17/19/33/40/41 校验器；证据只认 `outputs/evidence/`。
 > 6. **G03 失败时的唯一正确续跑法（11:15 读码确认）**：`--resume` 只救"跑到一半被杀、
