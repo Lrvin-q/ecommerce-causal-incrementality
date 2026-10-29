@@ -22,3 +22,7 @@ C20,3.8,G03 L0_P_main 固定 bootstrap 点差（定向−随机，元/人）,0.0
 C21,3.8,G03 L1_main 固定 bootstrap 点差（定向−随机，元/人）,0.2022,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L1_main',point_diff,"1 000 次；rep0；95% CI [0.1009, 0.3131]"
 C22,3.8,G03 L2_n200000_p050 固定 bootstrap 点差（定向−随机，元/人）,0.1788,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L2_n200000_p050',point_diff,"1 000 次；rep0；95% CI [0.0740, 0.2852]"
 C23,3.8,G03 L3_fixed_lt000 固定 bootstrap 点差（定向−随机，元/人）,0.0128,4,Tier1,no,outputs/tables/v3_g03_fixed_bootstrap_summary.csv,cell == 'L3_fixed_lt000',point_diff,"1 000 次；rep0；95% CI [-0.1000, 0.1205] 跨零"
+C24,3.1,AA250 中 7 天支付购买率标签的合并假阳性率,0.040,3,Tier1,no,outputs/evidence/g01_aa250/recomputed_fpr.csv,metric == 'paid_purchase_7d' and layer == 'POOLED',fpr,负对照标签，仅作机制检查，不作主指标
+C25,3.1,AA250 中 30 天退款事件率标签的合并假阳性率,0.052,3,Tier1,no,outputs/evidence/g01_aa250/recomputed_fpr.csv,metric == 'any_refund_30d' and layer == 'POOLED',fpr,负对照标签，仅作机制检查，不作主指标
+C26,3.2,F02 同预算随机相对不发券的净利差（元/人）,0.0675,4,Tier1,no,outputs/tables/v3_phase_F02_formal_itt.csv,contrast == 'random_same_budget_minus_no_coupon',mean_diff_cny_per_user,"95% t 区间 [−0.0412, 0.1761] 跨零，不得读作正向收益"
+C27,3.2,F02 同预算随机臂净利差为正的重复数,169,0,Tier1,no,outputs/tables/v3_phase_F02_formal_itt.csv,contrast == 'random_same_budget_minus_no_coupon',positive_reps,分母 200；描述性计数，不是显著性判定

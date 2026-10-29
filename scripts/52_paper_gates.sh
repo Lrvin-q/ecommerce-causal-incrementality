@@ -39,7 +39,7 @@ step() {  # step <名字> <命令...>
 }
 
 if [ $BUILD -eq 1 ]; then
-  step build bash paper/v3/build.sh || exit 1
+  step build bash paper/v3/build.sh paper/v3/body || exit 1
 fi
 
 # 42 的 --draft 只认单个文件：按 build.sh 的顺序拼 01→04
