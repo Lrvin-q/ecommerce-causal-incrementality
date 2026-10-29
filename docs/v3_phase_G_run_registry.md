@@ -210,6 +210,8 @@ cat out/g02_logs/post.status out/g03_logs/chain.status out/g03_logs/g03_post.sta
 
 # 3) 报告数字（只读；与 39 合并表 1e-9 对账，异常 exit 2）
 .venv/Scripts/python.exe out/scratch/g02_report_numbers.py
+# G03：24 格 × 4 指标的均值/sd/MC SE/95% CI，core 与 Tier2 分区；缺格/未跑满/非 formal 即 exit 2
+.venv/Scripts/python.exe out/scratch/g03_report_numbers.py
 
 # 4) 填 docs/v3_phase_G02_formal.md §3/§4、docs/v3_phase_G03_formal.md §2–§4
 # 5) 顶层登记：先 dry-run，人工复核 coverage.json 的 sha/bytes 后再正式执行
