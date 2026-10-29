@@ -45,6 +45,12 @@ echo "core_ate_exit=$rc" >> "$STATUS"
 if [ $rc -ne 0 ]; then say "Phase 2b 失败 rc=$rc"; exit 6; fi
 
 say "建复合根 out/g03_formal/shards（junction；失败回退为复制）"
+# 残留的复合根会让 `cp -r src dst` 静默套成 dst/<分片名>/<分片名>，merge 只会少读而不报错
+if [ -d out/g03_formal/shards ] && [ -n "$(ls -A out/g03_formal/shards 2>/dev/null)" ]; then
+  say "out/g03_formal/shards 已存在且非空，拒绝重复链接"
+  echo "ABORT: composite root not empty" > "$STATUS"
+  exit 10
+fi
 mkdir -p out/g03_formal/shards
 link_or_copy() {
   src=$1; dst=$2
@@ -67,6 +73,19 @@ for src in out/g03_core_ate/shards/*; do
   link_or_copy "$src" "$dst" || { say "链接失败 $dst"; exit 7; }
 done
 say "复合根分片数：$(ls out/g03_formal/shards | wc -l)"
+# 逐个分片确认结构仍是 <分片>/<cell>/repetitions*.csv；junction 失败回退复制时若套了一层，
+# 这里会把它抓出来（只数顶层条目数抓不到嵌套）
+bad_link=""
+for d in out/g03_formal/shards/*; do
+  if ! compgen -G "$d/*/repetitions.csv" >/dev/null && ! compgen -G "$d/*/repetitions_provisional.csv" >/dev/null; then
+    bad_link="$bad_link $(basename "$d")"
+  fi
+done
+if [ -n "$bad_link" ]; then
+  say "复合根结构异常（缺 <cell>/repetitions*.csv）：$bad_link"
+  echo "ABORT: composite root layout" > "$STATUS"
+  exit 11
+fi
 
 say "合并（多根去重应在复合根内一次性完成）"
 "$PY" scripts/34_g_matrix_run.py merge out/g03_formal/shards/* \
