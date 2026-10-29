@@ -47,6 +47,10 @@
   **新发现**：`34 --resume` 只认 `repetitions_provisional.csv`；不带 `--resume` 或只有正式表时，
   重跑会**用本次 reps 覆盖** `repetitions.csv`（`rep<k>/row.json` 还在，表会少行）⇒ 修复一律"另起根 + 多根 merge"，
   不得原地重跑。详见注册表 §3 与日志 11:42 条。
+- **39 合并探针（11:42，真数据半成品）**：四格表复制到 `out/scratch/g02_merge_probe/` 后跑 `39 merge`，
+  **EXIT=0**、帧校验全过、`rows=29`、`provisional=true`；探针写到 `outputs/tables` 的 `_provisional` 件
+  **已当场删除**（防以后误当证据）。观察：`decision_pass_rate` L0 0.000 / L1 1.000 / L2 0.857 / L3 1.000，
+  `guardrail_pass_rate` 全 1.000——L0 的 0 来自 `passes_adjusted_test` 在零效应格不显著，**不是故障**。
 - **G04 运行期取样器（11:41）**：`out/g04_monitor.sh`（PID 4019，10 min/次，120 h 窗口）→ `out/g04_logs/monitor.log`，
   每样本记磁盘余量、四格逐 b 行数、python 进程数与总 RSS、三个状态文件末行。首样本：
   29 行（8/7/7/7）、8 个 python 进程 / 4 765 MB、93 GB 空余。这是"真实进程与资源记录"的运行期证据。

@@ -210,6 +210,15 @@
 | 11:37 | `g03_post` 必在阶段 B 结束前超时 | 40 h 窗口基于未经运行期验证的 26.5 h 估算 | 按 G02 实测 8.0 min/rep 改 120 h（PID 3883）；旧 1952 已停（§2.4） |
 | 10:18 | 本机 `TZ=Asia/Shanghai date` 输出 UTC | Git Bash 环境 | 链条与状态文件一律用裸 `date`/`zoneinfo` |
 
+**合并探针（2026-10-29 11:42，真数据半成品）**：把四格 `repetitions.csv` 复制到
+`out/scratch/g02_merge_probe/<cell>/` 后跑 `39 … merge`：**EXIT=0**，四格帧校验全过，
+输出 `rows=29`、`provisional=true`（8/7/7/7），`b_count` 无 NaN。探针产物
+（`outputs/tables/v3_phase_G02_retrain_bootstrap_provisional.{csv,json}`）**已当场删除**，
+以免以后被误当证据或与正式同名件混淆；复制件留在 `out/scratch/g02_merge_probe/`。
+顺带看到（**只是观察，不作结论**）：`decision_pass_rate` L0=0.000、L1=1.000、L2=0.857（6/7）、L3=1.000，
+`guardrail_pass_rate` 四格全 1.000。L0 的 0 与 11:32 体检"L0 `decision_all_pass` 全 False"一致，
+写 G02 报告时必须按该格的零效应边界解释，不能当成运行失败。
+
 **运行期取样（2026-10-29 11:41 起）**：`out/g04_monitor.sh`（PID 4019，10 min/次，120 h 窗口）
 把磁盘余量、四格逐 b 行数、python 进程数与总 RSS、三个状态文件末行追加到 `out/g04_logs/monitor.log`。
 首样本：29 行（8/7/7/7）、8 进程 4 765 MB、93 GB 空余。G04 的"真实进程/资源记录"以该日志为运行期原件，
