@@ -44,9 +44,13 @@
 - 4 个 core 格与 20 个 Tier2 格**分区呈现**（禁止同表并列排序）；
 - 每格是否跑满注册 R、`provisional` 必须为 `False`。
 
-**不做覆盖率**：逐 rep 的 manifest 写明 `truth_columns_present: false`（真值列未落盘），
-因此**不得**事后用 DGP 解析式"补算"覆盖率冒充运行期证据；GOAL G03 的验收口径是
-"冻结矩阵 20 格逐格正式结果"，不要求覆盖率。若后续确需覆盖率，必须另起一次带真值导出的运行。
+**不做覆盖率（但真值文件其实在盘上）**：逐 rep 的 `freeze.json` 写 `truth_columns_present: false`，
+含义是**冻结决策表（policy_list/decision/guardrail）在写盘时不含真值**，不是"真值未落盘"——
+freeze 之后 `run_validation_arm` 确实写出 `truth_users.csv`（`user_id/tau_true/cost_true`）、
+`truth_policy_values.csv`、`truth_arm_means.csv`、`truth_arm_contrasts.csv`。
+G03 的注册分析（`repetitions.csv` 四指标 + 汇总）**没有**覆盖率的统计量与校验，
+因此报告**不得**声称"95% CI 覆盖真值 X%"；若要做覆盖率，必须把它作为**新增注册分析**，
+基于 `truth_*` 逐 rep 重算并单列，不得混入本轮已注册的四个指标。
 
 ## 4. 固定 bootstrap 结果（待填）
 
@@ -88,8 +92,9 @@ R_ate 带 `_provisional` 后缀，41 号不读它；41 的固定 bootstrap 校�
    也不得据此宣称某机制"稳健"或"失效"。
 3. **单策略单预算**：只评贪心增量利润/成本策略在 0.2 元档；fixed bootstrap 也只覆盖该档。
 4. **core 四格不是新证据**：它们与 G02 共享同设计，结论一致是预期，不构成独立复现。
-5. **无覆盖率口径**：`truth_columns_present: false`，逐 rep 真值未落盘；报告只报估计精度，
-   不得出现"95% CI 覆盖真值 X%"这类未落盘证据支持的表述。
+5. **无覆盖率口径**：`truth_columns_present: false` 只表示冻结决策表不含真值；逐 rep 的
+   `truth_*` 文件在 freeze 之后落盘，但本轮**没有注册覆盖率统计量/校验**。报告只报估计精度，
+   不得出现"95% CI 覆盖真值 X%"这类未经注册分析支持的表述。
 6. **结论失效条件**：若快照哈希与实际运行源码不符、任一格 `provisional=True`、或 Tier2 出现
    rep 缺失/重复，本报告作废并重跑缺口（按 §2 续跑纪律）。
 
