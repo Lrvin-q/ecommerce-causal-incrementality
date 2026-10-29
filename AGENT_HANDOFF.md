@@ -14,7 +14,8 @@
   ＋ `scripts/61_paper_page_scan.py`，并更新审计文档 §1 的构建时刻与数字。
 - **运行期红线**：G03 worker 在跑，`src/causal_growth/**/v3*.py`、`sql/v3*.sql`、`configs/v3*.yaml`、
   `configs/v3/*.yaml` 一律只读；不装包；不跑全量 pytest（并发写盘 + 抢核）。
-- **待办**：G02 复评确认 → 改判；H05 独立评审（代理在跑，产物 `docs/reviews/v3_phase_H05_review.md`）；
+- **已完成**：G02 复评 23:30 PASS、已改判「通过」（含义仅记录准确、断言范围正确）。
+- **待办**：H05 独立评审（代理在跑，产物 `docs/reviews/v3_phase_H05_review.md`）；
   G03 Phase 1 收尾 → `34 merge` → `41 --check` → 导出/登记 → 填 G03 §3（**必须带 §3.0 的 D1-A 披露**）；
   Tier2 附录单独成节（H02 #28）；G04 `49 --with-check --with-register --with-claims` 全绿 + 一次失败→恢复演练。
 
