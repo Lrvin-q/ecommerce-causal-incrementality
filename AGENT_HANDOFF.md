@@ -4,10 +4,11 @@
 
 - **G03 Phase 2 跑中**（17:37:55 起，`nohup bash scripts/51_g03_phase2.sh`）：2a Tier2 20 格 × rep0–29
   （600 rep，6 workers）→ 2b core 4 格 × rep100–499（**1 600 rep**，17:45 更正，原写 400 有误）→
-  复合根 → merge → `_final` 行数核对 → 合成复合 `run_summary.json`（exit 12）。**18:08 按 Phase 1 逐分片实测
-  重估 ETA：7.3–11.0 min/rep·worker（中位 8.6）⇒ 2 200 rep / 6 workers ≈ 49–61 h，全链 ETA 11-01 22:00 –
-  11-02 06:00**（17:45 的 22 h 与 17:38 的 16 h 均作废）。18:06 实测：Tier2 14 个 `row.json`、0 个
-  `repetitions.csv`（首批分片未满 10 rep），约 0.5 rep/min；进程用 PowerShell `Get-CimInstance Win32_Process` 查。
+  复合根 → merge → `_final` 行数核对 → 合成复合 `run_summary.json`（exit 12）。**18:10 更正 ETA（18:08 的
+  49–61 h 作废）**：rep0–99 学习段 7.3–11.0 min/rep，rep≥100 仅 ATE 实测 **1.87 min/rep**（`tier1_learning_reps=100`）；
+  2a 600 rep ≈ 12–18 h + 2b 1 600 rep ≈ 8–10 h ⇒ **总计 20–28 h，ETA 10-31 16:00–23:00**；磁盘约 14 G。
+  18:06 实测 Tier2 14 个 `row.json`、0 个 `repetitions.csv`（首批分片未满 10 rep），约 0.5 rep/min；
+  进程用 PowerShell `Get-CimInstance Win32_Process` 查。
 - **自动收尾链已挂**（17:48:04 起）：后台等 `phase2.status` 出现 `OK:` 后自动跑
   `scripts/63_g03_finalize.sh`（41 检查 → 62 演练 → 41 导出 → 33 `--dry-run` → 48 取数），日志
   `out/g03_logs/auto_finalize.log`、状态 `out/g03_logs/finalize.status`；**33 实登记与 G03 §3 仍须人工复核后做**。

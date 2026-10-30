@@ -13,10 +13,12 @@
 > Phase 2 共 2 200 rep 按 21 MB/rep 估 **~46 G**，收尾后仍余 ~30 G（2026-10-30 18:04 按 Phase 1 逐格 `du` 校准）。
 > **17:38 已按用户批准开跑 Phase 2**：`nohup bash scripts/51_g03_phase2.sh`（PID 1507 为 bash 包装进程）；
 > 日志实录：快照绑定 `6fdaf7bb7ee3c63e…` 通过、`20 格 / 60 个分片；workers=6 status=formal`，60 s 内已建 6 个分片、
-> 8 个 python 进程在跑。**18:08 按实测重估 ETA（17:45 的 22 h 作废）**：Phase 1 40 个分片 400 rep 实测
-> **7.3–11.0 min/rep·worker（中位 8.6）**；Phase 2 共 2 200 rep / 6 workers ≈ **49–61 h**。Tier2 600 rep
-> 预计 10-31 09:00–14:00 交段，**全链 ETA 11-01 22:00 – 11-02 06:00**。17:45 写的 "core ATE ~1.9 min/rep"
-> 与分片实测不符（2a/2b 用的是同一个 `34 run`，都带 validation），已弃用。后台看护仅检查 `phase2.status`、
+> 8 个 python 进程在跑。**18:10 更正（18:08 的 49–61 h 作废，它是错的）**：段位不同价——Phase 1 的
+> rep0–99 实测 **7.3–11.0 min/rep·worker**（学习/选模/验证，约 21 MB/rep）；停在
+> `out/g03_formal_interrupted_20261029_1935` 的 rep100–280 实测 **1.87–1.88 min/rep**（`tier1_learning_reps=100`，
+> rep≥100 只跑 ATE，约 1 MB/rep）。故 2a Tier2 600 rep ≈ 12–18 h、2b core ATE 1 600 rep ≈ 8–10 h，合计
+> **20–28 h，ETA 10-31 16:00–23:00**；磁盘约 **14 G**（Tier2 ~12.6 G + ATE ~1.6 G），不是 46 G。
+> 18:06 实测 Tier2 14 rep / 28 min（≈0.5 rep/min，早期批次含启动开销）。看护仍只看 `phase2.status`、
 > python 存活、最新 `row.json`（>70 min 无更新才报警）。
 > 跑完脚本自动 merge → `_final` 核对 → 复合 run_summary（exit 12）。
 > **看护口径**：`out/g03_logs/phase2.status`（`tier2_exit=` / `core_ate_exit=` / `merge_exit=` /

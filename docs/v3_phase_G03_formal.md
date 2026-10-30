@@ -58,7 +58,8 @@ core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **16–17 h**（
 | 17:37:55 | **Phase 2a 启动**（用户批准，`nohup bash scripts/51_g03_phase2.sh`，bash 包装 PID 1507）：快照绑定 `6fdaf7bb…` 通过；`20 格 / 60 个分片；workers=6 status=formal`；60 s 内 6 个分片目录已建、8 个 python 进程在跑；预计约 16 h（Tier2 ~14 h + core 尾巴 ~2 h） |
 | 17:45 | Phase 2 在跑：Tier2 6 个分片已建（`L0_Pi_heterogeneous_cost` / `L0_zero_purchase_effect` 各 3 分片），`rep10`–`rep20` 目录已开、`row.json` 尚未落，`phase2.log` 无 error；8 个 python 进程在跑。**更正 17:38 的 ETA**：Phase 2b 是 core 4 格 × rep100–499 = **1 600 rep（不是 400）**；按 Phase 1 实测 ATE 段 ~1.9 min/rep、6 路 ≈ 8.5 h，Tier2 600 rep 按 ~8 min/rep、6 路 ≈ 13 h，加 merge ≈ **22 h ⇒ ETA 10-31 15:30–16:30**。磁盘按 20 MB/rep 上界估 ~44 G（实际 ATE 段更小），当前可用 76 G |
 | 17:48 | 自动收尾挂后台：轮询到 `phase2.status` 的 OK 行后自动执行 `63_g03_finalize.sh`（41 `--check` → 62 演练 → 41 导出 → 33 dry-run → 48 取数）并跑 `49 --with-check`（只读）；日志 `out/g03_logs/auto_finalize.log`，状态仍看 `finalize.status`。33 实登记与 §3 填数保持人工 |
-| 18:08 | **ETA 按实测重估（17:45 的 22 h 作废）**：Phase 1 40 个分片 × 10 rep 的 `row.json` 时间戳给出 **7.3–11.0 min/rep·worker（中位 8.6）**；2a/2b 调的是同一个 `34 run`（均带 validation），故 Phase 2 共 2 200 rep ÷ 6 workers ≈ **49–61 h**，Tier2 预计 10-31 09:00–14:00 交段，**全链 ETA 11-01 22:00 – 11-02 06:00**。18:06 Tier2 实测 14 rep / 28 min（≈0.5 rep/min，早期批次含启动开销） |
+| 18:08 | ~~ETA 49–61 h（11-01 22:00 – 11-02 06:00）~~ **18:10 判定此行为误算并作废**：当时误以为 2a/2b 同价，忽略了 `tier1_learning_reps=100` |
+| 18:10 | **ETA 更正（18:08 行作废）**：分段实测——rep0–99 学习段 7.3–11.0 min/rep（约 21 MB/rep），rep≥100 只跑 ATE，`out/g03_formal_interrupted_20261029_1935` 的 rep100–280 实测 **1.87–1.88 min/rep**（每 rep 2 个文件、约 1 MB）。故 2a Tier2 600 rep ≈ 12–18 h、2b core ATE 1 600 rep ≈ 8–10 h，**总计 20–28 h，ETA 10-31 16:00–23:00**；磁盘约 14 G。18:06 Tier2 实测 14 rep / 28 min（≈0.5 rep/min，早期批次含启动开销） |
 | 待填 | Phase 2b（core ATE 尾巴）与多根 merge（`core_ate_exit=0` / `merge_exit=0`） |
 
 **续跑纪律（失败时）**：`--resume` 只救"跑到一半被杀、有 `repetitions_provisional.csv`"的分片；
