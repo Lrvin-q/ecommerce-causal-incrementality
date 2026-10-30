@@ -1,6 +1,28 @@
 # AGENT 交接说明 —— v3 重建
 
-## 最新交接（2026-10-30 17:38，北京时间）
+## 最新交接（2026-10-30 18:05，北京时间）
+
+- **G03 Phase 2 跑中**（17:37:55 起，`nohup bash scripts/51_g03_phase2.sh`）：2a Tier2 20 格 × rep0–29
+  （600 rep，6 workers）→ 2b core 4 格 × rep100–499（**1 600 rep**，17:45 更正，原写 400 有误）→
+  复合根 → merge → `_final` 行数核对 → 合成复合 `run_summary.json`（exit 12）。**ETA 10-31 15:30–16:30**
+  （原 16 h / 10-31 10:00 作废）。18:02 实测：Tier2 12 个 `row.json`、0 个 `repetitions.csv`（首批分片未满 10 rep），
+  最新写入 18:02；进程用 PowerShell `Get-CimInstance Win32_Process` 查。
+- **自动收尾链已挂**（17:48:04 起）：后台等 `phase2.status` 出现 `OK:` 后自动跑
+  `scripts/63_g03_finalize.sh`（41 检查 → 62 演练 → 41 导出 → 33 `--dry-run` → 48 取数），日志
+  `out/g03_logs/auto_finalize.log`、状态 `out/g03_logs/finalize.status`；**33 实登记与 G03 §3 仍须人工复核后做**。
+- **G04 审计已刷新**（17:47，commit `fd2211d`）：`docs/v3_G04_收尾审计.md` 统刷为 17:47 快照
+  （50 页 / 77 398 字 / 实质页 32 / 已通过 15 行），阻断链改按 Phase 2 → 51 exit 12 → 63 → 33 → 49 → 论文门禁。
+- **H03 视觉审计初稿 + 引号修复**（18:02，commit `2df7f74`）：`docs/reviews/v3_phase_H03_visual.md`（50 页，
+  有条件通过，P0 0 / P1 5 / P2 10）；`build.sh` 在 md 阶段成对翻转中文引号，body.tex 由 62:1044 修回 553:553，
+  页数仍 50、43/42 全绿，P1-1 关闭；**P1-2…P1-5 延后到 G03 阶段 B 并入后的终稿重建一并做**（表 3-21/3-22 缺来源注、
+  表 3-1 注跨页、[Cxx] 引用样式）。
+- **Phase 2 OK 之后的人工序列**：核 `auto_finalize.log`/`finalize.status` → 人工复核 33 `--dry-run` 清单 →
+  `33 --with-register` 实登记 → 填 G03 §3（必须带 §3.0 的 D1-A 披露）→ `49 --with-check --with-register --with-claims`
+  全绿 → 论文并入阶段 B 数字并重跑 43/52/42 → H03 重审。
+- **运行期纪律不变**：`configs/v3` 冻结哈希 `00723dc2…`、源码头只读、不装包、不跑全量 pytest；磁盘 76 G，
+  Phase 2 共 2 200 rep 按 20 MB/rep 上界估 ~44 G。
+
+## 交接（2026-10-30 17:38，北京时间）
 
 - **G03 Phase 1 已完成**（05:55:41）：`out/g03_logs/phase1.status` = `phase1_exit=0` / `merge_exit=0` /
   `OK: G03 Phase1 core prefix 完成`；4 格各 100 rep，`_final` 四份均 `repetitions_provisional.csv`
