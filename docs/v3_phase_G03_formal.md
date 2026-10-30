@@ -1,10 +1,11 @@
 # G03 正式报告 —— Tier1 core 四格 + Tier2 二十格矩阵（G03 骨架）
 
 > **合成数据 / 已知 DGP**。本报告只回答"在注册的 24 个机制场景下，策略价值与决策通过率如何"，
-> 不表示任何真实业务效果。维护时间：2026-10-30 00:41（北京时间）。
-> 当前状态：**阶段 A 已完成，§4 已填（24 格固定 bootstrap）**；阶段 B 拆批，Phase 1（core rep0–99）跑中
-> （00:39 **整分片口径** 170/400：`L0_P_main` 100/100、`L1_main` 70/100；00:32/00:34 的 181/182 是
-> rep 目录口径、含在跑分片已开始的 rep，两口径不可混用，见 §2 00:40 行）；Phase 2（Tier2 20 格 + core rep100–499）待用户另约时间。
+> 不表示任何真实业务效果。维护时间：2026-10-30 17:37（北京时间）。
+> 当前状态：**阶段 A 已完成，§4 已填（24 格固定 bootstrap）**；**Phase 1（core rep0–99）已完成**
+> （2026-10-30 05:55:41 `phase1_exit=0`/`merge_exit=0`，4 格各 100 rep；`_final` 四份均为
+> `repetitions_provisional.csv`，`all_complete=false` 属预期）；Phase 2（Tier2 20 格 + core rep100–499）
+> **尚未启动**，待用户另约时间（17:36 复核：`out/g03_tier2|core_ate|formal` 均不存在，无 python 进程）。
 > §3 仍待填，但 **§3.0 的 D1-A 披露已按裁决原样写入**（空转格不构成机制证据）。
 
 ## 1. 设计
@@ -52,7 +53,8 @@ core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **16–17 h**（
 | 00:02 | Phase 1 进度 **164/400**（`L0_P_main` 100/100 已完成，`L1_main` 6 个分片在跑）；23:44–00:12 三个读数 154→163→164，折 0.56–0.70 rep/min，ETA 顺延 **10-30 05:30–07:00**；`phase1.log` 无 error |
 | 00:34 | Phase 1 进度 **182/400**（L0 100/100、L1 81/100、L2 1）；L1 批次耗时 5–15 min/10 rep，6 个 spawn worker 均在；`phase1.log` 无 error/traceback；ETA 维持 10-30 05:30–07:00 |
 | 00:40 | Phase 1 **整分片完成 170/400**（`repetitions.csv` 数据行口径：L0 100/100、L1 70/100；在跑分片 `L1_main_s0006/s0008/s0009` 已开 10/4/3 个 rep 目录，未计入）。**口径变更**：00:02/00:32/00:34 的 164/181/182 数的是 rep 目录（含在跑分片已开始的 rep），此后一律用整分片口径。同刻 `phase1.log` 无 error |
-| 待填 | Phase 1 完成（`out/g03_logs/phase1.status` 出现 `OK: G03 Phase1 core prefix 完成`） |
+| 05:55:41 | **Phase 1 完成并合并**：`phase1.status` 记 `phase1_exit=0` / `merge_exit=0` / `OK: G03 Phase1 core prefix 完成`；4 格各 100 rep（`_final` 四份均 `repetitions_provisional.csv`，`all_complete=false` 属预期 R=100/500），`duplicates_removed=0`；`run_summary.json` = `status=formal` / `failures=[]` / `bootstrap_resamples=0` |
+| 17:36 | 复核 Phase 2 状态：`out/g03_tier2`、`out/g03_core_ate`、`out/g03_formal` 均不存在（**Phase 2 一步未跑**）；无 python 进程，机器空闲；磁盘 76 G 可用，Phase 1 产物 8.1 G（≈20 MB/rep，据此估 Phase 2 约 20 G） |
 | 待填 | Phase 2（Tier2 + core ATE 尾巴）与多根 merge（`g03_exit=0`） |
 
 **续跑纪律（失败时）**：`--resume` 只救"跑到一半被杀、有 `repetitions_provisional.csv`"的分片；

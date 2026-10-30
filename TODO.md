@@ -1,10 +1,19 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-30 00:41（北京时间；`date -u` + 8h 读数。12:30/12:31 两条写于本机时钟校正前，不追改；20:31–20:35 四条曾误标为 20:35/20:40/20:43/20:46，已按同一读数更正）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-30 17:37（北京时间；`date -u` + 8h 读数。12:30/12:31 两条写于本机时钟校正前，不追改；20:31–20:35 四条曾误标为 20:35/20:40/20:43/20:46，已按同一读数更正）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
 
-> **最新动作（00:41）**：**Phase 2 入口再补一处预检缺口**——41 号要求 `out/g03_formal/run_summary.json`
+> **最新动作（17:37）**：**G03 Phase 1 已跑完**——`out/g03_logs/phase1.status` 记 **2026-10-30 05:55:41**
+> `phase1_exit=0` / `merge_exit=0` / `OK: G03 Phase1 core prefix 完成`；4 格各 100 rep 齐，`_final` 四份都是
+> `repetitions_provisional.csv`、`all_complete=false`（属预期：R=100/500），`duplicates_removed=0`；
+> `run_summary.json` = `status=formal` / `failures=[]` / `bootstrap_resamples=0`。
+> **Phase 2 一步未跑**：`out/g03_tier2`、`out/g03_core_ate`、`out/g03_formal` 均不存在；当前无 python 进程在跑，
+> 机器空闲。磁盘可用 **76 G**；Phase 1 产物 8.1 G（≈20 MB/rep），据此估 Phase 2（1000 rep）约 20 G。
+> **下一步（等 D4 窗口）**：`nohup bash scripts/51_g03_phase2.sh`（前置 OK 行已满足）；预计 Tier2 600 rep
+> ~14 h + core 尾巴 400 rep ~2 h ≈ **16 h**，跑完脚本自动 merge → `_final` 核对 → 复合 run_summary（exit 12）。
+
+> **上一动作（00:41）**：**Phase 2 入口再补一处预检缺口**——41 号要求 `out/g03_formal/run_summary.json`
 > （`status=formal`、`failures=[]`、`bootstrap_resamples=0`），但 `34 merge` 只写 `merge_report.json`
 > 且落在 `roots[0]`；不补的话，几小时的 Phase 2 跑完会在 41 号处直接判"缺 run_summary.json（未跑完）"。
 > 已在 `scripts/51_g03_phase2.sh` 末尾加 **exit 12 步**：三份源 summary（formal / 无 failures / resamples=0，

@@ -1,6 +1,20 @@
 # AGENT 交接说明 —— v3 重建
 
-## 最新交接（2026-10-30 00:41，北京时间）
+## 最新交接（2026-10-30 17:38，北京时间）
+
+- **G03 Phase 1 已完成**（05:55:41）：`out/g03_logs/phase1.status` = `phase1_exit=0` / `merge_exit=0` /
+  `OK: G03 Phase1 core prefix 完成`；4 格各 100 rep，`_final` 四份均 `repetitions_provisional.csv`
+  （`all_complete=false` 属预期，R=100/500），`duplicates_removed=0`；根 `run_summary.json` =
+  `status=formal` / `failures=[]` / `bootstrap_resamples=0`。
+- **Phase 2 一步没跑**（17:36 复核）：`out/g03_tier2`、`out/g03_core_ate`、`out/g03_formal` 都不存在；
+  无 python 进程，机器空闲；磁盘 76 G 可用（Phase 1 产物 8.1 G，≈20 MB/rep，Phase 2 约 20 G）。
+- **开跑命令（等用户窗口）**：`nohup bash scripts/51_g03_phase2.sh`。脚本前置检查 `phase1.status` 的 OK 行
+  （已满足）；依次跑 Tier2 20 格 rep0–29（600 rep，~14 h）→ core rep100–499（400 rep，~2 h）→ 建复合根 →
+  merge → `_final` 行数核对 → 合成复合 `run_summary.json`（exit 12）。**总估约 16 h**。
+- **跑完之后**：`41 --check` → `41` 导出 → `33 --dry-run` 人工复核后登记 → 填 G03 §3（必须带 §3.0 的
+  D1-A 披露）→ `48` 报告；再做 G04 `49 --with-check --with-register --with-claims` 全绿 + 一次失败→恢复演练。
+
+## 交接（2026-10-30 00:41，北京时间）
 
 - **Phase 2 脚本已加一步（00:39，`scripts/51_g03_phase2.sh`）**：41 号要 `out/g03_formal/run_summary.json`，
   而 `34 merge` 只写 `merge_report.json`（落在 `roots[0]`）。脚本末尾新增 exit 12 步，合成
