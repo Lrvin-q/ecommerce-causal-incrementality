@@ -24,6 +24,9 @@
 > `run_summary.json`，不碰 `rep*` 数据目录），41 基线 EXIT=0 → 注入重复 rep → 必须 EXIT≠0 且输出指向 rep →
 > 复原 → 重新 EXIT=0；任一步不符即非零。矩阵未 merge 时 exit 3 拒绝空演（已实测）。Phase 2 收尾后先跑它，
 > 再跑 `49 --with-check --with-register --with-claims`。
+> **17:43 收尾链已固化**：`scripts/63_g03_finalize.sh --with-register?`——Phase 2 的 OK 行出现后一次跑
+> 41 `--check` → 62 演练 → 41 导出 → 33 `--dry-run` → 48 取数；实登记默认不做，人工复核后加 `--with-register`。
+> 状态看 `out/g03_logs/finalize.status`；Phase 2 未完成时 exit 3 拒绝空跑（已实测）。
 
 > **上一动作（00:41）**：**Phase 2 入口再补一处预检缺口**——41 号要求 `out/g03_formal/run_summary.json`
 > （`status=formal`、`failures=[]`、`bootstrap_resamples=0`），但 `34 merge` 只写 `merge_report.json`
