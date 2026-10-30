@@ -13,9 +13,11 @@
 > Phase 2 共 2 200 rep 按 21 MB/rep 估 **~46 G**，收尾后仍余 ~30 G（2026-10-30 18:04 按 Phase 1 逐格 `du` 校准）。
 > **17:38 已按用户批准开跑 Phase 2**：`nohup bash scripts/51_g03_phase2.sh`（PID 1507 为 bash 包装进程）；
 > 日志实录：快照绑定 `6fdaf7bb7ee3c63e…` 通过、`20 格 / 60 个分片；workers=6 status=formal`，60 s 内已建 6 个分片、
-> 8 个 python 进程在跑。**17:45 更正 ETA**：Phase 2b 是 core 4 格 × rep100–499 = **1 600 rep（原写 400 有误）**，
-> 按 Phase 1 实测 ATE 段 ~1.9 min/rep、6 路 ≈ 8.5 h；Tier2 600 rep 按 ~8 min/rep、6 路 ≈ 13 h，加 merge ≈ **22 h
-> ⇒ ETA 10-31 15:30–16:30**（原 16 h / 10-31 10:00 作废）。后台看护仅检查 `phase2.status`、python 存活、最新 `row.json`。
+> 8 个 python 进程在跑。**18:08 按实测重估 ETA（17:45 的 22 h 作废）**：Phase 1 40 个分片 400 rep 实测
+> **7.3–11.0 min/rep·worker（中位 8.6）**；Phase 2 共 2 200 rep / 6 workers ≈ **49–61 h**。Tier2 600 rep
+> 预计 10-31 09:00–14:00 交段，**全链 ETA 11-01 22:00 – 11-02 06:00**。17:45 写的 "core ATE ~1.9 min/rep"
+> 与分片实测不符（2a/2b 用的是同一个 `34 run`，都带 validation），已弃用。后台看护仅检查 `phase2.status`、
+> python 存活、最新 `row.json`（>70 min 无更新才报警）。
 > 跑完脚本自动 merge → `_final` 核对 → 复合 run_summary（exit 12）。
 > **看护口径**：`out/g03_logs/phase2.status`（`tier2_exit=` / `core_ate_exit=` / `merge_exit=` /
 > `final_check_exit=` / `composite_summary_exit=` 与末行 `OK:` 或 `ABORT`）；`phase2.log` 逐分片进度；
