@@ -223,6 +223,14 @@
   状态文件 `out/g03_logs/phase2.status`（`tier2_exit=` / `core_ate_exit=` / `merge_exit=` /
   `final_check_exit=` / `composite_summary_exit=`，末行 `OK:` 或 `ABORT:`）；进程用
   PowerShell `Get-CimInstance Win32_Process` 查（Git Bash `ps` 看不到 nohup 子进程属正常）。
+- **10-30 18:09 复合根 junction 自测（G04 演练的一部分）**：在 `out/scratch/` 建临时源目录后执行
+  `cmd //c mklink //J <dst> <src>` → rc=0，目标属性 `Directory, ReparsePoint`，可读；`cmd //c rmdir <dst>`
+  移除链接后源文件仍在（未误删）。结论：Phase 2 末尾的复合根**不会**回退到 `cp -r` 全量复制
+  （否则 14 G 级数据会多占一份并放大 exit 10/11 的风险）；临时目录已清理。
+- **10-30 18:10 ETA 更正**：rep0–99 学习段 7.3–11.0 min/rep，rep≥100 只跑 ATE（`tier1_learning_reps=100`），
+  `out/g03_formal_interrupted_20261029_1935` 的 rep100–280 实测 **1.87–1.88 min/rep**（每 rep 约 1 MB）。
+  2a 600 rep ≈ 12–18 h + 2b 1 600 rep ≈ 8–10 h ⇒ **20–28 h，ETA 10-31 16:00–23:00**；磁盘约 14 G。
+  17:38 的 16 h 与 18:08 的 49–61 h 均作废（后者误把 2a/2b 当同价）。
 - **10-30 17:43 收尾链脚本**（`scripts/63_g03_finalize.sh`）：Phase 2 的 `OK:` 出现后一次跑
   41 `--check` → 62 篡改→复原演练 → 41 导出 → 33 `--dry-run` → 48 取数（结果落
   `out/g03_logs/g03_matrix_report.txt`）。33 **实登记默认不做**：人工复核 dry-run 后加 `--with-register`
