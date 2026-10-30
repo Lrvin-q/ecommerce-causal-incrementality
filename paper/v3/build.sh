@@ -80,6 +80,11 @@ out, n = re.subn(r"\\texttt\{([^{}]*)\}", brk, t)
 out, n_cap = re.subn(r"(?m)^(\\textbf\{表 \d+-\d+[^\n]*\})$",
                      lambda m: "\\needspace{6\\baselineskip}\n" + m.group(1), out)
 
+# 主张登记号 [C123] 与文献引用 [1] 同形，且方括号撑宽窄列（H03 P1-5）。
+# 只改排版：md 保留 [C123] 供 42 号门禁逐条回指，PDF 印成小号上标 C123。
+out, n_claim = re.subn(r"(?:\{\[\}|\[)C(?P<n>\d+)(?:\{\]\}|\])",
+                       r"\\textsuperscript{C\g<n>}", out)
+
 # 数据来源注里路径多、可断点少，两端对齐会把整行拉出大空隙（badness 10000）。
 # 这类块引用改成左对齐：断行位置不变，只是不再拉伸字距。
 def ragged(m):
@@ -93,6 +98,7 @@ ragged.done = 0
 out, n_quote = re.subn(r"\\begin\{quote\}.*?\\end\{quote\}", ragged, out, flags=re.S)
 p.write_text(out, encoding="utf-8")
 print(f"tex path breaks: {n} inline spans scanned; caption orphans guarded: {n_cap}; "
+      f"claim ids as superscript: {n_claim}; "
       f"quotes scanned: {n_quote}, source notes set ragged: {ragged.done}")
 PYEOF
 "$PY" "$BUILD/normalize_quotes.py" "$HERE/abstract.md" "$BUILD/abstract.md"
