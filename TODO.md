@@ -531,6 +531,10 @@ ef`（LaTeX 实际编号是"图 1/图 2"）。**43 EXIT=0**：字数占比 **57.
   **边界**：交付 ≠ 独立验收，仍须独立结构/视觉评审。
   **挂起说明（18:29）**：独立评审已派后台代理，报告应落 `docs/reviews/v3_phase_H01_review.md`；截至本次暂停
   尚未见文件。**恢复会话后先查该文件**：有则按条件处理并复核其是否自行复算；无则重新派评审（H01 不得自封通过）。
+  **18:32 评审已回：PASS WITH CONDITIONS，C1/C2 必修**。C1＝所谓 `PowerPoint.Application` 的 CLSID 实际是
+  **WPS 演示（wpp.exe）**，“本机有 PowerPoint COM / PowerPoint 原生元素”的表述**不成立**，须全文更正；
+  C2＝PPTX 被 `spAutoFit` 改动且标题居中、与 CSV/SVG 几何不一致。**下一步**：改口径 → 关 autofit 或以 PPTX
+  回写 CSV/SVG → 重跑生成器 → 重新评审；同时按 §12.4 全文 grep 旧说法（本文、G04 审计、交接、18:23 反思日志）。
 - **11:54 H05 的 S12 关闭**：官方 D&B 2021 索引页 → 摘要页 → PDF 三段互证，题名/四位作者/venue
   一字不差（hash `2a79ea27…b00a`，round 2），升级为**官方 proceedings ✓**；该轨道无 DOI，
   不冒充 Crossref ✓。11:36 的"站内检索无结果"是检索方式不对，且我手拼 URL 时把哈希写错两位得到 404

@@ -38,6 +38,29 @@
 
 页脚统一标注「合成数据 / 已知 DGP · 形状为 PowerPoint 原生元素（可编辑，非截图）· 口径与论文第 2–3 章一致」。
 
+## 1.5 独立评审结论（2026-10-30 18:32，报告 `docs/reviews/v3_phase_H01_review.md`）
+
+**PASS WITH CONDITIONS**（6 条条件，C1/C2 必须修；无 FAIL）。评审独立复算：3 页 slide、形状 16/17/17
+（sp 10/11/11 + cxnSp 6/6/6）、`a:blip`=0 且 `ppt/media/` 空、PNG 均 2000×1125（IHDR 直读）、
+CSV 50 数据行/51 物理行、32 个文本元素**整串**一致（不是 12 字符前缀）、SVG rect/line 与 CSV 零误差、
+8 个 sha256 与本文指纹表 8/8 相同。
+
+**C1（事实更正，必须修）**：`PowerPoint.Application` 的 CLSID `{91493441-…}` 的 `LocalServer32`
+指向 **wpp.exe（WPS 演示）**，PPTX 包内 `app.xml` 亦写 `WPS 演示`。因此：
+- 本文 §2 与 18:18/18:23 记录里“本机有 PowerPoint COM”“PowerPoint 原生元素”的说法**不成立**，
+  应改为“WPS 演示 COM（ProgID 借用了 `PowerPoint.Application`）”。
+- 页脚“形状为 PowerPoint 原生元素”需改为“演示文稿原生形状（WPS 演示 COM 生成）”或等价表述。
+- 换到真 PowerPoint 重建时**坐标可能变化**，不能假定与本次像素级一致。
+
+**C2（结构不一致，必须修）**：12 个文本框在 PPTX 内被 `spAutoFit` 改写过（y +3.0～+5.4 pt、
+h −1.0～−11.1 pt），而 CSV/SVG 仍是建页前规格；且 PPTX 段落 `algn="ctr"` 与 SVG 左对齐不一致
+（标题视觉差约 260 pt）。即**三件套不是同一几何**，须以 PPTX 实测值为准回写 CSV/SVG，或关闭 autofit。
+
+**C3–C5（口径建议）**：三口径命名与正文表 3-14（期望/缓冲/面值）冲突；方法一画两臂而正文 F02 是三臂；
+OPE 缺“名单×预算档”输入；“每 rep 20 万”与 F01 的 6 万审计帧混写。C6 为文档建议。
+
+**处置状态**：C1/C2 未修，H01 仍为「未证实」；修复后须重跑生成器并重新评审。
+
 ## 2. 工具链路线（不装包）
 
 正式跑期间不得装包（AGENTS §11 的配套约束），本机也**没有 LibreOffice**。18:18 实测本机
