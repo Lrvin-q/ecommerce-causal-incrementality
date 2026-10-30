@@ -17,7 +17,8 @@
 - **教训（已入反思日志 18:17 / 18:23 条）**：① 守卫正则漏 `re.S` 会静默 0 命中，必须核对替换计数；
   ② "缺包"不等于"缺能力"，判硬阻塞前先给目标能力写最小探针（COM 一行即推翻 H01 的 11:55 结论）；
   ③ PowerShell 5.1 的"脚本编码"与"载荷编码"要分开管（PS1 纯 ASCII、中文走 UTF-8 JSON）。
-- **Phase 2 OK 之后的人工序列不变**：核 `auto_finalize.log`/`finalize.status` → 人工复核 33 `--dry-run` →
+- **Phase 2 OK 之后的人工序列不变**：核 `finalize.status` + `auto_finalize.out`（**不要信 `auto_finalize.log`
+  里 `[auto] 63 exit=`——那是管道里 `tee` 的退出码**）→ 人工复核 33 `--dry-run` →
   `33 --with-register` → 填 G03 §3（带 §3.0 D1-A 披露）→ `49 --with-check --with-register --with-claims` 全绿 →
   论文并入阶段 B 数字 → 43/52/42 → H03 重审 → H01 评审收口。
 - **运行期纪律不变**：`configs/v3` 冻结哈希 `00723dc2…`、源码头只读、不装包、不跑全量 pytest。
