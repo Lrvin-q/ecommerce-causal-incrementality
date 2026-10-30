@@ -80,6 +80,25 @@ out, n = re.subn(r"\\texttt\{([^{}]*)\}", brk, t)
 out, n_cap = re.subn(r"(?m)^(\\textbf\{表 \d+-\d+[^\n]*\})$",
                      lambda m: "\\needspace{6\\baselineskip}\n" + m.group(1), out)
 
+# 表体与紧随其后的数据来源注必须同页（H03 P1-4：表 3-1 的注被切到下一页页首）。
+# 有注块时把题注前的 needspace 抬到「题注 + 表行 + 注行」的高度，空间不够整块下移；
+# 没有注块的表仍按 6 行处理。
+def note_floor(m):
+    caption, body, tail = m.group(1), m.group(2), m.group(3)
+    if "\\begin{quote}" not in tail[:400]:
+        return m.group(0)
+    rows = body.count("\\\\")
+    quote = tail.split("\\end{quote}")[0]
+    note_lines = -(-len(re.sub(r"\s+", "", quote)) // 40) + 1
+    need = max(10, min(26, 4 + rows + note_lines))
+    return "\\needspace{%d\\baselineskip}\n%s%s%s" % (need, caption, body, tail)
+
+out, n_note = re.subn(
+    r"\\needspace\{6\\baselineskip\}\n(\\textbf\{表 \d+-\d+[^\n]*\}\n)"
+    r"(.*?\\end\{longtable\}\n\})"
+    r"((?:(?!\\needspace\{6\\baselineskip\}|\\textbf\{表 )[\s\S]){0,600})",
+    note_floor, out, flags=re.S)
+
 # 主张登记号 [C123] 与文献引用 [1] 同形，且方括号撑宽窄列（H03 P1-5）。
 # 只改排版：md 保留 [C123] 供 42 号门禁逐条回指，PDF 印成小号上标 C123。
 out, n_claim = re.subn(r"(?:\{\[\}|\[)C(?P<n>\d+)(?:\{\]\}|\])",
@@ -98,6 +117,7 @@ ragged.done = 0
 out, n_quote = re.subn(r"\\begin\{quote\}.*?\\end\{quote\}", ragged, out, flags=re.S)
 p.write_text(out, encoding="utf-8")
 print(f"tex path breaks: {n} inline spans scanned; caption orphans guarded: {n_cap}; "
+      f"table+source-note kept together: {n_note}; "
       f"claim ids as superscript: {n_claim}; "
       f"quotes scanned: {n_quote}, source notes set ragged: {ragged.done}")
 PYEOF
