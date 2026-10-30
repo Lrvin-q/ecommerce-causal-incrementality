@@ -13,6 +13,8 @@ rm -rf "$BUILD/figures"
 cp -r "$HERE/figures" "$BUILD/figures"
 
 # 目录模式：按文件名顺序拼接各章，落盘成 body.md，供 build 与 43/44 共用同一份正文。
+PY="$ROOT/.venv/Scripts/python.exe"
+[ -x "$PY" ] || PY=python
 if [ -d "$BODY" ]; then
   : > "$BUILD/body.md"
   for part in "$BODY"/*.md; do
@@ -21,15 +23,44 @@ if [ -d "$BODY" ]; then
     printf '\n\n' >> "$BUILD/body.md"
   done
   BODY="$BUILD/body.md"
+else
+  cp "$BODY" "$BUILD/body.md"
+  BODY="$BUILD/body.md"
 fi
+
+# H03 视觉审计 2026-10-30：中文语境下 pandoc 的 smart 把绝大多数 ASCII " 判成右引号
+# （body.tex 实测 `` : '' = 62 : 1044，PDF 上开引号全变右引号）。改为在 md 阶段按顺序
+# 成对翻转 "→“/”，行内代码跨度（`...`）原样保留；各章 " 个数均为偶数，配对不会跨章漂移。
+cat > "$BUILD/normalize_quotes.py" <<'PYEOF'
+import pathlib, re, sys
+src = pathlib.Path(sys.argv[1])
+dst = pathlib.Path(sys.argv[2]) if len(sys.argv) > 2 else src
+t = src.read_text(encoding="utf-8")
+parts = re.split(r"(`[^`\n]*`)", t)
+open_q = True
+out = []
+for i, seg in enumerate(parts):
+    if i % 2:
+        out.append(seg)
+        continue
+    buf = []
+    for ch in seg:
+        if ch == '"':
+            buf.append("\u201c" if open_q else "\u201d")
+            open_q = not open_q
+        else:
+            buf.append(ch)
+    out.append("".join(buf))
+dst.write_text("".join(out), encoding="utf-8")
+print(f"quote-normalize {src.name}: {t.count(chr(34))} ascii quotes -> curly, balanced={open_q}")
+PYEOF
+"$PY" "$BUILD/normalize_quotes.py" "$BODY"
 
 pandoc "$BODY" -f markdown+pipe_tables+tex_math_dollars -t latex --biblatex --wrap=preserve \
   -o "$BUILD/body.tex"
 
 # 长路径（\texttt{...}）默认无法断行，会把块引用撑出版心（H03「无裁切」）。
 # 在每个 "/" 与 "\_" 之后插入 \allowbreak{}，让路径可以续行；不改内容，只加断行点。
-PY="$ROOT/.venv/Scripts/python.exe"
-[ -x "$PY" ] || PY=python
 "$PY" - "$BUILD/body.tex" <<'PYEOF'
 import pathlib, re, sys
 p = pathlib.Path(sys.argv[1])
@@ -64,9 +95,10 @@ p.write_text(out, encoding="utf-8")
 print(f"tex path breaks: {n} inline spans scanned; caption orphans guarded: {n_cap}; "
       f"quotes scanned: {n_quote}, source notes set ragged: {ragged.done}")
 PYEOF
+"$PY" "$BUILD/normalize_quotes.py" "$HERE/abstract.md" "$BUILD/abstract.md"
 {
   printf '\\begin{abstract}\n\\linespread{1.04}\\selectfont\\small\n'
-  pandoc "$HERE/abstract.md" -f markdown -t latex --wrap=preserve
+  pandoc "$BUILD/abstract.md" -f markdown -t latex --wrap=preserve
   printf '\n\\end{abstract}\n'
 } > "$BUILD/abstract.tex"
 
