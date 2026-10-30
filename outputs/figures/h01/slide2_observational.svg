@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+<rect width="960" height="540" fill="#FFFFFF"/>
+<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#595959"/></marker></defs>
+<text x="40" y="43.6" font-family="Microsoft YaHei" font-size="24" font-weight="bold" fill="#1F3864">方法二　观测因果与学习：从历史数据到异质效应</text>
+<text x="40" y="67.0" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#595959">用历史观测数据学条件平均效应，靠特征白名单与独立验证集挡住泄漏，再用交叉拟合 OPE 做审计。</text>
+<text x="40" y="90.7" font-family="Microsoft YaHei" font-size="11" font-weight="bold" fill="#5B3E8E">对应：D03（常数 / T / S / 因果森林 / DR 五类估计器）· F01（IPW / DR / SNIPS 与拒绝规则）</text>
+<rect x="40" y="150" width="150" height="70" rx="10" fill="#2F5597" stroke="none"/>
+<text x="115.0" y="181.4" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">历史观测数据</text>
+<text x="115.0" y="197.7" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">（五表 / SQL）</text>
+<rect x="230" y="150" width="150" height="70" rx="10" fill="#2F5597" stroke="none"/>
+<text x="305.0" y="181.4" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">六字段白名单</text>
+<text x="305.0" y="197.7" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">（禁泄漏特征）</text>
+<rect x="40" y="270" width="340" height="82" rx="10" fill="#1F3864" stroke="none"/>
+<text x="210.0" y="299.3" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">五类估计器</text>
+<text x="210.0" y="315.6" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">常数 / T / S / 因果森林 / DR</text>
+<text x="210.0" y="331.8" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">同 rep、同用户配对</text>
+<rect x="420" y="270" width="190" height="82" rx="10" fill="#B05A1E" stroke="none"/>
+<text x="515.0" y="307.4" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">验证集选模</text>
+<text x="515.0" y="323.7" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">测试集不参与学习</text>
+<rect x="660" y="270" width="260" height="82" rx="10" fill="#5B3E8E" stroke="none"/>
+<text x="790.0" y="307.4" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">条件效应 τ̂(X)</text>
+<text x="790.0" y="323.7" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">按用户排序</text>
+<rect x="420" y="396" width="190" height="82" rx="10" fill="#2E7D5B" stroke="none"/>
+<text x="515.0" y="433.4" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">交叉拟合 OPE</text>
+<text x="515.0" y="449.7" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">IPW / DR / SNIPS</text>
+<rect x="660" y="396" width="260" height="82" rx="10" fill="#2E7D5B" stroke="none"/>
+<text x="790.0" y="433.4" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">冻结帧审计</text>
+<text x="790.0" y="449.7" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">名单与真值逐档对照</text>
+<text x="40" y="510.4" font-family="Microsoft YaHei" font-size="9" font-weight="normal" fill="#595959">合成数据 / 已知 DGP · 形状为 PowerPoint 原生元素（可编辑，非截图）· 口径与论文第 2–3 章一致</text>
+<line x1="190" y1="185" x2="230" y2="185" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
+<line x1="305" y1="220" x2="305" y2="270" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
+<line x1="380" y1="311" x2="420" y2="311" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
+<line x1="610" y1="311" x2="660" y2="311" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
+<line x1="790" y1="352" x2="610" y2="396" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
+<line x1="610" y1="437" x2="660" y2="437" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
+</svg>

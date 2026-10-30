@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+<rect width="960" height="540" fill="#FFFFFF"/>
+<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#595959"/></marker></defs>
+<text x="40" y="43.6" font-family="Microsoft YaHei" font-size="24" font-weight="bold" fill="#1F3864">方法一　随机实验口径：全臂 ITT</text>
+<text x="40" y="67.0" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#595959">把“发券—不发券”做成真随机，再用分配用户做分母，回答“这套流程本身有没有因果效应”。</text>
+<text x="40" y="90.7" font-family="Microsoft YaHei" font-size="11" font-weight="bold" fill="#5B3E8E">对应：D01 / D02（AA 与 MDE）· F02（每 rep 20 万新用户三臂 ITT）· G01（AA 1000 次）· G02（重训 bootstrap）</text>
+<rect x="40" y="150" width="140" height="64" rx="10" fill="#2F5597" stroke="none"/>
+<text x="110.0" y="178.2" text-anchor="middle" font-family="Microsoft YaHei" font-size="14" font-weight="normal" fill="#FFFFFF">随机分流</text>
+<text x="110.0" y="195.7" text-anchor="middle" font-family="Microsoft YaHei" font-size="14" font-weight="normal" fill="#FFFFFF">（分配单位 = 用户）</text>
+<rect x="230" y="100" width="170" height="62" rx="10" fill="#2F5597" stroke="none"/>
+<text x="315.0" y="127.2" text-anchor="middle" font-family="Microsoft YaHei" font-size="14" font-weight="normal" fill="#FFFFFF">处理臂</text>
+<text x="315.0" y="144.7" text-anchor="middle" font-family="Microsoft YaHei" font-size="14" font-weight="normal" fill="#FFFFFF">发 10 元券</text>
+<rect x="230" y="220" width="170" height="62" rx="10" fill="#2F5597" stroke="none"/>
+<text x="315.0" y="247.2" text-anchor="middle" font-family="Microsoft YaHei" font-size="14" font-weight="normal" fill="#FFFFFF">对照臂</text>
+<text x="315.0" y="264.6" text-anchor="middle" font-family="Microsoft YaHei" font-size="14" font-weight="normal" fill="#FFFFFF">不发券</text>
+<rect x="450" y="100" width="200" height="182" rx="10" fill="#2F5597" stroke="none"/>
+<text x="550.0" y="171.2" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">结果观测</text>
+<text x="550.0" y="187.4" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">7 天支付窗口</text>
+<text x="550.0" y="203.7" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">30 天退款窗口</text>
+<text x="550.0" y="219.9" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">退款单留在样本</text>
+<rect x="700" y="100" width="220" height="82" rx="10" fill="#1F3864" stroke="none"/>
+<text x="810.0" y="129.3" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">主指标</text>
+<text x="810.0" y="145.6" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">净贡献利润 ITT</text>
+<text x="810.0" y="161.8" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">E[Π(1) − Π(0)]</text>
+<rect x="700" y="210" width="220" height="72" rx="10" fill="#2E7D5B" stroke="none"/>
+<text x="810.0" y="234.3" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">校准与护栏</text>
+<text x="810.0" y="250.6" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">AA 1000 次 + 退款率</text>
+<text x="810.0" y="266.8" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">非劣效检验</text>
+<text x="40" y="510.4" font-family="Microsoft YaHei" font-size="9" font-weight="normal" fill="#595959">合成数据 / 已知 DGP · 形状为 PowerPoint 原生元素（可编辑，非截图）· 口径与论文第 2–3 章一致</text>
+<line x1="180" y1="182" x2="230" y2="131" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
+<line x1="180" y1="182" x2="230" y2="251" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
+<line x1="400" y1="131" x2="450" y2="170" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
+<line x1="400" y1="251" x2="450" y2="212" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
+<line x1="650" y1="191" x2="700" y2="141" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
+<line x1="810" y1="182" x2="810" y2="210" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
+</svg>

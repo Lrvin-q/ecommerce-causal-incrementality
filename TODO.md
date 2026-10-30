@@ -520,6 +520,12 @@ ef`（LaTeX 实际编号是"图 1/图 2"）。**43 EXIT=0**：字数占比 **57.
   PowerPoint.Application` 成功），因此"原生 PPTX"可在**不装任何包**的前提下生成（COM 建演示文稿、
   用原生形状，自身即 PPTX），PNG 由 COM 导出、SVG 由同一份形状规格直接写出，元素清单从规格落 CSV。
   LibreOffice 仍没有，但不再是前置条件；运行期不装包的红线不受影响。路线与产物在 H01 交付时落盘。
+  **18:23 H01 已交付（COM 路线，未装包）**：`scripts/64_h01_method_figures.py` 以单一 `SPEC` 为事实源，
+  经 UTF-8 JSON + 纯 ASCII PS1 驱动 PowerPoint COM，生成 3 页原生形状 PPTX（102 345 B）、COM 导出
+  3 张 2000×1125 PNG，Python 按同一几何写 3 份 SVG 与 50 行元素清单（`outputs/figures/h01/`）。
+  `verify()` 断言：3 页 slide XML、形状 16/17/17、PNG 尺寸、**PPTX 无位图媒体**（原生形状证据）、
+  逐页文本前缀命中；主负责 18:22 逐张目检通过。文档 `docs/v3_phase_H01_method_figures.md`。
+  **边界**：交付 ≠ 独立验收，仍须独立结构/视觉评审。
 - **11:54 H05 的 S12 关闭**：官方 D&B 2021 索引页 → 摘要页 → PDF 三段互证，题名/四位作者/venue
   一字不差（hash `2a79ea27…b00a`，round 2），升级为**官方 proceedings ✓**；该轨道无 DOI，
   不冒充 Crossref ✓。11:36 的"站内检索无结果"是检索方式不对，且我手拼 URL 时把哈希写错两位得到 404
