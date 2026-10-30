@@ -60,6 +60,7 @@ core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **16–17 h**（
 | 17:48 | 自动收尾挂后台：轮询到 `phase2.status` 的 OK 行后自动执行 `63_g03_finalize.sh`（41 `--check` → 62 演练 → 41 导出 → 33 dry-run → 48 取数）并跑 `49 --with-check`（只读）；日志 `out/g03_logs/auto_finalize.log`，状态仍看 `finalize.status`。33 实登记与 §3 填数保持人工 |
 | 18:08 | ~~ETA 49–61 h（11-01 22:00 – 11-02 06:00）~~ **18:10 判定此行为误算并作废**：当时误以为 2a/2b 同价，忽略了 `tier1_learning_reps=100` |
 | 18:10 | **ETA 更正（18:08 行作废）**：分段实测——rep0–99 学习段 7.3–11.0 min/rep（约 21 MB/rep），rep≥100 只跑 ATE，`out/g03_formal_interrupted_20261029_1935` 的 rep100–280 实测 **1.87–1.88 min/rep**（每 rep 2 个文件、约 1 MB）。故 2a Tier2 600 rep ≈ 12–18 h、2b core ATE 1 600 rep ≈ 8–10 h，**总计 20–28 h，ETA 10-31 16:00–23:00**；磁盘约 14 G。18:06 Tier2 实测 14 rep / 28 min（≈0.5 rep/min，早期批次含启动开销） |
+| 18:28 | Phase 2a 进度 **Tier2 30/600 rep**（`row.json` 口径；18:23→18:28 稳定增长，最近 3 分钟 24 个文件）；8 个 python 进程（6 spawn worker + 2 父）在跑。自动收尾（17:48 起）与 watchdog（17:44 起）均存活。**看护口径更正**：`auto_finalize.log` 的 `[auto] 63 exit=` 取的是管道中 `tee` 的退出码，**不能**作为 63 成功的证据；复核一律以 `out/g03_logs/finalize.status` 与 `auto_finalize.out` 为准 |
 | 待填 | Phase 2b（core ATE 尾巴）与多根 merge（`core_ate_exit=0` / `merge_exit=0`） |
 
 **续跑纪律（失败时）**：`--resume` 只救"跑到一半被杀、有 `repetitions_provisional.csv`"的分片；
