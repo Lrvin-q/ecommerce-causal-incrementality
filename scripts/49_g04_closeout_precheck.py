@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime
@@ -38,17 +39,30 @@ def read(path: Path) -> str:
 
 
 def check_statuses() -> None:
-    for name, text in (("g02_post", read(ROOT / "out/g02_logs/post.status")),
-                       ("chain", read(ROOT / "out/g03_logs/chain.status")),
-                       ("g03_post", read(ROOT / "out/g03_logs/post.status"))):
+    """G03 于 19:36 改拆 Phase1/Phase2（run registry §2.6），旧链与旧看护已退役：
+    只对现行三个状态文件判门，旧文件仅报告，不参与 READY 判定。"""
+    for name, path in (("g02_post", ROOT / "out/g02_logs/post.status"),
+                       ("phase1", ROOT / "out/g03_logs/phase1.status"),
+                       ("phase2", ROOT / "out/g03_logs/phase2.status")):
+        text = read(path)
+        bad_exit = [line.strip() for line in text.splitlines()
+                    if re.fullmatch(r"[a-z0-9_]+_exit=[1-9]\d*", line.strip())]
         if "OK:" in text:
             say("OK ", f"{name}.status 含 OK：{text.strip().splitlines()[-1][:80]}")
+        elif bad_exit:
+            problems.append(f"{name}.status 非零退出：{bad_exit[:4]}")
+            say("FAIL", f"{name}.status 非零退出 {bad_exit[:4]}")
         elif any(token in text for token in ("STOP", "TIMEOUT", "STALL", "FAIL", "ABORT")):
             problems.append(f"{name}.status 失败标记：{text.strip()[:160]}")
             say("FAIL", f"{name}.status 失败标记")
         else:
             pending.append(f"{name} 未完成")
             say("WAIT", f"{name}.status 尚无 OK（当前：{text.strip()[:60] or '空'}）")
+    for name, path in (("chain", ROOT / "out/g03_logs/chain.status"),
+                       ("g03_post", ROOT / "out/g03_logs/post.status")):
+        text = read(path).strip()
+        say("INFO", f"{name}.status 已退役（§2.6），不参与判定："
+                    f"{text.splitlines()[-1][:60] if text else '缺失'}")
 
 
 def check_g02_rows() -> None:

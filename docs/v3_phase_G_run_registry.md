@@ -250,6 +250,7 @@
 | 11:20 | 跑满后在导出阶段必 `KeyError: n_total` | 41 取矩阵逐 rep 表不存在的列 | 改取 `n` + 缺列守卫 + `n_treated+n_control==n`；6 例单测 |
 | 11:37 | `g03_post` 必在阶段 B 结束前超时 | 40 h 窗口基于未经运行期验证的 26.5 h 估算 | 按 G02 实测 8.0 min/rep 改 120 h（PID 3883）；旧 1952 已停（§2.4） |
 | 00:39 | Phase 2 跑完会在 41 号处判"缺 run_summary.json（未跑完）" | 41 要矩阵根 `run_summary.json`；`34 merge` 只写 `merge_report.json` 且落 `roots[0]`，正式矩阵根是临时复合根 | 51 号末尾 exit 12 合成复合 summary（三份源 summary + 原始分片独立核对），7 例夹具演练（§2.6） |
+| 17:41 | 49 体检器会永久判 G04 NOT READY | 它等 `chain.status`（19:36 已改 `paused_…`）与 `out/g03_logs/post.status`（已改名 `.stale`）——两个都不再会有 `OK:` | 49 只对 `g02_post`/`phase1`/`phase2` 判门，旧两件降 INFO；`tier2_exit=1` 这类非零退出也判 failure（4 例夹具，见日志 17:41） |
 | 11:44 | 40 `--check` 在**完整正确**的格上必报"validation_rep 在 b 间重复" | `check_cell` 把"50 个 b 共用 VALIDATION_REP=0"的**设计**当成重复缺陷（11:33 静态复核只看列名，没看判据） | 改为 `history_rep_id` 查唯一、`validation_rep` 查**恒定**；`tests/test_v3_g02_export_rollback.py` 新增 3 例（正例 / rep 漂移 / history 重复），6 passed；真数据半成品复跑 `--check` 只剩"未跑完"类问题，EXIT=1 |
 | 10:18 | 本机 `TZ=Asia/Shanghai date` 输出 UTC | Git Bash 环境 | 链条与状态文件一律用裸 `date`/`zoneinfo` |
 
