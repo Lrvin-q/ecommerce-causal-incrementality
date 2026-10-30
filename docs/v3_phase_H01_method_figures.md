@@ -17,6 +17,19 @@
 | `outputs/figures/h01/v3_h01_elements.csv` | 元素清单（页/形状/文本/坐标） | 50 行，UTF-8-sig |
 | `scripts/64_h01_method_figures.py` | 生成器（单一事实源：`SPEC`） | ~315 行 |
 
+产物指纹（2026-10-30 18:27，`sha256sum outputs/figures/h01/*`；8 个文件全部已入库）：
+
+| 文件 | sha256 |
+|---|---|
+| `v3_h01_three_methods.pptx` | `88831981dfa421b2b0d43937cc817cc960caea000a547e4c8939e1619e9dfe95` |
+| `slide1_itt.png` | `5a05e179d2e3364ca593a68d11331aaa75b6892daba2fd750a3f7e76f27a9556` |
+| `slide2_observational.png` | `c765bd0c950510bee733e588b259db437da243725dbab5a0834ec3d20398a2fb` |
+| `slide3_policy.png` | `5d90836be17f5a09e69d3f3c00df633e786bf555fde7410c74f7bbf3aa4aebfb` |
+| `slide1_itt.svg` | `b3c4e5685b22d4126f6c2add5bb689d731978a810501d83765cd9aafcea2b9bc` |
+| `slide2_observational.svg` | `b24b11ed6f2e2c430e64087086f1cb50c4ee08819d7e470bf3faf32d803ed271` |
+| `slide3_policy.svg` | `a27d969c69a11bd3d98f1a617154e4ca5b6c571e5334290c2ac531bca5f4ce1e` |
+| `v3_h01_elements.csv` | `906bd37e17b789837863e97b764215342f8be1c5706392ecf2e7f3f273ee5cbb` |
+
 三图与论文第 2–3 章口径一一对应：
 
 1. **方法一 ITT**：随机分流 → 处理/对照两臂 → 结果观测 → 主指标 `E[Π(1)−Π(0)]` → 校准与护栏（对应 D01/D02、F02、G01、G02）。
