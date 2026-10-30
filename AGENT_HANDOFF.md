@@ -6,11 +6,14 @@
   `OK: G03 Phase1 core prefix 完成`；4 格各 100 rep，`_final` 四份均 `repetitions_provisional.csv`
   （`all_complete=false` 属预期，R=100/500），`duplicates_removed=0`；根 `run_summary.json` =
   `status=formal` / `failures=[]` / `bootstrap_resamples=0`。
-- **Phase 2 一步没跑**（17:36 复核）：`out/g03_tier2`、`out/g03_core_ate`、`out/g03_formal` 都不存在；
-  无 python 进程，机器空闲；磁盘 76 G 可用（Phase 1 产物 8.1 G，≈20 MB/rep，Phase 2 约 20 G）。
-- **开跑命令（等用户窗口）**：`nohup bash scripts/51_g03_phase2.sh`。脚本前置检查 `phase1.status` 的 OK 行
-  （已满足）；依次跑 Tier2 20 格 rep0–29（600 rep，~14 h）→ core rep100–499（400 rep，~2 h）→ 建复合根 →
-  merge → `_final` 行数核对 → 合成复合 `run_summary.json`（exit 12）。**总估约 16 h**。
+- **Phase 2 已启动（17:37:55，用户批准）**：`nohup bash scripts/51_g03_phase2.sh`（bash 包装 PID 1507）；
+  日志实录快照绑定 `6fdaf7bb…` 通过、`20 格 / 60 个分片；workers=6 status=formal`，60 s 内 6 个分片已建、
+  8 个 python 进程在跑。流程：Tier2 20 格 rep0–29（600 rep，~14 h）→ core rep100–499（400 rep，~2 h）→
+  建复合根 → merge → `_final` 行数核对 → 合成复合 `run_summary.json`（exit 12）。**总估约 16 h（≈10-31 10:00）**。
+- **看护口径**：`out/g03_logs/phase2.status` 依次出现 `tier2_exit=` / `core_ate_exit=` / `merge_exit=` /
+  `final_check_exit=` / `composite_summary_exit=`，末行 `OK: G03 Phase2 完成` 或 `ABORT:`；进程用
+  PowerShell `Get-CimInstance Win32_Process` 查（Git Bash `ps` 看不到属正常）。运行期源码头只读、不装包、
+  不跑全量 pytest；磁盘 76 G 可用，Phase 2 预计再吃 ~20 G。
 - **跑完之后**：`41 --check` → `41` 导出 → `33 --dry-run` 人工复核后登记 → 填 G03 §3（必须带 §3.0 的
   D1-A 披露）→ `48` 报告；再做 G04 `49 --with-check --with-register --with-claims` 全绿 + 一次失败→恢复演练。
 

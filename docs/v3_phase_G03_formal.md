@@ -4,8 +4,8 @@
 > 不表示任何真实业务效果。维护时间：2026-10-30 17:37（北京时间）。
 > 当前状态：**阶段 A 已完成，§4 已填（24 格固定 bootstrap）**；**Phase 1（core rep0–99）已完成**
 > （2026-10-30 05:55:41 `phase1_exit=0`/`merge_exit=0`，4 格各 100 rep；`_final` 四份均为
-> `repetitions_provisional.csv`，`all_complete=false` 属预期）；Phase 2（Tier2 20 格 + core rep100–499）
-> **尚未启动**，待用户另约时间（17:36 复核：`out/g03_tier2|core_ate|formal` 均不存在，无 python 进程）。
+> `repetitions_provisional.csv`，`all_complete=false` 属预期）；**Phase 2 已于 2026-10-30 17:37:55 启动**
+> （用户批准；Tier2 20 格 rep0–29 / 60 分片 / 6 路，快照 `6fdaf7bb…` 通过），预计约 16 h。
 > §3 仍待填，但 **§3.0 的 D1-A 披露已按裁决原样写入**（空转格不构成机制证据）。
 
 ## 1. 设计
@@ -55,7 +55,8 @@ core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **16–17 h**（
 | 00:40 | Phase 1 **整分片完成 170/400**（`repetitions.csv` 数据行口径：L0 100/100、L1 70/100；在跑分片 `L1_main_s0006/s0008/s0009` 已开 10/4/3 个 rep 目录，未计入）。**口径变更**：00:02/00:32/00:34 的 164/181/182 数的是 rep 目录（含在跑分片已开始的 rep），此后一律用整分片口径。同刻 `phase1.log` 无 error |
 | 05:55:41 | **Phase 1 完成并合并**：`phase1.status` 记 `phase1_exit=0` / `merge_exit=0` / `OK: G03 Phase1 core prefix 完成`；4 格各 100 rep（`_final` 四份均 `repetitions_provisional.csv`，`all_complete=false` 属预期 R=100/500），`duplicates_removed=0`；`run_summary.json` = `status=formal` / `failures=[]` / `bootstrap_resamples=0` |
 | 17:36 | 复核 Phase 2 状态：`out/g03_tier2`、`out/g03_core_ate`、`out/g03_formal` 均不存在（**Phase 2 一步未跑**）；无 python 进程，机器空闲；磁盘 76 G 可用，Phase 1 产物 8.1 G（≈20 MB/rep，据此估 Phase 2 约 20 G） |
-| 待填 | Phase 2（Tier2 + core ATE 尾巴）与多根 merge（`g03_exit=0`） |
+| 17:37:55 | **Phase 2a 启动**（用户批准，`nohup bash scripts/51_g03_phase2.sh`，bash 包装 PID 1507）：快照绑定 `6fdaf7bb…` 通过；`20 格 / 60 个分片；workers=6 status=formal`；60 s 内 6 个分片目录已建、8 个 python 进程在跑；预计约 16 h（Tier2 ~14 h + core 尾巴 ~2 h） |
+| 待填 | Phase 2b（core ATE 尾巴）与多根 merge（`core_ate_exit=0` / `merge_exit=0`） |
 
 **续跑纪律（失败时）**：`--resume` 只救"跑到一半被杀、有 `repetitions_provisional.csv`"的分片；
 已完成分片会整片重跑，且 `run_cell` 的 `existing` 只来自 `resume_from` ⇒ **重跑不是追加，会用本次 reps

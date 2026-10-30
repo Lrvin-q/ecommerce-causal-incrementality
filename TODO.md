@@ -10,8 +10,13 @@
 > `run_summary.json` = `status=formal` / `failures=[]` / `bootstrap_resamples=0`。
 > **Phase 2 一步未跑**：`out/g03_tier2`、`out/g03_core_ate`、`out/g03_formal` 均不存在；当前无 python 进程在跑，
 > 机器空闲。磁盘可用 **76 G**；Phase 1 产物 8.1 G（≈20 MB/rep），据此估 Phase 2（1000 rep）约 20 G。
-> **下一步（等 D4 窗口）**：`nohup bash scripts/51_g03_phase2.sh`（前置 OK 行已满足）；预计 Tier2 600 rep
-> ~14 h + core 尾巴 400 rep ~2 h ≈ **16 h**，跑完脚本自动 merge → `_final` 核对 → 复合 run_summary（exit 12）。
+> **17:38 已按用户批准开跑 Phase 2**：`nohup bash scripts/51_g03_phase2.sh`（PID 1507 为 bash 包装进程）；
+> 日志实录：快照绑定 `6fdaf7bb7ee3c63e…` 通过、`20 格 / 60 个分片；workers=6 status=formal`，60 s 内已建 6 个分片、
+> 8 个 python 进程在跑。预计 Tier2 600 rep ~14 h + core 尾巴 400 rep ~2 h ≈ **16 h（≈ 10-31 10:00）**，
+> 跑完脚本自动 merge → `_final` 核对 → 复合 run_summary（exit 12）。
+> **看护口径**：`out/g03_logs/phase2.status`（`tier2_exit=` / `core_ate_exit=` / `merge_exit=` /
+> `final_check_exit=` / `composite_summary_exit=` 与末行 `OK:` 或 `ABORT`）；`phase2.log` 逐分片进度；
+> 运行期红线不变（`src/**/v3*.py`、`sql/v3*.sql`、`configs/v3*` 只读，不装包、不跑全量 pytest）。
 
 > **上一动作（00:41）**：**Phase 2 入口再补一处预检缺口**——41 号要求 `out/g03_formal/run_summary.json`
 > （`status=formal`、`failures=[]`、`bootstrap_resamples=0`），但 `34 merge` 只写 `merge_report.json`

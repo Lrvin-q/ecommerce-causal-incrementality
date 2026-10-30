@@ -217,6 +217,12 @@
   并从复合根**原始分片**独立核对（24 格各 500/30 行、rep 恰 `0..R-1`、跨分片无重复、无未注册格、
   无 provisional、拒绝覆盖），任一不符 exit 12。**不读 `merge_report`**：junction 回退 `cp -r` 时
   会有多份。7 例夹具演练见反思日志 00:41 条。
+- **Phase 2 启动（2026-10-30 17:37:55，用户批准）**：`nohup bash scripts/51_g03_phase2.sh`，bash 包装
+  进程 PID 1507；`phase2.log` 记快照绑定 `6fdaf7bb…` 通过、`20 格 / 60 个分片；workers=6 status=formal`；
+  60 s 内 6 个分片目录已建、8 个 python 进程在跑。ETA ≈ 16 h（Tier2 ~14 h + core 尾巴 ~2 h）。
+  状态文件 `out/g03_logs/phase2.status`（`tier2_exit=` / `core_ate_exit=` / `merge_exit=` /
+  `final_check_exit=` / `composite_summary_exit=`，末行 `OK:` 或 `ABORT:`）；进程用
+  PowerShell `Get-CimInstance Win32_Process` 查（Git Bash `ps` 看不到 nohup 子进程属正常）。
 
 ## 3. 失败重试与可恢复入口
 
