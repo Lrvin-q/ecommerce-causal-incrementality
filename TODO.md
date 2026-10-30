@@ -1,15 +1,16 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-30 17:37（北京时间；`date -u` + 8h 读数。12:30/12:31 两条写于本机时钟校正前，不追改；20:31–20:35 四条曾误标为 20:35/20:40/20:43/20:46，已按同一读数更正）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-30 18:06（北京时间；`date -u` + 8h 读数。12:30/12:31 两条写于本机时钟校正前，不追改；20:31–20:35 四条曾误标为 20:35/20:40/20:43/20:46，已按同一读数更正）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
 
-> **最新动作（17:37）**：**G03 Phase 1 已跑完**——`out/g03_logs/phase1.status` 记 **2026-10-30 05:55:41**
+> **最新动作（18:06）**：**G03 Phase 1 已跑完**——`out/g03_logs/phase1.status` 记 **2026-10-30 05:55:41**
 > `phase1_exit=0` / `merge_exit=0` / `OK: G03 Phase1 core prefix 完成`；4 格各 100 rep 齐，`_final` 四份都是
 > `repetitions_provisional.csv`、`all_complete=false`（属预期：R=100/500），`duplicates_removed=0`；
 > `run_summary.json` = `status=formal` / `failures=[]` / `bootstrap_resamples=0`。
-> **Phase 2 一步未跑**：`out/g03_tier2`、`out/g03_core_ate`、`out/g03_formal` 均不存在；当前无 python 进程在跑，
-> 机器空闲。磁盘可用 **76 G**；Phase 1 产物 8.1 G（≈20 MB/rep）；Phase 2 共 2 200 rep（Tier2 600 + core ATE 1 600），按 20 MB/rep 上界估 ~44 G。
+> **17:36 复核时 Phase 2 一步未跑**（三目录均不存在、无 python 进程）；18:02 实测 Tier2 已产 12 个 `row.json`
+> （首批分片未满 10 rep，尚无 `repetitions.csv`）。磁盘 76 G 可用；Phase 1 产物 8.1 G（四格实测 19.9–21.4 MB/rep），
+> Phase 2 共 2 200 rep 按 21 MB/rep 估 **~46 G**，收尾后仍余 ~30 G（2026-10-30 18:04 按 Phase 1 逐格 `du` 校准）。
 > **17:38 已按用户批准开跑 Phase 2**：`nohup bash scripts/51_g03_phase2.sh`（PID 1507 为 bash 包装进程）；
 > 日志实录：快照绑定 `6fdaf7bb7ee3c63e…` 通过、`20 格 / 60 个分片；workers=6 status=formal`，60 s 内已建 6 个分片、
 > 8 个 python 进程在跑。**17:45 更正 ETA**：Phase 2b 是 core 4 格 × rep100–499 = **1 600 rep（原写 400 有误）**，
@@ -36,6 +37,8 @@
 > 重建后 553:553、仍 50 页、43 四项判据全过、42 274 条全绿，p5 目检正确。P1-2/3（表 3-21/3-22 缺来源注）、
 > P1-4（表 3-1 注被分页切开）、P1-5（[Cxx] 与引用同形）留到 G03 终稿一次处理，见
 > `docs/reviews/v3_phase_H03_visual.md` §6。
+> **18:06 H03 P1-2/P1-3 已关闭**：表 3-21、3-22 各补紧贴表体的来源注，p42「无主注块」整块删除；重建后仍 50 页，
+> 两表与注同页（PDF p39/p40），五门禁全绿。P1-4/P1-5 仍未关闭。
 
 > **上一动作（00:41）**：**Phase 2 入口再补一处预检缺口**——41 号要求 `out/g03_formal/run_summary.json`
 > （`status=formal`、`failures=[]`、`bootstrap_resamples=0`），但 `34 merge` 只写 `merge_report.json`
