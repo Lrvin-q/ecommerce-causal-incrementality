@@ -56,6 +56,7 @@ core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **16–17 h**（
 | 05:55:41 | **Phase 1 完成并合并**：`phase1.status` 记 `phase1_exit=0` / `merge_exit=0` / `OK: G03 Phase1 core prefix 完成`；4 格各 100 rep（`_final` 四份均 `repetitions_provisional.csv`，`all_complete=false` 属预期 R=100/500），`duplicates_removed=0`；`run_summary.json` = `status=formal` / `failures=[]` / `bootstrap_resamples=0` |
 | 17:36 | 复核 Phase 2 状态：`out/g03_tier2`、`out/g03_core_ate`、`out/g03_formal` 均不存在（**Phase 2 一步未跑**）；无 python 进程，机器空闲；磁盘 76 G 可用，Phase 1 产物 8.1 G（≈20 MB/rep，据此估 Phase 2 约 20 G） |
 | 17:37:55 | **Phase 2a 启动**（用户批准，`nohup bash scripts/51_g03_phase2.sh`，bash 包装 PID 1507）：快照绑定 `6fdaf7bb…` 通过；`20 格 / 60 个分片；workers=6 status=formal`；60 s 内 6 个分片目录已建、8 个 python 进程在跑；预计约 16 h（Tier2 ~14 h + core 尾巴 ~2 h） |
+| 17:45 | Phase 2 在跑：Tier2 6 个分片已建（`L0_Pi_heterogeneous_cost` / `L0_zero_purchase_effect` 各 3 分片），`rep10`–`rep20` 目录已开、`row.json` 尚未落，`phase2.log` 无 error；8 个 python 进程在跑。**更正 17:38 的 ETA**：Phase 2b 是 core 4 格 × rep100–499 = **1 600 rep（不是 400）**；按 Phase 1 实测 ATE 段 ~1.9 min/rep、6 路 ≈ 8.5 h，Tier2 600 rep 按 ~8 min/rep、6 路 ≈ 13 h，加 merge ≈ **22 h ⇒ ETA 10-31 15:30–16:30**。磁盘按 20 MB/rep 上界估 ~44 G（实际 ATE 段更小），当前可用 76 G |
 | 待填 | Phase 2b（core ATE 尾巴）与多根 merge（`core_ate_exit=0` / `merge_exit=0`） |
 
 **续跑纪律（失败时）**：`--resume` 只救"跑到一半被杀、有 `repetitions_provisional.csv`"的分片；
