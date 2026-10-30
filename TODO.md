@@ -29,6 +29,8 @@
 > **17:43 收尾链已固化**：`scripts/63_g03_finalize.sh --with-register?`——Phase 2 的 OK 行出现后一次跑
 > 41 `--check` → 62 演练 → 41 导出 → 33 `--dry-run` → 48 取数；实登记默认不做，人工复核后加 `--with-register`。
 > 状态看 `out/g03_logs/finalize.status`；Phase 2 未完成时 exit 3 拒绝空跑（已实测）。
+> **17:48 自动收尾已挂后台**：轮询到 `phase2.status` 的 OK 行后自动执行 `63`（含 41 导出）并跑 `49 --with-check`
+> （只读；不带 `--with-register`）；日志 `out/g03_logs/auto_finalize.log`。33 实登记、§3 填数与评审仍须人工。
 
 > **上一动作（00:41）**：**Phase 2 入口再补一处预检缺口**——41 号要求 `out/g03_formal/run_summary.json`
 > （`status=formal`、`failures=[]`、`bootstrap_resamples=0`），但 `34 merge` 只写 `merge_report.json`
