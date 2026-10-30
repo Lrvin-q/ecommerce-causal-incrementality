@@ -16,6 +16,9 @@
   不跑全量 pytest；磁盘 76 G 可用，Phase 2 预计再吃 ~20 G。
 - **跑完之后**：`41 --check` → `41` 导出 → `33 --dry-run` 人工复核后登记 → 填 G03 §3（必须带 §3.0 的
   D1-A 披露）→ `48` 报告；再做 G04 `49 --with-check --with-register --with-claims` 全绿 + 一次失败→恢复演练。
+- **17:42 G04 演练脚本已就位**：`scripts/62_g04_tamper_drill.py`（只读正式矩阵，重建临时根，基线 0 →
+  注入重复 rep 必须被拒 → 复原必须回 0；未 merge 时 exit 3）。Phase 2 收尾后：`41 --check` → `62` 演练 →
+  `41` 导出 → `33` 登记 → 填 §3 → `49 --with-check --with-register --with-claims`。
 - **17:41 已修 49**：它原等已退役的 `chain.status` / `out/g03_logs/post.status`，Phase 2 跑完也会永远
   NOT READY；现只判 `g02_post` / `phase1` / `phase2`，旧两件降 INFO，非零 `*_exit=` 判 failure。
   17:40 实跑只剩 `phase2 未完成`、`g03 _final 尚未生成` 两条真 pending（其余：源码 49 文件与快照一致、

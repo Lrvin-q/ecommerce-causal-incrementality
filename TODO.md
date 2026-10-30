@@ -20,6 +20,10 @@
 > **17:41 G04 体检器已修**：49 原等 `chain.status`（已 `paused_…`）与 `g03_post` 的 `post.status`（已改名
 > `.stale`），Phase 2 跑完也永远 READY 不了；现只对 `g02_post`/`phase1`/`phase2` 判门，旧两件降 INFO，
 > `tier2_exit=1` 这类非零退出也判 failure（夹具抓到字符类漏数字的真 bug）。17:40 实跑 49 只剩两条真 pending。
+> **17:42 G04 演练脚本已就位**：`scripts/62_g04_tamper_drill.py`——只用正式矩阵的逐 rep 表副本（含
+> `run_summary.json`，不碰 `rep*` 数据目录），41 基线 EXIT=0 → 注入重复 rep → 必须 EXIT≠0 且输出指向 rep →
+> 复原 → 重新 EXIT=0；任一步不符即非零。矩阵未 merge 时 exit 3 拒绝空演（已实测）。Phase 2 收尾后先跑它，
+> 再跑 `49 --with-check --with-register --with-claims`。
 
 > **上一动作（00:41）**：**Phase 2 入口再补一处预检缺口**——41 号要求 `out/g03_formal/run_summary.json`
 > （`status=formal`、`failures=[]`、`bootstrap_resamples=0`），但 `34 merge` 只写 `merge_report.json`

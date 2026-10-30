@@ -236,6 +236,7 @@
 | `scripts/40_export_g02_evidence.py` | 无 | `--check` 只复算；导出为 staging + 原子换名，旧目录留时间戳备份 | 要求每格 `run_state.json` + 50 行 + b 0–49；不满足即非零退出，**不得绕过** |
 | `scripts/41_export_g03_evidence.py` | 无 | 同上 | 缺格/未跑满/非 formal/矩阵 resamples≠0 一律 exit 2（11:20 列契约修复后，见 §2.4） |
 | `scripts/33_register_evidence_top.py` | 无 | 幂等：已登记同 sha 跳过 | **先 `--dry-run` 人工复核**；读不懂的记录硬失败（AGENTS §12.7） |
+| `scripts/62_g04_tamper_drill.py` | 无（演练可重复） | 幂等：每次重建 `out/scratch/g04_tamper_drill` | **G04 失败→恢复演练**：只用正式矩阵的逐 rep 表副本（含 `run_summary.json`），41 基线 EXIT=0 → 注入重复 rep → 必须 EXIT≠0 且输出指向 rep → 复原 → 重新 EXIT=0；三步任一不符即非零。矩阵未 merge 时以 exit 3 拒绝空演 |
 | `out/g02_post.sh` | 整脚本可重跑 | 状态机看 `out/g02_logs/post.status`（`OK:` / `STOP`） | 重跑会重做 40/39 校验，幂等；不跑 33 |
 | `out/g03_chain.sh` | 整脚本可重跑 | 状态看 `out/g03_logs/chain.status`（`fixed_exit=` / `g03_exit=` / `OK:`） | **重跑不是追加（11:42 读码确认）**：`run_cell` 的 `existing` 只来自 `resume_from`，而 `--resume` 只认 `repetitions_provisional.csv`；不带 `--resume`（或只有正式表）时 `existing=[]`，本次跑完**用本次 reps 重写** `repetitions.csv`，早先 rep 的 `row.json` 还在但表里没了。修复走"另起根 + 多根 merge"，不要原地重跑（§2.4 预案同） |
 | `out/g03_post.sh` | 整脚本可重跑 | 状态看 `out/g03_logs/post.status`（`OK:` / `ABORT` / `TIMEOUT`） | 120 h 窗口（11:38 起，PID 3883）；超时只会漏自动导出，手动按 §6 执行等价 |
