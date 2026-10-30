@@ -1,6 +1,28 @@
 # AGENT 交接说明 —— v3 重建
 
-## 最新交接（2026-10-30 18:05，北京时间）
+## 最新交接（2026-10-30 18:26，北京时间）
+
+- **H01 已交付（commit `d49b2d7`，不再阻塞）**：`scripts/64_h01_method_figures.py` 以单一 `SPEC` 为事实源，
+  经 UTF-8 JSON + **纯 ASCII PS1** 驱动 PowerPoint COM（不装包），产出 3 页原生形状 PPTX（102 345 B）、
+  3 张 2000×1125 PNG、3 份同几何 SVG、50 行元素清单（`outputs/figures/h01/`）；`verify()` 断言 3 页 /
+  16-17-17 形状 / PNG 尺寸 / **PPTX 无位图媒体**（原生证据）/ 文本前缀命中；主负责 18:22 逐张目检通过。
+  文档 `docs/v3_phase_H01_method_figures.md`；**独立评审已派出，报告将落 `docs/reviews/v3_phase_H01_review.md`**。
+  边界：交付 ≠ 验收，H01 在 GOAL 仍标未证实，等评审结论。
+- **G03 Phase 2 健康（18:23 核查）**：Tier2 `row.json` 25 个、最新写盘 18:22，2 个分片父进程 + 6 个
+  multiprocessing worker 存活；`phase2.status` 尚未生成属正常（`51` 在 2a 结束才写 `tier2_exit=`）。
+  ETA 仍为 **20–28 h → 10-31 16:00–23:00**，磁盘 75 G 可用。
+- **H03 五项视觉审计全部 CLOSED**（18:17 P1-4 关闭）：`build.sh` 给 26 张表的题注+表体+来源注加整体
+  `\needspace`，表 3-1 从 6 抬到 16，重建 **51 页**、五门禁全绿、表 3-1 与注同页 p20。**效力只到 18:17 这版
+  PDF**，G03 阶段 B 并入后须整节重审。
+- **教训（已入反思日志 18:17 / 18:23 条）**：① 守卫正则漏 `re.S` 会静默 0 命中，必须核对替换计数；
+  ② "缺包"不等于"缺能力"，判硬阻塞前先给目标能力写最小探针（COM 一行即推翻 H01 的 11:55 结论）；
+  ③ PowerShell 5.1 的"脚本编码"与"载荷编码"要分开管（PS1 纯 ASCII、中文走 UTF-8 JSON）。
+- **Phase 2 OK 之后的人工序列不变**：核 `auto_finalize.log`/`finalize.status` → 人工复核 33 `--dry-run` →
+  `33 --with-register` → 填 G03 §3（带 §3.0 D1-A 披露）→ `49 --with-check --with-register --with-claims` 全绿 →
+  论文并入阶段 B 数字 → 43/52/42 → H03 重审 → H01 评审收口。
+- **运行期纪律不变**：`configs/v3` 冻结哈希 `00723dc2…`、源码头只读、不装包、不跑全量 pytest。
+
+## 交接（2026-10-30 18:05，北京时间）
 
 - **G03 Phase 2 跑中**（17:37:55 起，`nohup bash scripts/51_g03_phase2.sh`）：2a Tier2 20 格 × rep0–29
   （600 rep，6 workers）→ 2b core 4 格 × rep100–499（**1 600 rep**，17:45 更正，原写 400 有误）→
