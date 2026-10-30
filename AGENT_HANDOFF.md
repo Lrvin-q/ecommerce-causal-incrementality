@@ -6,7 +6,8 @@
   经 UTF-8 JSON + **纯 ASCII PS1** 驱动 PowerPoint COM（不装包），产出 3 页原生形状 PPTX（102 345 B）、
   3 张 2000×1125 PNG、3 份同几何 SVG、50 行元素清单（`outputs/figures/h01/`）；`verify()` 断言 3 页 /
   16-17-17 形状 / PNG 尺寸 / **PPTX 无位图媒体**（原生证据）/ 文本前缀命中；主负责 18:22 逐张目检通过。
-  文档 `docs/v3_phase_H01_method_figures.md`；**独立评审已派出，报告将落 `docs/reviews/v3_phase_H01_review.md`**。
+  文档 `docs/v3_phase_H01_method_figures.md`（含 8 个产物 sha256）；**独立评审已派后台代理，报告应落
+  `docs/reviews/v3_phase_H01_review.md`**。**恢复会话先查该文件**：未见则重新派评审，不得自封通过。
   边界：交付 ≠ 验收，H01 在 GOAL 仍标未证实，等评审结论。
 - **G03 Phase 2 健康（18:23 核查）**：Tier2 `row.json` 25 个、最新写盘 18:22，2 个分片父进程 + 6 个
   multiprocessing worker 存活；`phase2.status` 尚未生成属正常（`51` 在 2a 结束才写 `tier2_exit=`）。
