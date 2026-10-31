@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L2_composition_shift,g_tier2,20,144.34375,0.46875,363.3125
+L2_composition_shift,g_tier2,21,145.359375,0.46875,520.734375
+L2_composition_shift,g_tier2,22,145.015625,0.46875,518.015625
+L2_composition_shift,g_tier2,23,142.59375,0.46875,525.765625
+L2_composition_shift,g_tier2,24,144.234375,0.46875,512.125
+L2_composition_shift,g_tier2,25,143.375,0.484375,518.453125
+L2_composition_shift,g_tier2,26,145.640625,0.46875,519.875
+L2_composition_shift,g_tier2,27,144.71875,0.484375,360.6875
+L2_composition_shift,g_tier2,28,143.34375,0.46875,515.15625
+L2_composition_shift,g_tier2,29,144.796875,0.484375,360.578125

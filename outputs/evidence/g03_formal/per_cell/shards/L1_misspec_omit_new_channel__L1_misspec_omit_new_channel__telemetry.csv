@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L1_misspec_omit_new_channel,g_tier2,20,146.640625,0.5,497.671875
+L1_misspec_omit_new_channel,g_tier2,21,144.640625,0.484375,357.40625
+L1_misspec_omit_new_channel,g_tier2,22,146.890625,0.5,496.625
+L1_misspec_omit_new_channel,g_tier2,23,146.203125,0.484375,493.046875
+L1_misspec_omit_new_channel,g_tier2,24,147.765625,0.546875,351.84375
+L1_misspec_omit_new_channel,g_tier2,25,146.28125,0.546875,496.03125
+L1_misspec_omit_new_channel,g_tier2,26,146.28125,0.453125,355.859375
+L1_misspec_omit_new_channel,g_tier2,27,146.3125,0.53125,491.828125
+L1_misspec_omit_new_channel,g_tier2,28,147.171875,0.4375,504.390625
+L1_misspec_omit_new_channel,g_tier2,29,147.5,0.5625,359.34375

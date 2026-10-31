@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L0_Pi_heterogeneous_cost,g_tier2,20,737.125,0.515625,580.484375
+L0_Pi_heterogeneous_cost,g_tier2,21,158.515625,0.40625,327.046875
+L0_Pi_heterogeneous_cost,g_tier2,22,182.953125,0.421875,328.890625
+L0_Pi_heterogeneous_cost,g_tier2,23,159.765625,0.484375,312.25
+L0_Pi_heterogeneous_cost,g_tier2,24,167.0,0.5,391.6875
+L0_Pi_heterogeneous_cost,g_tier2,25,158.53125,0.46875,530.703125
+L0_Pi_heterogeneous_cost,g_tier2,26,158.015625,0.46875,377.671875
+L0_Pi_heterogeneous_cost,g_tier2,27,156.578125,0.484375,372.484375
+L0_Pi_heterogeneous_cost,g_tier2,28,153.96875,0.484375,525.140625
+L0_Pi_heterogeneous_cost,g_tier2,29,153.109375,0.5,362.625

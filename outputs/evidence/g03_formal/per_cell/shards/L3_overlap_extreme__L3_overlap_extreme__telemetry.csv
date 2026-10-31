@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L3_overlap_extreme,g_tier2,20,144.671875,0.46875,404.390625
+L3_overlap_extreme,g_tier2,21,144.390625,0.484375,409.890625
+L3_overlap_extreme,g_tier2,22,145.234375,0.53125,414.015625
+L3_overlap_extreme,g_tier2,23,145.828125,0.484375,408.234375
+L3_overlap_extreme,g_tier2,24,144.96875,0.53125,409.90625
+L3_overlap_extreme,g_tier2,25,144.71875,0.453125,405.203125
+L3_overlap_extreme,g_tier2,26,144.6875,0.546875,411.453125
+L3_overlap_extreme,g_tier2,27,139.015625,0.421875,541.71875
+L3_overlap_extreme,g_tier2,28,141.53125,0.453125,539.96875
+L3_overlap_extreme,g_tier2,29,140.328125,0.40625,386.15625

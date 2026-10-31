@@ -1,0 +1,61 @@
+{
+  "status": "formal",
+  "failures": [],
+  "bootstrap_resamples": 0,
+  "bootstrap_budget_scope": null,
+  "composite": true,
+  "derived_from": [
+    {
+      "tag": "phase1_core_prefix",
+      "root": "out/g03_core_prefix",
+      "status": "formal",
+      "failures": [],
+      "bootstrap_resamples": 0,
+      "sha256": "6a928a88f68545c362f1c6d579d6264b65facf2377806089e386d5e6d3049d97"
+    },
+    {
+      "tag": "phase2a_tier2",
+      "root": "out/g03_tier2",
+      "status": "formal",
+      "failures": [],
+      "bootstrap_resamples": 0,
+      "sha256": "4d2c53347375bdb6d4a3a3e5c8310e4efbbdfe0a92d8c04998238cf9a6eadead"
+    },
+    {
+      "tag": "phase2b_core_ate",
+      "root": "out/g03_core_ate",
+      "status": "formal",
+      "failures": [],
+      "bootstrap_resamples": 0,
+      "sha256": "6923a32b8db123fb67e00aeaef4fd8fec5a4f5e68e32e242691b54e6f2a0702a"
+    }
+  ],
+  "shard_rows": {
+    "L0_P_main": 500,
+    "L0_Pi_heterogeneous_cost": 30,
+    "L0_zero_purchase_effect": 30,
+    "L1_cost_prediction_under": 30,
+    "L1_heterogeneity_000": 30,
+    "L1_heterogeneity_150": 30,
+    "L1_main": 500,
+    "L1_mar_double": 30,
+    "L1_misspec_omit_new_channel": 30,
+    "L1_signal_weak": 30,
+    "L2_composition_shift": 30,
+    "L2_drift_smooth": 30,
+    "L2_immature_negative_control": 30,
+    "L2_n100000_p050": 30,
+    "L2_n200000_p050": 500,
+    "L2_n30000_p050": 30,
+    "L3_fixed_lt000": 500,
+    "L3_fixed_lt025": 30,
+    "L3_fixed_lt075": 30,
+    "L3_fixed_lt150": 30,
+    "L3_joint_lam000": 30,
+    "L3_joint_lam150": 30,
+    "L3_missing_confounders": 30,
+    "L3_overlap_extreme": 30
+  },
+  "all_complete": true,
+  "at": "2026-10-31T19:33:20+08:00"
+}

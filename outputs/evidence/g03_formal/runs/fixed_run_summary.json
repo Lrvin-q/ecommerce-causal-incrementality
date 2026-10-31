@@ -1,0 +1,247 @@
+{
+  "merged": {
+    "roots": [
+      "out/g02_fixed/shards/L0_P_main_s0000",
+      "out/g02_fixed/shards/L0_Pi_heterogeneous_cost_s0000",
+      "out/g02_fixed/shards/L0_zero_purchase_effect_s0000",
+      "out/g02_fixed/shards/L1_cost_prediction_under_s0000",
+      "out/g02_fixed/shards/L1_heterogeneity_000_s0000",
+      "out/g02_fixed/shards/L1_heterogeneity_150_s0000",
+      "out/g02_fixed/shards/L1_main_s0000",
+      "out/g02_fixed/shards/L1_mar_double_s0000",
+      "out/g02_fixed/shards/L1_misspec_omit_new_channel_s0000",
+      "out/g02_fixed/shards/L1_signal_weak_s0000",
+      "out/g02_fixed/shards/L2_composition_shift_s0000",
+      "out/g02_fixed/shards/L2_drift_smooth_s0000",
+      "out/g02_fixed/shards/L2_immature_negative_control_s0000",
+      "out/g02_fixed/shards/L2_n100000_p050_s0000",
+      "out/g02_fixed/shards/L2_n200000_p050_s0000",
+      "out/g02_fixed/shards/L2_n30000_p050_s0000",
+      "out/g02_fixed/shards/L3_fixed_lt000_s0000",
+      "out/g02_fixed/shards/L3_fixed_lt025_s0000",
+      "out/g02_fixed/shards/L3_fixed_lt075_s0000",
+      "out/g02_fixed/shards/L3_fixed_lt150_s0000",
+      "out/g02_fixed/shards/L3_joint_lam000_s0000",
+      "out/g02_fixed/shards/L3_joint_lam150_s0000",
+      "out/g02_fixed/shards/L3_missing_confounders_s0000",
+      "out/g02_fixed/shards/L3_overlap_extreme_s0000"
+    ],
+    "rows_raw": 24,
+    "rows_deduped": 24,
+    "duplicates_removed": 0,
+    "key": [
+      "scenario_id",
+      "block",
+      "rep"
+    ]
+  },
+  "cells": {
+    "L0_P_main": {
+      "complete": false
+    },
+    "L0_Pi_heterogeneous_cost": {
+      "complete": false
+    },
+    "L0_zero_purchase_effect": {
+      "complete": false
+    },
+    "L1_cost_prediction_under": {
+      "complete": false
+    },
+    "L1_heterogeneity_000": {
+      "complete": false
+    },
+    "L1_heterogeneity_150": {
+      "complete": false
+    },
+    "L1_main": {
+      "complete": false
+    },
+    "L1_mar_double": {
+      "complete": false
+    },
+    "L1_misspec_omit_new_channel": {
+      "complete": false
+    },
+    "L1_signal_weak": {
+      "complete": false
+    },
+    "L2_composition_shift": {
+      "complete": false
+    },
+    "L2_drift_smooth": {
+      "complete": false
+    },
+    "L2_immature_negative_control": {
+      "complete": false
+    },
+    "L2_n100000_p050": {
+      "complete": false
+    },
+    "L2_n200000_p050": {
+      "complete": false
+    },
+    "L2_n30000_p050": {
+      "complete": false
+    },
+    "L3_fixed_lt000": {
+      "complete": false
+    },
+    "L3_fixed_lt025": {
+      "complete": false
+    },
+    "L3_fixed_lt075": {
+      "complete": false
+    },
+    "L3_fixed_lt150": {
+      "complete": false
+    },
+    "L3_joint_lam000": {
+      "complete": false
+    },
+    "L3_joint_lam150": {
+      "complete": false
+    },
+    "L3_missing_confounders": {
+      "complete": false
+    },
+    "L3_overlap_extreme": {
+      "complete": false
+    }
+  },
+  "all_complete": false,
+  "final_root": "out/g02_fixed/_final",
+  "telemetry": {
+    "L0_P_main": {
+      "path": "out/g02_fixed/_final/L0_P_main/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L1_main": {
+      "path": "out/g02_fixed/_final/L1_main/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L2_n200000_p050": {
+      "path": "out/g02_fixed/_final/L2_n200000_p050/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L3_fixed_lt000": {
+      "path": "out/g02_fixed/_final/L3_fixed_lt000/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L0_Pi_heterogeneous_cost": {
+      "path": "out/g02_fixed/_final/L0_Pi_heterogeneous_cost/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L0_zero_purchase_effect": {
+      "path": "out/g02_fixed/_final/L0_zero_purchase_effect/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L1_cost_prediction_under": {
+      "path": "out/g02_fixed/_final/L1_cost_prediction_under/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L1_heterogeneity_000": {
+      "path": "out/g02_fixed/_final/L1_heterogeneity_000/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L1_heterogeneity_150": {
+      "path": "out/g02_fixed/_final/L1_heterogeneity_150/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L1_mar_double": {
+      "path": "out/g02_fixed/_final/L1_mar_double/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L1_misspec_omit_new_channel": {
+      "path": "out/g02_fixed/_final/L1_misspec_omit_new_channel/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L1_signal_weak": {
+      "path": "out/g02_fixed/_final/L1_signal_weak/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L2_composition_shift": {
+      "path": "out/g02_fixed/_final/L2_composition_shift/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L2_drift_smooth": {
+      "path": "out/g02_fixed/_final/L2_drift_smooth/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L2_immature_negative_control": {
+      "path": "out/g02_fixed/_final/L2_immature_negative_control/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L2_n100000_p050": {
+      "path": "out/g02_fixed/_final/L2_n100000_p050/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L2_n30000_p050": {
+      "path": "out/g02_fixed/_final/L2_n30000_p050/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L3_fixed_lt025": {
+      "path": "out/g02_fixed/_final/L3_fixed_lt025/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L3_fixed_lt075": {
+      "path": "out/g02_fixed/_final/L3_fixed_lt075/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L3_fixed_lt150": {
+      "path": "out/g02_fixed/_final/L3_fixed_lt150/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L3_joint_lam000": {
+      "path": "out/g02_fixed/_final/L3_joint_lam000/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L3_joint_lam150": {
+      "path": "out/g02_fixed/_final/L3_joint_lam150/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L3_missing_confounders": {
+      "path": "out/g02_fixed/_final/L3_missing_confounders/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    },
+    "L3_overlap_extreme": {
+      "path": "out/g02_fixed/_final/L3_overlap_extreme/repetitions_telemetry.csv",
+      "rows": 1,
+      "duplicates": 0
+    }
+  },
+  "summaries": [
+    "out/g02_fixed/summaries/v3_g_g_core_provisional.csv",
+    "out/g02_fixed/summaries/v3_g_g_tier2_provisional.csv"
+  ],
+  "at": "2026-10-29T18:37:03+08:00",
+  "failures": [],
+  "status": "formal",
+  "bootstrap_resamples": 1000,
+  "bootstrap_budget_scope": "primary_0.2",
+  "started_at": "2026-10-29T18:05:50+08:00",
+  "finished_at": "2026-10-29T18:37:03+08:00"
+}

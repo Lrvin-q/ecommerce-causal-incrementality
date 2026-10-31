@@ -203,10 +203,12 @@ def fixed_bootstrap_rows(root: Path) -> tuple[pd.DataFrame, list[str]]:
     return pd.concat(frames, ignore_index=True), problems
 
 
-def _record(target: Path, dest_root: Path, source: Path, kind: str, note: str | None = None) -> dict:
+def _record(target: Path, write_root: Path, public_root: Path, source: Path,
+            kind: str, note: str | None = None) -> dict:
+    # 写盘在 staging，登记必须是最终路径；否则目录改名后 coverage 里全是失效目标。
     record = {
         "kind": kind,
-        "target": (dest_root / target).relative_to(ROOT).as_posix(),
+        "target": (public_root / target.relative_to(write_root)).relative_to(ROOT).as_posix(),
         "source": source.relative_to(ROOT).as_posix(),
         "bytes": target.stat().st_size,
         "sha256": sha256(target),
@@ -286,7 +288,8 @@ def main(argv: list[str] | None = None) -> int:
     staging = ROOT / "out" / "g03_evidence_staging"
     if staging.exists():
         shutil.rmtree(staging)
-    payload = _write_evidence(staging, matrix_root, fixed_root, frames, fixed_frame, recomputed_frame)
+    payload = _write_evidence(staging, matrix_root, fixed_root, frames, fixed_frame,
+                              recomputed_frame, public=dest)
     json.loads((staging / "coverage.json").read_text(encoding="utf-8"))
     if dest.exists():
         stamp = datetime.now(BEIJING).strftime("%Y%m%d%H%M%S")
@@ -299,13 +302,17 @@ def main(argv: list[str] | None = None) -> int:
 
 def _write_evidence(dest: Path, matrix_root: Path, fixed_root: Path,
                     frames: dict[str, pd.DataFrame], fixed_frame: pd.DataFrame,
-                    recomputed: pd.DataFrame) -> dict:
+                    recomputed: pd.DataFrame, public: Path | None = None) -> dict:
     dest.mkdir(parents=True, exist_ok=True)
+    public_root = public or dest
     records: list[dict] = []
+
+    def pub(path: Path) -> Path:
+        return public_root / path.relative_to(dest)
 
     def emit(source: Path, target: Path, kind: str, note: str | None = None) -> None:
         _copy(source, target)
-        records.append(_record(target, dest, source, kind, note))
+        records.append(_record(target, dest, public_root, source, kind, note))
 
     for cell, frame in frames.items():
         candidates = cell_runs(matrix_root, cell)
@@ -324,7 +331,7 @@ def _write_evidence(dest: Path, matrix_root: Path, fixed_root: Path,
         frame.to_csv(merged, index=False, encoding="utf-8-sig")
         records.append({
             "kind": "g03_repetitions_merged",
-            "target": merged.relative_to(ROOT).as_posix(),
+            "target": pub(merged).relative_to(ROOT).as_posix(),
             "source": (matrix_root / "shards").relative_to(ROOT).as_posix(),
             "bytes": merged.stat().st_size,
             "sha256": sha256(merged),
@@ -337,7 +344,7 @@ def _write_evidence(dest: Path, matrix_root: Path, fixed_root: Path,
     fixed_frame.to_csv(fixed_path, index=False, encoding="utf-8-sig")
     records.append({
         "kind": "g02_fixed_bootstrap_merged",
-        "target": fixed_path.relative_to(ROOT).as_posix(),
+        "target": pub(fixed_path).relative_to(ROOT).as_posix(),
         "source": fixed_root.relative_to(ROOT).as_posix(),
         "bytes": fixed_path.stat().st_size,
         "sha256": sha256(fixed_path),
@@ -380,7 +387,7 @@ def _write_evidence(dest: Path, matrix_root: Path, fixed_root: Path,
     recomputed.to_csv(recomputed_path, index=False, encoding="utf-8-sig")
     records.append({
         "kind": "g03_recomputed_summary",
-        "target": recomputed_path.relative_to(ROOT).as_posix(),
+        "target": pub(recomputed_path).relative_to(ROOT).as_posix(),
         "source": "scripts/41_export_g03_evidence.py",
         "bytes": recomputed_path.stat().st_size,
         "sha256": sha256(recomputed_path),

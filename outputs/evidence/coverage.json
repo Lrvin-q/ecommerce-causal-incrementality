@@ -712,9 +712,16 @@
       "sha256": "a1d99d0d30280d1959fe72bf1aa2e37a3b529bb8e948016fe743d553508c0c27",
       "source": "C:/Users/26382/.qoder-cn/worktrees/app/c509bd/营销数分项目/out/g02_snapshot/snapshot_binding.json",
       "status": "formal"
+    },
+    {
+      "kind": "g03_snapshot_binding",
+      "target": "outputs/evidence/g03_formal/binding/snapshot_binding.json",
+      "bytes": 5777,
+      "sha256": "022099c774aaa3e8c7de42469d64bea27276e16092248473b076c56219acd147",
+      "source": "out/g03_snapshot/snapshot_binding.json"
     }
   ],
-  "total_bytes": 16969971,
+  "total_bytes": 16975748,
   "registry_repairs": [
     {
       "at": "2026-10-28 02:38",
@@ -1319,7 +1326,53 @@
         }
       ],
       "reason": "27 号（D03 正式）与 30 号（F02 正式）脚本只写目录级 coverage.json、不刷顶层索引，导致 d03_formal / f02_n200k_rep0 的源码绑定与冻结清单在顶层不可发现（AGENTS §12.1）。按身份类 JSON 规则提升，提升前逐文件重算 sha256/bytes，提升后全表复算。"
+    },
+    {
+      "at": "2026-10-31 19:36",
+      "dropped_missing_target": [],
+      "added": [
+        "outputs/evidence/g03_formal/binding/snapshot_binding.json"
+      ],
+      "enriched": [
+        "outputs/evidence/g02_formal/binding/snapshot_binding.json"
+      ],
+      "records_before": 92,
+      "records_after": 93,
+      "total_bytes_before": 16969971,
+      "total_bytes_after": 16975748,
+      "identity_patterns": [
+        "*binding*.json",
+        "*manifest*.json",
+        "freeze.json",
+        "meta*.json",
+        "decision.json"
+      ],
+      "extra_identity": {
+        "g01_aa250": [
+          "runs_summary.json"
+        ]
+      },
+      "ordering_policy": "append_only_preserve_existing_order",
+      "prior_entry_defects": [
+        {
+          "entry_index": 1,
+          "entry_at": "2026-10-28 03:06",
+          "untrustworthy_fields": [
+            "total_bytes_before",
+            "reason"
+          ],
+          "recorded_value": {
+            "total_bytes_before": 22788510
+          },
+          "correct_value": {
+            "total_bytes_before": 15811356
+          },
+          "evidence": "out/scratch/fix_evidence_registry.py:100 将 total_bytes_before 硬编码为 22788510、:102 将 reason 硬编码；该脚本于 02:38 与 03:06 各运行一次，故 03:06 条目的 before 值实为 02:38 的旧前值。03:06 的真实前值 = repairs[0].total_bytes_after = 15 811 356；03:06 的后值 15 811 358 = 15 811 356 + 2（f01_ope/meta.json 17 333 → 17 335 B）。out/scratch/coverage_backup_before_31patch_20261028_031329.json 佐证 03:13 前磁盘上 records=35、total_bytes=15 811 358、repairs=2。",
+          "action": "仅登记缺陷，未改写 repairs[1]；其 refreshed/records_before/records_after 字段仍可信"
+        }
+      ],
+      "reason": "27 号（D03 正式）与 30 号（F02 正式）脚本只写目录级 coverage.json、不刷顶层索引，导致 d03_formal / f02_n200k_rep0 的源码绑定与冻结清单在顶层不可发现（AGENTS §12.1）。按身份类 JSON 规则提升，提升前逐文件重算 sha256/bytes，提升后全表复算。"
     }
   ],
-  "last_refreshed_at": "2026-10-29T18:04:47+08:00"
+  "last_refreshed_at": "2026-10-31T19:36:47+08:00"
 }

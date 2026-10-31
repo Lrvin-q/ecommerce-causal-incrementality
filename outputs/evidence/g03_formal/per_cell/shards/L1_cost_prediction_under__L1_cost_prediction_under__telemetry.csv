@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L1_cost_prediction_under,g_tier2,20,145.46875,0.46875,467.65625
+L1_cost_prediction_under,g_tier2,21,109.578125,0.40625,307.890625
+L1_cost_prediction_under,g_tier2,22,112.53125,0.421875,531.46875
+L1_cost_prediction_under,g_tier2,23,148.890625,0.53125,565.734375
+L1_cost_prediction_under,g_tier2,24,132.96875,0.5,545.78125
+L1_cost_prediction_under,g_tier2,25,145.5,0.53125,536.125
+L1_cost_prediction_under,g_tier2,26,145.078125,0.5,375.03125
+L1_cost_prediction_under,g_tier2,27,143.859375,0.484375,525.703125
+L1_cost_prediction_under,g_tier2,28,145.125,0.484375,527.296875
+L1_cost_prediction_under,g_tier2,29,144.6875,0.484375,527.0625
