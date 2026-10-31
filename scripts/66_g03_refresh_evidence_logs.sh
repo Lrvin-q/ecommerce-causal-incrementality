@@ -4,6 +4,7 @@
 # 6/6 标记只在导出成功之后写；失败写 FAILED 行（G04 C4/P3-3）。
 set -u
 cd "$(dirname "$0")/.."
+export PYTHONUTF8=1 PYTHONIOENCODING=utf-8
 PY="${G66_PY:-.venv/Scripts/python.exe}"
 EXPORT="${G66_EXPORT:-scripts/41_export_g03_evidence.py}"
 LOG="${G66_LOG:-out/g03_logs/finalize.log}"
