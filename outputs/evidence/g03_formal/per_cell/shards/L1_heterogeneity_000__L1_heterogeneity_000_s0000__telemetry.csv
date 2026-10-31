@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L1_heterogeneity_000,g_tier2,0,146.140625,0.515625,371.625
+L1_heterogeneity_000,g_tier2,1,146.03125,0.515625,370.8125
+L1_heterogeneity_000,g_tier2,2,144.3125,0.484375,548.796875
+L1_heterogeneity_000,g_tier2,3,143.484375,0.453125,378.140625
+L1_heterogeneity_000,g_tier2,4,144.625,0.515625,382.8125
+L1_heterogeneity_000,g_tier2,5,145.328125,0.46875,382.46875
+L1_heterogeneity_000,g_tier2,6,143.953125,0.46875,377.96875
+L1_heterogeneity_000,g_tier2,7,144.15625,0.46875,377.203125
+L1_heterogeneity_000,g_tier2,8,145.34375,0.484375,539.359375
+L1_heterogeneity_000,g_tier2,9,144.3125,0.453125,374.6875

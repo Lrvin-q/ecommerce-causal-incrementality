@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L2_drift_smooth,g_tier2,0,143.25,0.515625,357.328125
+L2_drift_smooth,g_tier2,1,143.90625,0.5,504.1875
+L2_drift_smooth,g_tier2,2,142.84375,0.484375,506.90625
+L2_drift_smooth,g_tier2,3,141.921875,0.484375,349.90625
+L2_drift_smooth,g_tier2,4,144.5625,0.5,358.53125
+L2_drift_smooth,g_tier2,5,144.46875,0.484375,505.484375
+L2_drift_smooth,g_tier2,6,144.203125,0.515625,354.265625
+L2_drift_smooth,g_tier2,7,143.96875,0.484375,511.671875
+L2_drift_smooth,g_tier2,8,143.765625,0.5,506.796875
+L2_drift_smooth,g_tier2,9,143.125,0.484375,511.28125

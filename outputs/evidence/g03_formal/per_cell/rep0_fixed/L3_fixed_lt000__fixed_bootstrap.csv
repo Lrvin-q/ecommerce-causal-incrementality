@@ -1,0 +1,2 @@
+﻿rep,budget_cny_per_user,resamples,n_targeted,n_random,point_diff,bootstrap_mean_diff,bootstrap_se,ci_low,ci_high
+0,0.2,1000,66594,66713,0.012776052360430779,0.012253904184670305,0.055194016488497886,-0.10001940518022809,0.12051649150404369

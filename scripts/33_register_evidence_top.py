@@ -314,22 +314,37 @@ def collect(subdirs: list[str], evidence_root: Path) -> tuple[list[dict], list[s
             bad.append(f"{subdir}/{rel}: 磁盘上存在身份类文件，但目录级 coverage.json 未登记")
 
         extra_identity = DIR_EXTRA_IDENTITY.get(subdir, {})
+        # 全表逐条核 sha/bytes + target 唯一性。只核身份类时，导出器把 264 条分片
+        # 写成 48 个同名文件也会全绿（G03 P0-1，2026-10-31 19:44 独立评审）。
+        counts: dict[str, int] = {}
         for rec in normalized:
-            if not _is_identity(rec["rel"]) and rec["rel"] not in extra_identity:
-                continue
+            counts[rec["rel"]] = counts.get(rec["rel"], 0) + 1
+        for rel, count in sorted(counts.items()):
+            if count > 1:
+                bad.append(
+                    f"{subdir}/{rel}: 同一 target 被 {count} 条记录登记（命名冲突或索引重复）"
+                )
+        verified: dict[str, tuple[str, int]] = {}
+        for rec in normalized:
             path = d / rec["rel"]
             if not path.is_file():
                 bad.append(f"{subdir}/{rec['rel']}: 文件缺失，目录级索引已过期")
                 continue
             actual_sha = file_sha256(path)
             actual_bytes = path.stat().st_size
+            verified[rec["rel"]] = (actual_sha, actual_bytes)
             if actual_sha != rec["sha256"] or actual_bytes != rec["bytes"]:
                 bad.append(
                     f"{subdir}/{rec['rel']}: 磁盘 sha256/bytes 与目录级 coverage.json 不符"
                     f"（目录级 {rec['sha256'][:12]}…/{rec['bytes']} vs "
                     f"磁盘 {actual_sha[:12]}…/{actual_bytes}）"
                 )
+        for rec in normalized:
+            if not _is_identity(rec["rel"]) and rec["rel"] not in extra_identity:
                 continue
+            if rec["rel"] not in verified:
+                continue
+            actual_sha, actual_bytes = verified[rec["rel"]]
             kind = rec["kind"]
             if kind is None:
                 bad.append(f"{subdir}/{rec['rel']}: 无法确定 kind")

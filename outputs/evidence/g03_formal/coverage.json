@@ -1,12 +1,12 @@
 {
   "kind": "g03_evidence_coverage",
-  "generated_at": "2026-10-31T19:36:43+08:00",
+  "generated_at": "2026-10-31T19:48:23+08:00",
   "cells": 24,
   "fixed_cells": 24,
   "records": [
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0000/L0_P_main/repetitions.csv",
       "bytes": 11850,
       "sha256": "7c4201e551df94644048f725a61e81c5d5151cf8ff8c63cbe50951174a37a610",
@@ -14,14 +14,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0000/L0_P_main/repetitions_telemetry.csv",
       "bytes": 564,
-      "sha256": "29ea003c269b67c1b3851ea2256c2f0e544fb796b5737b18f9e0fdf25eba50ff"
+      "sha256": "29ea003c269b67c1b3851ea2256c2f0e544fb796b5737b18f9e0fdf25eba50ff",
+      "note": "分片 L0_P_main_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0001/L0_P_main/repetitions.csv",
       "bytes": 11816,
       "sha256": "20d62b7f18aa0b020d3ed6b4aca423a85622363c6460cfe936f5194fb59368ac",
@@ -29,14 +30,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0001/L0_P_main/repetitions_telemetry.csv",
       "bytes": 559,
-      "sha256": "f2c02c31484893fb83e74cdedcd28f6eee635a76d27129e4929d026fd1adb1f2"
+      "sha256": "f2c02c31484893fb83e74cdedcd28f6eee635a76d27129e4929d026fd1adb1f2",
+      "note": "分片 L0_P_main_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0002/L0_P_main/repetitions.csv",
       "bytes": 11821,
       "sha256": "a4a3fda962df91a754b71cad056bf1224d5c6b2a0840a9a3550d9f9dbb75b2c8",
@@ -44,14 +46,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0002/L0_P_main/repetitions_telemetry.csv",
       "bytes": 559,
-      "sha256": "3229dae55cb35c97b822911426240855ad5b550e651acc944c1413ae853d9283"
+      "sha256": "3229dae55cb35c97b822911426240855ad5b550e651acc944c1413ae853d9283",
+      "note": "分片 L0_P_main_s0002"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0003__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0003/L0_P_main/repetitions.csv",
       "bytes": 11836,
       "sha256": "909cf886c30cde697198064f36447d521ba39b5e9acd09d509eca720bf0d732e",
@@ -59,14 +62,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0003__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0003/L0_P_main/repetitions_telemetry.csv",
       "bytes": 555,
-      "sha256": "c31c1b209a906dd7e34e5cf606f29d6ef0a4b7bc6b9e6a5723ab80e0bb92fd08"
+      "sha256": "c31c1b209a906dd7e34e5cf606f29d6ef0a4b7bc6b9e6a5723ab80e0bb92fd08",
+      "note": "分片 L0_P_main_s0003"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0004__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0004/L0_P_main/repetitions.csv",
       "bytes": 11834,
       "sha256": "c7c26ff4b8454178f22f47d281020e5e3a1739041f864d39eb832a1393e7f680",
@@ -74,14 +78,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0004__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0004/L0_P_main/repetitions_telemetry.csv",
       "bytes": 565,
-      "sha256": "72faa6a84c5fa850a4c8b1fd2a471979dda750ca13ccc4e589a393a8cb4d0469"
+      "sha256": "72faa6a84c5fa850a4c8b1fd2a471979dda750ca13ccc4e589a393a8cb4d0469",
+      "note": "分片 L0_P_main_s0004"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0005__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0005/L0_P_main/repetitions.csv",
       "bytes": 11851,
       "sha256": "544f53e6d5556ca0351ac0cda105da0c523ba282b02c5635c09079f4ba4bb32b",
@@ -89,14 +94,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0005__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0005/L0_P_main/repetitions_telemetry.csv",
       "bytes": 561,
-      "sha256": "a3c1fcc880e250667efc925e0c42bba6c7f56f0e4297d4a390510fb3da971141"
+      "sha256": "a3c1fcc880e250667efc925e0c42bba6c7f56f0e4297d4a390510fb3da971141",
+      "note": "分片 L0_P_main_s0005"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0006__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0006/L0_P_main/repetitions.csv",
       "bytes": 11825,
       "sha256": "7edf812d2ac2bd73b2f9ffb9b920422947bc61a34f51989e0ee121ab5ca6a366",
@@ -104,14 +110,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0006__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0006/L0_P_main/repetitions_telemetry.csv",
       "bytes": 561,
-      "sha256": "fe3beae862c512387bc004de6a2b6527d86e33b15377d15e67ed17fc33e0602b"
+      "sha256": "fe3beae862c512387bc004de6a2b6527d86e33b15377d15e67ed17fc33e0602b",
+      "note": "分片 L0_P_main_s0006"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0007__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0007/L0_P_main/repetitions.csv",
       "bytes": 11838,
       "sha256": "20e78c9efa4dd494c26e7dd3055e6e1e520f24f24087e11c1c715e6209f048bd",
@@ -119,14 +126,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0007__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0007/L0_P_main/repetitions_telemetry.csv",
       "bytes": 580,
-      "sha256": "8fa1557e43aefd4a2f0b8c61392e53e7afae1859daec8f5a2230f2940ec0469b"
+      "sha256": "8fa1557e43aefd4a2f0b8c61392e53e7afae1859daec8f5a2230f2940ec0469b",
+      "note": "分片 L0_P_main_s0007"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0008__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0008/L0_P_main/repetitions.csv",
       "bytes": 11830,
       "sha256": "0ff82fc9568e8494c08155e04baa6e5e9b557f27cd6676f8c7ea6cf638b990ee",
@@ -134,14 +142,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0008__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0008/L0_P_main/repetitions_telemetry.csv",
       "bytes": 559,
-      "sha256": "830dc7cbba31394c047fd211e872544761bb1fd00adb8f1309517c0096ddf417"
+      "sha256": "830dc7cbba31394c047fd211e872544761bb1fd00adb8f1309517c0096ddf417",
+      "note": "分片 L0_P_main_s0008"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0009__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0009/L0_P_main/repetitions.csv",
       "bytes": 11843,
       "sha256": "ac817a0df23e78bbf92a9f840a87ed7a8b322348011c4b85f4b4353a19cdc5cc",
@@ -149,14 +158,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s0009__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s0009/L0_P_main/repetitions_telemetry.csv",
       "bytes": 567,
-      "sha256": "33f615378a55b935f644a2ad6e1f98d5a633afc3c297657641c248b0f6a34b98"
+      "sha256": "33f615378a55b935f644a2ad6e1f98d5a633afc3c297657641c248b0f6a34b98",
+      "note": "分片 L0_P_main_s0009"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10000__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10000/L0_P_main/repetitions.csv",
       "bytes": 33631,
       "sha256": "b618753f422eb15346464267e865bc31376cd63d77f5c18fa604018f5e33905b",
@@ -164,14 +174,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10000__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10000/L0_P_main/repetitions_telemetry.csv",
       "bytes": 2245,
-      "sha256": "a9d61c193fe1b78e509ec7216f2b9976a4aea35b61e7ad3e3340c6427d7145c3"
+      "sha256": "a9d61c193fe1b78e509ec7216f2b9976a4aea35b61e7ad3e3340c6427d7145c3",
+      "note": "分片 L0_P_main_s10000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10001__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10001/L0_P_main/repetitions.csv",
       "bytes": 33609,
       "sha256": "a9125b297e67996f9d1bad8075f35cafbf9ec80329d7d509707c4b8092aae732",
@@ -179,14 +190,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10001__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10001/L0_P_main/repetitions_telemetry.csv",
       "bytes": 2250,
-      "sha256": "db370edc036e170418a96dbbc2bb5e3ddb6e9459776d9e3e50bc5ab0ab9a0c70"
+      "sha256": "db370edc036e170418a96dbbc2bb5e3ddb6e9459776d9e3e50bc5ab0ab9a0c70",
+      "note": "分片 L0_P_main_s10001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10002__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10002/L0_P_main/repetitions.csv",
       "bytes": 33649,
       "sha256": "67b7065b01f10996f3536934e8547921e1b3721a73706ebd1bbd5988d06aeebe",
@@ -194,14 +206,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10002__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10002/L0_P_main/repetitions_telemetry.csv",
       "bytes": 2269,
-      "sha256": "87186a67d8ddc27149c3b29482e2e0587ccb89248f7b57d756ed3026b20dee90"
+      "sha256": "87186a67d8ddc27149c3b29482e2e0587ccb89248f7b57d756ed3026b20dee90",
+      "note": "分片 L0_P_main_s10002"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10003__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10003/L0_P_main/repetitions.csv",
       "bytes": 33628,
       "sha256": "fb42f2d161ea2377d4ff91f18c68f6e2c19559fb5870c40cb540f25946460adf",
@@ -209,14 +222,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10003__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10003/L0_P_main/repetitions_telemetry.csv",
       "bytes": 2241,
-      "sha256": "f0cb06ff09b8c709e596628a704a43b2b7be06b1302ba72c1dbe7cc63764181b"
+      "sha256": "f0cb06ff09b8c709e596628a704a43b2b7be06b1302ba72c1dbe7cc63764181b",
+      "note": "分片 L0_P_main_s10003"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10004__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10004/L0_P_main/repetitions.csv",
       "bytes": 33646,
       "sha256": "77856dbb8a2e64e537aa38a38d257ee65d50cfd59fbf6abc1f62fd9e98c14e14",
@@ -224,14 +238,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10004__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10004/L0_P_main/repetitions_telemetry.csv",
       "bytes": 2247,
-      "sha256": "8e692c1f55a5425bf00f05e22fd276bd2ab461a6e8bc7638829edd1e62ca4ffd"
+      "sha256": "8e692c1f55a5425bf00f05e22fd276bd2ab461a6e8bc7638829edd1e62ca4ffd",
+      "note": "分片 L0_P_main_s10004"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10005__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10005/L0_P_main/repetitions.csv",
       "bytes": 33632,
       "sha256": "e203be5fece71a6189cbc752c88e68f0566685641be68428dc3c29a2be5ce412",
@@ -239,14 +254,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10005__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10005/L0_P_main/repetitions_telemetry.csv",
       "bytes": 2233,
-      "sha256": "177d1e236376f07aa852330dbe4a1061831fc628b2c3684759a7f1a2b1629ed1"
+      "sha256": "177d1e236376f07aa852330dbe4a1061831fc628b2c3684759a7f1a2b1629ed1",
+      "note": "分片 L0_P_main_s10005"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10006__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10006/L0_P_main/repetitions.csv",
       "bytes": 33625,
       "sha256": "cf11e54316c01d3c3603317b292d1feef93432f2b493669a6dca182d849d2fc9",
@@ -254,14 +270,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10006__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10006/L0_P_main/repetitions_telemetry.csv",
       "bytes": 2243,
-      "sha256": "eb6e60f3149ed7eb0103364febe748d098459b9a13ec131b368406d5ec88f136"
+      "sha256": "eb6e60f3149ed7eb0103364febe748d098459b9a13ec131b368406d5ec88f136",
+      "note": "分片 L0_P_main_s10006"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10007__repetitions.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10007/L0_P_main/repetitions.csv",
       "bytes": 33629,
       "sha256": "17ce304a807ca4e5325ed89c736dfa15081dda71f9664b9a60f0c4f48651e51b",
@@ -269,10 +286,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_P_main__L0_P_main_s10007__telemetry.csv",
       "source": "out/g03_formal/shards/L0_P_main_s10007/L0_P_main/repetitions_telemetry.csv",
       "bytes": 2269,
-      "sha256": "6e24e687c4fa3fc0a12b5ced72abccc1ef36b15f72a786e73c681ac9739419c9"
+      "sha256": "6e24e687c4fa3fc0a12b5ced72abccc1ef36b15f72a786e73c681ac9739419c9",
+      "note": "分片 L0_P_main_s10007"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -285,7 +303,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s0000/L1_main/repetitions.csv",
       "bytes": 12168,
       "sha256": "d64eac2faff704c4b560b3de44f4607b8b423f3454522b5e4ceb7fe4e5597ff6",
@@ -293,14 +311,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s0000/L1_main/repetitions_telemetry.csv",
       "bytes": 533,
-      "sha256": "ee1a09181612c5105c44ccca2cda380214efc95a2776ab02b0b04e63d3cca2eb"
+      "sha256": "ee1a09181612c5105c44ccca2cda380214efc95a2776ab02b0b04e63d3cca2eb",
+      "note": "分片 L1_main_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s0001/L1_main/repetitions.csv",
       "bytes": 12160,
       "sha256": "05fbecff48efc001a976f5231864df6eae599d58421fab2ccc3248c90e409620",
@@ -308,14 +327,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s0001/L1_main/repetitions_telemetry.csv",
       "bytes": 554,
-      "sha256": "8effae5336c3df0467b27587d5b53fefa598f3e19bd5d41ee3382479eb65b347"
+      "sha256": "8effae5336c3df0467b27587d5b53fefa598f3e19bd5d41ee3382479eb65b347",
+      "note": "分片 L1_main_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s0002/L1_main/repetitions.csv",
       "bytes": 12142,
       "sha256": "16fc3d3ace1d8159a401885238d4059059316cb3d1c25b78131c59042ec65ab3",
@@ -323,14 +343,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s0002/L1_main/repetitions_telemetry.csv",
       "bytes": 543,
-      "sha256": "f43ab39291c284b2b79191bbe820efcb77949f78132df95ea6868b698618e73d"
+      "sha256": "f43ab39291c284b2b79191bbe820efcb77949f78132df95ea6868b698618e73d",
+      "note": "分片 L1_main_s0002"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0003__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s0003/L1_main/repetitions.csv",
       "bytes": 12156,
       "sha256": "922279858d1a870d06ef04e2df3681f93c6c8a6bf0ac911a4a8297fa88b6456c",
@@ -338,14 +359,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0003__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s0003/L1_main/repetitions_telemetry.csv",
       "bytes": 547,
-      "sha256": "9002dc46600435f23207361cb2f67c5b9a49fb18a7cd21d9ffb62dfd856ddf42"
+      "sha256": "9002dc46600435f23207361cb2f67c5b9a49fb18a7cd21d9ffb62dfd856ddf42",
+      "note": "分片 L1_main_s0003"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0004__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s0004/L1_main/repetitions.csv",
       "bytes": 12167,
       "sha256": "3c44cd5aed84b0510ddca43823a9648b74257d5ca8ea86658af4353794ab8ce1",
@@ -353,14 +375,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0004__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s0004/L1_main/repetitions_telemetry.csv",
       "bytes": 545,
-      "sha256": "c9f05cc9cdcab656e8bb6f301295b287c63fd8977acd584a97bf1a3cbd6ad3e4"
+      "sha256": "c9f05cc9cdcab656e8bb6f301295b287c63fd8977acd584a97bf1a3cbd6ad3e4",
+      "note": "分片 L1_main_s0004"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0005__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s0005/L1_main/repetitions.csv",
       "bytes": 12167,
       "sha256": "27f945449d00f7dbadcc187a21c3e7b794fd35f459acfa9bb787a05825d0aa68",
@@ -368,14 +391,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0005__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s0005/L1_main/repetitions_telemetry.csv",
       "bytes": 542,
-      "sha256": "8a6d596822d35cb2a1e347d6936a7031d9db1612d1cf54755b4afbbaed0fc853"
+      "sha256": "8a6d596822d35cb2a1e347d6936a7031d9db1612d1cf54755b4afbbaed0fc853",
+      "note": "分片 L1_main_s0005"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0006__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s0006/L1_main/repetitions.csv",
       "bytes": 12162,
       "sha256": "6d89a85bab7a6b27ef6cd39e58448aa4ec2113852c7f1a0b2f0f29b50df1ed39",
@@ -383,14 +407,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0006__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s0006/L1_main/repetitions_telemetry.csv",
       "bytes": 539,
-      "sha256": "93527d7cfc1576e5807a8a13eea8acb7fd1ca4a8bf2e8f32e2ab53bb2d0f4c62"
+      "sha256": "93527d7cfc1576e5807a8a13eea8acb7fd1ca4a8bf2e8f32e2ab53bb2d0f4c62",
+      "note": "分片 L1_main_s0006"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0007__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s0007/L1_main/repetitions.csv",
       "bytes": 12154,
       "sha256": "a46460facdf1af4bbaae51ce75034c2ee6cf927f770febe31634dc413b90c8ed",
@@ -398,14 +423,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0007__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s0007/L1_main/repetitions_telemetry.csv",
       "bytes": 542,
-      "sha256": "bc91981c2b8a24d90684718df66bccd400e210a7cfed29f39b37f657abbe2ebe"
+      "sha256": "bc91981c2b8a24d90684718df66bccd400e210a7cfed29f39b37f657abbe2ebe",
+      "note": "分片 L1_main_s0007"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0008__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s0008/L1_main/repetitions.csv",
       "bytes": 12156,
       "sha256": "61e730c0f6e16e84c86b80dbfe39919ea7a1065b58539487b10a667d0aee80da",
@@ -413,14 +439,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0008__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s0008/L1_main/repetitions_telemetry.csv",
       "bytes": 538,
-      "sha256": "18f044396afb675b01eb96fd2805055bec50b07cc029ba97e891f9dcf4c7e189"
+      "sha256": "18f044396afb675b01eb96fd2805055bec50b07cc029ba97e891f9dcf4c7e189",
+      "note": "分片 L1_main_s0008"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0009__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s0009/L1_main/repetitions.csv",
       "bytes": 12151,
       "sha256": "e4999d0f6d3fb931665cd074c2eebf81096064074b672070e15688c142399ecf",
@@ -428,14 +455,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s0009__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s0009/L1_main/repetitions_telemetry.csv",
       "bytes": 551,
-      "sha256": "d0d004e3b479790aabf6a89fb0618acd38cfe6d27d985e1da1d111ee5f2796d1"
+      "sha256": "d0d004e3b479790aabf6a89fb0618acd38cfe6d27d985e1da1d111ee5f2796d1",
+      "note": "分片 L1_main_s0009"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10000__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s10000/L1_main/repetitions.csv",
       "bytes": 33428,
       "sha256": "c6d8cc13e905822c584a8d6ad4e28954c367ae51de8f4d21e3b3f3462aa8365a",
@@ -443,14 +471,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10000__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s10000/L1_main/repetitions_telemetry.csv",
       "bytes": 2155,
-      "sha256": "f7f0c4b52096f349745050f6fa41b17390de1ed7decf35f490e384ef72edc211"
+      "sha256": "f7f0c4b52096f349745050f6fa41b17390de1ed7decf35f490e384ef72edc211",
+      "note": "分片 L1_main_s10000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10001__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s10001/L1_main/repetitions.csv",
       "bytes": 33428,
       "sha256": "04601dd0aebe7a07e40618d93f694c720fd362434f1dc645caa4ed8492cdc5db",
@@ -458,14 +487,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10001__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s10001/L1_main/repetitions_telemetry.csv",
       "bytes": 2140,
-      "sha256": "e65f22ad1c6614dc12647f62768b2748ae8cf7d1508573dae2818d1a2c717805"
+      "sha256": "e65f22ad1c6614dc12647f62768b2748ae8cf7d1508573dae2818d1a2c717805",
+      "note": "分片 L1_main_s10001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10002__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s10002/L1_main/repetitions.csv",
       "bytes": 33424,
       "sha256": "932a4811d072a6236b81be58d18947eb99f272919f41e3080fbf7796b1c72631",
@@ -473,14 +503,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10002__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s10002/L1_main/repetitions_telemetry.csv",
       "bytes": 2129,
-      "sha256": "f5b85b94f850e31cdd8e328ed3029f7a705c61a99441f54d9946ba8d89f2512a"
+      "sha256": "f5b85b94f850e31cdd8e328ed3029f7a705c61a99441f54d9946ba8d89f2512a",
+      "note": "分片 L1_main_s10002"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10003__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s10003/L1_main/repetitions.csv",
       "bytes": 33441,
       "sha256": "c4968648d7e5744bb1345a52ec99f9fec84d4c1950f7d7571f99c4391d051530",
@@ -488,14 +519,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10003__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s10003/L1_main/repetitions_telemetry.csv",
       "bytes": 2154,
-      "sha256": "f4daccd15db71dcdc9515eb4dd5f127dd5cfe8c05194317b13caa010022c4483"
+      "sha256": "f4daccd15db71dcdc9515eb4dd5f127dd5cfe8c05194317b13caa010022c4483",
+      "note": "分片 L1_main_s10003"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10004__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s10004/L1_main/repetitions.csv",
       "bytes": 33401,
       "sha256": "3c626c6e5a9421b33871344b81b43284312eb01a4e7c4738cb24cd2bd5d705ef",
@@ -503,14 +535,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10004__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s10004/L1_main/repetitions_telemetry.csv",
       "bytes": 2144,
-      "sha256": "b9c966e53b588826224888505961085160b38512bc51548392810bb1c00f0344"
+      "sha256": "b9c966e53b588826224888505961085160b38512bc51548392810bb1c00f0344",
+      "note": "分片 L1_main_s10004"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10005__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s10005/L1_main/repetitions.csv",
       "bytes": 33436,
       "sha256": "36ac733f1e164c12a6ea96d8d4f30a0494d9c571c89c0aedd8458e60c6c8e2f3",
@@ -518,14 +551,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10005__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s10005/L1_main/repetitions_telemetry.csv",
       "bytes": 2144,
-      "sha256": "f10d80704ee2709c03e15580431650fcbf6982feee4c1834adcac44f45974582"
+      "sha256": "f10d80704ee2709c03e15580431650fcbf6982feee4c1834adcac44f45974582",
+      "note": "分片 L1_main_s10005"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10006__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s10006/L1_main/repetitions.csv",
       "bytes": 33441,
       "sha256": "80f555c3e1e3e94bf36ba1998e83c0574881fb5d2733ea934deaa3a812ca742b",
@@ -533,14 +567,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10006__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s10006/L1_main/repetitions_telemetry.csv",
       "bytes": 2157,
-      "sha256": "8b9d364f0cd579751fb522e4a3554327425b71cc8505604d9f78df71b1772e0a"
+      "sha256": "8b9d364f0cd579751fb522e4a3554327425b71cc8505604d9f78df71b1772e0a",
+      "note": "分片 L1_main_s10006"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10007__repetitions.csv",
       "source": "out/g03_formal/shards/L1_main_s10007/L1_main/repetitions.csv",
       "bytes": 33436,
       "sha256": "a6eab223f1f10d0db2e326a427c0b25eb905d8160c6027ea513481d2c902c5b7",
@@ -548,10 +583,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_main__L1_main_s10007__telemetry.csv",
       "source": "out/g03_formal/shards/L1_main_s10007/L1_main/repetitions_telemetry.csv",
       "bytes": 2166,
-      "sha256": "4d2047a40b1354a716395be2129a2badb079d65dd2c9b636e3ef048ee17c95a9"
+      "sha256": "4d2047a40b1354a716395be2129a2badb079d65dd2c9b636e3ef048ee17c95a9",
+      "note": "分片 L1_main_s10007"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -564,7 +600,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0000/L2_n200000_p050/repetitions.csv",
       "bytes": 11960,
       "sha256": "0aedca917a1d79463f35c3a8ca3e6084e616ea0594966bb50e0a125f0f2115e7",
@@ -572,14 +608,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0000/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 616,
-      "sha256": "d38089c8402a8b9b8301d39babff2f74969b35475ef0f6a57034d6d0cc78b0f8"
+      "sha256": "d38089c8402a8b9b8301d39babff2f74969b35475ef0f6a57034d6d0cc78b0f8",
+      "note": "分片 L2_n200000_p050_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0001/L2_n200000_p050/repetitions.csv",
       "bytes": 11977,
       "sha256": "39ef887f01f5a65881bbbdd5c24042f6e3d5af005909d35dfb78eaacc9f1da72",
@@ -587,14 +624,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0001/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 633,
-      "sha256": "d315f99f166bbfb371351016ecd17e897718eaeb8114fa54e67c780ad8de3778"
+      "sha256": "d315f99f166bbfb371351016ecd17e897718eaeb8114fa54e67c780ad8de3778",
+      "note": "分片 L2_n200000_p050_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0002/L2_n200000_p050/repetitions.csv",
       "bytes": 11954,
       "sha256": "590e9fdf15bfb4aac3991c2fa2e3786a61cb31c42e376ed5096f99efe7b92638",
@@ -602,14 +640,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0002/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 628,
-      "sha256": "c166ce1fcd4cbdd400849e390d02ed6ed709054e81dd7c1b75eff972e0843f4b"
+      "sha256": "c166ce1fcd4cbdd400849e390d02ed6ed709054e81dd7c1b75eff972e0843f4b",
+      "note": "分片 L2_n200000_p050_s0002"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0003__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0003/L2_n200000_p050/repetitions.csv",
       "bytes": 11948,
       "sha256": "37c65d258f66b7fd5ef93385d9f84787cae7e8cf4d98c1970b47db5adb3f33e7",
@@ -617,14 +656,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0003__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0003/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 626,
-      "sha256": "27a1bf6c657d93e811fe115bc4c9f90f352a39e0d61e41fcb2091eecea870464"
+      "sha256": "27a1bf6c657d93e811fe115bc4c9f90f352a39e0d61e41fcb2091eecea870464",
+      "note": "分片 L2_n200000_p050_s0003"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0004__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0004/L2_n200000_p050/repetitions.csv",
       "bytes": 11954,
       "sha256": "67aa206da2d29d81d4b39baea2b0d1e7d7b07943a434e04f7eb8cc1d1002af7a",
@@ -632,14 +672,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0004__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0004/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 629,
-      "sha256": "36edf4cb5f1ad77897859fed3f3313b776fb0351c16e74eddad5c65697a8d4c6"
+      "sha256": "36edf4cb5f1ad77897859fed3f3313b776fb0351c16e74eddad5c65697a8d4c6",
+      "note": "分片 L2_n200000_p050_s0004"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0005__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0005/L2_n200000_p050/repetitions.csv",
       "bytes": 11954,
       "sha256": "db08a3260594128819c5fb3762a6b1b3749a087fa93dc3447dc4eec09d377755",
@@ -647,14 +688,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0005__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0005/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 638,
-      "sha256": "187c80d1367230b87e1c946ed7e7ba17889db8457a64d7e338d6513a381576c9"
+      "sha256": "187c80d1367230b87e1c946ed7e7ba17889db8457a64d7e338d6513a381576c9",
+      "note": "分片 L2_n200000_p050_s0005"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0006__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0006/L2_n200000_p050/repetitions.csv",
       "bytes": 11943,
       "sha256": "359d20370c5cb55fa47e62df9951ebd78f4c6f7546f0da688f730baf9288ee7a",
@@ -662,14 +704,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0006__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0006/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 635,
-      "sha256": "720fdd8b70739c9e8725d80e25c542790ff04c8ef7a1149d4fad035dd490be85"
+      "sha256": "720fdd8b70739c9e8725d80e25c542790ff04c8ef7a1149d4fad035dd490be85",
+      "note": "分片 L2_n200000_p050_s0006"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0007__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0007/L2_n200000_p050/repetitions.csv",
       "bytes": 11945,
       "sha256": "9cac8853bcbdfd35bbbd4e8e2b6841a4bf848ad6161bb375e9af0f139921828f",
@@ -677,14 +720,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0007__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0007/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 615,
-      "sha256": "e5d19a64972b083f24db04f78e08df2e3952f661a0b1faec542213191c01b82a"
+      "sha256": "e5d19a64972b083f24db04f78e08df2e3952f661a0b1faec542213191c01b82a",
+      "note": "分片 L2_n200000_p050_s0007"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0008__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0008/L2_n200000_p050/repetitions.csv",
       "bytes": 11963,
       "sha256": "9d6f7f35593608ffa66d4faffbce3e6288c1e3464aeac8191c048c0f6486e9f2",
@@ -692,14 +736,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0008__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0008/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 633,
-      "sha256": "2bc615756f139680b3a723472490825d8665a31d56eb46e0d7c06da91d4d849e"
+      "sha256": "2bc615756f139680b3a723472490825d8665a31d56eb46e0d7c06da91d4d849e",
+      "note": "分片 L2_n200000_p050_s0008"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0009__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0009/L2_n200000_p050/repetitions.csv",
       "bytes": 11944,
       "sha256": "ec74c53709c580a78ca5d9e36b976dcd3da57dea14ad88e2e75519e24c6d1e60",
@@ -707,14 +752,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s0009__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s0009/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 618,
-      "sha256": "56bc40234ee64a2c37e8eae21f5b6caa21ee0589d28866f70c0d28ce78f63439"
+      "sha256": "56bc40234ee64a2c37e8eae21f5b6caa21ee0589d28866f70c0d28ce78f63439",
+      "note": "分片 L2_n200000_p050_s0009"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10000__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10000/L2_n200000_p050/repetitions.csv",
       "bytes": 34210,
       "sha256": "4f1e410b53733e4b246484e58ed7b86dbab0da1387b8bbbe4852cb7f5e81d90e",
@@ -722,14 +768,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10000__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10000/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 2552,
-      "sha256": "62eb4435044fbd582c1c82864fb6d4b9a9eeae7355c38467fbed05837da5544d"
+      "sha256": "62eb4435044fbd582c1c82864fb6d4b9a9eeae7355c38467fbed05837da5544d",
+      "note": "分片 L2_n200000_p050_s10000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10001__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10001/L2_n200000_p050/repetitions.csv",
       "bytes": 34218,
       "sha256": "135a49f3c5be0a59e5848f2f4d83054f71b60b34fccd46cf847e7ca974d58416",
@@ -737,14 +784,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10001__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10001/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 2562,
-      "sha256": "9a8f34012e88f72e4f46ba3574e721b110db0988041216f5e32ff76c8ed784ad"
+      "sha256": "9a8f34012e88f72e4f46ba3574e721b110db0988041216f5e32ff76c8ed784ad",
+      "note": "分片 L2_n200000_p050_s10001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10002__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10002/L2_n200000_p050/repetitions.csv",
       "bytes": 34228,
       "sha256": "c56e5ea75d91f27dc734348bde358e13872738f1e272d1dd3383bf0dfeaefe09",
@@ -752,14 +800,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10002__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10002/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 2570,
-      "sha256": "fa7a0a8403cea1569dff8b6683a4e98acb0a101d0fea2a09c29f62cddcfa41ce"
+      "sha256": "fa7a0a8403cea1569dff8b6683a4e98acb0a101d0fea2a09c29f62cddcfa41ce",
+      "note": "分片 L2_n200000_p050_s10002"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10003__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10003/L2_n200000_p050/repetitions.csv",
       "bytes": 34238,
       "sha256": "c6bb808696bae70fc41e16159e3df39b56cbf5509ad01e2eaa5271c154b892bc",
@@ -767,14 +816,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10003__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10003/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 2524,
-      "sha256": "b10c2e50750ef3e74f8314e1fdce4ed7b25be81762a8a371e14386ebf3de2293"
+      "sha256": "b10c2e50750ef3e74f8314e1fdce4ed7b25be81762a8a371e14386ebf3de2293",
+      "note": "分片 L2_n200000_p050_s10003"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10004__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10004/L2_n200000_p050/repetitions.csv",
       "bytes": 34227,
       "sha256": "d48b17536476c193359555e992e0e7c6ade2c0946d3ea5abb3d8d566c5a49982",
@@ -782,14 +832,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10004__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10004/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 2535,
-      "sha256": "6cc8bac2e5530e39b2eff500739ef8ccd78ef14d65a6aae9deaab6a99d37ba36"
+      "sha256": "6cc8bac2e5530e39b2eff500739ef8ccd78ef14d65a6aae9deaab6a99d37ba36",
+      "note": "分片 L2_n200000_p050_s10004"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10005__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10005/L2_n200000_p050/repetitions.csv",
       "bytes": 34241,
       "sha256": "1dad23af6cedb707784c36d73303450cbdf91a5781fc78c38588067714f92c67",
@@ -797,14 +848,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10005__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10005/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 2558,
-      "sha256": "8278846b5ebcefa720143a855c0f177f85c1c8ab8000a5cc1826ad0d13544299"
+      "sha256": "8278846b5ebcefa720143a855c0f177f85c1c8ab8000a5cc1826ad0d13544299",
+      "note": "分片 L2_n200000_p050_s10005"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10006__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10006/L2_n200000_p050/repetitions.csv",
       "bytes": 34216,
       "sha256": "e0cdfbd6f0a5a7a4f5a4463a378f718136536561a69bf55c18334eafab3fad8c",
@@ -812,14 +864,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10006__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10006/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 2527,
-      "sha256": "761b292d15eab4348838baedc6325ce97d4de989f355da1265dbc74fd1c3ecef"
+      "sha256": "761b292d15eab4348838baedc6325ce97d4de989f355da1265dbc74fd1c3ecef",
+      "note": "分片 L2_n200000_p050_s10006"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10007__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10007/L2_n200000_p050/repetitions.csv",
       "bytes": 34224,
       "sha256": "3da7717554d31b365b63e98f2f72a53d79317ff93d05da3c6e70dcafcdd1d013",
@@ -827,10 +880,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n200000_p050__L2_n200000_p050_s10007__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n200000_p050_s10007/L2_n200000_p050/repetitions_telemetry.csv",
       "bytes": 2544,
-      "sha256": "a438ef4915b0d7defede42f553eca8b4ce4922d06fb136d8dedbc1d9108e8cb3"
+      "sha256": "a438ef4915b0d7defede42f553eca8b4ce4922d06fb136d8dedbc1d9108e8cb3",
+      "note": "分片 L2_n200000_p050_s10007"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -843,7 +897,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0000/L3_fixed_lt000/repetitions.csv",
       "bytes": 12247,
       "sha256": "014fdc1717fcd52cd24aa1c4c39a72dcf5bd80ae78d18308ed10de760122cfe8",
@@ -851,14 +905,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0000/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 601,
-      "sha256": "f234f30425a5dc883e51079e5b02f2cab6776f6d3b39985100094cd6885c9a37"
+      "sha256": "f234f30425a5dc883e51079e5b02f2cab6776f6d3b39985100094cd6885c9a37",
+      "note": "分片 L3_fixed_lt000_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0001/L3_fixed_lt000/repetitions.csv",
       "bytes": 12284,
       "sha256": "20598c3081b60d1e16442a76be1f32faf7489421b00aeeaa9e0995ce40b00f2b",
@@ -866,14 +921,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0001/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 621,
-      "sha256": "f316e3a3527aa47767fa53ceb14c2a953ba5990672f86eb45d1489c863efa916"
+      "sha256": "f316e3a3527aa47767fa53ceb14c2a953ba5990672f86eb45d1489c863efa916",
+      "note": "分片 L3_fixed_lt000_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0002/L3_fixed_lt000/repetitions.csv",
       "bytes": 12244,
       "sha256": "bbfdafbfe958b9404bd23c6c58cfd39cfc5a7f250479c7847157d0b70798c93f",
@@ -881,14 +937,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0002/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 625,
-      "sha256": "e634535aec05b29725ba0b685d86ef7ce70cbd9523c74f520dd8df2afab01d91"
+      "sha256": "e634535aec05b29725ba0b685d86ef7ce70cbd9523c74f520dd8df2afab01d91",
+      "note": "分片 L3_fixed_lt000_s0002"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0003__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0003/L3_fixed_lt000/repetitions.csv",
       "bytes": 12278,
       "sha256": "022f32ff6327a316a5fb2399639eb105745f60a9c419e06ecc78ea9074f49746",
@@ -896,14 +953,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0003__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0003/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 623,
-      "sha256": "4d6ceb087107ea7074e3314e9201d55feac3224c647a018493c1e769fa5d270f"
+      "sha256": "4d6ceb087107ea7074e3314e9201d55feac3224c647a018493c1e769fa5d270f",
+      "note": "分片 L3_fixed_lt000_s0003"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0004__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0004/L3_fixed_lt000/repetitions.csv",
       "bytes": 12274,
       "sha256": "ebc9588f11a746574cfa1a67958736a0300ab1a7c874188ba57bfe5e723d5d61",
@@ -911,14 +969,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0004__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0004/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 615,
-      "sha256": "397ec69faeeb622698cb494fdf218833b427a152ac578ee6b09ad80c0559c87a"
+      "sha256": "397ec69faeeb622698cb494fdf218833b427a152ac578ee6b09ad80c0559c87a",
+      "note": "分片 L3_fixed_lt000_s0004"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0005__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0005/L3_fixed_lt000/repetitions.csv",
       "bytes": 12251,
       "sha256": "be481ef37648390b9b43ed6470d34e5def1bf0b64b94a38353c1bb7ab37cb45c",
@@ -926,14 +985,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0005__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0005/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 620,
-      "sha256": "dd3e4b6510543ba39c4e0eb779cc0a8cb8329cf00c1d92fc7fa1dac7eeaceb07"
+      "sha256": "dd3e4b6510543ba39c4e0eb779cc0a8cb8329cf00c1d92fc7fa1dac7eeaceb07",
+      "note": "分片 L3_fixed_lt000_s0005"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0006__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0006/L3_fixed_lt000/repetitions.csv",
       "bytes": 12290,
       "sha256": "91c634005424d846ddde826f7260cd8361e3bd8c98d4ac2f0a413498b25aee3a",
@@ -941,14 +1001,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0006__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0006/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 609,
-      "sha256": "a9f8c44880ae45f3b0f281af2cb47525c86a67ae3d3b0322c8ea2530e1168f50"
+      "sha256": "a9f8c44880ae45f3b0f281af2cb47525c86a67ae3d3b0322c8ea2530e1168f50",
+      "note": "分片 L3_fixed_lt000_s0006"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0007__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0007/L3_fixed_lt000/repetitions.csv",
       "bytes": 12265,
       "sha256": "35622bab876a61e7e8461c8810802ea46a3ff7b58b6aff6d4586f8cbd6500353",
@@ -956,14 +1017,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0007__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0007/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 613,
-      "sha256": "705f994531aa7ea30107492a212bf4cf368bb137321a86172037bf240e36ac62"
+      "sha256": "705f994531aa7ea30107492a212bf4cf368bb137321a86172037bf240e36ac62",
+      "note": "分片 L3_fixed_lt000_s0007"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0008__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0008/L3_fixed_lt000/repetitions.csv",
       "bytes": 12271,
       "sha256": "2040352daa538094b09a3b2710ae945e3634d7b5d35ef86003a8a6ac8ade26a9",
@@ -971,14 +1033,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0008__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0008/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 609,
-      "sha256": "b6bec5d9d8b97517e0ce1dcb2d7b9e4e407be003345fc9a21a29c3c8d09bdd9c"
+      "sha256": "b6bec5d9d8b97517e0ce1dcb2d7b9e4e407be003345fc9a21a29c3c8d09bdd9c",
+      "note": "分片 L3_fixed_lt000_s0008"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0009__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0009/L3_fixed_lt000/repetitions.csv",
       "bytes": 12268,
       "sha256": "26a1a378700f5d70e511555341f9a66deef6e4097c906a0e9dd5a7b6b30cb72b",
@@ -986,14 +1049,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s0009__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s0009/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 622,
-      "sha256": "c9f152a32d1fd95fe37aae80c568b31649daa5bc9e2208cfaefff56b5c134b79"
+      "sha256": "c9f152a32d1fd95fe37aae80c568b31649daa5bc9e2208cfaefff56b5c134b79",
+      "note": "分片 L3_fixed_lt000_s0009"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10000__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10000/L3_fixed_lt000/repetitions.csv",
       "bytes": 34019,
       "sha256": "dee5371adb813faeb170bd3b3dd782720f87db96db921d4fffc85351c8751e25",
@@ -1001,14 +1065,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10000__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10000/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 2509,
-      "sha256": "dd1119ca673219313a8902f365a1bba4204c81e26cbc5f43f2dcb9a34e690992"
+      "sha256": "dd1119ca673219313a8902f365a1bba4204c81e26cbc5f43f2dcb9a34e690992",
+      "note": "分片 L3_fixed_lt000_s10000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10001__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10001/L3_fixed_lt000/repetitions.csv",
       "bytes": 34023,
       "sha256": "492a5f067d35fe4e2f2b34dc01d3dc54c85437576f297f89c4c816617d3da7fc",
@@ -1016,14 +1081,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10001__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10001/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 2486,
-      "sha256": "160125f7a472a96c2fed96e5db89f4b447408699b8bcb86985ca1591d8ffc0d7"
+      "sha256": "160125f7a472a96c2fed96e5db89f4b447408699b8bcb86985ca1591d8ffc0d7",
+      "note": "分片 L3_fixed_lt000_s10001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10002__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10002/L3_fixed_lt000/repetitions.csv",
       "bytes": 34055,
       "sha256": "cd5665b0596c1f5425949f40b24a677774985c8eb5a6216bd25261d1dfd40d42",
@@ -1031,14 +1097,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10002__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10002/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 2513,
-      "sha256": "02db444d0fa56fc3f3e7a388ef41e0c1eda2aa4f42f43e431696cafb041b30ec"
+      "sha256": "02db444d0fa56fc3f3e7a388ef41e0c1eda2aa4f42f43e431696cafb041b30ec",
+      "note": "分片 L3_fixed_lt000_s10002"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10003__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10003/L3_fixed_lt000/repetitions.csv",
       "bytes": 34026,
       "sha256": "07fab279755b5e943cb46b05311b9a8f4d92e1ccdd0f74548698a075394f04fc",
@@ -1046,14 +1113,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10003__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10003/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 2463,
-      "sha256": "cd42aa84828f3355f0de1736c5c21206d5bf50a2b0556fb6389de83123884e42"
+      "sha256": "cd42aa84828f3355f0de1736c5c21206d5bf50a2b0556fb6389de83123884e42",
+      "note": "分片 L3_fixed_lt000_s10003"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10004__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10004/L3_fixed_lt000/repetitions.csv",
       "bytes": 34055,
       "sha256": "ed53ac4edb1494be88e119722ef422af1ec2fb7e2dea7370637f91327c15a836",
@@ -1061,14 +1129,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10004__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10004/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 2479,
-      "sha256": "8b4a363ef63081ee9c8df16cfecc3f51a8d57c849be369c3125796a2a1dc1122"
+      "sha256": "8b4a363ef63081ee9c8df16cfecc3f51a8d57c849be369c3125796a2a1dc1122",
+      "note": "分片 L3_fixed_lt000_s10004"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10005__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10005/L3_fixed_lt000/repetitions.csv",
       "bytes": 34049,
       "sha256": "acefd9aa09bf3146b993ca7771a3263679a58e9a7750899e8b879ad86e57754c",
@@ -1076,14 +1145,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10005__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10005/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 2459,
-      "sha256": "f28189ddb4b379c038d88e1fc7a4c7ee73a0c71529ada1958a4286f33ca8b121"
+      "sha256": "f28189ddb4b379c038d88e1fc7a4c7ee73a0c71529ada1958a4286f33ca8b121",
+      "note": "分片 L3_fixed_lt000_s10005"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10006__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10006/L3_fixed_lt000/repetitions.csv",
       "bytes": 34011,
       "sha256": "409eb3c5a4f76ac9529df401e2ea6133365e0d02bc457df4a690e5cf88fc570f",
@@ -1091,14 +1161,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10006__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10006/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 2452,
-      "sha256": "2ebc049857af54a6933155e1234fc6105bcfb6b288374ac096ce8619291e1eb5"
+      "sha256": "2ebc049857af54a6933155e1234fc6105bcfb6b288374ac096ce8619291e1eb5",
+      "note": "分片 L3_fixed_lt000_s10006"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10007__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10007/L3_fixed_lt000/repetitions.csv",
       "bytes": 34028,
       "sha256": "ffb9c2bf23e05c33f47f233434481a07ca6ea9a5b1671681447b7dc09580dd81",
@@ -1106,10 +1177,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt000__L3_fixed_lt000_s10007__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt000_s10007/L3_fixed_lt000/repetitions_telemetry.csv",
       "bytes": 2462,
-      "sha256": "f9442b59471cea5bea8168272d8792bff8e94ef58e5e1bb99c6ea80f1c859340"
+      "sha256": "f9442b59471cea5bea8168272d8792bff8e94ef58e5e1bb99c6ea80f1c859340",
+      "note": "分片 L3_fixed_lt000_s10007"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1122,7 +1194,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_Pi_heterogeneous_cost__L0_Pi_heterogeneous_cost__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_Pi_heterogeneous_cost__L0_Pi_heterogeneous_cost_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/repetitions.csv",
       "bytes": 12122,
       "sha256": "11cbb8ed52b2a2d3f1533568251177e1563842db5aadf6769c11523bce6e9df6",
@@ -1130,14 +1202,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_Pi_heterogeneous_cost__L0_Pi_heterogeneous_cost__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_Pi_heterogeneous_cost__L0_Pi_heterogeneous_cost_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/repetitions_telemetry.csv",
       "bytes": 696,
-      "sha256": "61982ca3118bb6079e6a8c3ecc3561cedf6a309ca00b702e544289d9089c5f24"
+      "sha256": "61982ca3118bb6079e6a8c3ecc3561cedf6a309ca00b702e544289d9089c5f24",
+      "note": "分片 L0_Pi_heterogeneous_cost_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_Pi_heterogeneous_cost__L0_Pi_heterogeneous_cost__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_Pi_heterogeneous_cost__L0_Pi_heterogeneous_cost_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L0_Pi_heterogeneous_cost_s0001/L0_Pi_heterogeneous_cost/repetitions.csv",
       "bytes": 12113,
       "sha256": "999a794dd25155205aef2bbe234e5494ced9b0a66c26c93894d9f23f1644f224",
@@ -1145,14 +1218,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_Pi_heterogeneous_cost__L0_Pi_heterogeneous_cost__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_Pi_heterogeneous_cost__L0_Pi_heterogeneous_cost_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L0_Pi_heterogeneous_cost_s0001/L0_Pi_heterogeneous_cost/repetitions_telemetry.csv",
       "bytes": 730,
-      "sha256": "cf77ce55258820dc024093b54b79d00d893ae4a302baf8f7b3954dd5b69d38b1"
+      "sha256": "cf77ce55258820dc024093b54b79d00d893ae4a302baf8f7b3954dd5b69d38b1",
+      "note": "分片 L0_Pi_heterogeneous_cost_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_Pi_heterogeneous_cost__L0_Pi_heterogeneous_cost__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_Pi_heterogeneous_cost__L0_Pi_heterogeneous_cost_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L0_Pi_heterogeneous_cost_s0002/L0_Pi_heterogeneous_cost/repetitions.csv",
       "bytes": 12146,
       "sha256": "8a53fc6b74619034454c08f40d9a29a2107a98cb7d96a3e944b82995a03a407f",
@@ -1160,10 +1234,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_Pi_heterogeneous_cost__L0_Pi_heterogeneous_cost__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_Pi_heterogeneous_cost__L0_Pi_heterogeneous_cost_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L0_Pi_heterogeneous_cost_s0002/L0_Pi_heterogeneous_cost/repetitions_telemetry.csv",
       "bytes": 724,
-      "sha256": "362a2b49256d7b8dc17dcbefd2053fa40ac2f6d1f7129881873d3004ecf57dca"
+      "sha256": "362a2b49256d7b8dc17dcbefd2053fa40ac2f6d1f7129881873d3004ecf57dca",
+      "note": "分片 L0_Pi_heterogeneous_cost_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1176,7 +1251,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_zero_purchase_effect__L0_zero_purchase_effect__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_zero_purchase_effect__L0_zero_purchase_effect_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L0_zero_purchase_effect_s0000/L0_zero_purchase_effect/repetitions.csv",
       "bytes": 11983,
       "sha256": "5d0b6a16fe942911bc81b0edcdce63a1f8ad5624270e4dadc46252aa41d11acb",
@@ -1184,14 +1259,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_zero_purchase_effect__L0_zero_purchase_effect__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_zero_purchase_effect__L0_zero_purchase_effect_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L0_zero_purchase_effect_s0000/L0_zero_purchase_effect/repetitions_telemetry.csv",
       "bytes": 701,
-      "sha256": "fbf8c885436562fedf476273c5e78680580d64aa6b563b9ac1d543a35eede052"
+      "sha256": "fbf8c885436562fedf476273c5e78680580d64aa6b563b9ac1d543a35eede052",
+      "note": "分片 L0_zero_purchase_effect_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_zero_purchase_effect__L0_zero_purchase_effect__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_zero_purchase_effect__L0_zero_purchase_effect_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L0_zero_purchase_effect_s0001/L0_zero_purchase_effect/repetitions.csv",
       "bytes": 11987,
       "sha256": "2e618b50b6af52c9468e9c6be1c8114092f881b6c5ba32ad59b950623a8b5aca",
@@ -1199,14 +1275,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_zero_purchase_effect__L0_zero_purchase_effect__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_zero_purchase_effect__L0_zero_purchase_effect_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L0_zero_purchase_effect_s0001/L0_zero_purchase_effect/repetitions_telemetry.csv",
       "bytes": 724,
-      "sha256": "11fa94a386bbded07de430f7ef8cce7ed5dabb0a4765a568c357a7747b215406"
+      "sha256": "11fa94a386bbded07de430f7ef8cce7ed5dabb0a4765a568c357a7747b215406",
+      "note": "分片 L0_zero_purchase_effect_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_zero_purchase_effect__L0_zero_purchase_effect__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_zero_purchase_effect__L0_zero_purchase_effect_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L0_zero_purchase_effect_s0002/L0_zero_purchase_effect/repetitions.csv",
       "bytes": 11975,
       "sha256": "376a62654a449b92a884450be39daf324d39324a149e49e8b999d250d557ff35",
@@ -1214,10 +1291,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_zero_purchase_effect__L0_zero_purchase_effect__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L0_zero_purchase_effect__L0_zero_purchase_effect_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L0_zero_purchase_effect_s0002/L0_zero_purchase_effect/repetitions_telemetry.csv",
       "bytes": 719,
-      "sha256": "c5528d9f95cc546f6bdc439077ae9007021955c1cb1105e075e84783a1b95705"
+      "sha256": "c5528d9f95cc546f6bdc439077ae9007021955c1cb1105e075e84783a1b95705",
+      "note": "分片 L0_zero_purchase_effect_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1230,7 +1308,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_000__L1_heterogeneity_000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_000__L1_heterogeneity_000_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L1_heterogeneity_000_s0000/L1_heterogeneity_000/repetitions.csv",
       "bytes": 12406,
       "sha256": "7ca69271a3bca07ff002e4aa4058e59fe463c6422db95a593ad76d82d7d87f54",
@@ -1238,14 +1316,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_000__L1_heterogeneity_000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_000__L1_heterogeneity_000_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L1_heterogeneity_000_s0000/L1_heterogeneity_000/repetitions_telemetry.csv",
       "bytes": 682,
-      "sha256": "8bcb529ea09e8e555ba0afa4cfd2fa8be346e8486d101676701fcc46f2c59f02"
+      "sha256": "8bcb529ea09e8e555ba0afa4cfd2fa8be346e8486d101676701fcc46f2c59f02",
+      "note": "分片 L1_heterogeneity_000_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_000__L1_heterogeneity_000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_000__L1_heterogeneity_000_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L1_heterogeneity_000_s0001/L1_heterogeneity_000/repetitions.csv",
       "bytes": 12401,
       "sha256": "1429fb36d6dcddd41eb832bd8d53426e0d3cd48289f4f6f7e5a677ab71532008",
@@ -1253,14 +1332,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_000__L1_heterogeneity_000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_000__L1_heterogeneity_000_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L1_heterogeneity_000_s0001/L1_heterogeneity_000/repetitions_telemetry.csv",
       "bytes": 682,
-      "sha256": "7299d338dc8727bd15b2a44514c381f93df7624f2d324f417e7cad8f5b83283f"
+      "sha256": "7299d338dc8727bd15b2a44514c381f93df7624f2d324f417e7cad8f5b83283f",
+      "note": "分片 L1_heterogeneity_000_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_000__L1_heterogeneity_000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_000__L1_heterogeneity_000_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L1_heterogeneity_000_s0002/L1_heterogeneity_000/repetitions.csv",
       "bytes": 12424,
       "sha256": "36a181168ab63a87612f86d8fb0a4cf026005663428c5abb55544f637f69767f",
@@ -1268,10 +1348,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_000__L1_heterogeneity_000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_000__L1_heterogeneity_000_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L1_heterogeneity_000_s0002/L1_heterogeneity_000/repetitions_telemetry.csv",
       "bytes": 685,
-      "sha256": "6199bac25e5b2f85201bfaf2df4f3ef9265883d5afd70603c33561db2e9ad35f"
+      "sha256": "6199bac25e5b2f85201bfaf2df4f3ef9265883d5afd70603c33561db2e9ad35f",
+      "note": "分片 L1_heterogeneity_000_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1284,7 +1365,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_150__L1_heterogeneity_150__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_150__L1_heterogeneity_150_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L1_heterogeneity_150_s0000/L1_heterogeneity_150/repetitions.csv",
       "bytes": 12417,
       "sha256": "b3775802db46894b869182e3f2adbf7caf290b865453a7fb1a28d4b8af263932",
@@ -1292,14 +1373,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_150__L1_heterogeneity_150__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_150__L1_heterogeneity_150_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L1_heterogeneity_150_s0000/L1_heterogeneity_150/repetitions_telemetry.csv",
       "bytes": 677,
-      "sha256": "087809e326c282216c3c93b73f1167ba2e53ea4777c4b6e35dbaf384a35dd068"
+      "sha256": "087809e326c282216c3c93b73f1167ba2e53ea4777c4b6e35dbaf384a35dd068",
+      "note": "分片 L1_heterogeneity_150_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_150__L1_heterogeneity_150__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_150__L1_heterogeneity_150_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L1_heterogeneity_150_s0001/L1_heterogeneity_150/repetitions.csv",
       "bytes": 12412,
       "sha256": "b5d1ed6feacdfd96d010ea323bb72e4740a989108147e0335e0864123670a2de",
@@ -1307,14 +1389,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_150__L1_heterogeneity_150__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_150__L1_heterogeneity_150_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L1_heterogeneity_150_s0001/L1_heterogeneity_150/repetitions_telemetry.csv",
       "bytes": 694,
-      "sha256": "63e36de3e91a08e8b1f8a57cc203058a35d7066c9ed504d9b8861edf1bb0841b"
+      "sha256": "63e36de3e91a08e8b1f8a57cc203058a35d7066c9ed504d9b8861edf1bb0841b",
+      "note": "分片 L1_heterogeneity_150_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_150__L1_heterogeneity_150__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_150__L1_heterogeneity_150_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L1_heterogeneity_150_s0002/L1_heterogeneity_150/repetitions.csv",
       "bytes": 12421,
       "sha256": "4e2ce2e79323873056b34ad3339031d1ba3ccac930a9cd4006570633cc49ea7d",
@@ -1322,10 +1405,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_150__L1_heterogeneity_150__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_heterogeneity_150__L1_heterogeneity_150_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L1_heterogeneity_150_s0002/L1_heterogeneity_150/repetitions_telemetry.csv",
       "bytes": 668,
-      "sha256": "047a9c3d65f9c9111a35ce2a82957dc66b2a8b3e5f3178b3a3849f542945b9bb"
+      "sha256": "047a9c3d65f9c9111a35ce2a82957dc66b2a8b3e5f3178b3a3849f542945b9bb",
+      "note": "分片 L1_heterogeneity_150_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1338,7 +1422,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_signal_weak__L1_signal_weak__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_signal_weak__L1_signal_weak_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L1_signal_weak_s0000/L1_signal_weak/repetitions.csv",
       "bytes": 12272,
       "sha256": "6e5df1082ea6842310e29303af5314d2a5330f032581fb4c28a38278faa892ca",
@@ -1346,14 +1430,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_signal_weak__L1_signal_weak__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_signal_weak__L1_signal_weak_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L1_signal_weak_s0000/L1_signal_weak/repetitions_telemetry.csv",
       "bytes": 615,
-      "sha256": "5bb68a2ed99ecc901b0ad38ff71747cdb465ef7313d38de5fed1ca68f02feb0b"
+      "sha256": "5bb68a2ed99ecc901b0ad38ff71747cdb465ef7313d38de5fed1ca68f02feb0b",
+      "note": "分片 L1_signal_weak_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_signal_weak__L1_signal_weak__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_signal_weak__L1_signal_weak_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L1_signal_weak_s0001/L1_signal_weak/repetitions.csv",
       "bytes": 12297,
       "sha256": "e2bdd8d1a53b824c3b05b1a1422ffb5628fe8725033f9f1426ad5bae7a80acc0",
@@ -1361,14 +1446,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_signal_weak__L1_signal_weak__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_signal_weak__L1_signal_weak_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L1_signal_weak_s0001/L1_signal_weak/repetitions_telemetry.csv",
       "bytes": 614,
-      "sha256": "75f81e4e5b922f7fac8de453668f12773736e2e05d764025a59680cc04ecf235"
+      "sha256": "75f81e4e5b922f7fac8de453668f12773736e2e05d764025a59680cc04ecf235",
+      "note": "分片 L1_signal_weak_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_signal_weak__L1_signal_weak__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_signal_weak__L1_signal_weak_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L1_signal_weak_s0002/L1_signal_weak/repetitions.csv",
       "bytes": 12316,
       "sha256": "6583148bcc1c90bc38116ab2cb8645a033fde29b7419fc077bc25dd7524f8ff8",
@@ -1376,10 +1462,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_signal_weak__L1_signal_weak__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_signal_weak__L1_signal_weak_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L1_signal_weak_s0002/L1_signal_weak/repetitions_telemetry.csv",
       "bytes": 622,
-      "sha256": "3dba8deed66f81899c26f08fb87d51d02340bc54a4609aa6008c5c3cd06186bc"
+      "sha256": "3dba8deed66f81899c26f08fb87d51d02340bc54a4609aa6008c5c3cd06186bc",
+      "note": "分片 L1_signal_weak_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1392,7 +1479,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_misspec_omit_new_channel__L1_misspec_omit_new_channel__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_misspec_omit_new_channel__L1_misspec_omit_new_channel_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L1_misspec_omit_new_channel_s0000/L1_misspec_omit_new_channel/repetitions.csv",
       "bytes": 12561,
       "sha256": "9ee4b7d678a8aa8be6413668b748d8dd48740dd9c2e6c8d1e063e17a84930523",
@@ -1400,14 +1487,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_misspec_omit_new_channel__L1_misspec_omit_new_channel__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_misspec_omit_new_channel__L1_misspec_omit_new_channel_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L1_misspec_omit_new_channel_s0000/L1_misspec_omit_new_channel/repetitions_telemetry.csv",
       "bytes": 748,
-      "sha256": "95d5e814e8e03c80d9c901ace79b6fe95167ea0d20b6623dcd712fb895555066"
+      "sha256": "95d5e814e8e03c80d9c901ace79b6fe95167ea0d20b6623dcd712fb895555066",
+      "note": "分片 L1_misspec_omit_new_channel_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_misspec_omit_new_channel__L1_misspec_omit_new_channel__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_misspec_omit_new_channel__L1_misspec_omit_new_channel_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L1_misspec_omit_new_channel_s0001/L1_misspec_omit_new_channel/repetitions.csv",
       "bytes": 12564,
       "sha256": "e3df72f7affa4eac9b666fe02b8dfcb6f89bd8a5ce08288f3a9e93d2ece40020",
@@ -1415,14 +1503,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_misspec_omit_new_channel__L1_misspec_omit_new_channel__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_misspec_omit_new_channel__L1_misspec_omit_new_channel_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L1_misspec_omit_new_channel_s0001/L1_misspec_omit_new_channel/repetitions_telemetry.csv",
       "bytes": 723,
-      "sha256": "f600d4e18a9e9cfbba160369900fdee30f7c5f4277dabb53295c31e83bfe98fd"
+      "sha256": "f600d4e18a9e9cfbba160369900fdee30f7c5f4277dabb53295c31e83bfe98fd",
+      "note": "分片 L1_misspec_omit_new_channel_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_misspec_omit_new_channel__L1_misspec_omit_new_channel__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_misspec_omit_new_channel__L1_misspec_omit_new_channel_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L1_misspec_omit_new_channel_s0002/L1_misspec_omit_new_channel/repetitions.csv",
       "bytes": 12562,
       "sha256": "45f47c3e28b9730bba7bf58966c390343dc1b6c4e1d451afd3725b9524b08e5c",
@@ -1430,10 +1519,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_misspec_omit_new_channel__L1_misspec_omit_new_channel__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_misspec_omit_new_channel__L1_misspec_omit_new_channel_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L1_misspec_omit_new_channel_s0002/L1_misspec_omit_new_channel/repetitions_telemetry.csv",
       "bytes": 755,
-      "sha256": "a714998a76b1c28d117887fe6b9b514d1e5b93956e8abaa05476a7567cfcd8c0"
+      "sha256": "a714998a76b1c28d117887fe6b9b514d1e5b93956e8abaa05476a7567cfcd8c0",
+      "note": "分片 L1_misspec_omit_new_channel_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1446,7 +1536,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_mar_double__L1_mar_double__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_mar_double__L1_mar_double_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L1_mar_double_s0000/L1_mar_double/repetitions.csv",
       "bytes": 12281,
       "sha256": "9fe39e124e4e3c479ec37aceea3a4f779c84f59c2e1f386cebb77af5356dce1f",
@@ -1454,14 +1544,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_mar_double__L1_mar_double__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_mar_double__L1_mar_double_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L1_mar_double_s0000/L1_mar_double/repetitions_telemetry.csv",
       "bytes": 609,
-      "sha256": "6e1a34662f0f5c63f1cd24d415cd2df74909e649354253d80df30260d369ec8b"
+      "sha256": "6e1a34662f0f5c63f1cd24d415cd2df74909e649354253d80df30260d369ec8b",
+      "note": "分片 L1_mar_double_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_mar_double__L1_mar_double__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_mar_double__L1_mar_double_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L1_mar_double_s0001/L1_mar_double/repetitions.csv",
       "bytes": 12285,
       "sha256": "14de880fb2048165a16ac3a1d293aaa0c66530a8660e9bf294e0e2886f46d69b",
@@ -1469,14 +1560,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_mar_double__L1_mar_double__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_mar_double__L1_mar_double_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L1_mar_double_s0001/L1_mar_double/repetitions_telemetry.csv",
       "bytes": 623,
-      "sha256": "47bfd5ea43397018aa453affb74975f844055ed5155e2b90da6c2d682e2ac227"
+      "sha256": "47bfd5ea43397018aa453affb74975f844055ed5155e2b90da6c2d682e2ac227",
+      "note": "分片 L1_mar_double_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_mar_double__L1_mar_double__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_mar_double__L1_mar_double_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L1_mar_double_s0002/L1_mar_double/repetitions.csv",
       "bytes": 12271,
       "sha256": "dcf6039980dc6b250dec9a91b5fa503008b9118f892a5eed4b4354efafb840b3",
@@ -1484,10 +1576,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_mar_double__L1_mar_double__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_mar_double__L1_mar_double_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L1_mar_double_s0002/L1_mar_double/repetitions_telemetry.csv",
       "bytes": 617,
-      "sha256": "2f5751d798f7d7cf9f3b587394a51a66dd427f829cbeec9e9045304794306a4d"
+      "sha256": "2f5751d798f7d7cf9f3b587394a51a66dd427f829cbeec9e9045304794306a4d",
+      "note": "分片 L1_mar_double_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1500,7 +1593,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_cost_prediction_under__L1_cost_prediction_under__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_cost_prediction_under__L1_cost_prediction_under_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L1_cost_prediction_under_s0000/L1_cost_prediction_under/repetitions.csv",
       "bytes": 12480,
       "sha256": "ccd2a298f508e3cb22a351f3d1b9a97291f15776f13b843d149114803fad4ecd",
@@ -1508,14 +1601,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_cost_prediction_under__L1_cost_prediction_under__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_cost_prediction_under__L1_cost_prediction_under_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L1_cost_prediction_under_s0000/L1_cost_prediction_under/repetitions_telemetry.csv",
       "bytes": 714,
-      "sha256": "23038cefef939ff3b720c83e0553cfc300b5b6808de8bfd88ac863394548ac6a"
+      "sha256": "23038cefef939ff3b720c83e0553cfc300b5b6808de8bfd88ac863394548ac6a",
+      "note": "分片 L1_cost_prediction_under_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_cost_prediction_under__L1_cost_prediction_under__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_cost_prediction_under__L1_cost_prediction_under_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L1_cost_prediction_under_s0001/L1_cost_prediction_under/repetitions.csv",
       "bytes": 12510,
       "sha256": "d8cd88c7e6c841a51a91a492ada26c09f8f24d0e8d7237683495a3d5b4cc4349",
@@ -1523,14 +1617,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_cost_prediction_under__L1_cost_prediction_under__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_cost_prediction_under__L1_cost_prediction_under_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L1_cost_prediction_under_s0001/L1_cost_prediction_under/repetitions_telemetry.csv",
       "bytes": 734,
-      "sha256": "d8e99643a59b3ede0645fdc551b0072d3c47986e9e02bff69c3f884b5d873c42"
+      "sha256": "d8e99643a59b3ede0645fdc551b0072d3c47986e9e02bff69c3f884b5d873c42",
+      "note": "分片 L1_cost_prediction_under_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_cost_prediction_under__L1_cost_prediction_under__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_cost_prediction_under__L1_cost_prediction_under_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L1_cost_prediction_under_s0002/L1_cost_prediction_under/repetitions.csv",
       "bytes": 12524,
       "sha256": "7d408ac2f8605e570ac7bf416a88b49677b49b9a52b2c747e06196eab8fea0fb",
@@ -1538,10 +1633,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_cost_prediction_under__L1_cost_prediction_under__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L1_cost_prediction_under__L1_cost_prediction_under_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L1_cost_prediction_under_s0002/L1_cost_prediction_under/repetitions_telemetry.csv",
       "bytes": 720,
-      "sha256": "b6790c1b2aa69d1dc3e1ee14a7ea86be8f79e4a6dee81032c92b7977a0ef4e59"
+      "sha256": "b6790c1b2aa69d1dc3e1ee14a7ea86be8f79e4a6dee81032c92b7977a0ef4e59",
+      "note": "分片 L1_cost_prediction_under_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1554,7 +1650,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n30000_p050__L2_n30000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n30000_p050__L2_n30000_p050_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n30000_p050_s0000/L2_n30000_p050/repetitions.csv",
       "bytes": 11860,
       "sha256": "918a347c0853b0ac016fbf8e298ca8481eaaf2f31a6266254c47a11050e06250",
@@ -1562,14 +1658,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n30000_p050__L2_n30000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n30000_p050__L2_n30000_p050_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n30000_p050_s0000/L2_n30000_p050/repetitions_telemetry.csv",
       "bytes": 599,
-      "sha256": "31273f8b68faa40c733bd7dc86a1596d87304a838028ce653df5c27cbad6ed26"
+      "sha256": "31273f8b68faa40c733bd7dc86a1596d87304a838028ce653df5c27cbad6ed26",
+      "note": "分片 L2_n30000_p050_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n30000_p050__L2_n30000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n30000_p050__L2_n30000_p050_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n30000_p050_s0001/L2_n30000_p050/repetitions.csv",
       "bytes": 11820,
       "sha256": "51e470264ae043f21129a4743b4f3a502c609ef6c5350b4e5d97865418884f97",
@@ -1577,14 +1674,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n30000_p050__L2_n30000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n30000_p050__L2_n30000_p050_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n30000_p050_s0001/L2_n30000_p050/repetitions_telemetry.csv",
       "bytes": 591,
-      "sha256": "e662cb82885651654b929b423b003a5b36469714364b0b8fa51ede010c4b45b6"
+      "sha256": "e662cb82885651654b929b423b003a5b36469714364b0b8fa51ede010c4b45b6",
+      "note": "分片 L2_n30000_p050_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n30000_p050__L2_n30000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n30000_p050__L2_n30000_p050_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n30000_p050_s0002/L2_n30000_p050/repetitions.csv",
       "bytes": 11843,
       "sha256": "e0ad6dd1974bc39af90790a68382f8e88ff0ea8f6baf7919f3ca62735943f27a",
@@ -1592,10 +1690,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n30000_p050__L2_n30000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n30000_p050__L2_n30000_p050_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n30000_p050_s0002/L2_n30000_p050/repetitions_telemetry.csv",
       "bytes": 602,
-      "sha256": "87a0944b8538ae8f726034e9dd006d7714d83cf6b6005d8c49839504d18d9372"
+      "sha256": "87a0944b8538ae8f726034e9dd006d7714d83cf6b6005d8c49839504d18d9372",
+      "note": "分片 L2_n30000_p050_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1608,7 +1707,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n100000_p050__L2_n100000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n100000_p050__L2_n100000_p050_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n100000_p050_s0000/L2_n100000_p050/repetitions.csv",
       "bytes": 11913,
       "sha256": "31c3661fd1463dac6b98f1dc1ff2f05538a574004fe4676315d533a75cc93a4e",
@@ -1616,14 +1715,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n100000_p050__L2_n100000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n100000_p050__L2_n100000_p050_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n100000_p050_s0000/L2_n100000_p050/repetitions_telemetry.csv",
       "bytes": 615,
-      "sha256": "87dec05989ca46ed1c2a98dc4785edd3779803ccfeca92e15318fb7bbb2f6a42"
+      "sha256": "87dec05989ca46ed1c2a98dc4785edd3779803ccfeca92e15318fb7bbb2f6a42",
+      "note": "分片 L2_n100000_p050_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n100000_p050__L2_n100000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n100000_p050__L2_n100000_p050_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n100000_p050_s0001/L2_n100000_p050/repetitions.csv",
       "bytes": 11917,
       "sha256": "ca984ebec315a3e34f45def109a26eef2bd8b9abb63b40b8b054ea0578725d8b",
@@ -1631,14 +1731,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n100000_p050__L2_n100000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n100000_p050__L2_n100000_p050_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n100000_p050_s0001/L2_n100000_p050/repetitions_telemetry.csv",
       "bytes": 619,
-      "sha256": "931d3e6c32de1151a43970e4de58ac7e76974ba934f689462c038cbef120f4ba"
+      "sha256": "931d3e6c32de1151a43970e4de58ac7e76974ba934f689462c038cbef120f4ba",
+      "note": "分片 L2_n100000_p050_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n100000_p050__L2_n100000_p050__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n100000_p050__L2_n100000_p050_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L2_n100000_p050_s0002/L2_n100000_p050/repetitions.csv",
       "bytes": 11921,
       "sha256": "83f9f78939bd6eea63698c8c4188b4b7396a4475eca9966ab3c04a61c0a64ab5",
@@ -1646,10 +1747,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n100000_p050__L2_n100000_p050__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_n100000_p050__L2_n100000_p050_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L2_n100000_p050_s0002/L2_n100000_p050/repetitions_telemetry.csv",
       "bytes": 624,
-      "sha256": "4c27b669f918e2b5884635e54cad186b1ea458fbb45d989842abe1634bd7a481"
+      "sha256": "4c27b669f918e2b5884635e54cad186b1ea458fbb45d989842abe1634bd7a481",
+      "note": "分片 L2_n100000_p050_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1662,7 +1764,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_drift_smooth__L2_drift_smooth__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_drift_smooth__L2_drift_smooth_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L2_drift_smooth_s0000/L2_drift_smooth/repetitions.csv",
       "bytes": 11909,
       "sha256": "58f5ece786d35049ac6be7b2f3979136694381f9b5763bc29a134f12ae62d98f",
@@ -1670,14 +1772,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_drift_smooth__L2_drift_smooth__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_drift_smooth__L2_drift_smooth_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L2_drift_smooth_s0000/L2_drift_smooth/repetitions_telemetry.csv",
       "bytes": 622,
-      "sha256": "da58b306622448281fde871916fab63d55e33403a9f82f87cdfa383a0607e3ad"
+      "sha256": "da58b306622448281fde871916fab63d55e33403a9f82f87cdfa383a0607e3ad",
+      "note": "分片 L2_drift_smooth_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_drift_smooth__L2_drift_smooth__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_drift_smooth__L2_drift_smooth_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L2_drift_smooth_s0001/L2_drift_smooth/repetitions.csv",
       "bytes": 11930,
       "sha256": "7c2c579e395ec143c3f3f58f398cbfd02a0938d800b50524e7548ac41e93ea77",
@@ -1685,14 +1788,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_drift_smooth__L2_drift_smooth__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_drift_smooth__L2_drift_smooth_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L2_drift_smooth_s0001/L2_drift_smooth/repetitions_telemetry.csv",
       "bytes": 632,
-      "sha256": "8b766590b82d64547d51998857587acd206891b22d83deef04a94e02b433cbee"
+      "sha256": "8b766590b82d64547d51998857587acd206891b22d83deef04a94e02b433cbee",
+      "note": "分片 L2_drift_smooth_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_drift_smooth__L2_drift_smooth__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_drift_smooth__L2_drift_smooth_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L2_drift_smooth_s0002/L2_drift_smooth/repetitions.csv",
       "bytes": 11933,
       "sha256": "82a90dfb7c1a1543423dba7430ae053fc052092f89c2b3a1fe42b5e02000a245",
@@ -1700,10 +1804,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_drift_smooth__L2_drift_smooth__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_drift_smooth__L2_drift_smooth_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L2_drift_smooth_s0002/L2_drift_smooth/repetitions_telemetry.csv",
       "bytes": 646,
-      "sha256": "fd1bae9fd14090bfd6c5e4a4f4b8df3335c52dd848b4b4c8731711cbd6a6d574"
+      "sha256": "fd1bae9fd14090bfd6c5e4a4f4b8df3335c52dd848b4b4c8731711cbd6a6d574",
+      "note": "分片 L2_drift_smooth_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1716,7 +1821,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_composition_shift__L2_composition_shift__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_composition_shift__L2_composition_shift_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L2_composition_shift_s0000/L2_composition_shift/repetitions.csv",
       "bytes": 12070,
       "sha256": "6ccefa468538cad7036e2fca195922b61737b5b0d7fc7783b7299a5143d195ae",
@@ -1724,14 +1829,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_composition_shift__L2_composition_shift__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_composition_shift__L2_composition_shift_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L2_composition_shift_s0000/L2_composition_shift/repetitions_telemetry.csv",
       "bytes": 680,
-      "sha256": "445841d6a5736172d7da59562dcbaa67d3eecd020838cb3034c34ac187721fe1"
+      "sha256": "445841d6a5736172d7da59562dcbaa67d3eecd020838cb3034c34ac187721fe1",
+      "note": "分片 L2_composition_shift_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_composition_shift__L2_composition_shift__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_composition_shift__L2_composition_shift_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L2_composition_shift_s0001/L2_composition_shift/repetitions.csv",
       "bytes": 12063,
       "sha256": "8d3d752ae57916ef0a66b02ca294a345692abbbe475315c43a5beb6a93b93c61",
@@ -1739,14 +1845,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_composition_shift__L2_composition_shift__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_composition_shift__L2_composition_shift_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L2_composition_shift_s0001/L2_composition_shift/repetitions_telemetry.csv",
       "bytes": 679,
-      "sha256": "6dce45c1abe37ed296ea144838919f2742be2183d3a3fb5368db6d179c727c35"
+      "sha256": "6dce45c1abe37ed296ea144838919f2742be2183d3a3fb5368db6d179c727c35",
+      "note": "分片 L2_composition_shift_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_composition_shift__L2_composition_shift__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_composition_shift__L2_composition_shift_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L2_composition_shift_s0002/L2_composition_shift/repetitions.csv",
       "bytes": 12049,
       "sha256": "0dfa19875fae45679509a936dc2a4f8e0707243024a6953e2935128d35279252",
@@ -1754,10 +1861,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_composition_shift__L2_composition_shift__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_composition_shift__L2_composition_shift_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L2_composition_shift_s0002/L2_composition_shift/repetitions_telemetry.csv",
       "bytes": 691,
-      "sha256": "cc3b834037247d1f57dae49bd452e48d1f853fe9956da9fe323baa59e1080b91"
+      "sha256": "cc3b834037247d1f57dae49bd452e48d1f853fe9956da9fe323baa59e1080b91",
+      "note": "分片 L2_composition_shift_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1770,7 +1878,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_immature_negative_control__L2_immature_negative_control__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_immature_negative_control__L2_immature_negative_control_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L2_immature_negative_control_s0000/L2_immature_negative_control/repetitions.csv",
       "bytes": 12230,
       "sha256": "8fa63a5982830b47c94eb0fe50f694ceb4526f63d169359c7c7dd33a0bc79612",
@@ -1778,14 +1886,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_immature_negative_control__L2_immature_negative_control__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_immature_negative_control__L2_immature_negative_control_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L2_immature_negative_control_s0000/L2_immature_negative_control/repetitions_telemetry.csv",
       "bytes": 762,
-      "sha256": "652c14c7374cc5ba2da950db91692419fa2423f2a764818001a61305f014fe10"
+      "sha256": "652c14c7374cc5ba2da950db91692419fa2423f2a764818001a61305f014fe10",
+      "note": "分片 L2_immature_negative_control_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_immature_negative_control__L2_immature_negative_control__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_immature_negative_control__L2_immature_negative_control_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L2_immature_negative_control_s0001/L2_immature_negative_control/repetitions.csv",
       "bytes": 12247,
       "sha256": "ed4775f97e48dec746a643bd9cafb7a976e066c886b121f0a5ca6bc0fa2105cb",
@@ -1793,14 +1902,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_immature_negative_control__L2_immature_negative_control__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_immature_negative_control__L2_immature_negative_control_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L2_immature_negative_control_s0001/L2_immature_negative_control/repetitions_telemetry.csv",
       "bytes": 757,
-      "sha256": "2addd16c98862550f9ca71c3cc70a8281963e02c83e6c516c37859965d6202b8"
+      "sha256": "2addd16c98862550f9ca71c3cc70a8281963e02c83e6c516c37859965d6202b8",
+      "note": "分片 L2_immature_negative_control_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_immature_negative_control__L2_immature_negative_control__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_immature_negative_control__L2_immature_negative_control_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L2_immature_negative_control_s0002/L2_immature_negative_control/repetitions.csv",
       "bytes": 12224,
       "sha256": "dc66f9a6a0b1c785db45734d0095714fb4f2a73d56311fa6840e07672dc2713c",
@@ -1808,10 +1918,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_immature_negative_control__L2_immature_negative_control__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L2_immature_negative_control__L2_immature_negative_control_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L2_immature_negative_control_s0002/L2_immature_negative_control/repetitions_telemetry.csv",
       "bytes": 752,
-      "sha256": "7f9c5bec78b36333a4f4e1323c60e8743d6e04d3b72467ab5abf47a20e480f99"
+      "sha256": "7f9c5bec78b36333a4f4e1323c60e8743d6e04d3b72467ab5abf47a20e480f99",
+      "note": "分片 L2_immature_negative_control_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1824,7 +1935,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt025__L3_fixed_lt025__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt025__L3_fixed_lt025_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt025_s0000/L3_fixed_lt025/repetitions.csv",
       "bytes": 12078,
       "sha256": "ab08d2c613818c2437275b5990ecdd644f5d5bd2ad1edefc216b8f09a19257e2",
@@ -1832,14 +1943,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt025__L3_fixed_lt025__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt025__L3_fixed_lt025_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt025_s0000/L3_fixed_lt025/repetitions_telemetry.csv",
       "bytes": 605,
-      "sha256": "1108f63ae894b4906e738bab0905c2375cc83a27c70e0848abff93ce8fabea6e"
+      "sha256": "1108f63ae894b4906e738bab0905c2375cc83a27c70e0848abff93ce8fabea6e",
+      "note": "分片 L3_fixed_lt025_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt025__L3_fixed_lt025__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt025__L3_fixed_lt025_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt025_s0001/L3_fixed_lt025/repetitions.csv",
       "bytes": 12096,
       "sha256": "c388e257e1dcc1a8aaf7654f1daa3da2383bff25828073c9b86213aef30f0908",
@@ -1847,14 +1959,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt025__L3_fixed_lt025__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt025__L3_fixed_lt025_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt025_s0001/L3_fixed_lt025/repetitions_telemetry.csv",
       "bytes": 621,
-      "sha256": "ba09e905120f32110c40f8f4817c200163527d53680da107d917cf60d672dd48"
+      "sha256": "ba09e905120f32110c40f8f4817c200163527d53680da107d917cf60d672dd48",
+      "note": "分片 L3_fixed_lt025_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt025__L3_fixed_lt025__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt025__L3_fixed_lt025_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt025_s0002/L3_fixed_lt025/repetitions.csv",
       "bytes": 12098,
       "sha256": "7a663ae7c9df68e84f6e09b8810f4ab91c6e405df0074325b47b51635f70e255",
@@ -1862,10 +1975,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt025__L3_fixed_lt025__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt025__L3_fixed_lt025_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt025_s0002/L3_fixed_lt025/repetitions_telemetry.csv",
       "bytes": 621,
-      "sha256": "9dbcf524171ebb83e42c6d040974f64a58de3301a3234ee987bbdb5e4fcb87ee"
+      "sha256": "9dbcf524171ebb83e42c6d040974f64a58de3301a3234ee987bbdb5e4fcb87ee",
+      "note": "分片 L3_fixed_lt025_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1878,7 +1992,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt075__L3_fixed_lt075__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt075__L3_fixed_lt075_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt075_s0000/L3_fixed_lt075/repetitions.csv",
       "bytes": 12040,
       "sha256": "69fb07e595e7ae598d40cadfaa2827fdecf90d369bb0a37ab39f803ae654d5dd",
@@ -1886,14 +2000,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt075__L3_fixed_lt075__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt075__L3_fixed_lt075_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt075_s0000/L3_fixed_lt075/repetitions_telemetry.csv",
       "bytes": 617,
-      "sha256": "57175fb856a42b7a6b3473e2f15a67f50fb150f6d384a75ea26166991b2f3e77"
+      "sha256": "57175fb856a42b7a6b3473e2f15a67f50fb150f6d384a75ea26166991b2f3e77",
+      "note": "分片 L3_fixed_lt075_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt075__L3_fixed_lt075__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt075__L3_fixed_lt075_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt075_s0001/L3_fixed_lt075/repetitions.csv",
       "bytes": 12050,
       "sha256": "44492c8caa5df295afc360a228cd69018cd1635fe1eff99361484813979e7eb9",
@@ -1901,14 +2016,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt075__L3_fixed_lt075__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt075__L3_fixed_lt075_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt075_s0001/L3_fixed_lt075/repetitions_telemetry.csv",
       "bytes": 632,
-      "sha256": "c32b2905faeb1ba363c0a77118840403de9cd32d8dcc3344cffe4eb43a044622"
+      "sha256": "c32b2905faeb1ba363c0a77118840403de9cd32d8dcc3344cffe4eb43a044622",
+      "note": "分片 L3_fixed_lt075_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt075__L3_fixed_lt075__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt075__L3_fixed_lt075_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt075_s0002/L3_fixed_lt075/repetitions.csv",
       "bytes": 12044,
       "sha256": "428ac1718b4a39d447eef7d881c1c43f03362c20949909858cf9c6956f451119",
@@ -1916,10 +2032,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt075__L3_fixed_lt075__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt075__L3_fixed_lt075_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt075_s0002/L3_fixed_lt075/repetitions_telemetry.csv",
       "bytes": 594,
-      "sha256": "da24a42724b4040fb541f70e9b2e90fa9afb6bb033b8f13c335b009274f5eb77"
+      "sha256": "da24a42724b4040fb541f70e9b2e90fa9afb6bb033b8f13c335b009274f5eb77",
+      "note": "分片 L3_fixed_lt075_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1932,7 +2049,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt150__L3_fixed_lt150__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt150__L3_fixed_lt150_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt150_s0000/L3_fixed_lt150/repetitions.csv",
       "bytes": 12050,
       "sha256": "ff0a2df1ec34e9b2abd74e6e1ff37943ad4e99997031c60dee9995da56dce6eb",
@@ -1940,14 +2057,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt150__L3_fixed_lt150__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt150__L3_fixed_lt150_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt150_s0000/L3_fixed_lt150/repetitions_telemetry.csv",
       "bytes": 624,
-      "sha256": "be47d5884ed7f57a0bdb1e568172f3678f3de90c443c9cde5f7f46b9b402718c"
+      "sha256": "be47d5884ed7f57a0bdb1e568172f3678f3de90c443c9cde5f7f46b9b402718c",
+      "note": "分片 L3_fixed_lt150_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt150__L3_fixed_lt150__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt150__L3_fixed_lt150_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt150_s0001/L3_fixed_lt150/repetitions.csv",
       "bytes": 12050,
       "sha256": "0eef6c5ba5c295f109f4c9f4bab81cbe931c6375c0db25e2a2bd09518ad3c5cd",
@@ -1955,14 +2073,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt150__L3_fixed_lt150__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt150__L3_fixed_lt150_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt150_s0001/L3_fixed_lt150/repetitions_telemetry.csv",
       "bytes": 632,
-      "sha256": "ede549ea9d08195ad1d2cd04961e6d1907676ace446801dfb531e569bef7f98e"
+      "sha256": "ede549ea9d08195ad1d2cd04961e6d1907676ace446801dfb531e569bef7f98e",
+      "note": "分片 L3_fixed_lt150_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt150__L3_fixed_lt150__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt150__L3_fixed_lt150_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt150_s0002/L3_fixed_lt150/repetitions.csv",
       "bytes": 12053,
       "sha256": "3d167b709539d25b21e24b828824c513497b5a50da558c3a0bac992d65e7b1b4",
@@ -1970,10 +2089,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt150__L3_fixed_lt150__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_fixed_lt150__L3_fixed_lt150_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L3_fixed_lt150_s0002/L3_fixed_lt150/repetitions_telemetry.csv",
       "bytes": 609,
-      "sha256": "b84fdbc65df1b05ea3298fb8b6af8a7d60e325e63d8d59ce64fbed8879f1d515"
+      "sha256": "b84fdbc65df1b05ea3298fb8b6af8a7d60e325e63d8d59ce64fbed8879f1d515",
+      "note": "分片 L3_fixed_lt150_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -1986,7 +2106,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam000__L3_joint_lam000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam000__L3_joint_lam000_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L3_joint_lam000_s0000/L3_joint_lam000/repetitions.csv",
       "bytes": 12293,
       "sha256": "9ec1d2dfdbb04953b93af58d1245c9232d69d775a27ee0d157be68de303fbefb",
@@ -1994,14 +2114,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam000__L3_joint_lam000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam000__L3_joint_lam000_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L3_joint_lam000_s0000/L3_joint_lam000/repetitions_telemetry.csv",
       "bytes": 615,
-      "sha256": "9f033950e82e944a7147460f45d7fefd9451a13d5fbca0b639631bd0d280d30f"
+      "sha256": "9f033950e82e944a7147460f45d7fefd9451a13d5fbca0b639631bd0d280d30f",
+      "note": "分片 L3_joint_lam000_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam000__L3_joint_lam000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam000__L3_joint_lam000_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L3_joint_lam000_s0001/L3_joint_lam000/repetitions.csv",
       "bytes": 12287,
       "sha256": "287279075b4b976b720b90555035ad212adbfdb59edbee74483c024766bdc82a",
@@ -2009,14 +2130,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam000__L3_joint_lam000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam000__L3_joint_lam000_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L3_joint_lam000_s0001/L3_joint_lam000/repetitions_telemetry.csv",
       "bytes": 649,
-      "sha256": "baa8fa7f47de49e192a5d53d450c07725f8644f2e06336cd692a718cd619fb1d"
+      "sha256": "baa8fa7f47de49e192a5d53d450c07725f8644f2e06336cd692a718cd619fb1d",
+      "note": "分片 L3_joint_lam000_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam000__L3_joint_lam000__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam000__L3_joint_lam000_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L3_joint_lam000_s0002/L3_joint_lam000/repetitions.csv",
       "bytes": 12260,
       "sha256": "637d476f8459c7dd02c1d53acbd706607dd16ee94930ee8058c8e7b855029200",
@@ -2024,10 +2146,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam000__L3_joint_lam000__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam000__L3_joint_lam000_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L3_joint_lam000_s0002/L3_joint_lam000/repetitions_telemetry.csv",
       "bytes": 634,
-      "sha256": "29d406bc9bd005636dbc74c759bf8dbfd6f824823de5634bb0b6893df4e7ef4d"
+      "sha256": "29d406bc9bd005636dbc74c759bf8dbfd6f824823de5634bb0b6893df4e7ef4d",
+      "note": "分片 L3_joint_lam000_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -2040,7 +2163,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam150__L3_joint_lam150__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam150__L3_joint_lam150_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L3_joint_lam150_s0000/L3_joint_lam150/repetitions.csv",
       "bytes": 11847,
       "sha256": "53dba0707545495a9249023a2aacd3404e89ef04b30b74cc806e04618f5b8ef8",
@@ -2048,14 +2171,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam150__L3_joint_lam150__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam150__L3_joint_lam150_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L3_joint_lam150_s0000/L3_joint_lam150/repetitions_telemetry.csv",
       "bytes": 621,
-      "sha256": "f0080552f613ba42f453c20a403744396ec31936fc72660d6d36a93cd66fcab5"
+      "sha256": "f0080552f613ba42f453c20a403744396ec31936fc72660d6d36a93cd66fcab5",
+      "note": "分片 L3_joint_lam150_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam150__L3_joint_lam150__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam150__L3_joint_lam150_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L3_joint_lam150_s0001/L3_joint_lam150/repetitions.csv",
       "bytes": 11825,
       "sha256": "c008b0bec2ff2696d040d48abf1843eedb8da23a4707862029d1cd4d084b0aa7",
@@ -2063,14 +2187,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam150__L3_joint_lam150__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam150__L3_joint_lam150_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L3_joint_lam150_s0001/L3_joint_lam150/repetitions_telemetry.csv",
       "bytes": 623,
-      "sha256": "542121cc5da669db4ad6c56a73b49214ae5013954ad3d4b5508a6fbc54521113"
+      "sha256": "542121cc5da669db4ad6c56a73b49214ae5013954ad3d4b5508a6fbc54521113",
+      "note": "分片 L3_joint_lam150_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam150__L3_joint_lam150__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam150__L3_joint_lam150_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L3_joint_lam150_s0002/L3_joint_lam150/repetitions.csv",
       "bytes": 11832,
       "sha256": "729d8eb49673aa68bc918c3b82d208c225acb00e5ff1025778433b6f21b61912",
@@ -2078,10 +2203,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam150__L3_joint_lam150__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_joint_lam150__L3_joint_lam150_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L3_joint_lam150_s0002/L3_joint_lam150/repetitions_telemetry.csv",
       "bytes": 634,
-      "sha256": "47981542b73d65c010a2dada3c56400b6476c63c702798a8a1f614ceb2a61bf5"
+      "sha256": "47981542b73d65c010a2dada3c56400b6476c63c702798a8a1f614ceb2a61bf5",
+      "note": "分片 L3_joint_lam150_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -2094,7 +2220,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_overlap_extreme__L3_overlap_extreme__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_overlap_extreme__L3_overlap_extreme_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L3_overlap_extreme_s0000/L3_overlap_extreme/repetitions.csv",
       "bytes": 12107,
       "sha256": "99f2d6acd039040bd7aacce5d9ca62fed6f85d22da408366ddf98d59647d1be6",
@@ -2102,14 +2228,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_overlap_extreme__L3_overlap_extreme__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_overlap_extreme__L3_overlap_extreme_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L3_overlap_extreme_s0000/L3_overlap_extreme/repetitions_telemetry.csv",
       "bytes": 655,
-      "sha256": "d5d580b2f7eac5ff3a814b6c6b1eec4d9774e84af89b48f927dd81495c9b06b2"
+      "sha256": "d5d580b2f7eac5ff3a814b6c6b1eec4d9774e84af89b48f927dd81495c9b06b2",
+      "note": "分片 L3_overlap_extreme_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_overlap_extreme__L3_overlap_extreme__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_overlap_extreme__L3_overlap_extreme_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L3_overlap_extreme_s0001/L3_overlap_extreme/repetitions.csv",
       "bytes": 12091,
       "sha256": "b59156271cce3557359e88dfbf71462a181a85fd30539126f4582bba22f6857e",
@@ -2117,14 +2244,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_overlap_extreme__L3_overlap_extreme__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_overlap_extreme__L3_overlap_extreme_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L3_overlap_extreme_s0001/L3_overlap_extreme/repetitions_telemetry.csv",
       "bytes": 680,
-      "sha256": "ba48369f0b955a0c1f2472799622b40a6c7caa0c80fa534d6be268122eb16bd4"
+      "sha256": "ba48369f0b955a0c1f2472799622b40a6c7caa0c80fa534d6be268122eb16bd4",
+      "note": "分片 L3_overlap_extreme_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_overlap_extreme__L3_overlap_extreme__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_overlap_extreme__L3_overlap_extreme_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L3_overlap_extreme_s0002/L3_overlap_extreme/repetitions.csv",
       "bytes": 12094,
       "sha256": "036dc6e46a14324887209b9d2ba2521faad4725ab185447573fe572c94065490",
@@ -2132,10 +2260,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_overlap_extreme__L3_overlap_extreme__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_overlap_extreme__L3_overlap_extreme_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L3_overlap_extreme_s0002/L3_overlap_extreme/repetitions_telemetry.csv",
       "bytes": 683,
-      "sha256": "adac45a835b6403789f900ab4b66d3b91d0d8671c74461b8277c5af93cb51cb1"
+      "sha256": "adac45a835b6403789f900ab4b66d3b91d0d8671c74461b8277c5af93cb51cb1",
+      "note": "分片 L3_overlap_extreme_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -2148,7 +2277,7 @@
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_missing_confounders__L3_missing_confounders__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_missing_confounders__L3_missing_confounders_s0000__repetitions.csv",
       "source": "out/g03_formal/shards/L3_missing_confounders_s0000/L3_missing_confounders/repetitions.csv",
       "bytes": 12399,
       "sha256": "dc0573c1339250f97dc6936de4269e56c603701668a2e4ec092970054a4ca565",
@@ -2156,14 +2285,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_missing_confounders__L3_missing_confounders__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_missing_confounders__L3_missing_confounders_s0000__telemetry.csv",
       "source": "out/g03_formal/shards/L3_missing_confounders_s0000/L3_missing_confounders/repetitions_telemetry.csv",
       "bytes": 695,
-      "sha256": "f93e41bd6c3bf11fa6171b56b0146241a227d3b1bc29b15e68bf24d3333b0dcb"
+      "sha256": "f93e41bd6c3bf11fa6171b56b0146241a227d3b1bc29b15e68bf24d3333b0dcb",
+      "note": "分片 L3_missing_confounders_s0000"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_missing_confounders__L3_missing_confounders__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_missing_confounders__L3_missing_confounders_s0001__repetitions.csv",
       "source": "out/g03_formal/shards/L3_missing_confounders_s0001/L3_missing_confounders/repetitions.csv",
       "bytes": 12424,
       "sha256": "8d4ca50e4ac0bff2c63aafc9fb6aae671dfa2482de682e73bcd6f2e22eede576",
@@ -2171,14 +2301,15 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_missing_confounders__L3_missing_confounders__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_missing_confounders__L3_missing_confounders_s0001__telemetry.csv",
       "source": "out/g03_formal/shards/L3_missing_confounders_s0001/L3_missing_confounders/repetitions_telemetry.csv",
       "bytes": 722,
-      "sha256": "562d869e06ea9aeebe2b92e878525cdf725cf845b9e975bdece5a8d2f03b06b4"
+      "sha256": "562d869e06ea9aeebe2b92e878525cdf725cf845b9e975bdece5a8d2f03b06b4",
+      "note": "分片 L3_missing_confounders_s0001"
     },
     {
       "kind": "g03_repetitions_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_missing_confounders__L3_missing_confounders__repetitions.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_missing_confounders__L3_missing_confounders_s0002__repetitions.csv",
       "source": "out/g03_formal/shards/L3_missing_confounders_s0002/L3_missing_confounders/repetitions.csv",
       "bytes": 12423,
       "sha256": "051fcc149a27f378aa0ac2c789f6eff41cf15410f1210cdfeec8b51787892a91",
@@ -2186,10 +2317,11 @@
     },
     {
       "kind": "g03_telemetry_shard",
-      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_missing_confounders__L3_missing_confounders__telemetry.csv",
+      "target": "outputs/evidence/g03_formal/per_cell/shards/L3_missing_confounders__L3_missing_confounders_s0002__telemetry.csv",
       "source": "out/g03_formal/shards/L3_missing_confounders_s0002/L3_missing_confounders/repetitions_telemetry.csv",
       "bytes": 703,
-      "sha256": "c71755ef44d566c6f3cd2de2c296b691cdc5505eea36309047ae95fb432599e3"
+      "sha256": "c71755ef44d566c6f3cd2de2c296b691cdc5505eea36309047ae95fb432599e3",
+      "note": "分片 L3_missing_confounders_s0002"
     },
     {
       "kind": "g03_repetitions_merged",
@@ -2217,11 +2349,27 @@
       "sha256": "dd8e3870897289163f6a3c3be7297c6811c0e8a3a3e47360d20e97d2abbc3fae"
     },
     {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L0_P_main__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L0_P_main_s0000/L0_P_main/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 242,
+      "sha256": "be615c276258381a4318ef0ac5fff40f036d309d7b124f8e3e53e0165a2b92bd",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
+    },
+    {
       "kind": "g03_fixed_manifest",
       "target": "outputs/evidence/g03_formal/manifests/L1_main__fixed_rep0.json",
       "source": "out/g02_fixed/shards/L1_main_s0000/L1_main/rep0/manifest.json",
       "bytes": 20393,
       "sha256": "04ca0f55c628c3740d2b460e8049bbabe22ea2d8febfb56be696351225a26717"
+    },
+    {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L1_main__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L1_main_s0000/L1_main/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 241,
+      "sha256": "1f675e3ccbb5edf8903f2960509409ec8bd824d4edf53e8899b49dfa0a9b80a9",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
     },
     {
       "kind": "g03_fixed_manifest",
@@ -2231,11 +2379,27 @@
       "sha256": "8266e4dddccf1e7a60ca2ea345f70bbf61d221fcaf0bc9a0ef4e63f46bd41fe0"
     },
     {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L2_n200000_p050__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L2_n200000_p050_s0000/L2_n200000_p050/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 242,
+      "sha256": "4f7a7b790c8a38efe9f637fcfa84d86b084a0f7ccb50ba5f6365f50be34a65b2",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
+    },
+    {
       "kind": "g03_fixed_manifest",
       "target": "outputs/evidence/g03_formal/manifests/L3_fixed_lt000__fixed_rep0.json",
       "source": "out/g02_fixed/shards/L3_fixed_lt000_s0000/L3_fixed_lt000/rep0/manifest.json",
       "bytes": 20410,
       "sha256": "4ba34c61a3569282df4951e58e12f024bee0403752c6b83475b6c4fe76ef6d76"
+    },
+    {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L3_fixed_lt000__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L3_fixed_lt000_s0000/L3_fixed_lt000/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 245,
+      "sha256": "0e9b9a1190fabaef94c05454805eb94b5924627318385a4c98c22cc8fc9a1e02",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
     },
     {
       "kind": "g03_fixed_manifest",
@@ -2245,11 +2409,27 @@
       "sha256": "8404bb562ae5a94d646731c2ec17443e7b08f61548ea5ee161bd95d5a85ebc6a"
     },
     {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L0_Pi_heterogeneous_cost__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L0_Pi_heterogeneous_cost_s0000/L0_Pi_heterogeneous_cost/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 244,
+      "sha256": "cc2c4553bd08f62b5f1555e65da123bd603c03520998e984d094d8636175c126",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
+    },
+    {
       "kind": "g03_fixed_manifest",
       "target": "outputs/evidence/g03_formal/manifests/L0_zero_purchase_effect__fixed_rep0.json",
       "source": "out/g02_fixed/shards/L0_zero_purchase_effect_s0000/L0_zero_purchase_effect/rep0/manifest.json",
       "bytes": 20443,
       "sha256": "99cb5ae591b1772cd671eb7ffdc8a33e19314057019b7767cc2eec80a2a8ffaa"
+    },
+    {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L0_zero_purchase_effect__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L0_zero_purchase_effect_s0000/L0_zero_purchase_effect/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 242,
+      "sha256": "243e88d9e65118c51eae2b19c846aab90d515c173e35cda56da85b49dc5111ab",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
     },
     {
       "kind": "g03_fixed_manifest",
@@ -2259,11 +2439,27 @@
       "sha256": "cccefe7e6cca77962c716b4fcfa599e1a788b92fffa56b09b577927ca313f8cf"
     },
     {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L1_heterogeneity_000__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L1_heterogeneity_000_s0000/L1_heterogeneity_000/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 242,
+      "sha256": "fec8dd461c17a02e5450143931a1ffe6d58192159b8b2875b58e034dc97c4c11",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
+    },
+    {
       "kind": "g03_fixed_manifest",
       "target": "outputs/evidence/g03_formal/manifests/L1_heterogeneity_150__fixed_rep0.json",
       "source": "out/g02_fixed/shards/L1_heterogeneity_150_s0000/L1_heterogeneity_150/rep0/manifest.json",
       "bytes": 20437,
       "sha256": "b04820dfdc2de9f4a2e86c6912a1d6655aa65ecc2faa842e2459d486a457f40d"
+    },
+    {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L1_heterogeneity_150__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L1_heterogeneity_150_s0000/L1_heterogeneity_150/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 240,
+      "sha256": "d96fda60a11fca87e36f3e334b1a7b55d516aa89bebb76f3a9a85baee7b87e91",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
     },
     {
       "kind": "g03_fixed_manifest",
@@ -2273,11 +2469,27 @@
       "sha256": "f83fcf9880762bb2c9f171c0623ce969040c86dc92d7a11e9d7d9a2e1e956d50"
     },
     {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L1_signal_weak__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L1_signal_weak_s0000/L1_signal_weak/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 238,
+      "sha256": "31fde68abf34cc8e6823e0a9f2ab5037a0a69782d867a6742997eb7ea78a3491",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
+    },
+    {
       "kind": "g03_fixed_manifest",
       "target": "outputs/evidence/g03_formal/manifests/L1_misspec_omit_new_channel__fixed_rep0.json",
       "source": "out/g02_fixed/shards/L1_misspec_omit_new_channel_s0000/L1_misspec_omit_new_channel/rep0/manifest.json",
       "bytes": 20452,
       "sha256": "935cf39731899499d120b6206c6aba6acc0b768a725bcd857a46c13ed06a5785"
+    },
+    {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L1_misspec_omit_new_channel__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L1_misspec_omit_new_channel_s0000/L1_misspec_omit_new_channel/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 241,
+      "sha256": "c0214c3816d935ac1ecd683f3dae922946d536b2a851494ffb79c706b046acb6",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
     },
     {
       "kind": "g03_fixed_manifest",
@@ -2287,11 +2499,27 @@
       "sha256": "2cb6b0462d599470971e41e8a73ee2dbc6b70861e8c38afac4cc0ffd97790df8"
     },
     {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L1_mar_double__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L1_mar_double_s0000/L1_mar_double/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 238,
+      "sha256": "b3c059fc48ba18db1de7389e11f14180a723fb22751ecda2e7170f7669e82959",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
+    },
+    {
       "kind": "g03_fixed_manifest",
       "target": "outputs/evidence/g03_formal/manifests/L1_cost_prediction_under__fixed_rep0.json",
       "source": "out/g02_fixed/shards/L1_cost_prediction_under_s0000/L1_cost_prediction_under/rep0/manifest.json",
       "bytes": 20445,
       "sha256": "ffaae5d0bf0afc765639064902e1f8ac062c37c7ca0f84f0be2d7b4b44683a54"
+    },
+    {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L1_cost_prediction_under__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L1_cost_prediction_under_s0000/L1_cost_prediction_under/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 240,
+      "sha256": "f2df42e9369cd5524cf8089b9166af48b439e7767ff73d32899545528b0cba2c",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
     },
     {
       "kind": "g03_fixed_manifest",
@@ -2301,11 +2529,27 @@
       "sha256": "4123ed9a3e554ea2ffbf497095c4a75a01619662221a7c25b41cfab630daaff5"
     },
     {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L2_n30000_p050__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L2_n30000_p050_s0000/L2_n30000_p050/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 243,
+      "sha256": "31ee6420ea1b0c00184826f3765f242d09fe12ad2f40ddc82fa0f614ea64fe34",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
+    },
+    {
       "kind": "g03_fixed_manifest",
       "target": "outputs/evidence/g03_formal/manifests/L2_n100000_p050__fixed_rep0.json",
       "source": "out/g02_fixed/shards/L2_n100000_p050_s0000/L2_n100000_p050/rep0/manifest.json",
       "bytes": 20425,
       "sha256": "25098f94a331a57b35bc56660019baea88208476813e3cfb4a4edd97b5297cf7"
+    },
+    {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L2_n100000_p050__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L2_n100000_p050_s0000/L2_n100000_p050/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 243,
+      "sha256": "a5ca5c5ccde638fa2dcd3f5f5916e0d24e39c44ccdcf12f0c314fec5979ac871",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
     },
     {
       "kind": "g03_fixed_manifest",
@@ -2315,11 +2559,27 @@
       "sha256": "49c8b6c8269bafcd37a1501a57105aade90e9b75b3a2f8cb22d30eb0c74ed3e8"
     },
     {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L2_drift_smooth__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L2_drift_smooth_s0000/L2_drift_smooth/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 242,
+      "sha256": "4fe38e772acc7b4a7ab5f0c62425f8d783c9ec378aa846d18f4d2fbb33364995",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
+    },
+    {
       "kind": "g03_fixed_manifest",
       "target": "outputs/evidence/g03_formal/manifests/L2_composition_shift__fixed_rep0.json",
       "source": "out/g02_fixed/shards/L2_composition_shift_s0000/L2_composition_shift/rep0/manifest.json",
       "bytes": 20432,
       "sha256": "2d78488777d0718137b3ff5799e742d7ef6d104da06b8604663754af1f62d47c"
+    },
+    {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L2_composition_shift__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L2_composition_shift_s0000/L2_composition_shift/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 239,
+      "sha256": "c611ab9ed856324d6b9c121a00c2fc8be25e200a74539cd7674b4eb692ade5cb",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
     },
     {
       "kind": "g03_fixed_manifest",
@@ -2329,11 +2589,27 @@
       "sha256": "a9aa40534d663ba9a5e82e78a6d2876939555ad9c3c57fe796bf1acf179429d7"
     },
     {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L2_immature_negative_control__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L2_immature_negative_control_s0000/L2_immature_negative_control/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 242,
+      "sha256": "4f7a7b790c8a38efe9f637fcfa84d86b084a0f7ccb50ba5f6365f50be34a65b2",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
+    },
+    {
       "kind": "g03_fixed_manifest",
       "target": "outputs/evidence/g03_formal/manifests/L3_fixed_lt025__fixed_rep0.json",
       "source": "out/g02_fixed/shards/L3_fixed_lt025_s0000/L3_fixed_lt025/rep0/manifest.json",
       "bytes": 20417,
       "sha256": "bc6f5fba527a5b6cca46a7f6c16641361f018f72e38b268d697b66c9e06f4ca0"
+    },
+    {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L3_fixed_lt025__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L3_fixed_lt025_s0000/L3_fixed_lt025/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 241,
+      "sha256": "eecdec4ea3c26a3c5919c5a1175ada4f80e7ccc778daffb94213a954fd6673bb",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
     },
     {
       "kind": "g03_fixed_manifest",
@@ -2343,11 +2619,27 @@
       "sha256": "ef09fc931ccda9b2bea5766c65ed19ef022b9c25f0ea257602298a4a172aa65f"
     },
     {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L3_fixed_lt075__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L3_fixed_lt075_s0000/L3_fixed_lt075/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 241,
+      "sha256": "c4764fe8f0afbcfa10f528f6f16906a27024a0d62dc6f17f61b801445e1d36ab",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
+    },
+    {
       "kind": "g03_fixed_manifest",
       "target": "outputs/evidence/g03_formal/manifests/L3_fixed_lt150__fixed_rep0.json",
       "source": "out/g02_fixed/shards/L3_fixed_lt150_s0000/L3_fixed_lt150/rep0/manifest.json",
       "bytes": 20417,
       "sha256": "cfd1e04f8dca8935992219e34dc81b97e3af1eef9d0c6ffb1015b1fe897e26a3"
+    },
+    {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L3_fixed_lt150__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L3_fixed_lt150_s0000/L3_fixed_lt150/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 240,
+      "sha256": "3220f7042e6c92f245ceae8a8d21ac99ac475e7570102bdc63125d65aa029bd8",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
     },
     {
       "kind": "g03_fixed_manifest",
@@ -2357,11 +2649,27 @@
       "sha256": "8f79c5a314d7121dac155f83286db4bd6225db9c46b1b23f005b7f409d78cad3"
     },
     {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L3_joint_lam000__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L3_joint_lam000_s0000/L3_joint_lam000/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 240,
+      "sha256": "11765c1c61d04bf631c02c70abf6f26fc9d4c8edfcaf431477d450285c60b8cf",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
+    },
+    {
       "kind": "g03_fixed_manifest",
       "target": "outputs/evidence/g03_formal/manifests/L3_joint_lam150__fixed_rep0.json",
       "source": "out/g02_fixed/shards/L3_joint_lam150_s0000/L3_joint_lam150/rep0/manifest.json",
       "bytes": 20415,
       "sha256": "95b1530dfcaaaaa82bca92da2d898e7f4fcaf89f5876a9adad8c23420158d1a2"
+    },
+    {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L3_joint_lam150__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L3_joint_lam150_s0000/L3_joint_lam150/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 241,
+      "sha256": "4b5f771a9f213dbbf9401e2df8b060c4d074ba1ab02e71f4d26e67a8a29b458b",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
     },
     {
       "kind": "g03_fixed_manifest",
@@ -2371,11 +2679,27 @@
       "sha256": "829c361e3e627582bdd6a3e33f22551faa2bd6138467025bc48509117fb613db"
     },
     {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L3_overlap_extreme__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L3_overlap_extreme_s0000/L3_overlap_extreme/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 241,
+      "sha256": "a0f096ecd8974187d927caa60fc8df45d6b0767632fc55b7608a2336cab1dce2",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
+    },
+    {
       "kind": "g03_fixed_manifest",
       "target": "outputs/evidence/g03_formal/manifests/L3_missing_confounders__fixed_rep0.json",
       "source": "out/g02_fixed/shards/L3_missing_confounders_s0000/L3_missing_confounders/rep0/manifest.json",
       "bytes": 20438,
       "sha256": "47b6694a6f7014b777e79fbc33a917e8661fb95887565cf831643bfcc6280cdd"
+    },
+    {
+      "kind": "g03_fixed_rep0_bootstrap",
+      "target": "outputs/evidence/g03_formal/per_cell/rep0_fixed/L3_missing_confounders__fixed_bootstrap.csv",
+      "source": "out/g02_fixed/shards/L3_missing_confounders_s0000/L3_missing_confounders/rep0/validation/fixed_bootstrap.csv",
+      "bytes": 241,
+      "sha256": "4fec7e3d896dace4521b47c54234350564f4d02bf770143c216f73e4227bafee",
+      "note": "rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件"
     },
     {
       "kind": "g03_summary",
@@ -2408,6 +2732,30 @@
       "note": "G02 固定 bootstrap 臂：24 格 × rep 0，1000 次重抽，主预算 0.2"
     },
     {
+      "kind": "g03_source_run_summary",
+      "target": "outputs/evidence/g03_formal/runs/phase1_core_prefix_run_summary.json",
+      "source": "out/g03_core_prefix/run_summary.json",
+      "bytes": 3695,
+      "sha256": "6a928a88f68545c362f1c6d579d6264b65facf2377806089e386d5e6d3049d97",
+      "note": "复合矩阵 run_summary 的 derived_from 源文件"
+    },
+    {
+      "kind": "g03_source_run_summary",
+      "target": "outputs/evidence/g03_formal/runs/phase2a_tier2_run_summary.json",
+      "source": "out/g03_tier2/run_summary.json",
+      "bytes": 8508,
+      "sha256": "4d2c53347375bdb6d4a3a3e5c8310e4efbbdfe0a92d8c04998238cf9a6eadead",
+      "note": "复合矩阵 run_summary 的 derived_from 源文件"
+    },
+    {
+      "kind": "g03_source_run_summary",
+      "target": "outputs/evidence/g03_formal/runs/phase2b_core_ate_run_summary.json",
+      "source": "out/g03_core_ate/run_summary.json",
+      "bytes": 3141,
+      "sha256": "6923a32b8db123fb67e00aeaef4fd8fec5a4f5e68e32e242691b54e6f2a0702a",
+      "note": "复合矩阵 run_summary 的 derived_from 源文件"
+    },
+    {
       "kind": "g03_snapshot_binding",
       "target": "outputs/evidence/g03_formal/binding/snapshot_binding.json",
       "source": "out/g03_snapshot/snapshot_binding.json",
@@ -2420,28 +2768,88 @@
       "target": "outputs/evidence/g03_formal/logs/chain.log",
       "source": "out/g03_logs/chain.log",
       "bytes": 914,
-      "sha256": "32975fd84b3eefd0ed83e57b42d8ccb2df46e0e705174b2386caa3a0dbc70f4b"
+      "sha256": "32975fd84b3eefd0ed83e57b42d8ccb2df46e0e705174b2386caa3a0dbc70f4b",
+      "note": "阶段 A 历史（2026-10-29）"
     },
     {
       "kind": "g03_log",
       "target": "outputs/evidence/g03_formal/logs/g02_fixed.log",
       "source": "out/g03_logs/g02_fixed.log",
       "bytes": 9222,
-      "sha256": "7e6785d3db841176ec73cd063d754fe052c818994a27ccc23eda9a918050bed3"
+      "sha256": "7e6785d3db841176ec73cd063d754fe052c818994a27ccc23eda9a918050bed3",
+      "note": "阶段 A 历史（2026-10-29）"
     },
     {
       "kind": "g03_log",
       "target": "outputs/evidence/g03_formal/logs/g03.log",
       "source": "out/g03_logs/g03.log",
       "bytes": 117,
-      "sha256": "4402783fb17fa06185ef732fd83e03f50184fe7efdcb1318c3dfb2eed044cfe2"
+      "sha256": "4402783fb17fa06185ef732fd83e03f50184fe7efdcb1318c3dfb2eed044cfe2",
+      "note": "阶段 A 历史（2026-10-29）"
     },
     {
       "kind": "g03_log",
       "target": "outputs/evidence/g03_formal/logs/chain.status",
       "source": "out/g03_logs/chain.status",
       "bytes": 118,
-      "sha256": "dfbc485b015bf1c04f075f13a3342d2ce92476835283de130cb96113fff75e60"
+      "sha256": "dfbc485b015bf1c04f075f13a3342d2ce92476835283de130cb96113fff75e60",
+      "note": "阶段 A 历史，已退役（49 号判 INFO）"
+    },
+    {
+      "kind": "g03_log",
+      "target": "outputs/evidence/g03_formal/logs/phase1.log",
+      "source": "out/g03_logs/phase1.log",
+      "bytes": 12145,
+      "sha256": "2a1b95af7bb23e41f520c0dfea9f506006f56b1314a059d1589913e48742557a",
+      "note": "Phase 1（core rep0-99）"
+    },
+    {
+      "kind": "g03_log",
+      "target": "outputs/evidence/g03_formal/logs/phase1.status",
+      "source": "out/g03_logs/phase1.status",
+      "bytes": 81,
+      "sha256": "72c744a437da86618d19de822a16fb06bfee1498b12327f625fbde231d3b6c20",
+      "note": "Phase 1 收尾状态"
+    },
+    {
+      "kind": "g03_log",
+      "target": "outputs/evidence/g03_formal/logs/phase2.log",
+      "source": "out/g03_logs/phase2.log",
+      "bytes": 43364,
+      "sha256": "ef2201548f0925a75c68f3986ad51cbadb3056fc647460625c6ff9959e09e34b",
+      "note": "Phase 2（Tier2 + core ATE）"
+    },
+    {
+      "kind": "g03_log",
+      "target": "outputs/evidence/g03_formal/logs/phase2.status",
+      "source": "out/g03_logs/phase2.status",
+      "bytes": 128,
+      "sha256": "27bf033180baa133b986a4dcfcbd2e39ef3c2e53849eddab6fb485401e6aedee",
+      "note": "Phase 2 收尾状态"
+    },
+    {
+      "kind": "g03_log",
+      "target": "outputs/evidence/g03_formal/logs/finalize.log",
+      "source": "out/g03_logs/finalize.log",
+      "bytes": 11258,
+      "sha256": "610ec0b25aeae4088eaf8e771257c16fd34bb3a418c174c798e31d30418a380a",
+      "note": "63 收尾链日志"
+    },
+    {
+      "kind": "g03_log",
+      "target": "outputs/evidence/g03_formal/logs/finalize.status",
+      "source": "out/g03_logs/finalize.status",
+      "bytes": 26,
+      "sha256": "196c028a9861f78f9b867e87bc6bd62f5935cf6a620bb1622afbc5a4803e4dc4",
+      "note": "63 收尾链状态"
+    },
+    {
+      "kind": "g03_log",
+      "target": "outputs/evidence/g03_formal/logs/g49_full.log",
+      "source": "out/scratch/g49_full.log",
+      "bytes": 1550,
+      "sha256": "ff35d595a56937be8cb794e325f41ac226844b37dab1d88dc2ec5de2e87b6c04",
+      "note": "49 收尾体检日志（只读）"
     },
     {
       "kind": "g03_recomputed_summary",
@@ -2452,5 +2860,5 @@
       "rows": 96
     }
   ],
-  "total_bytes": 5162542
+  "total_bytes": 5252227
 }

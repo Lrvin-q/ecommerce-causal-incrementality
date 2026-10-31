@@ -1,0 +1,102 @@
+{
+  "merged": {
+    "roots": [
+      "out/g03_core_prefix/shards/L0_P_main_s0000",
+      "out/g03_core_prefix/shards/L0_P_main_s0001",
+      "out/g03_core_prefix/shards/L0_P_main_s0002",
+      "out/g03_core_prefix/shards/L0_P_main_s0003",
+      "out/g03_core_prefix/shards/L0_P_main_s0004",
+      "out/g03_core_prefix/shards/L0_P_main_s0005",
+      "out/g03_core_prefix/shards/L0_P_main_s0006",
+      "out/g03_core_prefix/shards/L0_P_main_s0007",
+      "out/g03_core_prefix/shards/L0_P_main_s0008",
+      "out/g03_core_prefix/shards/L0_P_main_s0009",
+      "out/g03_core_prefix/shards/L1_main_s0000",
+      "out/g03_core_prefix/shards/L1_main_s0001",
+      "out/g03_core_prefix/shards/L1_main_s0002",
+      "out/g03_core_prefix/shards/L1_main_s0003",
+      "out/g03_core_prefix/shards/L1_main_s0004",
+      "out/g03_core_prefix/shards/L1_main_s0005",
+      "out/g03_core_prefix/shards/L1_main_s0006",
+      "out/g03_core_prefix/shards/L1_main_s0007",
+      "out/g03_core_prefix/shards/L1_main_s0008",
+      "out/g03_core_prefix/shards/L1_main_s0009",
+      "out/g03_core_prefix/shards/L2_n200000_p050_s0000",
+      "out/g03_core_prefix/shards/L2_n200000_p050_s0001",
+      "out/g03_core_prefix/shards/L2_n200000_p050_s0002",
+      "out/g03_core_prefix/shards/L2_n200000_p050_s0003",
+      "out/g03_core_prefix/shards/L2_n200000_p050_s0004",
+      "out/g03_core_prefix/shards/L2_n200000_p050_s0005",
+      "out/g03_core_prefix/shards/L2_n200000_p050_s0006",
+      "out/g03_core_prefix/shards/L2_n200000_p050_s0007",
+      "out/g03_core_prefix/shards/L2_n200000_p050_s0008",
+      "out/g03_core_prefix/shards/L2_n200000_p050_s0009",
+      "out/g03_core_prefix/shards/L3_fixed_lt000_s0000",
+      "out/g03_core_prefix/shards/L3_fixed_lt000_s0001",
+      "out/g03_core_prefix/shards/L3_fixed_lt000_s0002",
+      "out/g03_core_prefix/shards/L3_fixed_lt000_s0003",
+      "out/g03_core_prefix/shards/L3_fixed_lt000_s0004",
+      "out/g03_core_prefix/shards/L3_fixed_lt000_s0005",
+      "out/g03_core_prefix/shards/L3_fixed_lt000_s0006",
+      "out/g03_core_prefix/shards/L3_fixed_lt000_s0007",
+      "out/g03_core_prefix/shards/L3_fixed_lt000_s0008",
+      "out/g03_core_prefix/shards/L3_fixed_lt000_s0009"
+    ],
+    "rows_raw": 400,
+    "rows_deduped": 400,
+    "duplicates_removed": 0,
+    "key": [
+      "scenario_id",
+      "block",
+      "rep"
+    ]
+  },
+  "cells": {
+    "L0_P_main": {
+      "complete": false
+    },
+    "L1_main": {
+      "complete": false
+    },
+    "L2_n200000_p050": {
+      "complete": false
+    },
+    "L3_fixed_lt000": {
+      "complete": false
+    }
+  },
+  "all_complete": false,
+  "final_root": "out/g03_core_prefix/_final",
+  "telemetry": {
+    "L0_P_main": {
+      "path": "out/g03_core_prefix/_final/L0_P_main/repetitions_telemetry.csv",
+      "rows": 100,
+      "duplicates": 0
+    },
+    "L1_main": {
+      "path": "out/g03_core_prefix/_final/L1_main/repetitions_telemetry.csv",
+      "rows": 100,
+      "duplicates": 0
+    },
+    "L2_n200000_p050": {
+      "path": "out/g03_core_prefix/_final/L2_n200000_p050/repetitions_telemetry.csv",
+      "rows": 100,
+      "duplicates": 0
+    },
+    "L3_fixed_lt000": {
+      "path": "out/g03_core_prefix/_final/L3_fixed_lt000/repetitions_telemetry.csv",
+      "rows": 100,
+      "duplicates": 0
+    }
+  },
+  "summaries": [
+    "out/g03_core_prefix/summaries/v3_g_g_core_provisional.csv"
+  ],
+  "at": "2026-10-30T05:55:28+08:00",
+  "failures": [],
+  "status": "formal",
+  "bootstrap_resamples": 0,
+  "bootstrap_budget_scope": null,
+  "started_at": "2026-10-29T19:36:33+08:00",
+  "finished_at": "2026-10-30T05:55:28+08:00"
+}

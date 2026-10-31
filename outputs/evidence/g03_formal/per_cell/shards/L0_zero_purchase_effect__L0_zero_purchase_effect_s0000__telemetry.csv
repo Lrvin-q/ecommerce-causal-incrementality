@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L0_zero_purchase_effect,g_tier2,0,131.5625,0.5,348.5
+L0_zero_purchase_effect,g_tier2,1,144.390625,0.515625,359.859375
+L0_zero_purchase_effect,g_tier2,2,136.984375,0.390625,298.796875
+L0_zero_purchase_effect,g_tier2,3,108.03125,0.390625,325.34375
+L0_zero_purchase_effect,g_tier2,4,139.140625,0.453125,315.890625
+L0_zero_purchase_effect,g_tier2,5,134.890625,0.5,305.28125
+L0_zero_purchase_effect,g_tier2,6,142.8125,0.46875,374.75
+L0_zero_purchase_effect,g_tier2,7,142.984375,0.5,362.390625
+L0_zero_purchase_effect,g_tier2,8,144.171875,0.515625,367.09375
+L0_zero_purchase_effect,g_tier2,9,143.109375,0.5625,365.296875

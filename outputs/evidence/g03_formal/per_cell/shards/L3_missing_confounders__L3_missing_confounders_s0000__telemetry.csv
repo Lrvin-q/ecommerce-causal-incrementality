@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L3_missing_confounders,g_tier2,0,145.515625,0.515625,393.375
+L3_missing_confounders,g_tier2,1,145.578125,0.5625,393.375
+L3_missing_confounders,g_tier2,2,145.453125,0.5,392.953125
+L3_missing_confounders,g_tier2,3,145.328125,0.5625,557.78125
+L3_missing_confounders,g_tier2,4,146.984375,0.4375,399.828125
+L3_missing_confounders,g_tier2,5,146.0,0.53125,396.390625
+L3_missing_confounders,g_tier2,6,143.8125,0.484375,389.921875
+L3_missing_confounders,g_tier2,7,145.140625,0.53125,542.34375
+L3_missing_confounders,g_tier2,8,141.203125,0.4375,378.71875
+L3_missing_confounders,g_tier2,9,137.015625,0.453125,374.796875

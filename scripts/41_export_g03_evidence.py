@@ -316,16 +316,19 @@ def _write_evidence(dest: Path, matrix_root: Path, fixed_root: Path,
 
     for cell, frame in frames.items():
         candidates = cell_runs(matrix_root, cell)
-        # 分片原件逐个导出（core 格被切成 10 片，只导合并件会让"合并是否忠实"不可核）
+        # 分片原件逐个导出（core 格被切成 10 片，只导合并件会让"合并是否忠实"不可核）。
+        # 文件名必须用分片目录名 run.parent.name：run 本身是 <shard>/<cell>，用 run.name
+        # 会让同格所有分片写进同一个文件（2026-10-31 19:44 评审 P0-1）。
         for run in candidates:
+            shard = run.parent.name
             emit(run / "repetitions.csv",
-                 dest / "per_cell" / "shards" / f"{cell}__{run.name}__repetitions.csv",
-                 "g03_repetitions_shard", note=f"分片 {run.parent.name}")
+                 dest / "per_cell" / "shards" / f"{cell}__{shard}__repetitions.csv",
+                 "g03_repetitions_shard", note=f"分片 {shard}")
             telemetry = run / "repetitions_telemetry.csv"
             if telemetry.is_file():
                 emit(telemetry,
-                     dest / "per_cell" / "shards" / f"{cell}__{run.name}__telemetry.csv",
-                     "g03_telemetry_shard")
+                     dest / "per_cell" / "shards" / f"{cell}__{shard}__telemetry.csv",
+                     "g03_telemetry_shard", note=f"分片 {shard}")
         merged = dest / "per_cell" / f"{cell}__repetitions.csv"
         merged.parent.mkdir(parents=True, exist_ok=True)
         frame.to_csv(merged, index=False, encoding="utf-8-sig")
@@ -361,6 +364,13 @@ def _write_evidence(dest: Path, matrix_root: Path, fixed_root: Path,
             if manifest.is_file():
                 emit(manifest, dest / "manifests" / f"{cell}__{tag}_rep0.json",
                      f"g03_{tag}_manifest")
+        fixed_rep0 = (fixed_root / "shards" / f"{cell}_s0000" / cell
+                      / "rep0" / "validation" / "fixed_bootstrap.csv")
+        if fixed_rep0.is_file():
+            emit(fixed_rep0,
+                 dest / "per_cell" / "rep0_fixed" / f"{cell}__fixed_bootstrap.csv",
+                 "g03_fixed_rep0_bootstrap",
+                 note="rep 0 固定 bootstrap 原始产物；§3.0 D1-A 的两格摘要即此文件")
 
     for name in ("v3_g_g_core.csv", "v3_g_g_tier2.csv"):
         source = TABLES / name
@@ -375,13 +385,35 @@ def _write_evidence(dest: Path, matrix_root: Path, fixed_root: Path,
                        if tag == "matrix" else
                        "G02 固定 bootstrap 臂：24 格 × rep 0，1000 次重抽，主预算 0.2"))
 
+    # 复合 run_summary 的 derived_from 三份源 summary：不导出就只能读 out/ 才能核 sha256。
+    for tag, root in (("phase1_core_prefix", ROOT / "out" / "g03_core_prefix"),
+                      ("phase2a_tier2", ROOT / "out" / "g03_tier2"),
+                      ("phase2b_core_ate", ROOT / "out" / "g03_core_ate")):
+        summary = root / "run_summary.json"
+        if summary.is_file():
+            emit(summary, dest / "runs" / f"{tag}_run_summary.json", "g03_source_run_summary",
+                 note="复合矩阵 run_summary 的 derived_from 源文件")
+
     if SNAPSHOT_BINDING.is_file():
         emit(SNAPSHOT_BINDING, dest / "binding" / "snapshot_binding.json", "g03_snapshot_binding",
              note="A/B 两阶段共用的 49 文件字节快照绑定")
-    for log in ("chain.log", "g02_fixed.log", "g03.log", "chain.status"):
+    for log, note in (("chain.log", "阶段 A 历史（2026-10-29）"),
+                      ("g02_fixed.log", "阶段 A 历史（2026-10-29）"),
+                      ("g03.log", "阶段 A 历史（2026-10-29）"),
+                      ("chain.status", "阶段 A 历史，已退役（49 号判 INFO）"),
+                      ("phase1.log", "Phase 1（core rep0-99）"),
+                      ("phase1.status", "Phase 1 收尾状态"),
+                      ("phase2.log", "Phase 2（Tier2 + core ATE）"),
+                      ("phase2.status", "Phase 2 收尾状态"),
+                      ("finalize.log", "63 收尾链日志"),
+                      ("finalize.status", "63 收尾链状态")):
         source = LOGS / log
         if source.is_file():
-            emit(source, dest / "logs" / log, "g03_log")
+            emit(source, dest / "logs" / log, "g03_log", note=note)
+    g49 = ROOT / "out" / "scratch" / "g49_full.log"
+    if g49.is_file():
+        emit(g49, dest / "logs" / "g49_full.log", "g03_log",
+             note="49 收尾体检日志（只读）")
 
     recomputed_path = dest / "recomputed_summary.csv"
     recomputed.to_csv(recomputed_path, index=False, encoding="utf-8-sig")
@@ -393,6 +425,27 @@ def _write_evidence(dest: Path, matrix_root: Path, fixed_root: Path,
         "sha256": sha256(recomputed_path),
         "rows": int(len(recomputed)),
     })
+
+    # 导出后自检：target 必须全局唯一、逐条 sha/bytes 与 staging 文件一致。
+    # 只有"文件存在"不够——命名塌陷时 264 条记录指向 48 个文件，存在性检查会全绿（G03 P0-1）。
+    targets = [r["target"] for r in records]
+    if len(set(targets)) != len(targets):
+        dupes = sorted({t for t in targets if targets.count(t) > 1})
+        raise RuntimeError(f"导出目标重名，会互相覆盖：{len(dupes)} 个，例 {dupes[:3]}")
+    pub_prefix = public_root.relative_to(ROOT)
+    for rec in records:
+        path = dest / Path(rec["target"]).relative_to(pub_prefix)
+        if not path.is_file():
+            raise RuntimeError(f"导出后自检失败：{rec['target']} 不在 staging")
+        if sha256(path) != rec["sha256"] or path.stat().st_size != rec["bytes"]:
+            raise RuntimeError(
+                f"导出后自检失败：{rec['target']} 的 sha256/bytes 与记录不符"
+            )
+    on_disk = [p for p in dest.rglob("*") if p.is_file() and p != dest / "coverage.json"]
+    if len(on_disk) != len(records):
+        raise RuntimeError(
+            f"导出后自检失败：staging 有 {len(on_disk)} 个文件，记录 {len(records)} 条"
+        )
 
     total = sum(int(r["bytes"]) for r in records)
     payload = {

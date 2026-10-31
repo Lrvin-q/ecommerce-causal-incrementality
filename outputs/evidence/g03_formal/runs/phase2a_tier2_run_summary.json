@@ -1,0 +1,250 @@
+{
+  "merged": {
+    "roots": [
+      "out/g03_tier2/shards/L0_Pi_heterogeneous_cost_s0000",
+      "out/g03_tier2/shards/L0_Pi_heterogeneous_cost_s0001",
+      "out/g03_tier2/shards/L0_Pi_heterogeneous_cost_s0002",
+      "out/g03_tier2/shards/L0_zero_purchase_effect_s0000",
+      "out/g03_tier2/shards/L0_zero_purchase_effect_s0001",
+      "out/g03_tier2/shards/L0_zero_purchase_effect_s0002",
+      "out/g03_tier2/shards/L1_cost_prediction_under_s0000",
+      "out/g03_tier2/shards/L1_cost_prediction_under_s0001",
+      "out/g03_tier2/shards/L1_cost_prediction_under_s0002",
+      "out/g03_tier2/shards/L1_heterogeneity_000_s0000",
+      "out/g03_tier2/shards/L1_heterogeneity_000_s0001",
+      "out/g03_tier2/shards/L1_heterogeneity_000_s0002",
+      "out/g03_tier2/shards/L1_heterogeneity_150_s0000",
+      "out/g03_tier2/shards/L1_heterogeneity_150_s0001",
+      "out/g03_tier2/shards/L1_heterogeneity_150_s0002",
+      "out/g03_tier2/shards/L1_mar_double_s0000",
+      "out/g03_tier2/shards/L1_mar_double_s0001",
+      "out/g03_tier2/shards/L1_mar_double_s0002",
+      "out/g03_tier2/shards/L1_misspec_omit_new_channel_s0000",
+      "out/g03_tier2/shards/L1_misspec_omit_new_channel_s0001",
+      "out/g03_tier2/shards/L1_misspec_omit_new_channel_s0002",
+      "out/g03_tier2/shards/L1_signal_weak_s0000",
+      "out/g03_tier2/shards/L1_signal_weak_s0001",
+      "out/g03_tier2/shards/L1_signal_weak_s0002",
+      "out/g03_tier2/shards/L2_composition_shift_s0000",
+      "out/g03_tier2/shards/L2_composition_shift_s0001",
+      "out/g03_tier2/shards/L2_composition_shift_s0002",
+      "out/g03_tier2/shards/L2_drift_smooth_s0000",
+      "out/g03_tier2/shards/L2_drift_smooth_s0001",
+      "out/g03_tier2/shards/L2_drift_smooth_s0002",
+      "out/g03_tier2/shards/L2_immature_negative_control_s0000",
+      "out/g03_tier2/shards/L2_immature_negative_control_s0001",
+      "out/g03_tier2/shards/L2_immature_negative_control_s0002",
+      "out/g03_tier2/shards/L2_n100000_p050_s0000",
+      "out/g03_tier2/shards/L2_n100000_p050_s0001",
+      "out/g03_tier2/shards/L2_n100000_p050_s0002",
+      "out/g03_tier2/shards/L2_n30000_p050_s0000",
+      "out/g03_tier2/shards/L2_n30000_p050_s0001",
+      "out/g03_tier2/shards/L2_n30000_p050_s0002",
+      "out/g03_tier2/shards/L3_fixed_lt025_s0000",
+      "out/g03_tier2/shards/L3_fixed_lt025_s0001",
+      "out/g03_tier2/shards/L3_fixed_lt025_s0002",
+      "out/g03_tier2/shards/L3_fixed_lt075_s0000",
+      "out/g03_tier2/shards/L3_fixed_lt075_s0001",
+      "out/g03_tier2/shards/L3_fixed_lt075_s0002",
+      "out/g03_tier2/shards/L3_fixed_lt150_s0000",
+      "out/g03_tier2/shards/L3_fixed_lt150_s0001",
+      "out/g03_tier2/shards/L3_fixed_lt150_s0002",
+      "out/g03_tier2/shards/L3_joint_lam000_s0000",
+      "out/g03_tier2/shards/L3_joint_lam000_s0001",
+      "out/g03_tier2/shards/L3_joint_lam000_s0002",
+      "out/g03_tier2/shards/L3_joint_lam150_s0000",
+      "out/g03_tier2/shards/L3_joint_lam150_s0001",
+      "out/g03_tier2/shards/L3_joint_lam150_s0002",
+      "out/g03_tier2/shards/L3_missing_confounders_s0000",
+      "out/g03_tier2/shards/L3_missing_confounders_s0001",
+      "out/g03_tier2/shards/L3_missing_confounders_s0002",
+      "out/g03_tier2/shards/L3_overlap_extreme_s0000",
+      "out/g03_tier2/shards/L3_overlap_extreme_s0001",
+      "out/g03_tier2/shards/L3_overlap_extreme_s0002"
+    ],
+    "rows_raw": 600,
+    "rows_deduped": 600,
+    "duplicates_removed": 0,
+    "key": [
+      "scenario_id",
+      "block",
+      "rep"
+    ]
+  },
+  "cells": {
+    "L0_Pi_heterogeneous_cost": {
+      "complete": true
+    },
+    "L0_zero_purchase_effect": {
+      "complete": true
+    },
+    "L1_cost_prediction_under": {
+      "complete": true
+    },
+    "L1_heterogeneity_000": {
+      "complete": true
+    },
+    "L1_heterogeneity_150": {
+      "complete": true
+    },
+    "L1_mar_double": {
+      "complete": true
+    },
+    "L1_misspec_omit_new_channel": {
+      "complete": true
+    },
+    "L1_signal_weak": {
+      "complete": true
+    },
+    "L2_composition_shift": {
+      "complete": true
+    },
+    "L2_drift_smooth": {
+      "complete": true
+    },
+    "L2_immature_negative_control": {
+      "complete": true
+    },
+    "L2_n100000_p050": {
+      "complete": true
+    },
+    "L2_n30000_p050": {
+      "complete": true
+    },
+    "L3_fixed_lt025": {
+      "complete": true
+    },
+    "L3_fixed_lt075": {
+      "complete": true
+    },
+    "L3_fixed_lt150": {
+      "complete": true
+    },
+    "L3_joint_lam000": {
+      "complete": true
+    },
+    "L3_joint_lam150": {
+      "complete": true
+    },
+    "L3_missing_confounders": {
+      "complete": true
+    },
+    "L3_overlap_extreme": {
+      "complete": true
+    }
+  },
+  "all_complete": true,
+  "final_root": "out/g03_tier2/_final",
+  "telemetry": {
+    "L0_Pi_heterogeneous_cost": {
+      "path": "out/g03_tier2/_final/L0_Pi_heterogeneous_cost/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L0_zero_purchase_effect": {
+      "path": "out/g03_tier2/_final/L0_zero_purchase_effect/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_cost_prediction_under": {
+      "path": "out/g03_tier2/_final/L1_cost_prediction_under/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_heterogeneity_000": {
+      "path": "out/g03_tier2/_final/L1_heterogeneity_000/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_heterogeneity_150": {
+      "path": "out/g03_tier2/_final/L1_heterogeneity_150/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_mar_double": {
+      "path": "out/g03_tier2/_final/L1_mar_double/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_misspec_omit_new_channel": {
+      "path": "out/g03_tier2/_final/L1_misspec_omit_new_channel/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_signal_weak": {
+      "path": "out/g03_tier2/_final/L1_signal_weak/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_composition_shift": {
+      "path": "out/g03_tier2/_final/L2_composition_shift/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_drift_smooth": {
+      "path": "out/g03_tier2/_final/L2_drift_smooth/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_immature_negative_control": {
+      "path": "out/g03_tier2/_final/L2_immature_negative_control/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_n100000_p050": {
+      "path": "out/g03_tier2/_final/L2_n100000_p050/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_n30000_p050": {
+      "path": "out/g03_tier2/_final/L2_n30000_p050/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_fixed_lt025": {
+      "path": "out/g03_tier2/_final/L3_fixed_lt025/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_fixed_lt075": {
+      "path": "out/g03_tier2/_final/L3_fixed_lt075/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_fixed_lt150": {
+      "path": "out/g03_tier2/_final/L3_fixed_lt150/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_joint_lam000": {
+      "path": "out/g03_tier2/_final/L3_joint_lam000/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_joint_lam150": {
+      "path": "out/g03_tier2/_final/L3_joint_lam150/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_missing_confounders": {
+      "path": "out/g03_tier2/_final/L3_missing_confounders/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_overlap_extreme": {
+      "path": "out/g03_tier2/_final/L3_overlap_extreme/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    }
+  },
+  "summaries": [
+    "out/g03_tier2/summaries/v3_g_g_tier2.csv"
+  ],
+  "at": "2026-10-31T09:41:22+08:00",
+  "failures": [],
+  "status": "formal",
+  "bootstrap_resamples": 0,
+  "bootstrap_budget_scope": null,
+  "started_at": "2026-10-30T17:38:13+08:00",
+  "finished_at": "2026-10-31T09:41:22+08:00"
+}

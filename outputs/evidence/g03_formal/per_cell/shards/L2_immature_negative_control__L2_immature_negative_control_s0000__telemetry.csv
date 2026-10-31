@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L2_immature_negative_control,g_tier2,0,145.21875,0.484375,365.34375
+L2_immature_negative_control,g_tier2,1,145.734375,0.5,522.640625
+L2_immature_negative_control,g_tier2,2,145.53125,0.515625,518.859375
+L2_immature_negative_control,g_tier2,3,145.578125,0.453125,365.015625
+L2_immature_negative_control,g_tier2,4,146.140625,0.546875,520.34375
+L2_immature_negative_control,g_tier2,5,145.5,0.515625,519.109375
+L2_immature_negative_control,g_tier2,6,146.265625,0.53125,518.796875
+L2_immature_negative_control,g_tier2,7,146.875,0.515625,522.5625
+L2_immature_negative_control,g_tier2,8,146.140625,0.515625,520.515625
+L2_immature_negative_control,g_tier2,9,146.546875,0.5625,365.4375

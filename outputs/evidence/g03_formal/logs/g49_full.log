@@ -1,0 +1,28 @@
+[TIME] 2026-10-31 19:37:10
+[OK ] g02_post.status 含 OK：OK: G02 merge 完成 2026-10-29T17:17:51+08:00
+[OK ] phase1.status 含 OK：OK: G03 Phase1 core prefix 完成 2026-10-30 05:55:41
+[OK ] phase2.status 含 OK：OK: G03 Phase2 完成 2026-10-31 19:33:21
+[INFO] chain.status 已退役（§2.6），不参与判定：paused_20261029_1936=StageB 改为 Phase1（core 4 格 rep0-99）；Tier
+[INFO] g03_post.status 已退役（§2.6），不参与判定：缺失
+[OK ] g02 L0_P_main rows=50
+[OK ] g02 L1_main rows=50
+[OK ] g02 L2_n200000_p050 rows=50
+[OK ] g02 L3_fixed_lt000 rows=50
+[OK ] g03 24 格 repetitions.csv 全部达 R
+[INFO] 源码绑定集 49 文件
+[OK ] 源码 49 文件与 g03 快照逐文件一致
+[OK ] overlay sha256 c58d5a905ea75de5… 与记录一致（1847 B）
+[OK ] src/ sql/ configs/ git 干净
+[OK ] 42 claim gate EXIT=0
+OK：274 条 claim 全部回指且与源表复算一致（Tier1 274 / Tier2 0）
+[OK ] 40_export_g02_evidence.py --check EXIT=0
+[OK ] 41_export_g03_evidence.py --check EXIT=0
+[INFO] 33 --dry-run EXIT=0（登记本身仍需人工复核）
+[top-reg] 证据根 outputs/evidence；扫描 2 个子目录：g02_formal, g03_formal
+[top-reg] 候选身份类文件 2 个：新增 0，已登记 2
+    = outputs/evidence/g02_formal/binding/snapshot_binding.json
+    = outputs/evidence/g03_formal/binding/snapshot_binding.json
+[top-reg] 顶层全表复算一致：93 条
+[top-reg] 无新增、无字段补齐，不写盘（幂等）
+
+[VERDICT] READY：可进入 33 登记与报告填数

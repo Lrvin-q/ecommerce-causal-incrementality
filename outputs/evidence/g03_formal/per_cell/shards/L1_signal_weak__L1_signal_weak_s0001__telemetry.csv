@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L1_signal_weak,g_tier2,10,145.484375,0.5,531.640625
+L1_signal_weak,g_tier2,11,143.421875,0.5,534.171875
+L1_signal_weak,g_tier2,12,145.3125,0.515625,369.140625
+L1_signal_weak,g_tier2,13,144.0625,0.53125,524.125
+L1_signal_weak,g_tier2,14,143.59375,0.5,378.8125
+L1_signal_weak,g_tier2,15,143.71875,0.453125,372.375
+L1_signal_weak,g_tier2,16,144.25,0.484375,378.28125
+L1_signal_weak,g_tier2,17,144.640625,0.515625,538.296875
+L1_signal_weak,g_tier2,18,144.28125,0.484375,373.78125
+L1_signal_weak,g_tier2,19,142.90625,0.53125,370.125

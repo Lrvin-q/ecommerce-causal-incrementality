@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L3_joint_lam000,g_tier2,0,145.90625,0.53125,400.28125
+L3_joint_lam000,g_tier2,1,143.25,0.5,399.75
+L3_joint_lam000,g_tier2,2,143.84375,0.5,401.3125
+L3_joint_lam000,g_tier2,3,143.921875,0.5625,555.234375
+L3_joint_lam000,g_tier2,4,143.453125,0.5,406.765625
+L3_joint_lam000,g_tier2,5,144.78125,0.484375,391.203125
+L3_joint_lam000,g_tier2,6,145.65625,0.546875,549.25
+L3_joint_lam000,g_tier2,7,146.296875,0.484375,396.71875
+L3_joint_lam000,g_tier2,8,143.390625,0.46875,560.984375
+L3_joint_lam000,g_tier2,9,144.46875,0.484375,397.90625

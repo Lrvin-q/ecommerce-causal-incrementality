@@ -1,12 +1,11 @@
-# G03 正式报告 —— Tier1 core 四格 + Tier2 二十格矩阵（G03 骨架）
+# G03 正式报告 —— Tier1 core 四格 + Tier2 二十格矩阵
 
 > **合成数据 / 已知 DGP**。本报告只回答"在注册的 24 个机制场景下，策略价值与决策通过率如何"，
-> 不表示任何真实业务效果。维护时间：2026-10-30 17:37（北京时间）。
-> 当前状态：**阶段 A 已完成，§4 已填（24 格固定 bootstrap）**；**Phase 1（core rep0–99）已完成**
-> （2026-10-30 05:55:41 `phase1_exit=0`/`merge_exit=0`，4 格各 100 rep；`_final` 四份均为
-> `repetitions_provisional.csv`，`all_complete=false` 属预期）；**Phase 2 已于 2026-10-30 17:37:55 启动**
-> （用户批准；Tier2 20 格 rep0–29 / 60 分片 / 6 路，快照 `6fdaf7bb…` 通过），预计约 16 h。
-> §3 仍待填，但 **§3.0 的 D1-A 披露已按裁决原样写入**（空转格不构成机制证据）。
+> 不表示任何真实业务效果。维护时间：2026-10-31 19:50（北京时间）。
+> 当前状态：**24 格全部跑完**——Phase 2 于 **2026-10-31 19:33:21** 完成（Tier2 600/600、core ATE
+> 1 600/1 600、复合 merge `duplicates=0`），收尾链 **19:36:47** 全绿；19:44 独立评审发现证据登记 P0
+> （分片导出命名塌陷），19:48 修复并重导出（**357 条记录、0 条不符**）后再次全绿。§3/§4 已填，
+> **§3.0 的 D1-A 披露按裁决原样保留**（空转格不构成机制证据）。
 
 ## 1. 设计
 
@@ -62,14 +61,17 @@ core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **16–17 h**（
 | 18:10 | **ETA 更正（18:08 行作废）**：分段实测——rep0–99 学习段 7.3–11.0 min/rep（约 21 MB/rep），rep≥100 只跑 ATE，`out/g03_formal_interrupted_20261029_1935` 的 rep100–280 实测 **1.87–1.88 min/rep**（每 rep 2 个文件、约 1 MB）。故 2a Tier2 600 rep ≈ 12–18 h、2b core ATE 1 600 rep ≈ 8–10 h，**总计 20–28 h，ETA 10-31 16:00–23:00**；磁盘约 14 G。18:06 Tier2 实测 14 rep / 28 min（≈0.5 rep/min，早期批次含启动开销） |
 | 18:28 | Phase 2a 进度 **Tier2 30/600 rep**（`row.json` 口径；18:23→18:28 稳定增长，最近 3 分钟 24 个文件）；8 个 python 进程（6 spawn worker + 2 父）在跑。自动收尾（17:48 起）与 watchdog（17:44 起）均存活。**看护口径更正**：`auto_finalize.log` 的 `[auto] 63 exit=` 取的是管道中 `tee` 的退出码，**不能**作为 63 成功的证据；复核一律以 `out/g03_logs/finalize.status` 与 `auto_finalize.out` 为准 |
 | 09:41:22 | **Phase 2a Tier2 完成**：600/600 rep（20 格 × 30）；`out/g03_tier2/run_summary.json` = `status=formal` / `failures=[]` / `duplicates=0`；09:41:23 自动转入 2b |
-| 09:41:35–19:32:34 | Phase 2b core ATE rep100–499 跑完：1 600/1 600（4 格 × 100 分片行，逐分片 `provisional=False`）；`out/g03_core_ate/run_summary.json` = `status=formal` / `failures=[]` |
+| 09:41:35–19:32:34 | Phase 2b core ATE rep100–499 跑完：**4 格 × 400 rep = 1 600**（32 个分片 × 50 行，逐分片 `provisional=False`）；`out/g03_core_ate/run_summary.json` = `status=formal` / `failures=[]` |
 | 19:32:34 | 建复合根 `out/g03_formal/shards`（junction，失败回退 `cp -r`），19:33:04 记 **132 个分片** |
 | 19:33:05–19:33:20 | 多根 merge 完成（`merge_exit=0`，`duplicates=0`）；`_final` 24 格行数核对 OK（core 500 / Tier2 30）；合成复合 `run_summary.json`（`composite=true`，`derived_from` 三份源 summary 的 sha256） |
 | 19:33:21 | **Phase 2 完成**：`phase2.status` 末行 `OK: G03 Phase2 完成 2026-10-31 19:33:21`（`tier2/core_ate/merge/final_check/composite_summary` 五步 exit 全 0） |
-| 19:34:17–19:34:26 | 自动收尾链触发：41 `--check` 与 62 演练通过，**33 dry-run rc=2**——`coverage.json` 的 target 全指向 `out/g03_evidence_staging/…`（41 号用 staging 根登记），导出换名后全部失效。根因见 19:35 修复行 |
+| 19:34:07–19:34:26 | 自动收尾链触发：41 `--check` 与 62 演练通过，**33 dry-run rc=2**（只报 2 条，均指 `binding/snapshot_binding.json`）。进一步核对发现 `coverage.json` 的 **323 条 target 全部指向 `out/g03_evidence_staging/…`**（41 号用 staging 根登记），换名后整份索引失效；33 的 dry-run 当时只核身份类 JSON，所以只露出 2 条 |
 | 19:35 | **修 41 号 target 重挂**（`_record` 增 `write_root/public_root`：写盘在 staging、登记用最终路径），重导出 323 条记录、0 缺失、0 staging 前缀；33 dry-run rc=0 |
-| 19:36:47 | **收尾链全绿并实登记**：`63 --with-register` 的 `check/drill/export/register_dry_run/report48/register` exit 全 0；`finalize.status` 末行 `OK: G03 finalize 完成 2026-10-31 19:36:47`；顶层登记 **93 条 / 16 975 748 B**（幂等复算一致） |
+| 19:36:47 | **收尾链全绿并实登记**：`63 --with-register` 的 `check/drill/export/register_dry_run/report48/register` exit 全 0；`finalize.status` 末行 `OK: G03 finalize 完成 2026-10-31 19:36:47`；顶层登记 **93 条 / 16 975 748 B**（幂等复算一致；**其中 G03 只占 1 条** `g03_snapshot_binding`，其余 322 条在目录级索引） |
 | 19:37 | `49 --with-check --with-register --with-claims` **RC=0**：24 格达 R、49 文件快照一致、overlay 一致、42 门禁 274 条 Tier1 claim 全回指、40/41 检查 0、33 dry-run 0、顶层 93 条幂等 → `[VERDICT] READY` |
+| 19:44 | **G03 独立评审返回 `PASS WITH CONDITIONS`**（`docs/reviews/v3_phase_G03_review.md`）：96 个汇总值与 24 个 bootstrap 值独立复算 **0 误差**、R/完整性成立、D1-A 披露成立；但查出 **P0-1**——分片导出用 `run.name`（恒等于格名）命名，**264 条分片记录塌陷到 48 个文件、216 条 sha/bytes 与磁盘不符**；另 3 项 P1、3 项 P2、5 项 P3 |
+| 19:47 | 按 P0 修 41：分片名改用 `run.parent.name`，导出后自检（target 全局唯一、逐条 sha/bytes、文件数=记录数）；按评审建议加强 33：**全表逐条核 sha/bytes + 同 target 重复登记即失败**。反例实测：对旧台账跑 33 → **RC=2（48 个重名 target + 216 条不符）**，证明门禁真的会拦 |
+| 19:48 | 重跑 `63 --with-register`：check/drill/export/dry_run/report48/register exit 全 0；证据包 **357 条记录**（264 个分片原件 + 24 合并表 + 24 manifest + 24 rep0 固定 bootstrap + 11 日志 + 3 源 summary 等）、**357/357 sha 与磁盘一致**、**0 条重名**；`finalize.status` `OK: G03 finalize 完成 2026-10-31 19:48:27` |
 
 **续跑纪律（失败时）**：`--resume` 只救"跑到一半被杀、有 `repetitions_provisional.csv`"的分片；
 已完成分片会整片重跑，且 `run_cell` 的 `existing` 只来自 `resume_from` ⇒ **重跑不是追加，会用本次 reps
@@ -251,9 +253,12 @@ G03 的注册分析（`repetitions.csv` 四指标 + 汇总）**没有**覆盖率
 ### 3.0 必须随表发布的披露（D1-A，2026-10-29 22:52 裁决）
 
 `L2_immature_negative_control` 的开关 `dgp.l2.include_immature_analysis_control`
-**没有被源码读取**，因此该格实际跑的 DGP 与 `L2_n200000_p050` 相同：rep 0 的验证产物逐字节相同
-（rep 0 的 `fixed_bootstrap.csv` 在两格目录下 md5 同为 `69da7f4a…`、sha256 同为
-`4f7a7b790c8a38efe9f637fcfa84d86b084a0f7ccb50ba5f6365f50be34a65b2`，同一份文件的两种摘要）。
+**没有被源码读取**，因此该格实际跑的 DGP 与 `L2_n200000_p050` 相同：**30 个 rep 的四个指标与验证数值
+逐位相同**（只有 `config_hash` / `observed_hash` / `freeze_hash` / `preprocessor_hash` /
+`split_fingerprint` 这类 cell/run 身份字段不同，逐 rep 行并非逐字节相同）。rep 0 的
+`fixed_bootstrap.csv` 在两格目录下是同一份文件：md5 同为 `69da7f4a…`、sha256 同为
+`4f7a7b790c8a38efe9f637fcfa84d86b084a0f7ccb50ba5f6365f50be34a65b2`；该文件现已作为
+`per_cell/rep0_fixed/<cell>__fixed_bootstrap.csv` 导出，摘要可复算。
 **该格不构成有效机制证据**，不得作为"年幼用户分析控制"这一机制的检验结果引用；
 它只保留在 20 格矩阵里充当"重复跑一致"的完整性检查。
 
@@ -265,12 +270,65 @@ G03 的注册分析（`repetitions.csv` 四指标 + 汇总）**没有**覆盖率
    同理 `models.train_fraction_of_training_pool` 在 3 个 `L1_learning_*` 格上同样空转（不在 24 格内），
    将来启用前必须先接线。
 
+### 3.5 指标敏感性披露与选模分布（2026-10-31 19:44 评审核实后补）
+
+四个注册汇总指标（`ate` / `ate_test` / `ate_paid_purchase_7d` / `ate_any_refund_30d`）都是
+**设计型 ITT 对比**（`v3_g_matrix.estimate_ate`：全样本均值差、test 子集均值差、两个比例差），
+不经过任何学习模型。因此**只改协变量、缺失/清洗或模型输入的机制，在这四个指标上构造不变**。
+对 rep0–29 的逐 rep 向量做哈希核对，存在以下等价组：
+
+- `ate` 完全相同：{`L1_cost_prediction_under`, `L1_main`, `L1_mar_double`,
+  `L1_misspec_omit_new_channel`}；{`L3_fixed_lt000`, `L3_missing_confounders`}；
+  {`L2_immature_negative_control`, `L2_n200000_p050`}（后者即 §3.0 的 D1-A）；
+- `ate_paid_purchase_7d` 与 `ate_any_refund_30d` 完全相同：{`L0_P_main`, `L0_Pi_heterogeneous_cost`}；
+  上述 5 个 L1 格；{`L3_fixed_lt000`, `L3_missing_confounders`}；D1-A 两格。
+
+这些机制的差异出现在 `ate_test`（验证划分/子集随清洗变化）、`model_*_tau_*`、`chosen_model`
+与 fixed bootstrap。例：`L3_missing_confounders` 与 `L3_fixed_lt000` 的 `ate` 相同，但 rep0–29 的 `ate_test`
+最大差 **0.1931**，选模分布也不同（见下表）。
+**读法**：§3.1 的 20 行不是"20 个机制对 ITT 的独立效应"；对建模层机制，判别信息在 §3.2、
+选模分布与 §4，不得用 §3.1 的行间差异论证机制效应。
+
+**选模分布（`chosen_model`，rep0–29）**
+
+| 格 | R | constant | t_learner | s_learner | causal_forest | dr_learner |
+|---|---:|---:|---:|---:|---:|---:|
+| `L0_P_main` | 500 | 5 | 26 | 31 | 38 | 0 |
+| `L0_Pi_heterogeneous_cost` | 30 | 10 | 4 | 8 | 8 | 0 |
+| `L0_zero_purchase_effect` | 30 | 30 | 0 | 0 | 0 | 0 |
+| `L1_cost_prediction_under` | 30 | 1 | 1 | 9 | 19 | 0 |
+| `L1_heterogeneity_000` | 30 | 8 | 2 | 7 | 9 | 4 |
+| `L1_heterogeneity_150` | 30 | 0 | 1 | 8 | 20 | 1 |
+| `L1_main` | 500 | 2 | 6 | 25 | 62 | 5 |
+| `L1_mar_double` | 30 | 3 | 0 | 8 | 17 | 2 |
+| `L1_misspec_omit_new_channel` | 30 | 1 | 2 | 7 | 18 | 2 |
+| `L1_signal_weak` | 30 | 3 | 1 | 12 | 12 | 2 |
+| `L2_composition_shift` | 30 | 0 | 2 | 6 | 22 | 0 |
+| `L2_drift_smooth` | 30 | 1 | 0 | 8 | 21 | 0 |
+| `L2_immature_negative_control` | 30 | 0 | 0 | 5 | 25 | 0 |
+| `L2_n100000_p050` | 30 | 4 | 4 | 7 | 15 | 0 |
+| `L2_n200000_p050` | 500 | 0 | 1 | 33 | 66 | 0 |
+| `L2_n30000_p050` | 30 | 15 | 3 | 4 | 8 | 0 |
+| `L3_fixed_lt000` | 500 | 8 | 15 | 25 | 45 | 7 |
+| `L3_fixed_lt025` | 30 | 0 | 3 | 7 | 14 | 6 |
+| `L3_fixed_lt075` | 30 | 2 | 4 | 9 | 11 | 4 |
+| `L3_fixed_lt150` | 30 | 0 | 3 | 5 | 18 | 4 |
+| `L3_joint_lam000` | 30 | 3 | 5 | 7 | 10 | 5 |
+| `L3_joint_lam150` | 30 | 0 | 2 | 2 | 23 | 3 |
+| `L3_missing_confounders` | 30 | 3 | 5 | 11 | 9 | 2 |
+| `L3_overlap_extreme` | 30 | 11 | 6 | 4 | 5 | 4 |
+
+`dr_learner` 在 L0 格为 0 属预期（该模型不适用于 L0，执行器按层过滤）；`L0_zero_purchase_effect`
+**30/30 选 `constant`**，其 §4 点差 +0.0765（CI 跨零）是"不做差异化"的策略值，**不是定向能力证据**。
+
 ## 4. 固定 bootstrap 结果（Stage A 已于 18:37 完成；19:46 填表）
 
 数据源：`out/g02_fixed/shards/<cell>_s0000/<cell>/rep0/validation/fixed_bootstrap.csv`（24 格）；
 本文数字的唯一来源是 `outputs/tables/v3_g03_fixed_bootstrap_summary.csv`（`scripts/47_g03_fixed_report.py` 生成，
 逐格断言"单行 / 预算 0.2 / 重抽 1 000"，实际预算恒 0.2、`resamples` 恒 1 000）；
 Stage A 完成后由 41 号导出为 `outputs/evidence/g03_formal/fixed_bootstrap.csv`。
+固定臂 `runs/fixed_run_summary.json` 的 `all_complete=false` **属预期**：每格只跑 rep 0，
+而 `R_ate=500`；该 summary 只用于证明 `status=formal`、`failures=[]`。
 
 **口径**：点差 = 定向贪心臂 − 随机同预算臂（同 rep、同批用户、同预算 0.2 元/人，按选中模型配对，AGENTS §12.6）；
 CI 为 1 000 次用户级 bootstrap 的 2.5%/97.5% 分位。"CI 跨零"只表示**该 rep 内**两臂差无法与零区分，
@@ -330,6 +388,17 @@ Tier2 小计：CI 跨零 4/20（`L0_zero_purchase_effect`、`L1_heterogeneity_00
 
 ## 5. 证据与复现
 
+- **证据包内容（2026-10-31 19:48 重导出后，357 条记录）**：264 个分片原件（132 个分片 ×
+  repetitions + telemetry）、24 份合并逐 rep 表、24 份 rep0 manifest、24 份 rep0 固定 bootstrap
+  （`per_cell/rep0_fixed/`）、11 份日志/状态（阶段 A 4 件 + Phase 1/2 + finalize + 49）、
+  3 份源 `run_summary.json`、2 份汇总表、2 份臂 summary、快照绑定与复算汇总各 1 份；
+  目录级索引 `outputs/evidence/g03_formal/coverage.json` 的 357 条 target **全部唯一**，
+  逐条 sha256/bytes 与磁盘一致（**0 条不符**）。**2026-10-31 19:44 评审的 P0-1**：上一版用
+  `run.name`（恒等于格名）命名分片，264 条记录塌陷到 48 个文件、216 条不符；现改为
+  `run.parent.name`，并在导出结束时自检"target 唯一 / 逐条 sha / 文件数=记录数"；
+- **门禁加强**（AGENTS §12.3）：`scripts/33_register_evidence_top.py` 原先只对身份类 JSON 重算
+  sha/bytes，现对**目录级索引的全表**逐条核对，并把"同一 target 被多条记录登记"判为失败。
+  反例实测（旧台账）：**RC=2，48 个重名 target + 216 条不符**；修复后 dry-run rc=0；
 - `scripts/41_export_g03_evidence.py --check`：24 格逐 rep 表齐全、逐格契约列、固定 bootstrap 24 格
   （预算恒 0.2 / 次数恒 1000）、复算汇总 4 指标 × 24 格 = 96 行并与 `outputs/tables/v3_g_g_{core,tier2}.csv`
   对账、两个根的 `run_summary.json` 均 `status=formal` 且 `failures=[]`、`bootstrap_resamples` 分别为
@@ -340,6 +409,8 @@ Tier2 小计：CI 跨零 4/20（`L0_zero_purchase_effect`、`L1_heterogeneity_00
   derived_from: […sha256], shard_rows: …}`；分片侧独立核对 24 格各 500/30 行、rep 恰为 0..R-1、
   跨分片无重复、无未注册格、无 provisional，任一不符即非零退出。该步不读 `merge_report`——junction
   回退成 `cp -r` 时报告会出现多份，读它反而脆（2026-10-30 00:39 预检发现，7 例夹具演练见日志）；
+  三份源 summary 现已随证据包导出（`runs/phase1_core_prefix_run_summary.json` 等），
+  `derived_from` 的 sha256 可只用 `outputs/evidence/` 复算；
 - **逐 rep 表契约列**（41 号 `check_cell`，2026-10-29 11:20 修）：`rep / status / protocol_config_hash /
   block / tier / n / n_treated / n_control / validation_bootstrap_resamples` 缺一即失败；列名是 `n`
   **不是** `n_total`（矩阵行 schema 无后者，旧写法在首格完整帧上必 `KeyError`）；另断言
@@ -349,8 +420,19 @@ Tier2 小计：CI 跨零 4/20（`L0_zero_purchase_effect`、`L1_heterogeneity_00
   `g02_bootstrap_overlay.yaml` 都会被 `create_snapshot` 整树复制进快照目录，但
   `snapshot_binding.source_hashes`（49 文件）只记 v3 集；`34 --snapshot` 也只校验"绑定 vs live 相等"，
   不切换运行根。本次保护 = 冻结窗口 + 两文件运行期未改（收尾以 sha256/mtime 复核，记入 G04）；
-- 导出为 staging + 原子换名，旧目录保留时间戳备份（`%Y%m%d%H%M%S`）；
-- 顶层登记**留人工复核**后再执行。
+- **导出与登记**：导出为 staging + 原子换名，旧目录保留时间戳备份（`%Y%m%d%H%M%S`）；
+  顶层登记已于 **2026-10-31 19:36:46** 执行（93 条 / 16 975 748 B，其中 G03 只占 1 条
+  `g03_snapshot_binding`，其余 G03 记录在目录级索引），19:48 重导出后 33 dry-run rc=0，
+  无新增身份类文件，顶层保持 93 条幂等。
+
+**复现命令**（只读；不会重跑任何 rep）：
+
+```bash
+PYTHONUTF8=1 ./.venv/Scripts/python.exe scripts/41_export_g03_evidence.py --check
+PYTHONUTF8=1 ./.venv/Scripts/python.exe scripts/33_register_evidence_top.py --dirs g03_formal --dry-run
+PYTHONUTF8=1 ./.venv/Scripts/python.exe scripts/62_g04_tamper_drill.py
+PYTHONUTF8=1 ./.venv/Scripts/python.exe scripts/49_g04_closeout_precheck.py --with-check --with-register --with-claims
+```
 
 ## 6. 局限与结论失效条件
 
@@ -368,8 +450,13 @@ Tier2 小计：CI 跨零 4/20（`L0_zero_purchase_effect`、`L1_heterogeneity_00
    未成熟快照假增益的证据。修实或补做该诊断都需另立注册分析，不属本轮。
 7. **结论失效条件**：若快照哈希与实际运行源码不符、任一格 `provisional=True`、或 Tier2 出现
    rep 缺失/重复，本报告作废并重跑缺口（按 §2 续跑纪律）。
+8. **注册指标对建模层机制不敏感**：四个汇总指标都是设计型 ITT（全样本/test 子集均值差、两个比例差），
+   不经过学习模型；只改协变量、缺失/清洗或模型输入的机制在 `ate` 与两个比例上**构造不变**
+   （等价组见 §3.5）。对这些机制只能看 `ate_test`、`model_*`、选模分布与 fixed bootstrap，
+   不能把 §3.1 的行间比较当作机制效应。
 
 ## 7. 判定边界
 
 "通过"只表示：**24 格跑满注册 R、记录准确、断言范围正确、证据可复算**。
-不表示定向策略在真实业务有效、不表示 Tier2 全 65 格已覆盖、不表示结果可部署。
+不表示定向策略在真实业务有效、不表示 Tier2 全 65 格已覆盖、不表示结果可部署；
+也不表示 §3.1 的每个格子在四个 ITT 指标上提供了独立信息（见 §3.5 的等价组）。

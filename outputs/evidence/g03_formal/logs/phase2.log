@@ -1,0 +1,822 @@
+[2026-10-30 17:37:55] Phase 2a：Tier2 20 格 × rep0–29（shard-size 10，6 路）
+[G 17:38:13] 使用快照绑定：6fdaf7bb7ee3c63e…
+[G 17:38:13] 20 格 / 60 个分片；workers=6 status=formal
+[G 18:58:55] 完成 L0_zero_purchase_effect reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 18:59:20] 完成 L0_zero_purchase_effect reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 18:59:37] 完成 L0_zero_purchase_effect reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 19:21:58] 完成 L0_Pi_heterogeneous_cost reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 19:24:31] 完成 L0_Pi_heterogeneous_cost reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 19:24:57] 完成 L0_Pi_heterogeneous_cost reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 20:32:55] 完成 L1_heterogeneity_000 reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 20:34:25] 完成 L1_heterogeneity_000 reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 20:42:41] 完成 L1_heterogeneity_000 reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 21:06:08] 完成 L1_heterogeneity_150 reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 21:11:06] 完成 L1_heterogeneity_150 reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 21:11:41] 完成 L1_heterogeneity_150 reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 22:06:00] 完成 L1_signal_weak reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 22:12:48] 完成 L1_signal_weak reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 22:26:46] 完成 L1_signal_weak reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 22:42:37] 完成 L1_misspec_omit_new_channel reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 22:51:00] 完成 L1_misspec_omit_new_channel reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 22:52:25] 完成 L1_misspec_omit_new_channel reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 23:45:22] 完成 L1_mar_double reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 23:47:29] 完成 L1_mar_double reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 23:58:12] 完成 L2_n30000_p050 reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 00:00:04] 完成 L2_n30000_p050 reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 00:09:05] 完成 L1_mar_double reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 00:11:08] 完成 L2_n30000_p050 reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 00:18:28] 完成 L1_cost_prediction_under reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 00:33:54] 完成 L1_cost_prediction_under reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 00:38:39] 完成 L1_cost_prediction_under reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 00:46:16] 完成 L2_n100000_p050 reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 00:55:28] 完成 L2_n100000_p050 reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 00:57:20] 完成 L2_n100000_p050 reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 01:58:24] 完成 L2_drift_smooth reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 02:16:08] 完成 L2_drift_smooth reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 02:23:21] 完成 L2_drift_smooth reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 02:28:02] 完成 L2_composition_shift reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 02:41:31] 完成 L2_composition_shift reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 02:45:56] 完成 L2_composition_shift reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 03:43:16] 完成 L2_immature_negative_control reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 04:06:10] 完成 L2_immature_negative_control reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 04:13:43] 完成 L2_immature_negative_control reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 04:14:57] 完成 L3_fixed_lt025 reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 04:23:42] 完成 L3_fixed_lt025 reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 04:28:51] 完成 L3_fixed_lt025 reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 05:21:32] 完成 L3_fixed_lt075 reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 05:46:08] 完成 L3_fixed_lt075 reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 05:54:39] 完成 L3_fixed_lt075 reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 05:59:55] 完成 L3_fixed_lt150 reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 06:09:28] 完成 L3_fixed_lt150 reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 06:14:20] 完成 L3_fixed_lt150 reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 07:01:27] 完成 L3_joint_lam000 reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 07:28:30] 完成 L3_joint_lam000 reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 07:34:18] 完成 L3_joint_lam000 reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 07:48:00] 完成 L3_joint_lam150 reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 07:53:22] 完成 L3_joint_lam150 reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 08:05:09] 完成 L3_joint_lam150 reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 08:40:13] 完成 L3_overlap_extreme reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 09:04:45] 完成 L3_overlap_extreme reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 09:11:55] 完成 L3_overlap_extreme reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+[G 09:23:52] 完成 L3_missing_confounders reps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9] rows=10 provisional=False
+[G 09:31:29] 完成 L3_missing_confounders reps=[10, 11, 12, 13, 14, 15, 16, 17, 18, 19] rows=10 provisional=False
+[G 09:41:21] 完成 L3_missing_confounders reps=[20, 21, 22, 23, 24, 25, 26, 27, 28, 29] rows=10 provisional=False
+{
+  "merged": {
+    "roots": [
+      "out/g03_tier2/shards/L0_Pi_heterogeneous_cost_s0000",
+      "out/g03_tier2/shards/L0_Pi_heterogeneous_cost_s0001",
+      "out/g03_tier2/shards/L0_Pi_heterogeneous_cost_s0002",
+      "out/g03_tier2/shards/L0_zero_purchase_effect_s0000",
+      "out/g03_tier2/shards/L0_zero_purchase_effect_s0001",
+      "out/g03_tier2/shards/L0_zero_purchase_effect_s0002",
+      "out/g03_tier2/shards/L1_cost_prediction_under_s0000",
+      "out/g03_tier2/shards/L1_cost_prediction_under_s0001",
+      "out/g03_tier2/shards/L1_cost_prediction_under_s0002",
+      "out/g03_tier2/shards/L1_heterogeneity_000_s0000",
+      "out/g03_tier2/shards/L1_heterogeneity_000_s0001",
+      "out/g03_tier2/shards/L1_heterogeneity_000_s0002",
+      "out/g03_tier2/shards/L1_heterogeneity_150_s0000",
+      "out/g03_tier2/shards/L1_heterogeneity_150_s0001",
+      "out/g03_tier2/shards/L1_heterogeneity_150_s0002",
+      "out/g03_tier2/shards/L1_mar_double_s0000",
+      "out/g03_tier2/shards/L1_mar_double_s0001",
+      "out/g03_tier2/shards/L1_mar_double_s0002",
+      "out/g03_tier2/shards/L1_misspec_omit_new_channel_s0000",
+      "out/g03_tier2/shards/L1_misspec_omit_new_channel_s0001",
+      "out/g03_tier2/shards/L1_misspec_omit_new_channel_s0002",
+      "out/g03_tier2/shards/L1_signal_weak_s0000",
+      "out/g03_tier2/shards/L1_signal_weak_s0001",
+      "out/g03_tier2/shards/L1_signal_weak_s0002",
+      "out/g03_tier2/shards/L2_composition_shift_s0000",
+      "out/g03_tier2/shards/L2_composition_shift_s0001",
+      "out/g03_tier2/shards/L2_composition_shift_s0002",
+      "out/g03_tier2/shards/L2_drift_smooth_s0000",
+      "out/g03_tier2/shards/L2_drift_smooth_s0001",
+      "out/g03_tier2/shards/L2_drift_smooth_s0002",
+      "out/g03_tier2/shards/L2_immature_negative_control_s0000",
+      "out/g03_tier2/shards/L2_immature_negative_control_s0001",
+      "out/g03_tier2/shards/L2_immature_negative_control_s0002",
+      "out/g03_tier2/shards/L2_n100000_p050_s0000",
+      "out/g03_tier2/shards/L2_n100000_p050_s0001",
+      "out/g03_tier2/shards/L2_n100000_p050_s0002",
+      "out/g03_tier2/shards/L2_n30000_p050_s0000",
+      "out/g03_tier2/shards/L2_n30000_p050_s0001",
+      "out/g03_tier2/shards/L2_n30000_p050_s0002",
+      "out/g03_tier2/shards/L3_fixed_lt025_s0000",
+      "out/g03_tier2/shards/L3_fixed_lt025_s0001",
+      "out/g03_tier2/shards/L3_fixed_lt025_s0002",
+      "out/g03_tier2/shards/L3_fixed_lt075_s0000",
+      "out/g03_tier2/shards/L3_fixed_lt075_s0001",
+      "out/g03_tier2/shards/L3_fixed_lt075_s0002",
+      "out/g03_tier2/shards/L3_fixed_lt150_s0000",
+      "out/g03_tier2/shards/L3_fixed_lt150_s0001",
+      "out/g03_tier2/shards/L3_fixed_lt150_s0002",
+      "out/g03_tier2/shards/L3_joint_lam000_s0000",
+      "out/g03_tier2/shards/L3_joint_lam000_s0001",
+      "out/g03_tier2/shards/L3_joint_lam000_s0002",
+      "out/g03_tier2/shards/L3_joint_lam150_s0000",
+      "out/g03_tier2/shards/L3_joint_lam150_s0001",
+      "out/g03_tier2/shards/L3_joint_lam150_s0002",
+      "out/g03_tier2/shards/L3_missing_confounders_s0000",
+      "out/g03_tier2/shards/L3_missing_confounders_s0001",
+      "out/g03_tier2/shards/L3_missing_confounders_s0002",
+      "out/g03_tier2/shards/L3_overlap_extreme_s0000",
+      "out/g03_tier2/shards/L3_overlap_extreme_s0001",
+      "out/g03_tier2/shards/L3_overlap_extreme_s0002"
+    ],
+    "rows_raw": 600,
+    "rows_deduped": 600,
+    "duplicates_removed": 0,
+    "key": [
+      "scenario_id",
+      "block",
+      "rep"
+    ]
+  },
+  "cells": {
+    "L0_Pi_heterogeneous_cost": {
+      "complete": true
+    },
+    "L0_zero_purchase_effect": {
+      "complete": true
+    },
+    "L1_cost_prediction_under": {
+      "complete": true
+    },
+    "L1_heterogeneity_000": {
+      "complete": true
+    },
+    "L1_heterogeneity_150": {
+      "complete": true
+    },
+    "L1_mar_double": {
+      "complete": true
+    },
+    "L1_misspec_omit_new_channel": {
+      "complete": true
+    },
+    "L1_signal_weak": {
+      "complete": true
+    },
+    "L2_composition_shift": {
+      "complete": true
+    },
+    "L2_drift_smooth": {
+      "complete": true
+    },
+    "L2_immature_negative_control": {
+      "complete": true
+    },
+    "L2_n100000_p050": {
+      "complete": true
+    },
+    "L2_n30000_p050": {
+      "complete": true
+    },
+    "L3_fixed_lt025": {
+      "complete": true
+    },
+    "L3_fixed_lt075": {
+      "complete": true
+    },
+    "L3_fixed_lt150": {
+      "complete": true
+    },
+    "L3_joint_lam000": {
+      "complete": true
+    },
+    "L3_joint_lam150": {
+      "complete": true
+    },
+    "L3_missing_confounders": {
+      "complete": true
+    },
+    "L3_overlap_extreme": {
+      "complete": true
+    }
+  },
+  "all_complete": true,
+  "final_root": "out/g03_tier2/_final",
+  "telemetry": {
+    "L0_Pi_heterogeneous_cost": {
+      "path": "out/g03_tier2/_final/L0_Pi_heterogeneous_cost/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L0_zero_purchase_effect": {
+      "path": "out/g03_tier2/_final/L0_zero_purchase_effect/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_cost_prediction_under": {
+      "path": "out/g03_tier2/_final/L1_cost_prediction_under/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_heterogeneity_000": {
+      "path": "out/g03_tier2/_final/L1_heterogeneity_000/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_heterogeneity_150": {
+      "path": "out/g03_tier2/_final/L1_heterogeneity_150/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_mar_double": {
+      "path": "out/g03_tier2/_final/L1_mar_double/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_misspec_omit_new_channel": {
+      "path": "out/g03_tier2/_final/L1_misspec_omit_new_channel/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_signal_weak": {
+      "path": "out/g03_tier2/_final/L1_signal_weak/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_composition_shift": {
+      "path": "out/g03_tier2/_final/L2_composition_shift/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_drift_smooth": {
+      "path": "out/g03_tier2/_final/L2_drift_smooth/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_immature_negative_control": {
+      "path": "out/g03_tier2/_final/L2_immature_negative_control/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_n100000_p050": {
+      "path": "out/g03_tier2/_final/L2_n100000_p050/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_n30000_p050": {
+      "path": "out/g03_tier2/_final/L2_n30000_p050/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_fixed_lt025": {
+      "path": "out/g03_tier2/_final/L3_fixed_lt025/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_fixed_lt075": {
+      "path": "out/g03_tier2/_final/L3_fixed_lt075/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_fixed_lt150": {
+      "path": "out/g03_tier2/_final/L3_fixed_lt150/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_joint_lam000": {
+      "path": "out/g03_tier2/_final/L3_joint_lam000/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_joint_lam150": {
+      "path": "out/g03_tier2/_final/L3_joint_lam150/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_missing_confounders": {
+      "path": "out/g03_tier2/_final/L3_missing_confounders/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_overlap_extreme": {
+      "path": "out/g03_tier2/_final/L3_overlap_extreme/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    }
+  },
+  "summaries": [
+    "out/g03_tier2/summaries/v3_g_g_tier2.csv"
+  ],
+  "at": "2026-10-31T09:41:22+08:00",
+  "failures": [],
+  "status": "formal",
+  "bootstrap_resamples": 0,
+  "bootstrap_budget_scope": null,
+  "started_at": "2026-10-30T17:38:13+08:00",
+  "finished_at": "2026-10-31T09:41:22+08:00"
+}
+[2026-10-31 09:41:23] Phase 2b：core rep100–499（仅 ATE，shard-size 50，6 路）
+[G 09:41:35] 使用快照绑定：6fdaf7bb7ee3c63e…
+[G 09:41:35] 4 格 / 32 个分片；workers=6 status=formal
+[G 11:14:31] 完成 L0_P_main reps=[150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199] rows=50 provisional=False
+[G 11:14:33] 完成 L0_P_main reps=[250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299] rows=50 provisional=False
+[G 11:14:33] 完成 L0_P_main reps=[100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149] rows=50 provisional=False
+[G 11:14:34] 完成 L0_P_main reps=[200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249] rows=50 provisional=False
+[G 11:14:36] 完成 L0_P_main reps=[300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349] rows=50 provisional=False
+[G 11:14:37] 完成 L0_P_main reps=[350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399] rows=50 provisional=False
+[G 12:47:41] 完成 L0_P_main reps=[400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449] rows=50 provisional=False
+[G 12:47:42] 完成 L0_P_main reps=[450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499] rows=50 provisional=False
+[G 12:47:44] 完成 L1_main reps=[100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149] rows=50 provisional=False
+[G 12:47:45] 完成 L1_main reps=[150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199] rows=50 provisional=False
+[G 12:47:47] 完成 L1_main reps=[200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249] rows=50 provisional=False
+[G 12:47:48] 完成 L1_main reps=[250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299] rows=50 provisional=False
+[G 14:20:27] 完成 L1_main reps=[300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349] rows=50 provisional=False
+[G 14:20:30] 完成 L1_main reps=[400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449] rows=50 provisional=False
+[G 14:20:32] 完成 L1_main reps=[450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499] rows=50 provisional=False
+[G 14:20:34] 完成 L1_main reps=[350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399] rows=50 provisional=False
+[G 14:20:54] 完成 L2_n200000_p050 reps=[100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149] rows=50 provisional=False
+[G 14:21:00] 完成 L2_n200000_p050 reps=[150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199] rows=50 provisional=False
+[G 15:54:56] 完成 L2_n200000_p050 reps=[200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249] rows=50 provisional=False
+[G 15:54:57] 完成 L2_n200000_p050 reps=[400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449] rows=50 provisional=False
+[G 15:54:58] 完成 L2_n200000_p050 reps=[350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399] rows=50 provisional=False
+[G 15:55:00] 完成 L2_n200000_p050 reps=[250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299] rows=50 provisional=False
+[G 15:55:02] 完成 L2_n200000_p050 reps=[300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349] rows=50 provisional=False
+[G 15:55:06] 完成 L2_n200000_p050 reps=[450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499] rows=50 provisional=False
+[G 17:57:27] 完成 L3_fixed_lt000 reps=[250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299] rows=50 provisional=False
+[G 17:57:31] 完成 L3_fixed_lt000 reps=[200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249] rows=50 provisional=False
+[G 17:57:31] 完成 L3_fixed_lt000 reps=[150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199] rows=50 provisional=False
+[G 17:57:32] 完成 L3_fixed_lt000 reps=[100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149] rows=50 provisional=False
+[G 17:57:43] 完成 L3_fixed_lt000 reps=[350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399] rows=50 provisional=False
+[G 17:57:45] 完成 L3_fixed_lt000 reps=[300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349] rows=50 provisional=False
+[G 19:32:32] 完成 L3_fixed_lt000 reps=[450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499] rows=50 provisional=False
+[G 19:32:33] 完成 L3_fixed_lt000 reps=[400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449] rows=50 provisional=False
+{
+  "merged": {
+    "roots": [
+      "out/g03_core_ate/shards/L0_P_main_s0000",
+      "out/g03_core_ate/shards/L0_P_main_s0001",
+      "out/g03_core_ate/shards/L0_P_main_s0002",
+      "out/g03_core_ate/shards/L0_P_main_s0003",
+      "out/g03_core_ate/shards/L0_P_main_s0004",
+      "out/g03_core_ate/shards/L0_P_main_s0005",
+      "out/g03_core_ate/shards/L0_P_main_s0006",
+      "out/g03_core_ate/shards/L0_P_main_s0007",
+      "out/g03_core_ate/shards/L1_main_s0000",
+      "out/g03_core_ate/shards/L1_main_s0001",
+      "out/g03_core_ate/shards/L1_main_s0002",
+      "out/g03_core_ate/shards/L1_main_s0003",
+      "out/g03_core_ate/shards/L1_main_s0004",
+      "out/g03_core_ate/shards/L1_main_s0005",
+      "out/g03_core_ate/shards/L1_main_s0006",
+      "out/g03_core_ate/shards/L1_main_s0007",
+      "out/g03_core_ate/shards/L2_n200000_p050_s0000",
+      "out/g03_core_ate/shards/L2_n200000_p050_s0001",
+      "out/g03_core_ate/shards/L2_n200000_p050_s0002",
+      "out/g03_core_ate/shards/L2_n200000_p050_s0003",
+      "out/g03_core_ate/shards/L2_n200000_p050_s0004",
+      "out/g03_core_ate/shards/L2_n200000_p050_s0005",
+      "out/g03_core_ate/shards/L2_n200000_p050_s0006",
+      "out/g03_core_ate/shards/L2_n200000_p050_s0007",
+      "out/g03_core_ate/shards/L3_fixed_lt000_s0000",
+      "out/g03_core_ate/shards/L3_fixed_lt000_s0001",
+      "out/g03_core_ate/shards/L3_fixed_lt000_s0002",
+      "out/g03_core_ate/shards/L3_fixed_lt000_s0003",
+      "out/g03_core_ate/shards/L3_fixed_lt000_s0004",
+      "out/g03_core_ate/shards/L3_fixed_lt000_s0005",
+      "out/g03_core_ate/shards/L3_fixed_lt000_s0006",
+      "out/g03_core_ate/shards/L3_fixed_lt000_s0007"
+    ],
+    "rows_raw": 1600,
+    "rows_deduped": 1600,
+    "duplicates_removed": 0,
+    "key": [
+      "scenario_id",
+      "block",
+      "rep"
+    ]
+  },
+  "cells": {
+    "L0_P_main": {
+      "complete": false
+    },
+    "L1_main": {
+      "complete": false
+    },
+    "L2_n200000_p050": {
+      "complete": false
+    },
+    "L3_fixed_lt000": {
+      "complete": false
+    }
+  },
+  "all_complete": false,
+  "final_root": "out/g03_core_ate/_final",
+  "telemetry": {
+    "L0_P_main": {
+      "path": "out/g03_core_ate/_final/L0_P_main/repetitions_telemetry.csv",
+      "rows": 400,
+      "duplicates": 0
+    },
+    "L1_main": {
+      "path": "out/g03_core_ate/_final/L1_main/repetitions_telemetry.csv",
+      "rows": 400,
+      "duplicates": 0
+    },
+    "L2_n200000_p050": {
+      "path": "out/g03_core_ate/_final/L2_n200000_p050/repetitions_telemetry.csv",
+      "rows": 400,
+      "duplicates": 0
+    },
+    "L3_fixed_lt000": {
+      "path": "out/g03_core_ate/_final/L3_fixed_lt000/repetitions_telemetry.csv",
+      "rows": 400,
+      "duplicates": 0
+    }
+  },
+  "summaries": [
+    "out/g03_core_ate/summaries/v3_g_g_core_provisional.csv"
+  ],
+  "at": "2026-10-31T19:32:34+08:00",
+  "failures": [],
+  "status": "formal",
+  "bootstrap_resamples": 0,
+  "bootstrap_budget_scope": null,
+  "started_at": "2026-10-31T09:41:35+08:00",
+  "finished_at": "2026-10-31T19:32:34+08:00"
+}
+[2026-10-31 19:32:34] 建复合根 out/g03_formal/shards（junction；失败回退为复制）
+[2026-10-31 19:33:04] 复合根分片数：132
+[2026-10-31 19:33:05] 合并（多根去重应在复合根内一次性完成）
+{
+  "merged": {
+    "roots": [
+      "out/g03_formal/shards/L0_P_main_s0000",
+      "out/g03_formal/shards/L0_P_main_s0001",
+      "out/g03_formal/shards/L0_P_main_s0002",
+      "out/g03_formal/shards/L0_P_main_s0003",
+      "out/g03_formal/shards/L0_P_main_s0004",
+      "out/g03_formal/shards/L0_P_main_s0005",
+      "out/g03_formal/shards/L0_P_main_s0006",
+      "out/g03_formal/shards/L0_P_main_s0007",
+      "out/g03_formal/shards/L0_P_main_s0008",
+      "out/g03_formal/shards/L0_P_main_s0009",
+      "out/g03_formal/shards/L0_P_main_s10000",
+      "out/g03_formal/shards/L0_P_main_s10001",
+      "out/g03_formal/shards/L0_P_main_s10002",
+      "out/g03_formal/shards/L0_P_main_s10003",
+      "out/g03_formal/shards/L0_P_main_s10004",
+      "out/g03_formal/shards/L0_P_main_s10005",
+      "out/g03_formal/shards/L0_P_main_s10006",
+      "out/g03_formal/shards/L0_P_main_s10007",
+      "out/g03_formal/shards/L0_Pi_heterogeneous_cost_s0000",
+      "out/g03_formal/shards/L0_Pi_heterogeneous_cost_s0001",
+      "out/g03_formal/shards/L0_Pi_heterogeneous_cost_s0002",
+      "out/g03_formal/shards/L0_zero_purchase_effect_s0000",
+      "out/g03_formal/shards/L0_zero_purchase_effect_s0001",
+      "out/g03_formal/shards/L0_zero_purchase_effect_s0002",
+      "out/g03_formal/shards/L1_cost_prediction_under_s0000",
+      "out/g03_formal/shards/L1_cost_prediction_under_s0001",
+      "out/g03_formal/shards/L1_cost_prediction_under_s0002",
+      "out/g03_formal/shards/L1_heterogeneity_000_s0000",
+      "out/g03_formal/shards/L1_heterogeneity_000_s0001",
+      "out/g03_formal/shards/L1_heterogeneity_000_s0002",
+      "out/g03_formal/shards/L1_heterogeneity_150_s0000",
+      "out/g03_formal/shards/L1_heterogeneity_150_s0001",
+      "out/g03_formal/shards/L1_heterogeneity_150_s0002",
+      "out/g03_formal/shards/L1_main_s0000",
+      "out/g03_formal/shards/L1_main_s0001",
+      "out/g03_formal/shards/L1_main_s0002",
+      "out/g03_formal/shards/L1_main_s0003",
+      "out/g03_formal/shards/L1_main_s0004",
+      "out/g03_formal/shards/L1_main_s0005",
+      "out/g03_formal/shards/L1_main_s0006",
+      "out/g03_formal/shards/L1_main_s0007",
+      "out/g03_formal/shards/L1_main_s0008",
+      "out/g03_formal/shards/L1_main_s0009",
+      "out/g03_formal/shards/L1_main_s10000",
+      "out/g03_formal/shards/L1_main_s10001",
+      "out/g03_formal/shards/L1_main_s10002",
+      "out/g03_formal/shards/L1_main_s10003",
+      "out/g03_formal/shards/L1_main_s10004",
+      "out/g03_formal/shards/L1_main_s10005",
+      "out/g03_formal/shards/L1_main_s10006",
+      "out/g03_formal/shards/L1_main_s10007",
+      "out/g03_formal/shards/L1_mar_double_s0000",
+      "out/g03_formal/shards/L1_mar_double_s0001",
+      "out/g03_formal/shards/L1_mar_double_s0002",
+      "out/g03_formal/shards/L1_misspec_omit_new_channel_s0000",
+      "out/g03_formal/shards/L1_misspec_omit_new_channel_s0001",
+      "out/g03_formal/shards/L1_misspec_omit_new_channel_s0002",
+      "out/g03_formal/shards/L1_signal_weak_s0000",
+      "out/g03_formal/shards/L1_signal_weak_s0001",
+      "out/g03_formal/shards/L1_signal_weak_s0002",
+      "out/g03_formal/shards/L2_composition_shift_s0000",
+      "out/g03_formal/shards/L2_composition_shift_s0001",
+      "out/g03_formal/shards/L2_composition_shift_s0002",
+      "out/g03_formal/shards/L2_drift_smooth_s0000",
+      "out/g03_formal/shards/L2_drift_smooth_s0001",
+      "out/g03_formal/shards/L2_drift_smooth_s0002",
+      "out/g03_formal/shards/L2_immature_negative_control_s0000",
+      "out/g03_formal/shards/L2_immature_negative_control_s0001",
+      "out/g03_formal/shards/L2_immature_negative_control_s0002",
+      "out/g03_formal/shards/L2_n100000_p050_s0000",
+      "out/g03_formal/shards/L2_n100000_p050_s0001",
+      "out/g03_formal/shards/L2_n100000_p050_s0002",
+      "out/g03_formal/shards/L2_n200000_p050_s0000",
+      "out/g03_formal/shards/L2_n200000_p050_s0001",
+      "out/g03_formal/shards/L2_n200000_p050_s0002",
+      "out/g03_formal/shards/L2_n200000_p050_s0003",
+      "out/g03_formal/shards/L2_n200000_p050_s0004",
+      "out/g03_formal/shards/L2_n200000_p050_s0005",
+      "out/g03_formal/shards/L2_n200000_p050_s0006",
+      "out/g03_formal/shards/L2_n200000_p050_s0007",
+      "out/g03_formal/shards/L2_n200000_p050_s0008",
+      "out/g03_formal/shards/L2_n200000_p050_s0009",
+      "out/g03_formal/shards/L2_n200000_p050_s10000",
+      "out/g03_formal/shards/L2_n200000_p050_s10001",
+      "out/g03_formal/shards/L2_n200000_p050_s10002",
+      "out/g03_formal/shards/L2_n200000_p050_s10003",
+      "out/g03_formal/shards/L2_n200000_p050_s10004",
+      "out/g03_formal/shards/L2_n200000_p050_s10005",
+      "out/g03_formal/shards/L2_n200000_p050_s10006",
+      "out/g03_formal/shards/L2_n200000_p050_s10007",
+      "out/g03_formal/shards/L2_n30000_p050_s0000",
+      "out/g03_formal/shards/L2_n30000_p050_s0001",
+      "out/g03_formal/shards/L2_n30000_p050_s0002",
+      "out/g03_formal/shards/L3_fixed_lt000_s0000",
+      "out/g03_formal/shards/L3_fixed_lt000_s0001",
+      "out/g03_formal/shards/L3_fixed_lt000_s0002",
+      "out/g03_formal/shards/L3_fixed_lt000_s0003",
+      "out/g03_formal/shards/L3_fixed_lt000_s0004",
+      "out/g03_formal/shards/L3_fixed_lt000_s0005",
+      "out/g03_formal/shards/L3_fixed_lt000_s0006",
+      "out/g03_formal/shards/L3_fixed_lt000_s0007",
+      "out/g03_formal/shards/L3_fixed_lt000_s0008",
+      "out/g03_formal/shards/L3_fixed_lt000_s0009",
+      "out/g03_formal/shards/L3_fixed_lt000_s10000",
+      "out/g03_formal/shards/L3_fixed_lt000_s10001",
+      "out/g03_formal/shards/L3_fixed_lt000_s10002",
+      "out/g03_formal/shards/L3_fixed_lt000_s10003",
+      "out/g03_formal/shards/L3_fixed_lt000_s10004",
+      "out/g03_formal/shards/L3_fixed_lt000_s10005",
+      "out/g03_formal/shards/L3_fixed_lt000_s10006",
+      "out/g03_formal/shards/L3_fixed_lt000_s10007",
+      "out/g03_formal/shards/L3_fixed_lt025_s0000",
+      "out/g03_formal/shards/L3_fixed_lt025_s0001",
+      "out/g03_formal/shards/L3_fixed_lt025_s0002",
+      "out/g03_formal/shards/L3_fixed_lt075_s0000",
+      "out/g03_formal/shards/L3_fixed_lt075_s0001",
+      "out/g03_formal/shards/L3_fixed_lt075_s0002",
+      "out/g03_formal/shards/L3_fixed_lt150_s0000",
+      "out/g03_formal/shards/L3_fixed_lt150_s0001",
+      "out/g03_formal/shards/L3_fixed_lt150_s0002",
+      "out/g03_formal/shards/L3_joint_lam000_s0000",
+      "out/g03_formal/shards/L3_joint_lam000_s0001",
+      "out/g03_formal/shards/L3_joint_lam000_s0002",
+      "out/g03_formal/shards/L3_joint_lam150_s0000",
+      "out/g03_formal/shards/L3_joint_lam150_s0001",
+      "out/g03_formal/shards/L3_joint_lam150_s0002",
+      "out/g03_formal/shards/L3_missing_confounders_s0000",
+      "out/g03_formal/shards/L3_missing_confounders_s0001",
+      "out/g03_formal/shards/L3_missing_confounders_s0002",
+      "out/g03_formal/shards/L3_overlap_extreme_s0000",
+      "out/g03_formal/shards/L3_overlap_extreme_s0001",
+      "out/g03_formal/shards/L3_overlap_extreme_s0002"
+    ],
+    "rows_raw": 2600,
+    "rows_deduped": 2600,
+    "duplicates_removed": 0,
+    "key": [
+      "scenario_id",
+      "block",
+      "rep"
+    ]
+  },
+  "cells": {
+    "L0_P_main": {
+      "complete": true
+    },
+    "L0_Pi_heterogeneous_cost": {
+      "complete": true
+    },
+    "L0_zero_purchase_effect": {
+      "complete": true
+    },
+    "L1_cost_prediction_under": {
+      "complete": true
+    },
+    "L1_heterogeneity_000": {
+      "complete": true
+    },
+    "L1_heterogeneity_150": {
+      "complete": true
+    },
+    "L1_main": {
+      "complete": true
+    },
+    "L1_mar_double": {
+      "complete": true
+    },
+    "L1_misspec_omit_new_channel": {
+      "complete": true
+    },
+    "L1_signal_weak": {
+      "complete": true
+    },
+    "L2_composition_shift": {
+      "complete": true
+    },
+    "L2_drift_smooth": {
+      "complete": true
+    },
+    "L2_immature_negative_control": {
+      "complete": true
+    },
+    "L2_n100000_p050": {
+      "complete": true
+    },
+    "L2_n200000_p050": {
+      "complete": true
+    },
+    "L2_n30000_p050": {
+      "complete": true
+    },
+    "L3_fixed_lt000": {
+      "complete": true
+    },
+    "L3_fixed_lt025": {
+      "complete": true
+    },
+    "L3_fixed_lt075": {
+      "complete": true
+    },
+    "L3_fixed_lt150": {
+      "complete": true
+    },
+    "L3_joint_lam000": {
+      "complete": true
+    },
+    "L3_joint_lam150": {
+      "complete": true
+    },
+    "L3_missing_confounders": {
+      "complete": true
+    },
+    "L3_overlap_extreme": {
+      "complete": true
+    }
+  },
+  "all_complete": true,
+  "final_root": "out/g03_formal/_final",
+  "telemetry": {
+    "L0_P_main": {
+      "path": "out/g03_formal/_final/L0_P_main/repetitions_telemetry.csv",
+      "rows": 500,
+      "duplicates": 0
+    },
+    "L1_main": {
+      "path": "out/g03_formal/_final/L1_main/repetitions_telemetry.csv",
+      "rows": 500,
+      "duplicates": 0
+    },
+    "L2_n200000_p050": {
+      "path": "out/g03_formal/_final/L2_n200000_p050/repetitions_telemetry.csv",
+      "rows": 500,
+      "duplicates": 0
+    },
+    "L3_fixed_lt000": {
+      "path": "out/g03_formal/_final/L3_fixed_lt000/repetitions_telemetry.csv",
+      "rows": 500,
+      "duplicates": 0
+    },
+    "L0_Pi_heterogeneous_cost": {
+      "path": "out/g03_formal/_final/L0_Pi_heterogeneous_cost/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L0_zero_purchase_effect": {
+      "path": "out/g03_formal/_final/L0_zero_purchase_effect/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_cost_prediction_under": {
+      "path": "out/g03_formal/_final/L1_cost_prediction_under/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_heterogeneity_000": {
+      "path": "out/g03_formal/_final/L1_heterogeneity_000/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_heterogeneity_150": {
+      "path": "out/g03_formal/_final/L1_heterogeneity_150/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_mar_double": {
+      "path": "out/g03_formal/_final/L1_mar_double/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_misspec_omit_new_channel": {
+      "path": "out/g03_formal/_final/L1_misspec_omit_new_channel/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L1_signal_weak": {
+      "path": "out/g03_formal/_final/L1_signal_weak/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_composition_shift": {
+      "path": "out/g03_formal/_final/L2_composition_shift/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_drift_smooth": {
+      "path": "out/g03_formal/_final/L2_drift_smooth/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_immature_negative_control": {
+      "path": "out/g03_formal/_final/L2_immature_negative_control/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_n100000_p050": {
+      "path": "out/g03_formal/_final/L2_n100000_p050/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L2_n30000_p050": {
+      "path": "out/g03_formal/_final/L2_n30000_p050/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_fixed_lt025": {
+      "path": "out/g03_formal/_final/L3_fixed_lt025/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_fixed_lt075": {
+      "path": "out/g03_formal/_final/L3_fixed_lt075/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_fixed_lt150": {
+      "path": "out/g03_formal/_final/L3_fixed_lt150/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_joint_lam000": {
+      "path": "out/g03_formal/_final/L3_joint_lam000/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_joint_lam150": {
+      "path": "out/g03_formal/_final/L3_joint_lam150/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_missing_confounders": {
+      "path": "out/g03_formal/_final/L3_missing_confounders/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    },
+    "L3_overlap_extreme": {
+      "path": "out/g03_formal/_final/L3_overlap_extreme/repetitions_telemetry.csv",
+      "rows": 30,
+      "duplicates": 0
+    }
+  },
+  "summaries": [
+    "outputs/tables/v3_g_g_core.csv",
+    "outputs/tables/v3_g_g_tier2.csv"
+  ],
+  "at": "2026-10-31T19:33:19+08:00"
+}
+L0_P_main: rows=500/500 file=repetitions.csv
+L0_Pi_heterogeneous_cost: rows=30/30 file=repetitions.csv
+L0_zero_purchase_effect: rows=30/30 file=repetitions.csv
+L1_cost_prediction_under: rows=30/30 file=repetitions.csv
+L1_heterogeneity_000: rows=30/30 file=repetitions.csv
+L1_heterogeneity_150: rows=30/30 file=repetitions.csv
+L1_main: rows=500/500 file=repetitions.csv
+L1_mar_double: rows=30/30 file=repetitions.csv
+L1_misspec_omit_new_channel: rows=30/30 file=repetitions.csv
+L1_signal_weak: rows=30/30 file=repetitions.csv
+L2_composition_shift: rows=30/30 file=repetitions.csv
+L2_drift_smooth: rows=30/30 file=repetitions.csv
+L2_immature_negative_control: rows=30/30 file=repetitions.csv
+L2_n100000_p050: rows=30/30 file=repetitions.csv
+L2_n200000_p050: rows=500/500 file=repetitions.csv
+L2_n30000_p050: rows=30/30 file=repetitions.csv
+L3_fixed_lt000: rows=500/500 file=repetitions.csv
+L3_fixed_lt025: rows=30/30 file=repetitions.csv
+L3_fixed_lt075: rows=30/30 file=repetitions.csv
+L3_fixed_lt150: rows=30/30 file=repetitions.csv
+L3_joint_lam000: rows=30/30 file=repetitions.csv
+L3_joint_lam150: rows=30/30 file=repetitions.csv
+L3_missing_confounders: rows=30/30 file=repetitions.csv
+L3_overlap_extreme: rows=30/30 file=repetitions.csv
+OK: _final 24 格行数齐全
+[2026-10-31 19:33:20] 生成复合 run_summary（供 41 号校验）
+OK: 复合 run_summary 已写 out\g03_formal\run_summary.json（3 份源 summary；24 格分片合计已满）
+[2026-10-31 19:33:21] Phase 2 完成；下一步：41 号 --check 后导出

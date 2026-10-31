@@ -1,0 +1,11 @@
+﻿scenario_id,block,rep,cpu_seconds_pipeline,cpu_seconds_estimate,cpu_seconds_models
+L3_fixed_lt000,g_core,90,109.453125,0.4375,429.171875
+L3_fixed_lt000,g_core,91,111.890625,0.375,291.8125
+L3_fixed_lt000,g_core,92,106.21875,0.40625,290.9375
+L3_fixed_lt000,g_core,93,106.6875,0.4375,415.78125
+L3_fixed_lt000,g_core,94,105.328125,0.421875,293.765625
+L3_fixed_lt000,g_core,95,106.765625,0.390625,410.265625
+L3_fixed_lt000,g_core,96,106.359375,0.359375,283.625
+L3_fixed_lt000,g_core,97,103.28125,0.40625,285.515625
+L3_fixed_lt000,g_core,98,105.515625,0.4375,285.484375
+L3_fixed_lt000,g_core,99,101.328125,0.40625,365.671875

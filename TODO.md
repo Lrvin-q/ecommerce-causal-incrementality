@@ -1,10 +1,20 @@
 # TODO — v3 执行真相源
 
-> 合成数据 / 已知 DGP。维护时间：2026-10-30 18:06（北京时间；`date -u` + 8h 读数。12:30/12:31 两条写于本机时钟校正前，不追改；20:31–20:35 四条曾误标为 20:35/20:40/20:43/20:46，已按同一读数更正）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
+> 合成数据 / 已知 DGP。维护时间：2026-10-31 19:38（北京时间；`date` 读数。12:30/12:31 两条写于本机时钟校正前，不追改；20:31–20:35 四条曾误标为 20:35/20:40/20:43/20:46，已按同一读数更正）。[ ]未开始；[~]进行中；[x]有证据完成；[!]阻碍。旧数字和进度保留在Git历史。
 
 ## 当前状态
 
-> **最新动作（18:06）**：**G03 Phase 1 已跑完**——`out/g03_logs/phase1.status` 记 **2026-10-30 05:55:41**
+> **最新动作（19:38）**：**G03 Phase 2 与收尾链全部完成**——`phase2.status` 末行 `OK: G03 Phase2 完成
+> 2026-10-31 19:33:21`（Tier2 600/600、core ATE 1 600/1 600、132 分片 merge `duplicates=0`、`_final`
+> 24 格行数核对 OK、复合 `run_summary` 合成）；`finalize.status` 末行 `OK: G03 finalize 完成 19:36:47`
+> （check/drill/export/register_dry_run/report48/register exit 全 0），顶层证据登记 **93 条 / 16 975 748 B**；
+> `49 --with-check --with-register --with-claims` **RC=0 READY**（24 格达 R、49 文件快照一致、overlay 一致、
+> 42 门禁 274 条 Tier1 claim 全回指）。**过程中修掉一个真 bug**：41 号导出把 target 登记成 staging 路径，
+> 换名后 33 dry-run rc=2；已改为 `write_root/public_root` 重挂并重导出 323 条（0 缺失、0 staging 前缀），
+> 该修复与 G03 §2/§3/§5 收口已提交 `5f7f9fd`。G03 §3 已填 24 格 × 4 指标（core 16 行 / Tier2 80 行，
+> 带 D1-A 披露），§2 补 19:33/19:36/19:37 完成行。**下一步**：G03 独立评审 → G04 收口 → H01 C1/C2 修复
+> → H04 登记 G03 新数字 → 论文并入阶段 B 数字并重建。
+> **历史（18:06）**：**G03 Phase 1 已跑完**——`out/g03_logs/phase1.status` 记 **2026-10-30 05:55:41**
 > `phase1_exit=0` / `merge_exit=0` / `OK: G03 Phase1 core prefix 完成`；4 格各 100 rep 齐，`_final` 四份都是
 > `repetitions_provisional.csv`、`all_complete=false`（属预期：R=100/500），`duplicates_removed=0`；
 > `run_summary.json` = `status=formal` / `failures=[]` / `bootstrap_resamples=0`。

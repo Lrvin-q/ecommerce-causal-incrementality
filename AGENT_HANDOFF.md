@@ -1,6 +1,25 @@
 # AGENT 交接说明 —— v3 重建
 
-## 最新交接（2026-10-30 18:26，北京时间）
+## 最新交接（2026-10-31 19:38，北京时间）
+
+- **G03 数据与收尾链全部完成**：`phase2.status` 末行 `OK: G03 Phase2 完成 2026-10-31 19:33:21`
+  （Tier2 600/600、core ATE 1 600/1 600、复合根 132 分片、`merge_exit=0`、`duplicates=0`、
+  `_final` 24 格行数 OK、复合 `run_summary` 三源 sha256）；`finalize.status` 末行
+  `OK: G03 finalize 完成 19:36:47`，六步 exit 全 0，顶层证据 **93 条 / 16 975 748 B**；
+  `49 --with-check --with-register --with-claims` **RC=0 READY**（42 门禁 274 条 Tier1 claim 全回指）。
+  提交 `5f7f9fd`（41 修复 + 证据包 + G03 §2/§3/§5）。
+- **已修真 bug**：41 号导出把 target 登记成 staging 路径，换名后 33 dry-run rc=2（双向核对报大片缺档）。
+  现 `_record` 增 `write_root/public_root`，写盘在 staging、登记用最终路径；重导出 323 条 0 缺失、0 staging 前缀。
+- **G03 文档状态**：§2 已补 09:41–19:37 完成行；§3 已填 24 格 × 4 指标（core 16 行 / Tier2 80 行，
+  含 §3.0 D1-A 披露与 `L2_immature_negative_control` † 注）；§5 已写导出/契约/overlay/登记纪律。
+  **尚未做**：G03 独立评审（下一步第一优先）。
+- **随后顺序**：G03 独立评审 → G04 收口（注册表最终记录 + 62 演练凭据 + 独立评审）→ H01 修 C2
+  （`spAutoFit` 改几何、标题对齐）与 C1 措辞（COM 实为 WPS 演示，非 PowerPoint）→ H04 登记 G03 新数字
+  → 论文并入阶段 B 数字并重建（43/52/42 + H03 重审）→ 全量串行 pytest → Z01/Z02 清理 → R01 总评审。
+- **运行期纪律**：G03 workers 已全部退出，机器空闲；磁盘需复核后再做全量测试与重建。
+  `configs/v3` 仍冻结（`00723dc2…`），不装包，`.workbuddy/` 不入库。
+
+## 交接（2026-10-30 18:26，北京时间）
 
 - **H01 已交付（commit `d49b2d7`，不再阻塞）**：`scripts/64_h01_method_figures.py` 以单一 `SPEC` 为事实源，
   经 UTF-8 JSON + **纯 ASCII PS1** 驱动 PowerPoint COM（不装包），产出 3 页原生形状 PPTX（102 345 B）、
