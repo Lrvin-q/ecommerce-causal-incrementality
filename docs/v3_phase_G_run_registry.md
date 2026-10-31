@@ -1,9 +1,9 @@
-# G 阶段运行注册表（2026-10-29 20:12，北京时间）
+# G 阶段运行注册表（2026-10-31 20:05，北京时间）
 
 > 合成数据 / 已知 DGP。本表对应 GOAL G04「失败重试 / 资源 / 真实进程记录，全入口可恢复」。
-> **状态：进行中**——G01 已通过（11:00 改判）；**G02 已跑完**（200 b，`merge_exit=0` 17:17:51）；
-> **G03 阶段 A 已完成**（24 格，18:37 `fixed_exit=0`），**阶段 B 拆批**：首跑 18:37–19:36 按用户决定叫停并入档，
-> **Phase 1（core rep0–99）19:36 起跑**，Phase 2（Tier2 + core ATE 尾巴）待用户另约时间（§2.6）。
+> **状态：G01/G02 已通过；G03 已正式跑完并完成 finalize（24 格 2 600 rep、证据 357 条、顶层登记 93 条），
+> 窄复核已返回 PASS WITH CONDITIONS，4 条关闭条件 20:01 全部落地、待独立复验；
+> G04 工具与证据已齐（49 RC=0、62 RC=0），待独立评审。**
 > 每次改动都要写清时间与依据；不得用"应该没问题"代替实测记录。
 
 ## 1. 运行清单
@@ -12,8 +12,8 @@
 |---|---|---|---|---|---|---|
 | G01 | AA 臂 4 层 × 250 = 1 000 rep，n=200 000 | `G01-AA250-20261028` | **跑完；评审 PASS WITH CONDITIONS（0 P0/4 P1/9 P2），条件 10:10 全关，待复评确认改判** | `out/g01_snapshot`，49 文件 `526ff53d56a54c75…` | 2026-10-28 22:42:39 | 实际 **2026-10-29 05:15:38（末片）/ 05:15:45（编排器）**，墙钟 6 h 33 m |
 | G02 | 重训 200（4 格 × 50）+ 固定 bootstrap 1 000（主预算） | `G02-FORMAL-20261029`（用户 10-29 批准；预算方案 A） | **跑完且已评审通过**：4 格 × 50 b 全满，17:17:51 merge `merge_exit=0`；独立评审 23:08 PASS WITH CONDITIONS → 条件 23:15 修完 → 窄口径复评 23:30 **PASS（9 项全 CLOSED、无新问题）** → 23:32 改判「通过」（含义仅记录准确、断言范围正确，`docs/reviews/v3_phase_G02_recheck.md`） | `out/g02_snapshot`，49 文件 `abaa338a…`（首轮 10:09 失败现场 `f39ec0a3…` 已留档） | 2026-10-29 10:09:04 | 实际 **2026-10-29 17:17:51** |
-| G03 | Tier2 20 格 × 30 + 4 core 格（core `R_ate=500`，学习/验证前缀 100） | `G03-FORMAL-20261029`（矩阵）／`G02-FORMAL-20261029`（阶段 A 固定 bootstrap） | **阶段 A 完成**（24 格 × rep0，18:37 `fixed_exit=0`）；**阶段 B 拆批**：Phase 1（core rep0–99）19:36 起跑（10-30 00:00 落 **163/400**），Phase 2 待跑 | `out/g03_snapshot`，49 文件 `6fdaf7bb…` | 阶段 A 18:05:46；Phase 1 19:36:30 | 阶段 A 18:37:03（31 m 17 s）；Phase 1 ETA 10-30 **05:30–07:00**（23:44–00:00 实测 0.56–0.70 rep/min，替代 19:50 的 02:30–03:30） |
-| G04 | 本注册表本身 | — | 进行中 | — | — | — |
+| G03 | Tier2 20 格 × 30 + 4 core 格（core `R_ate=500`，学习/验证前缀 100） | `G03-FORMAL-20261029`（矩阵）／`G02-FORMAL-20261029`（阶段 A 固定 bootstrap） | **正式跑完 + finalize 完成**：Phase 1 `OK` 10-30 05:55:41；Phase 2 `OK` 10-31 19:33:21（Tier2 600/600、core ATE 1 600/1 600、merge `duplicates=0`、`_final` 24 格行数齐全、复合 summary 已写）；finalize 19:48:27 六步全 0（含 62 演练、41 导出、33 实登记）；**待窄复核** | `out/g03_snapshot`，49 文件 `6fdaf7bb…`（运行前后一致） | 阶段 A 10-29 18:05:46；Phase 1 10-29 19:36:30；Phase 2 10-30 17:37:55 | 阶段 A 18:37:03（31 m 17 s）；Phase 1 **10-30 05:55:41**（10 h 19 m）；Phase 2 **10-31 19:33:21**（25 h 55 m）；finalize **19:48:27** |
+| G04 | 本注册表本身 + 49 体检 + 62 演练 | — | **证据已齐，待独立评审**：49 `--with-check --with-register --with-claims` **RC=0 READY**（20:05）；62 演练 **RC=0**（20:07，基线 0 → 篡改被拒 EXIT=2 → 复原 0）；finalize 内 62 亦 3 次 PASS（末次 19:48:06，已随 41 导出） | — | — | — |
 
 ## 2. 真实进程与资源（G01）
 
@@ -238,6 +238,71 @@
   `register_dry_run_exit` / `report48_exit` / `register_exit`，末行 `OK:` 或 `ABORT:`）；
   实测 Phase 2 未完成时 exit 3 拒绝空跑。
 
+## 2.7 G03 Phase 2 完成与 finalize（2026-10-30 17:37:55 – 2026-10-31 19:48:27）
+
+- **Phase 2 进程**：`nohup bash scripts/51_g03_phase2.sh`（bash 包装 PID 1507）；60 s 内 6 个分片目录已建、
+  8 个 python 进程在跑；`phase2.log` 全程 **0 次 Traceback / 0 次 error**（`grep -ci` 实测 0）。
+  收尾后（2026-10-31 20:10）`Get-CimInstance Win32_Process` 无 `python.exe` 残留。
+- **Phase 2 结果**：`out/g03_logs/phase2.status` 末行 `OK: G03 Phase2 完成 2026-10-31 19:33:21`，
+  五个退出码全 0（`tier2_exit` / `core_ate_exit` / `merge_exit` / `final_check_exit` /
+  `composite_summary_exit`）。Tier2 600/600、core ATE 1 600/1 600；132 分片 merge `duplicates=0`；
+  `_final` 24 格行数逐格核对（core 500 / Tier2 30）齐全；复合 `run_summary.json` 已写。
+  墙钟 25 h 55 m 26 s；Phase 1 + Phase 2 合计约 36 h 15 m。
+- **资源（可复算口径）**：`out/g03_formal/_final/*/repetitions_telemetry.csv` 共 2 600 rep，
+  CPU 合计 **201.86 h**（pipeline + estimate + models），平均 **279.5 s/rep**，单 rep 最大 **1 318.1 s**；
+  逐格均值 75.5–641.3 s（最低 `L2_n30000_p050`，最高 `L2_immature_negative_control`）。
+  磁盘（20:10 实测）：`out/g03_tier2` **13 G**、`out/g03_core_ate` **41 M**、`out/g02_fixed` **491 M**，
+  项目盘余 **69 G**。
+  **限制（如实披露）**：`out/g04_logs/monitor.log` 在 10-30 14:21 后停止，**没有** Phase 2 的连续
+  内存/进程采样；上述资源是收尾后的遥测聚合与磁盘实测，不是运行期峰值。G04 评审不得把它当峰值证据。
+- **finalize**：`out/g03_logs/finalize.status` 末行 `OK: G03 finalize 完成 2026-10-31 19:48:27`，
+  六步全 0（check / drill / export / register_dry_run / report48 / register）。
+  41 导出 **357 条记录**（19:48 为 5 252 227 B；20:01 收尾后重导出为 **5 254 002 B**，见 §2.9）；
+  33 顶层登记 **93 条 / 16 975 748 B**；
+  62 在 19:34/19:36/19:48 三次 PASS（末次 19:48:06），已随 `logs/finalize.log` 进入证据包
+  （`outputs/evidence/g03_formal/logs/finalize.log`）。
+- **证据位置**：`outputs/evidence/g03_formal/`（`coverage.json` 357 条、`per_cell/shards/` 264 个分片原件、
+  `logs/` 含 phase1/phase2/finalize 的 log+status）；顶层 `outputs/evidence/coverage.json` 93 条。
+
+## 2.8 G04 收尾体检与失败→恢复演练（2026-10-31 20:05–20:07）
+
+- **49 全绿**：`PYTHONUTF8=1 .venv/Scripts/python.exe scripts/49_g04_closeout_precheck.py
+  --with-check --with-register --with-claims` → **RC=0 / VERDICT READY**（日志
+  `out/g04_logs/closeout_precheck_20261031_2005.log`）。实测：phase1/phase2 均含 `OK:`；
+  g02 四格各 50 行；G03 24 格达 R；源码 49 文件与 `out/g03_snapshot` 逐文件一致；
+  overlay sha256 `c58d5a90…`（1 847 B）与记录一致；`src/ sql/ configs/` git 干净；
+  42 门禁 274 条 claim 全回指；40/41 `--check` EXIT=0；33 dry-run EXIT=0（顶层全表 93 条复算一致）。
+- **62 演练**：`scripts/62_g04_tamper_drill.py` → **RC=0**（日志
+  `out/g04_logs/tamper_drill_20261031_2007.log`）：24 格逐 rep 表副本建根 → 基线 41 `--check` EXIT=0 →
+  把 `L0_P_main_s0000/L0_P_main/repetitions.csv` 首两行改成同一 rep → 41 **EXIT=2**
+  （报 `ate_any_refund_30d` 的 sd/MC_SE 复算不符）→ 复原 → 41 重新 EXIT=0。
+- **留痕边界**：`out/` 不入库，`out/g04_logs/` 两份日志是运行原件；62 的最终一次 PASS 已由 41 导出进
+  `g03_formal/logs/finalize.log`（可复算）；49 是只读体检器，评审可照上条命令重跑，不依赖日志文件。
+
+## 2.9 G03 窄复核条件闭环（2026-10-31 19:56–20:01）
+
+- **复核结论**（`docs/reviews/v3_phase_G03_recheck.md`，19:56）：`PASS WITH CONDITIONS`。P0-1 经全表
+  复核**真闭**——357/357 条 sha/bytes 与磁盘一致、264 个分片互不覆盖且与 `out/` 源同哈希、旧塌陷
+  命名 0 条；96 + 24 个数字 0 误差。关闭条件 N1（日志截断，P1）、N2（33 默认调用误报，P2）、
+  N3（§3.5 口径标签，P2）、P3-4（binding `git_commit=null` 未说明，P3）。
+- **N1 日志闭合**：`bash scripts/66_g03_refresh_evidence_logs.sh` → **RC=0**（2026-10-31 20:01:53，
+  `out/g03_logs/post_finalize_export.status` = `post_finalize_export_exit=0`）。脚本先断言
+  `finalize.status` 含 OK 行，再向 `finalize.log` 追加 6/6 行并全量重导出。结果：
+  `outputs/evidence/g03_formal/logs/finalize.log` **240 行 / 12 900 B**、`finalize.status` **140 B**，
+  与 `out/g03_logs/` **逐字节相同**（`cmp` 通过），含 6 个 exit 与 OK 行；证据包 357 条 / 5 254 002 B。
+- **N2 绝对路径**：33 的 `_normalize_dir_files` 保留 `abs_path`，全表校验按**原绝对路径**核 sha/bytes；
+  真实**默认全目录** `--dry-run` → **RC=0**（12 子目录、42 候选全已登记、顶层 93 条幂等），
+  `--dirs g03_formal --dry-run` → **RC=0**。旧实现只扫 G03 时全绿、默认扫描 rc=2（f01_ope 的
+  `in_repository:false` 记录被误判"文件缺失"）。
+- **N3/P3-4**：G03 报告 §3.5 标题改为「Tier2 = rep0–29；core = rep0–99 学习段」；§5 增
+  「binding 的 `git_commit` 为 null」段。N4–N6/N8 一并修（§3.5 第 5 个 L1 格、§5 清单补
+  `fixed_bootstrap.csv`、字段名 `validation_freeze_hash`、49 INFO 文案）。
+- **N7 49 日志**：`49 --with-check --with-register --with-claims` 于 **20:01:41 RC=0 READY**，日志
+  重定向到 `out/scratch/g49_full.log` 并随本次重导出进入证据包（1 569 B）。
+- **N9 夹具入库**：`tests/test_v3_evidence_registry_guards.py` 16 例（33 的 11 例 + 41 的 5 例）全过；
+  41 的导出后自检抽为 `_post_export_self_check()`，`41 --check` 重构后 **RC=0**。
+- **边界**：以上为主负责修复与自测，**不构成改判**；G03 仍「未证实」，须独立复验上述条件。
+
 ## 3. 失败重试与可恢复入口
 
 | 入口 | 重试参数 | 断点续跑 | 备注 |
@@ -269,6 +334,7 @@
 | 17:41 | 49 体检器会永久判 G04 NOT READY | 它等 `chain.status`（19:36 已改 `paused_…`）与 `out/g03_logs/post.status`（已改名 `.stale`）——两个都不再会有 `OK:` | 49 只对 `g02_post`/`phase1`/`phase2` 判门，旧两件降 INFO；`tier2_exit=1` 这类非零退出也判 failure（4 例夹具，见日志 17:41） |
 | 11:44 | 40 `--check` 在**完整正确**的格上必报"validation_rep 在 b 间重复" | `check_cell` 把"50 个 b 共用 VALIDATION_REP=0"的**设计**当成重复缺陷（11:33 静态复核只看列名，没看判据） | 改为 `history_rep_id` 查唯一、`validation_rep` 查**恒定**；`tests/test_v3_g02_export_rollback.py` 新增 3 例（正例 / rep 漂移 / history 重复），6 passed；真数据半成品复跑 `--check` 只剩"未跑完"类问题，EXIT=1 |
 | 10:18 | 本机 `TZ=Asia/Shanghai date` 输出 UTC | Git Bash 环境 | 链条与状态文件一律用裸 `date`/`zoneinfo` |
+| 19:44 | 41 分片导出只有 48 个文件，`coverage.json` 却有 264 条分片记录（216 条 sha/bytes 与磁盘不符），41/33 均放行 | 41 用 `run.name` 命名，而 `cell_runs()` 返回 `<shard>/<cell>`，`run.name` 恒等于格名，同格 18 个分片互相覆盖；33 只核身份类 JSON；41 只查导出前 | 41 改用 `run.parent.name` + 导出后自检（target 唯一 / 逐条 sha/bytes / 文件数=记录数）；33 全表核 sha/bytes + 拒绝重复 target。反例：旧台账跑加强 33 → **RC=2**（48 重名 + 216 不符）；重导出 **357 条、0 不符、264 个分片原件** |
 
 **源码只读复核（2026-10-29 11:49，跑中）**：现场重算 `pipeline_source_hashes()` 与
 `out/g02_snapshot/snapshot_binding.json` 逐键比对：**49 文件、`source_hashes_sha256=abaa338a0c7705ae…`、
@@ -344,6 +410,17 @@ g02 四项全绿、源码 49 文件与 g03 快照逐文件一致、overlay `c58d
 
 ⇒ 结论：**G02 证据链已端到端自洽**（导出/登记/数字门禁全过）；G03 只差时间。Phase 2 收尾后
 重跑同一命令，41 转绿、33 由 INFO 转可执行，才算 READY（EXIT=0）。
+
+### 4.3 G04 最终预检与演练（2026-10-31 20:05–20:07，READY）
+
+- 49 全套命令与结果见 §2.8：**RC=0 / VERDICT READY**；日志
+  `out/g04_logs/closeout_precheck_20261031_2005.log`（1 550 B，运行原件，`out/` 不入库）。
+  与 §4.2 的对照：原 `[WAIT]` 的 chain/g03_post 已按 §2.6 退役、不计门；原 `[FAIL]` 的 41 `--check`
+  已转绿；33 dry-run 由 `[INFO] EXIT=2` 转 **EXIT=0**（93 条全表复算一致）。
+- 62 演练命令与结果见 §2.8：**RC=0**；日志 `out/g04_logs/tamper_drill_20261031_2007.log`。
+  finalize 内 62 的末次 PASS（19:48:06）已进入可入库证据
+  `outputs/evidence/g03_formal/logs/finalize.log`。
+- **仍须独立评审**：本表只记录"工具跑过且判据全绿"，不等于 G04 通过；GOAL G04 行在评审前保持「未证实」。
 
 ## 5. 跑完后的命令序列（照抄即可，全部在项目根目录执行）
 

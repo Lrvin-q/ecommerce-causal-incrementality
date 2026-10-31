@@ -254,14 +254,27 @@ def _normalize_dir_files(payload: dict, subdir: str, evidence_root: Path
                 )
                 continue
             if "target" in rec:
-                rel = _rel_name(str(rec["target"]), subdir, evidence_root)
+                target = str(rec["target"])
+                rel = _rel_name(target, subdir, evidence_root)
+                abs_path: str | None = None
+                tp = Path(target)
+                if tp.is_absolute():
+                    try:
+                        tp.resolve().relative_to((evidence_root / subdir).resolve())
+                    except ValueError:
+                        # 仓外绝对路径（如 f01_ope 的 in_repository:false 派生件）：
+                        # 不能按 evidence_dir/<basename> 核验，必须回到原绝对路径。
+                        abs_path = str(tp)
             elif "path" in rec:
                 rel = str(rec["path"]).replace("\\", "/")
+                abs_path = None
             else:
                 problems.append(f"{subdir}: files[{i}] 既无 target 也无 path，无法定位文件")
                 continue
             out.append({
                 "rel": rel,
+                "abs_path": abs_path,
+                "in_repository": rec.get("in_repository"),
                 "kind": rec.get("kind") or kinds.get(rel) or extra_kinds.get(rel),
                 "source": rec.get("source"),
                 "sha256": rec["sha256"],
@@ -274,6 +287,8 @@ def _normalize_dir_files(payload: dict, subdir: str, evidence_root: Path
                 continue
             out.append({
                 "rel": rel,
+                "abs_path": None,
+                "in_repository": info.get("in_repository"),
                 "kind": info.get("kind") or kinds.get(rel) or extra_kinds.get(rel),
                 "source": info.get("source"),
                 "sha256": info["sha256"],
@@ -317,34 +332,46 @@ def collect(subdirs: list[str], evidence_root: Path) -> tuple[list[dict], list[s
         # 全表逐条核 sha/bytes + target 唯一性。只核身份类时，导出器把 264 条分片
         # 写成 48 个同名文件也会全绿（G03 P0-1，2026-10-31 19:44 独立评审）。
         counts: dict[str, int] = {}
+        labels: dict[str, str] = {}
         for rec in normalized:
-            counts[rec["rel"]] = counts.get(rec["rel"], 0) + 1
-        for rel, count in sorted(counts.items()):
+            key = rec.get("abs_path") or rec["rel"]
+            labels[key] = rec.get("abs_path") or rec["rel"]
+            counts[key] = counts.get(key, 0) + 1
+        for key, count in sorted(counts.items()):
             if count > 1:
                 bad.append(
-                    f"{subdir}/{rel}: 同一 target 被 {count} 条记录登记（命名冲突或索引重复）"
+                    f"{subdir}/{labels[key]}: 同一 target 被 {count} 条记录登记（命名冲突或索引重复）"
                 )
         verified: dict[str, tuple[str, int]] = {}
         for rec in normalized:
-            path = d / rec["rel"]
+            key = rec.get("abs_path") or rec["rel"]
+            label = rec.get("abs_path") or rec["rel"]
+            path = Path(rec["abs_path"]) if rec.get("abs_path") else d / rec["rel"]
             if not path.is_file():
-                bad.append(f"{subdir}/{rec['rel']}: 文件缺失，目录级索引已过期")
+                bad.append(f"{subdir}/{label}: 文件缺失，目录级索引已过期")
                 continue
             actual_sha = file_sha256(path)
             actual_bytes = path.stat().st_size
-            verified[rec["rel"]] = (actual_sha, actual_bytes)
+            verified[key] = (actual_sha, actual_bytes)
             if actual_sha != rec["sha256"] or actual_bytes != rec["bytes"]:
                 bad.append(
-                    f"{subdir}/{rec['rel']}: 磁盘 sha256/bytes 与目录级 coverage.json 不符"
+                    f"{subdir}/{label}: 磁盘 sha256/bytes 与目录级 coverage.json 不符"
                     f"（目录级 {rec['sha256'][:12]}…/{rec['bytes']} vs "
                     f"磁盘 {actual_sha[:12]}…/{actual_bytes}）"
                 )
         for rec in normalized:
             if not _is_identity(rec["rel"]) and rec["rel"] not in extra_identity:
                 continue
-            if rec["rel"] not in verified:
+            key = rec.get("abs_path") or rec["rel"]
+            if rec.get("abs_path"):
+                bad.append(
+                    f"{subdir}/{rec['abs_path']}: 身份类记录在仓外绝对路径，"
+                    "无法映射为顶层 target（需先复制进 evidence 目录）"
+                )
                 continue
-            actual_sha, actual_bytes = verified[rec["rel"]]
+            if key not in verified:
+                continue
+            actual_sha, actual_bytes = verified[key]
             kind = rec["kind"]
             if kind is None:
                 bad.append(f"{subdir}/{rec['rel']}: 无法确定 kind")

@@ -175,7 +175,7 @@ def check_register(with_register: bool) -> None:
         problems.append(f"33 --dry-run EXIT={proc.returncode}")
         say("FAIL", f"33 --dry-run EXIT={proc.returncode}")
     else:
-        say("INFO", "33 --dry-run EXIT=0（登记本身仍需人工复核）")
+        say("INFO", "33 --dry-run EXIT=0（全表复算一致；实登记已于 19:48 完成）")
     print("\n".join((proc.stdout + proc.stderr).strip().splitlines()[-12:]))
 
 

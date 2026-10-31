@@ -1,2 +1,7 @@
 check_exit=0
 drill_exit=0
+export_exit=0
+register_dry_run_exit=0
+report48_exit=0
+register_exit=0
+OK: G03 finalize 完成 2026-10-31 19:48:27

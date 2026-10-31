@@ -1,6 +1,34 @@
 # AGENT 交接说明 —— v3 重建
 
-## 最新交接（2026-10-31 20:00，北京时间）
+## 最新交接（2026-10-31 20:05，北京时间）
+
+- **G03 窄复核报告已返回**：`docs/reviews/v3_phase_G03_recheck.md`（19:56）判 `PASS WITH CONDITIONS`。
+  P0-1 经全表复核**真闭**（357/357 条 sha/bytes 与磁盘一致、264 个分片互不覆盖、旧塌陷命名 0 条；
+  96 + 24 个数字仍 0 误差；13 个条件标签 10 CLOSED / 2 PARTIAL / 1 OPEN）。关闭条件 4 条
+  **已全部落地**，等独立复验后才可改 GOAL：
+  ① **N1** 证据包 finalize 日志截断——新增 `scripts/66_g03_refresh_evidence_logs.sh`，20:01:53 实跑
+  RC=0；重导出后 `logs/finalize.log` 240 行 / 12 900 B、`finalize.status` 140 B，与 `out/g03_logs/`
+  **逐字节相同**，含 6 个 exit 与 OK 行；证据包 357 条 / 5 254 002 B。
+  ② **N2** 33 误判仓外绝对路径——已改为保留 `abs_path`、按原绝对路径核 sha/bytes；真实**默认全目录**
+  dry-run 恢复 RC=0（42 候选全已登记、顶层 93 条幂等），`--dirs g03_formal` 也 RC=0。
+  ③ **N3** §3.5 选模表标题改为「Tier2 = rep0–29；core = rep0–99 学习段」。
+  ④ **P3-4** 在 §5 明写 binding `git_commit=null`、无法回到 commit，请用 49 文件 `source_hashes`。
+- **顺带修完** N4（第 5 个 L1 格补名）、N5（§5 清单补 `fixed_bootstrap.csv`，合计 357）、
+  N6（`validation_freeze_hash`）、N8（49 的 INFO 文案）；**N7** 49 于 20:01:41 重跑 RC=0 READY 并
+  随证据包重导出；**N9** 两道新校验补 16 例仓库内反例夹具
+  `tests/test_v3_evidence_registry_guards.py`（16 passed），41 的自检抽为 `_post_export_self_check()`。
+- **状态纪律**：以上是主负责的修复与自测，**不构成改判**。下一步派**独立窄复验**（只核 N1/N2/N3/P3-4
+  与 N7/N9 的证据），通过后才把 GOAL 的 G03 改「通过」。
+- **H01 仍待独立复审**：C1/C2 已修并重生成（19:53 RC=0、8 产物换指纹、19:54 目检通过），
+  报告应落 `docs/reviews/v3_phase_H01_recheck.md`；未见则重派，不得自封通过。
+- **随后顺序**：G03 窄复验 + H01 复审 → G04 收口（注册表最终记录 + 62 演练凭据 + 独立评审）
+  → H04 登记 G03 新数字 → 论文并入阶段 B 数字并重建（43/52/42 + H03 重审）→ 全量串行 pytest
+  → Z01/Z02 清理 → R01 总评审。
+- **运行期纪律**：G03 workers 已全部退出；`configs/v3` 仍冻结（`00723dc2…`），不装包，
+  `.workbuddy/` 不入库。**已知遗留**：`binding/snapshot_binding.json` 的 `git_commit=null`（P3-4），
+  快照以 49 文件哈希为准，不回填 commit（会改绑定哈希）。
+
+## 交接（2026-10-31 20:00，北京时间；H01 部分仍有效，G03 窄复核已由 20:05 交接更新）
 
 - **H01 C1/C2 已修并重生成，待独立复审**：C1＝本机 COM 实为 **WPS 演示（wpp.exe）**，ProgID 只是借名
   `PowerPoint.Application`——生成器 docstring、H01 文档 §2、页脚文案全部改为

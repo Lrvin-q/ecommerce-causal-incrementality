@@ -1,4 +1,4 @@
-[TIME] 2026-10-31 19:37:10
+[TIME] 2026-10-31 20:01:41
 [OK ] g02_post.status 含 OK：OK: G02 merge 完成 2026-10-29T17:17:51+08:00
 [OK ] phase1.status 含 OK：OK: G03 Phase1 core prefix 完成 2026-10-30 05:55:41
 [OK ] phase2.status 含 OK：OK: G03 Phase2 完成 2026-10-31 19:33:21
@@ -17,7 +17,7 @@
 OK：274 条 claim 全部回指且与源表复算一致（Tier1 274 / Tier2 0）
 [OK ] 40_export_g02_evidence.py --check EXIT=0
 [OK ] 41_export_g03_evidence.py --check EXIT=0
-[INFO] 33 --dry-run EXIT=0（登记本身仍需人工复核）
+[INFO] 33 --dry-run EXIT=0（全表复算一致；实登记已于 19:48 完成）
 [top-reg] 证据根 outputs/evidence；扫描 2 个子目录：g02_formal, g03_formal
 [top-reg] 候选身份类文件 2 个：新增 0，已登记 2
     = outputs/evidence/g02_formal/binding/snapshot_binding.json

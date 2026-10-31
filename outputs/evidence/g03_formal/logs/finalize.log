@@ -209,3 +209,32 @@
   - ('L0_P_main', 'ate_any_refund_30d')/MC_SE: 复算 2.0745048221079204e-05 != 汇总 2.069995353689121e-05）
 [PASS] 失败被发现、复原后重新通过（G04 演练完成）
 [2026-10-31 19:48:15] 3/5 41 导出证据（staging + 原子换名）
+[g03-ev] 矩阵 out\g03_formal：24/24 格有逐 rep 表
+[g03-ev] 固定 bootstrap：24/24 格
+[g03-ev] 复算汇总 96 行（4 指标 × 24 格 = 96）
+[g03-ev] 校验全过
+[g03-ev] 导出 357 个文件 → out\g03_evidence_staging，共 5252227 B
+{
+  "kind": "g03_evidence_coverage",
+  "generated_at": "2026-10-31T19:48:23+08:00",
+  "cells": 24,
+  "fixed_cells": 24,
+  "total_bytes": 5252227
+}
+[2026-10-31 19:48:23] 4/5 33 --dry-run（只预览；实登记须人工复核后加 --with-register）
+[top-reg] 证据根 outputs/evidence；扫描 2 个子目录：g02_formal, g03_formal
+[top-reg] 候选身份类文件 2 个：新增 0，已登记 2
+    = outputs/evidence/g02_formal/binding/snapshot_binding.json
+    = outputs/evidence/g03_formal/binding/snapshot_binding.json
+[top-reg] 顶层全表复算一致：93 条
+[top-reg] 无新增、无字段补齐，不写盘（幂等）
+[2026-10-31 19:48:24] 5/5 48 取数（只读；Tier1 与 Tier2 分区打印，禁止并列排序）
+[2026-10-31 19:48:26] 33 实登记
+[top-reg] 证据根 outputs/evidence；扫描 2 个子目录：g02_formal, g03_formal
+[top-reg] 候选身份类文件 2 个：新增 0，已登记 2
+    = outputs/evidence/g02_formal/binding/snapshot_binding.json
+    = outputs/evidence/g03_formal/binding/snapshot_binding.json
+[top-reg] 顶层全表复算一致：93 条
+[top-reg] 无新增、无字段补齐，不写盘（幂等）
+[2026-10-31 19:48:27] 收尾链通过；下一步：填 G03 §3（带 §3.0 D1-A 披露）→ 49 全套 → G04 收口
+[2026-10-31 20:01:53] 6/6 收尾后重导出（闭合 finalize.log/status；不改状态文件）

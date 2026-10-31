@@ -87,14 +87,20 @@ def test_overlay_hash_mismatch_is_problem(tmp_path: Path, monkeypatch):
     assert any("overlay sha256" in item for item in pre.problems)
 
 
-def test_status_abort_is_problem_and_empty_is_pending(tmp_path: Path, monkeypatch):
+def test_active_abort_is_problem_but_retired_status_is_info(tmp_path: Path, monkeypatch):
+    """19:36 拆 Phase1/Phase2 后，g03_post.status 已退役（§2.6），ABORT 只报 INFO；
+    现行门仍是 g02_post / phase1 / phase2，ABORT 必须判 problem。"""
     monkeypatch.setattr(pre, "ROOT", tmp_path)
-    logs = tmp_path / "out/g03_logs"
-    logs.mkdir(parents=True)
-    (logs / "post.status").write_text("ABORT: _final incomplete\n", encoding="utf-8")
+    (tmp_path / "out/g03_logs").mkdir(parents=True)
+    (tmp_path / "out/g02_logs").mkdir(parents=True)
+    (tmp_path / "out/g03_logs/post.status").write_text(
+        "ABORT: _final incomplete\n", encoding="utf-8")
+    (tmp_path / "out/g02_logs/post.status").write_text(
+        "ABORT: retrain incomplete\n", encoding="utf-8")
     pre.check_statuses()
-    assert any("g03_post.status 失败标记" in item for item in pre.problems)
-    assert any("g02_post 未完成" in item for item in pre.pending)
+    assert not any("g03_post.status" in item for item in pre.problems)
+    assert any("g02_post.status 失败标记" in item for item in pre.problems)
+    assert any(item == "phase1 未完成" for item in pre.pending)
 
 
 def test_git_dirty_output_is_problem(monkeypatch):

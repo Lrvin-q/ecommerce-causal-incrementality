@@ -1,6 +1,6 @@
 {
   "kind": "g03_evidence_coverage",
-  "generated_at": "2026-10-31T19:48:23+08:00",
+  "generated_at": "2026-10-31T20:02:02+08:00",
   "cells": 24,
   "fixed_cells": 24,
   "records": [
@@ -2831,24 +2831,24 @@
       "kind": "g03_log",
       "target": "outputs/evidence/g03_formal/logs/finalize.log",
       "source": "out/g03_logs/finalize.log",
-      "bytes": 11258,
-      "sha256": "610ec0b25aeae4088eaf8e771257c16fd34bb3a418c174c798e31d30418a380a",
+      "bytes": 12900,
+      "sha256": "40b23e1d7089b06580b929982165af85f003f051d4afb7f73ee6e4b468d05415",
       "note": "63 收尾链日志"
     },
     {
       "kind": "g03_log",
       "target": "outputs/evidence/g03_formal/logs/finalize.status",
       "source": "out/g03_logs/finalize.status",
-      "bytes": 26,
-      "sha256": "196c028a9861f78f9b867e87bc6bd62f5935cf6a620bb1622afbc5a4803e4dc4",
+      "bytes": 140,
+      "sha256": "35be47c6416fb0f83018d5c7a053c0f097e45836e0419c605196193ea32861ce",
       "note": "63 收尾链状态"
     },
     {
       "kind": "g03_log",
       "target": "outputs/evidence/g03_formal/logs/g49_full.log",
       "source": "out/scratch/g49_full.log",
-      "bytes": 1550,
-      "sha256": "ff35d595a56937be8cb794e325f41ac226844b37dab1d88dc2ec5de2e87b6c04",
+      "bytes": 1569,
+      "sha256": "d22630a4658f51eda34ea5408949bd40c0fc903ab42894fef69f4bc3b997a73f",
       "note": "49 收尾体检日志（只读）"
     },
     {
@@ -2860,5 +2860,5 @@
       "rows": 96
     }
   ],
-  "total_bytes": 5252227
+  "total_bytes": 5254002
 }

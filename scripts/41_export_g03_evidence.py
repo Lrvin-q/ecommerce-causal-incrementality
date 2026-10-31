@@ -300,6 +300,32 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
+def _post_export_self_check(records: list[dict], dest: Path, pub_prefix: Path) -> None:
+    """导出后自检：target 必须全局唯一、逐条 sha/bytes 与 staging 文件一致。
+
+    只有"文件存在"不够——命名塌陷时 264 条记录指向 48 个文件，存在性检查会全绿
+    （G03 P0-1，2026-10-31 19:44 独立评审）。夹具见
+    ``tests/test_v3_evidence_registry_guards.py``（AGENTS §12.7）。
+    """
+    targets = [r["target"] for r in records]
+    if len(set(targets)) != len(targets):
+        dupes = sorted({t for t in targets if targets.count(t) > 1})
+        raise RuntimeError(f"导出目标重名，会互相覆盖：{len(dupes)} 个，例 {dupes[:3]}")
+    for rec in records:
+        path = dest / Path(rec["target"]).relative_to(pub_prefix)
+        if not path.is_file():
+            raise RuntimeError(f"导出后自检失败：{rec['target']} 不在 staging")
+        if sha256(path) != rec["sha256"] or path.stat().st_size != rec["bytes"]:
+            raise RuntimeError(
+                f"导出后自检失败：{rec['target']} 的 sha256/bytes 与记录不符"
+            )
+    on_disk = [p for p in dest.rglob("*") if p.is_file() and p != dest / "coverage.json"]
+    if len(on_disk) != len(records):
+        raise RuntimeError(
+            f"导出后自检失败：staging 有 {len(on_disk)} 个文件，记录 {len(records)} 条"
+        )
+
+
 def _write_evidence(dest: Path, matrix_root: Path, fixed_root: Path,
                     frames: dict[str, pd.DataFrame], fixed_frame: pd.DataFrame,
                     recomputed: pd.DataFrame, public: Path | None = None) -> dict:
@@ -426,26 +452,7 @@ def _write_evidence(dest: Path, matrix_root: Path, fixed_root: Path,
         "rows": int(len(recomputed)),
     })
 
-    # 导出后自检：target 必须全局唯一、逐条 sha/bytes 与 staging 文件一致。
-    # 只有"文件存在"不够——命名塌陷时 264 条记录指向 48 个文件，存在性检查会全绿（G03 P0-1）。
-    targets = [r["target"] for r in records]
-    if len(set(targets)) != len(targets):
-        dupes = sorted({t for t in targets if targets.count(t) > 1})
-        raise RuntimeError(f"导出目标重名，会互相覆盖：{len(dupes)} 个，例 {dupes[:3]}")
-    pub_prefix = public_root.relative_to(ROOT)
-    for rec in records:
-        path = dest / Path(rec["target"]).relative_to(pub_prefix)
-        if not path.is_file():
-            raise RuntimeError(f"导出后自检失败：{rec['target']} 不在 staging")
-        if sha256(path) != rec["sha256"] or path.stat().st_size != rec["bytes"]:
-            raise RuntimeError(
-                f"导出后自检失败：{rec['target']} 的 sha256/bytes 与记录不符"
-            )
-    on_disk = [p for p in dest.rglob("*") if p.is_file() and p != dest / "coverage.json"]
-    if len(on_disk) != len(records):
-        raise RuntimeError(
-            f"导出后自检失败：staging 有 {len(on_disk)} 个文件，记录 {len(records)} 条"
-        )
+    _post_export_self_check(records, dest, public_root.relative_to(ROOT))
 
     total = sum(int(r["bytes"]) for r in records)
     payload = {

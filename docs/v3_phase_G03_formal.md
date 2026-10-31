@@ -1,10 +1,11 @@
 # G03 正式报告 —— Tier1 core 四格 + Tier2 二十格矩阵
 
 > **合成数据 / 已知 DGP**。本报告只回答"在注册的 24 个机制场景下，策略价值与决策通过率如何"，
-> 不表示任何真实业务效果。维护时间：2026-10-31 19:50（北京时间）。
+> 不表示任何真实业务效果。维护时间：2026-10-31 20:05（北京时间）。
 > 当前状态：**24 格全部跑完**——Phase 2 于 **2026-10-31 19:33:21** 完成（Tier2 600/600、core ATE
 > 1 600/1 600、复合 merge `duplicates=0`），收尾链 **19:36:47** 全绿；19:44 独立评审发现证据登记 P0
-> （分片导出命名塌陷），19:48 修复并重导出（**357 条记录、0 条不符**）后再次全绿。§3/§4 已填，
+> （分片导出命名塌陷），19:48 修复并重导出（**357 条记录、0 条不符**）后再次全绿；20:01 按独立复核
+> N1 再导出一次，证据包内 finalize 日志与状态**已闭合**。§3/§4 已填，
 > **§3.0 的 D1-A 披露按裁决原样保留**（空转格不构成机制证据）。
 
 ## 1. 设计
@@ -71,7 +72,7 @@ core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **16–17 h**（
 | 19:37 | `49 --with-check --with-register --with-claims` **RC=0**：24 格达 R、49 文件快照一致、overlay 一致、42 门禁 274 条 Tier1 claim 全回指、40/41 检查 0、33 dry-run 0、顶层 93 条幂等 → `[VERDICT] READY` |
 | 19:44 | **G03 独立评审返回 `PASS WITH CONDITIONS`**（`docs/reviews/v3_phase_G03_review.md`）：96 个汇总值与 24 个 bootstrap 值独立复算 **0 误差**、R/完整性成立、D1-A 披露成立；但查出 **P0-1**——分片导出用 `run.name`（恒等于格名）命名，**264 条分片记录塌陷到 48 个文件、216 条 sha/bytes 与磁盘不符**；另 3 项 P1、3 项 P2、5 项 P3 |
 | 19:47 | 按 P0 修 41：分片名改用 `run.parent.name`，导出后自检（target 全局唯一、逐条 sha/bytes、文件数=记录数）；按评审建议加强 33：**全表逐条核 sha/bytes + 同 target 重复登记即失败**。反例实测：对旧台账跑 33 → **RC=2（48 个重名 target + 216 条不符）**，证明门禁真的会拦 |
-| 19:48 | 重跑 `63 --with-register`：check/drill/export/dry_run/report48/register exit 全 0；证据包 **357 条记录**（264 个分片原件 + 24 合并表 + 24 manifest + 24 rep0 固定 bootstrap + 11 日志 + 3 源 summary 等）、**357/357 sha 与磁盘一致**、**0 条重名**；`finalize.status` `OK: G03 finalize 完成 2026-10-31 19:48:27` |
+| 19:48 | 重跑 `63 --with-register`：check/drill/export/dry_run/report48/register exit 全 0；证据包 **357 条记录**（264 个分片原件 + 24 合并表 + 24 manifest + 24 rep0 固定 bootstrap + 11 日志 + 3 源 summary 等）、**357/357 sha 与磁盘一致**、**0 条重名**；`finalize.status` `OK: G03 finalize 完成 2026-10-31 19:48:27`（20:01 重导出后，证据包 `logs/finalize.status` 140 B 与 `out/g03_logs/` 逐字节相同） |
 
 **续跑纪律（失败时）**：`--resume` 只救"跑到一半被杀、有 `repetitions_provisional.csv`"的分片；
 已完成分片会整片重跑，且 `run_cell` 的 `existing` 只来自 `resume_from` ⇒ **重跑不是追加，会用本次 reps
@@ -254,7 +255,7 @@ G03 的注册分析（`repetitions.csv` 四指标 + 汇总）**没有**覆盖率
 
 `L2_immature_negative_control` 的开关 `dgp.l2.include_immature_analysis_control`
 **没有被源码读取**，因此该格实际跑的 DGP 与 `L2_n200000_p050` 相同：**30 个 rep 的四个指标与验证数值
-逐位相同**（只有 `config_hash` / `observed_hash` / `freeze_hash` / `preprocessor_hash` /
+逐位相同**（只有 `config_hash` / `observed_hash` / `validation_freeze_hash` / `preprocessor_hash` /
 `split_fingerprint` 这类 cell/run 身份字段不同，逐 rep 行并非逐字节相同）。rep 0 的
 `fixed_bootstrap.csv` 在两格目录下是同一份文件：md5 同为 `69da7f4a…`、sha256 同为
 `4f7a7b790c8a38efe9f637fcfa84d86b084a0f7ccb50ba5f6365f50be34a65b2`；该文件现已作为
@@ -281,7 +282,7 @@ G03 的注册分析（`repetitions.csv` 四指标 + 汇总）**没有**覆盖率
   `L1_misspec_omit_new_channel`}；{`L3_fixed_lt000`, `L3_missing_confounders`}；
   {`L2_immature_negative_control`, `L2_n200000_p050`}（后者即 §3.0 的 D1-A）；
 - `ate_paid_purchase_7d` 与 `ate_any_refund_30d` 完全相同：{`L0_P_main`, `L0_Pi_heterogeneous_cost`}；
-  上述 5 个 L1 格；{`L3_fixed_lt000`, `L3_missing_confounders`}；D1-A 两格。
+  上述 4 个 L1 格 + `L1_signal_weak`（共 5 个 L1 格）；{`L3_fixed_lt000`, `L3_missing_confounders`}；D1-A 两格。
 
 这些机制的差异出现在 `ate_test`（验证划分/子集随清洗变化）、`model_*_tau_*`、`chosen_model`
 与 fixed bootstrap。例：`L3_missing_confounders` 与 `L3_fixed_lt000` 的 `ate` 相同，但 rep0–29 的 `ate_test`
@@ -289,7 +290,10 @@ G03 的注册分析（`repetitions.csv` 四指标 + 汇总）**没有**覆盖率
 **读法**：§3.1 的 20 行不是"20 个机制对 ITT 的独立效应"；对建模层机制，判别信息在 §3.2、
 选模分布与 §4，不得用 §3.1 的行间差异论证机制效应。
 
-**选模分布（`chosen_model`，rep0–29）**
+**选模分布（`chosen_model`：Tier2 = rep0–29；core = rep0–99 学习段）**
+
+> core 4 格的 R 为 500，但 `chosen_model` 只在 rep0–99 的学习/验证段有值，故这 4 行计数总和为 100；
+> Tier2 行计数总和为 30。不要把本表的计数总和与 §3.1 的 R=500/30 混读。
 
 | 格 | R | constant | t_learner | s_learner | causal_forest | dr_learner |
 |---|---:|---:|---:|---:|---:|---:|
@@ -388,9 +392,10 @@ Tier2 小计：CI 跨零 4/20（`L0_zero_purchase_effect`、`L1_heterogeneity_00
 
 ## 5. 证据与复现
 
-- **证据包内容（2026-10-31 19:48 重导出后，357 条记录）**：264 个分片原件（132 个分片 ×
+- **证据包内容（2026-10-31 20:01 收尾后重导出，357 条记录 / 5 254 002 B）**：264 个分片原件（132 个分片 ×
   repetitions + telemetry）、24 份合并逐 rep 表、24 份 rep0 manifest、24 份 rep0 固定 bootstrap
-  （`per_cell/rep0_fixed/`）、11 份日志/状态（阶段 A 4 件 + Phase 1/2 + finalize + 49）、
+  （`per_cell/rep0_fixed/`）、1 份 24 格合并固定 bootstrap 表（`fixed_bootstrap.csv`，
+  kind `g02_fixed_bootstrap_merged`）、11 份日志/状态（阶段 A 4 件 + Phase 1/2 + finalize + 49）、
   3 份源 `run_summary.json`、2 份汇总表、2 份臂 summary、快照绑定与复算汇总各 1 份；
   目录级索引 `outputs/evidence/g03_formal/coverage.json` 的 357 条 target **全部唯一**，
   逐条 sha256/bytes 与磁盘一致（**0 条不符**）。**2026-10-31 19:44 评审的 P0-1**：上一版用
@@ -398,7 +403,11 @@ Tier2 小计：CI 跨零 4/20（`L0_zero_purchase_effect`、`L1_heterogeneity_00
   `run.parent.name`，并在导出结束时自检"target 唯一 / 逐条 sha / 文件数=记录数"；
 - **门禁加强**（AGENTS §12.3）：`scripts/33_register_evidence_top.py` 原先只对身份类 JSON 重算
   sha/bytes，现对**目录级索引的全表**逐条核对，并把"同一 target 被多条记录登记"判为失败。
-  反例实测（旧台账）：**RC=2，48 个重名 target + 216 条不符**；修复后 dry-run rc=0；
+  反例实测（旧台账）：**RC=2，48 个重名 target + 216 条不符**；修复后 dry-run rc=0。
+  仓外绝对路径记录（如 f01_ope 的 `in_repository:false` 派生件）按**原绝对路径**核 sha/bytes
+  （2026-10-31 20:00 修独立复核 N2：旧实现按 `evidence_dir/<basename>` 误报"文件缺失"，默认全目录
+  dry-run 曾 rc=2）；33 与 41 两道校验的 16 例反例夹具见
+  `tests/test_v3_evidence_registry_guards.py`（AGENTS §12.7）；
 - `scripts/41_export_g03_evidence.py --check`：24 格逐 rep 表齐全、逐格契约列、固定 bootstrap 24 格
   （预算恒 0.2 / 次数恒 1000）、复算汇总 4 指标 × 24 格 = 96 行并与 `outputs/tables/v3_g_g_{core,tier2}.csv`
   对账、两个根的 `run_summary.json` 均 `status=formal` 且 `failures=[]`、`bootstrap_resamples` 分别为
@@ -422,8 +431,20 @@ Tier2 小计：CI 跨零 4/20（`L0_zero_purchase_effect`、`L1_heterogeneity_00
   不切换运行根。本次保护 = 冻结窗口 + 两文件运行期未改（收尾以 sha256/mtime 复核，记入 G04）；
 - **导出与登记**：导出为 staging + 原子换名，旧目录保留时间戳备份（`%Y%m%d%H%M%S`）；
   顶层登记已于 **2026-10-31 19:36:46** 执行（93 条 / 16 975 748 B，其中 G03 只占 1 条
-  `g03_snapshot_binding`，其余 G03 记录在目录级索引），19:48 重导出后 33 dry-run rc=0，
-  无新增身份类文件，顶层保持 93 条幂等。
+  `g03_snapshot_binding`，其余 G03 记录在目录级索引），19:48 与 20:01 两次重导出后
+  33 dry-run 均 rc=0（含**默认全目录**扫描），无新增身份类文件，顶层保持 93 条幂等。
+
+**finalize 日志的闭合时点（2026-10-31 20:01 修 N1）**：63 的 3/5 步调用 41 导出时，
+`finalize.log/status` 尚未闭合，证据包里曾停在 3/5（211 行 / 26 B）。现改为收尾完成后运行
+`scripts/66_g03_refresh_evidence_logs.sh`（2026-10-31 20:01:53 实跑 rc=0）：先在 `finalize.log`
+末尾追加 6/6 行，再全量导出；证据包中的 `finalize.log/status` 与 `out/g03_logs/` 逐字节相同
+（240 行 vs 240 行、140 B vs 140 B），含 6 个 exit 与
+`OK: G03 finalize 完成 2026-10-31 19:48:27`。49 日志亦在收尾后重跑（RC=0 READY）并重导出。
+
+**binding 的 `git_commit` 为 null（如实保留，P3-4）**：`binding/snapshot_binding.json` 建立快照时
+未回填 commit；绑定身份以 49 文件 `source_hashes` 为准，**无法从 binding 回到 commit**。
+不回填是因为回填会改变绑定文件哈希；引用时请用 `source_hashes` 与 git 树比对，不要假定
+`git_commit` 可用。
 
 **复现命令**（只读；不会重跑任何 rep）：
 
