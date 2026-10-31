@@ -68,7 +68,7 @@ core rep100–499（400 rep × 1.9 min/rep）≈ 2.1 h，合计 **16–17 h**（
 | 19:33:21 | **Phase 2 完成**：`phase2.status` 末行 `OK: G03 Phase2 完成 2026-10-31 19:33:21`（`tier2/core_ate/merge/final_check/composite_summary` 五步 exit 全 0） |
 | 19:34:07–19:34:26 | 自动收尾链触发：41 `--check` 与 62 演练通过，**33 dry-run rc=2**（只报 2 条，均指 `binding/snapshot_binding.json`）。进一步核对发现 `coverage.json` 的 **323 条 target 全部指向 `out/g03_evidence_staging/…`**（41 号用 staging 根登记），换名后整份索引失效；33 的 dry-run 当时只核身份类 JSON，所以只露出 2 条 |
 | 19:35 | **修 41 号 target 重挂**（`_record` 增 `write_root/public_root`：写盘在 staging、登记用最终路径），重导出 323 条记录、0 缺失、0 staging 前缀；33 dry-run rc=0 |
-| 19:36:47 | **收尾链全绿并实登记**：`63 --with-register` 的 `check/drill/export/register_dry_run/report48/register` exit 全 0；`finalize.status` 末行 `OK: G03 finalize 完成 2026-10-31 19:36:47`；顶层登记 **93 条 / 16 975 748 B**（幂等复算一致；**其中 G03 只占 1 条** `g03_snapshot_binding`，其余 322 条在目录级索引） |
+| 19:36:47 | **收尾链全绿并实登记**：`63 --with-register` 的 `check/drill/export/register_dry_run/report48/register` exit 全 0；`out/g03_logs/finalize.log` 的 19:36:46/19:36:47 行记录「33 实登记（records 92 → 93）」与「收尾链通过」（`finalize.status` 每次启动被 `rm -f`，19:48 那次已覆盖该行，**不可再引 19:36:47 的 status 末行**）；顶层登记 **93 条 / 16 975 748 B**（幂等复算一致；**其中 G03 只占 1 条** `g03_snapshot_binding`，其余 322 条在目录级索引） |
 | 19:37 | `49 --with-check --with-register --with-claims` **RC=0**：24 格达 R、49 文件快照一致、overlay 一致、42 门禁 274 条 Tier1 claim 全回指、40/41 检查 0、33 dry-run 0、顶层 93 条幂等 → `[VERDICT] READY` |
 | 19:44 | **G03 独立评审返回 `PASS WITH CONDITIONS`**（`docs/reviews/v3_phase_G03_review.md`）：96 个汇总值与 24 个 bootstrap 值独立复算 **0 误差**、R/完整性成立、D1-A 披露成立；但查出 **P0-1**——分片导出用 `run.name`（恒等于格名）命名，**264 条分片记录塌陷到 48 个文件、216 条 sha/bytes 与磁盘不符**；另 3 项 P1、3 项 P2、5 项 P3 |
 | 19:47 | 按 P0 修 41：分片名改用 `run.parent.name`，导出后自检（target 全局唯一、逐条 sha/bytes、文件数=记录数）；按评审建议加强 33：**全表逐条核 sha/bytes + 同 target 重复登记即失败**。反例实测：对旧台账跑 33 → **RC=2（48 个重名 target + 216 条不符）**，证明门禁真的会拦 |
@@ -431,8 +431,11 @@ Tier2 小计：CI 跨零 4/20（`L0_zero_purchase_effect`、`L1_heterogeneity_00
   不切换运行根。本次保护 = 冻结窗口 + 两文件运行期未改（收尾以 sha256/mtime 复核，记入 G04）；
 - **导出与登记**：导出为 staging + 原子换名，旧目录保留时间戳备份（`%Y%m%d%H%M%S`）；
   顶层登记已于 **2026-10-31 19:36:46** 执行（93 条 / 16 975 748 B，其中 G03 只占 1 条
-  `g03_snapshot_binding`，其余 G03 记录在目录级索引），19:48 与 20:01 两次重导出后
-  33 dry-run 均 rc=0（含**默认全目录**扫描），无新增身份类文件，顶层保持 93 条幂等。
+  `g03_snapshot_binding`，其余 G03 记录在目录级索引）。两次重导出的收尾链 33 dry-run 均为
+  `--dirs g02_formal g03_formal`（19:48、20:01）rc=0；**默认全目录**扫描在 N2 修复后为 rc=0
+  （2026-10-31 20:01 主负责实跑、20:11 独立复验复跑：12 子目录 / 42 候选全已登记 / 93 条幂等），
+  无新增身份类文件，顶层保持 93 条幂等。注意历史陈述不能写成“19:48/20:01 的 dry-run 已含默认全目录”，
+  那两次只扫了 2 个子目录；20:01 的 66 号脚本只调 41 导出、未调 33。
 
 **finalize 日志的闭合时点（2026-10-31 20:01 修 N1）**：63 的 3/5 步调用 41 导出时，
 `finalize.log/status` 尚未闭合，证据包里曾停在 3/5（211 行 / 26 B）。现改为收尾完成后运行
@@ -440,6 +443,13 @@ Tier2 小计：CI 跨零 4/20（`L0_zero_purchase_effect`、`L1_heterogeneity_00
 末尾追加 6/6 行，再全量导出；证据包中的 `finalize.log/status` 与 `out/g03_logs/` 逐字节相同
 （240 行 vs 240 行、140 B vs 140 B），含 6 个 exit 与
 `OK: G03 finalize 完成 2026-10-31 19:48:27`。49 日志亦在收尾后重跑（RC=0 READY）并重导出。
+
+**重导出 rc 的留痕边界（P3-5）**：20:01 重导出自身的 rc 只写在 `out/g03_logs/post_finalize_export.status`
+（`out/` 不入库）；证据包内存的是 `finalize.log` 的 6/6 标记行与 `coverage.json`
+（`generated_at 20:02:02`、357 条 / 5 254 002 B），足以用复算证明重导出成功且记录自洽。
+N2 的“默认全目录 rc=0”在仓库内同样没有日志，由 2026-10-31 20:11 独立复验报告
+`docs/reviews/v3_phase_G03_recheck2.md` §2.2 的实跑记录承担。若要求“连 rc 也可从证据包复算”，
+需把 `post_finalize_export.log` 纳入第 12 份日志重导出（会换 coverage 指纹，本轮不做）。
 
 **binding 的 `git_commit` 为 null（如实保留，P3-4）**：`binding/snapshot_binding.json` 建立快照时
 未回填 commit；绑定身份以 49 文件 `source_hashes` 为准，**无法从 binding 回到 commit**。

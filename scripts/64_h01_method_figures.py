@@ -190,7 +190,10 @@ foreach ($s in $spec.slides) {
     $tr.Font.Size = [int]$n.size
     $tr.Font.Bold = [int]$n.bold
     $tr.Font.Color.RGB = HexToOle $n.fg
-    $tr.ParagraphFormat.Alignment = 1
+    # Textboxes are left-aligned (matches SVG start anchor); box labels stay centered
+    # (matches SVG text-anchor="middle"). Setting 1 for every shape broke the 20 boxes.
+    if ($n.textbox) { $tr.ParagraphFormat.Alignment = 1 }
+    else { $tr.ParagraphFormat.Alignment = 2 }
     # WPS shrinks textbox height to one line (34/24/22 -> 29); restore SPEC geometry.
     # The spAutoFit tag is rewritten to noAutofit after save (normalize_pptx).
     $shp.Left = [double]$n.x
@@ -285,34 +288,99 @@ def normalize_pptx() -> None:
     tmp.replace(pptx)
 
 
-def verify() -> None:
-    pptx = OUT / "v3_h01_three_methods.pptx"
+def _flat(text: str) -> str:
+    return re.sub(r"\s+", "", text)
+
+
+def _shape_text(sp: str) -> str:
+    runs = re.findall(r"<a:t>(.*?)</a:t>", sp, flags=re.S)
+    return _flat(unescape("".join(runs)))
+
+
+def _off_ext(fragment: str) -> tuple[float, float, float, float]:
+    off = re.search(r'<a:off x="(-?\d+)" y="(-?\d+)"/>', fragment)
+    ext = re.search(r'<a:ext cx="(\d+)" cy="(\d+)"/>', fragment)
+    assert off and ext, "missing a:off/a:ext"
+    return tuple(int(v) / 12700 for v in off.groups() + ext.groups())
+
+
+def _paragraph_alignments(sp: str) -> list[str | None]:
+    attrs = re.findall(r"<a:pPr\b([^>]*)>", sp)
+    assert len(attrs) == len(re.findall(r"<a:p>", sp)), "paragraph/pPr count mismatch"
+    out: list[str | None] = []
+    for item in attrs:
+        found = re.search(r'algn="([^"]+)"', item)
+        out.append(found.group(1) if found else None)
+    return out
+
+
+def verify_pptx(pptx: Path) -> None:
+    """逐形状校验几何、文本、段落对齐，并覆盖 18 条连接线（2026-10-31 20:06 复审 P1-1/P2-1/P2-2）。"""
     with zipfile.ZipFile(pptx) as z:
         slides = sorted(n for n in z.namelist() if n.startswith("ppt/slides/slide") and n.endswith(".xml"))
         assert len(slides) == 3, slides
         for i, name in enumerate(slides, 1):
             xml = z.read(name).decode("utf-8")
-            runs = re.findall(r"<a:t>(.*?)</a:t>", xml)
-            flat = re.sub(r"\s+", "", unescape("".join(runs)))
-            expect = [n for n in SPEC["slides"][i - 1]["nodes"] if "text" in n]
-            for n in expect:
-                whole = re.sub(r"\s+", "", n["text"])
-                assert whole in flat, (name, whole[:20])
-            # C2：PPTX 几何必须等于 SPEC，且不得被 autofit/居中改写（2026-10-30 评审）
-            sps = re.findall(r"<p:sp>.*?</p:sp>", xml, flags=re.S)
+            assert "<p:pic>" not in xml, (name, "picture shape")
+            assert "<a:blip" not in xml, (name, "bitmap reference")
             nodes = SPEC["slides"][i - 1]["nodes"]
+            edges = SPEC["slides"][i - 1]["edges"]
+            sps = re.findall(r"<p:sp>.*?</p:sp>", xml, flags=re.S)
             assert len(sps) == len(nodes), (name, len(sps), len(nodes))
             for sp, n in zip(sps, nodes):
-                off = re.search(r'<a:off x="(-?\d+)" y="(-?\d+)"/>', sp)
-                ext = re.search(r'<a:ext cx="(\d+)" cy="(\d+)"/>', sp)
-                assert off and ext, (name, n["id"])
-                got = tuple(int(v) / 12700 for v in off.groups() + ext.groups())
+                got = _off_ext(sp)
                 want = (n["x"], n["y"], n["w"], n["h"])
                 assert all(abs(a - b) <= 0.6 for a, b in zip(got, want)), (name, n["id"], got, want)
-            assert not re.search(r'<a:pPr[^>]*algn="ctr"', xml), f"{name}: centered paragraph found"
-            assert "spAutoFit" not in xml, f"{name}: spAutoFit present"
+                assert _shape_text(sp) == _flat(n["text"]), (name, n["id"], _shape_text(sp)[:40])
+                is_tb = 'txBox="1"' in sp
+                assert is_tb == bool(n.get("textbox")), (name, n["id"], "txBox flag")
+                algns = _paragraph_alignments(sp)
+                assert algns, (name, n["id"], "no paragraphs")
+                if n.get("textbox"):
+                    assert all(a in (None, "l") for a in algns), (name, n["id"], algns)
+                else:
+                    assert all(a == "ctr" for a in algns), (name, n["id"], algns)
+                assert "spAutoFit" not in sp, (name, n["id"], "spAutoFit")
+            cxns = re.findall(r"<p:cxnSp>.*?</p:cxnSp>", xml, flags=re.S)
+            assert len(cxns) == len(edges), (name, len(cxns), len(edges))
+            for cs, e in zip(cxns, edges):
+                got = _off_ext(cs)
+                x1, y1, x2, y2 = e["x1"], e["y1"], e["x2"], e["y2"]
+                want = (min(x1, x2), min(y1, y2), abs(x2 - x1), abs(y2 - y1))
+                assert all(abs(a - b) <= 0.6 for a, b in zip(got, want)), (name, e["id"], got, want)
+                xfrm = re.search(r"<a:xfrm([^>]*)>", cs)
+                assert xfrm, (name, e["id"], "no xfrm")
+                flips = xfrm.group(1)
+                assert ('flipH="1"' in flips) == (x2 < x1), (name, e["id"], "flipH")
+                assert ('flipV="1"' in flips) == (y2 < y1), (name, e["id"], "flipV")
+                assert '<a:tailEnd type="arrow"/>' in cs, (name, e["id"], "arrowhead")
+                ln = re.search(r'<a:ln w="(\d+)"', cs)
+                assert ln and abs(int(ln.group(1)) / 12700 - e["width"]) <= 0.05, (
+                    name, e["id"], "line width")
         media = [n for n in z.namelist() if n.startswith("ppt/media/")]
         assert not media, f"unexpected raster media: {media}"
+
+
+def verify_svg(slide: dict) -> None:
+    """SVG 锚点必须与 PPTX 对齐方式一一对应：文本框起点锚、盒内标签居中锚。"""
+    path = OUT / Path(slide["png"]).with_suffix(".svg").name
+    text = path.read_text(encoding="utf-8")
+    items = re.findall(r'<text x="([\d.]+)" y="([\d.]+)"([^>]*)>(.*?)</text>', text)
+    expected: list[tuple[float, bool, str]] = []
+    for n in slide["nodes"]:
+        for line in n["text"].split("\n"):
+            if n.get("textbox"):
+                expected.append((n["x"], False, line))
+            else:
+                expected.append((n["x"] + n["w"] / 2, True, line))
+    assert len(items) == len(expected), (path.name, len(items), len(expected))
+    for (x, _y, attrs, body), (want_x, centered, line) in zip(items, expected):
+        assert abs(float(x) - want_x) <= 0.11, (path.name, x, want_x)
+        assert ('text-anchor="middle"' in attrs) == centered, (path.name, line, attrs)
+        assert unescape(body) == line, (path.name, body, line)
+
+
+def verify_pngs() -> None:
     for s in SPEC["slides"]:
         png = OUT / s["png"]
         assert png.stat().st_size > 20_000, png
@@ -320,7 +388,15 @@ def verify() -> None:
         width = int.from_bytes(data[16:20], "big")
         height = int.from_bytes(data[20:24], "big")
         assert (width, height) == (2000, 1125), (png, width, height)
-    print(f"verify: 3 slides, {len(SPEC['slides'])} PNG at 2000x1125, text present in slide XML")
+
+
+def verify() -> None:
+    verify_pptx(OUT / "v3_h01_three_methods.pptx")
+    for s in SPEC["slides"]:
+        verify_svg(s)
+    verify_pngs()
+    print(f"verify: 3 slides, {len(SPEC['slides'])} PNG at 2000x1125, "
+          f"per-shape text/alignment + 18 connectors checked")
 
 
 def main() -> int:

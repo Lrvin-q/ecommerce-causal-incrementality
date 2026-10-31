@@ -264,20 +264,23 @@
 - **证据位置**：`outputs/evidence/g03_formal/`（`coverage.json` 357 条、`per_cell/shards/` 264 个分片原件、
   `logs/` 含 phase1/phase2/finalize 的 log+status）；顶层 `outputs/evidence/coverage.json` 93 条。
 
-## 2.8 G04 收尾体检与失败→恢复演练（2026-10-31 20:05–20:07）
+## 2.8 G04 收尾体检与失败→恢复演练（2026-10-31 19:55–19:56；文件名时间戳比内部时钟快 9–11 分钟）
 
-- **49 全绿**：`PYTHONUTF8=1 .venv/Scripts/python.exe scripts/49_g04_closeout_precheck.py
-  --with-check --with-register --with-claims` → **RC=0 / VERDICT READY**（日志
-  `out/g04_logs/closeout_precheck_20261031_2005.log`）。实测：phase1/phase2 均含 `OK:`；
-  g02 四格各 50 行；G03 24 格达 R；源码 49 文件与 `out/g03_snapshot` 逐文件一致；
-  overlay sha256 `c58d5a90…`（1 847 B）与记录一致；`src/ sql/ configs/` git 干净；
-  42 门禁 274 条 claim 全回指；40/41 `--check` EXIT=0；33 dry-run EXIT=0（顶层全表 93 条复算一致）。
-- **62 演练**：`scripts/62_g04_tamper_drill.py` → **RC=0**（日志
-  `out/g04_logs/tamper_drill_20261031_2007.log`）：24 格逐 rep 表副本建根 → 基线 41 `--check` EXIT=0 →
-  把 `L0_P_main_s0000/L0_P_main/repetitions.csv` 首两行改成同一 rep → 41 **EXIT=2**
+- **49 全绿（修复后权威日志在证据包）**：20:01:41 的 49 重跑随证据包导出，
+  `outputs/evidence/g03_formal/logs/g49_full.log` 首行 `[TIME] 2026-10-31 20:01:41`、含新 INFO 文案与
+  `[VERDICT] READY`（RC=0）。更早一次运行在 `out/g04_logs/closeout_precheck_20261031_2005.log`
+  （mtime 19:55:55、内部 `[TIME] 19:55:45`），其 33 行仍是 49 改文案前的旧句，**只能当历史记录，
+  不能当“修复后全绿”的运行时凭证**。实测：phase1/phase2 均含 `OK:`；g02 四格各 50 行；G03 24 格达 R；
+  源码 49 文件与 `out/g03_snapshot` 逐文件一致；overlay sha256 `c58d5a90…`（1 847 B）与记录一致；
+  `src/ sql/ configs/` git 干净；42 门禁 274 条 claim 全回指；40/41 `--check` EXIT=0；
+  33 dry-run EXIT=0（顶层全表 93 条复算一致）。
+- **62 演练**：`scripts/62_g04_tamper_drill.py` → **RC=0**（`out/g04_logs/tamper_drill_20261031_2007.log`，
+  mtime 19:56:09；文件名 2007 是系统时钟偏移，不是实际时刻）：24 格逐 rep 表副本建根 → 基线 41
+  `--check` EXIT=0 → 把 `L0_P_main_s0000/L0_P_main/repetitions.csv` 首两行改成同一 rep → 41 **EXIT=2**
   （报 `ate_any_refund_30d` 的 sd/MC_SE 复算不符）→ 复原 → 41 重新 EXIT=0。
-- **留痕边界**：`out/` 不入库，`out/g04_logs/` 两份日志是运行原件；62 的最终一次 PASS 已由 41 导出进
-  `g03_formal/logs/finalize.log`（可复算）；49 是只读体检器，评审可照上条命令重跑，不依赖日志文件。
+- **留痕边界**：`out/` 不入库。49 的修复后日志已在证据包内（可复算）；62 的两份运行原件只在
+  `out/g04_logs/`，评审可按上条命令重跑，不依赖日志文件。系统时钟与文件 mtime 存在 ±10 分钟级
+  不一致（P3-1/P3-2 的根因），引用时间时以日志内部 `[TIME]` 为准并注明文件名偏移。
 
 ## 2.9 G03 窄复核条件闭环（2026-10-31 19:56–20:01）
 
@@ -301,7 +304,13 @@
   重定向到 `out/scratch/g49_full.log` 并随本次重导出进入证据包（1 569 B）。
 - **N9 夹具入库**：`tests/test_v3_evidence_registry_guards.py` 16 例（33 的 11 例 + 41 的 5 例）全过；
   41 的导出后自检抽为 `_post_export_self_check()`，`41 --check` 重构后 **RC=0**。
-- **边界**：以上为主负责修复与自测，**不构成改判**；G03 仍「未证实」，须独立复验上述条件。
+- **二次独立复验（2026-10-31 20:11）**：`docs/reviews/v3_phase_G03_recheck2.md` 判
+  **PASS WITH CONDITIONS**——4 条关闭条件与 N4–N9 **全部 CLOSED**，无 P0/P1/P2 新伤；
+  96 + 24 个数字仍 0 误差，顶层 93 条 / 16 975 748 B 逐条 sha/bytes 0 不符，`41 --check` RC=0。
+  5 条 P3 记录类瑕疵已处理：P3-1 66 头注释 `20:20`→`20:01`；P3-2 §2.8 时间与 49 日志引用改为
+  修复后证据包 `g49_full.log`；P3-3 G03 §5 拆分“历史 dry-run 只扫 2 子目录”与“N2 修复后默认全目录
+  rc=0”；P3-4 G03 §2 改引 `finalize.log` 的 19:36:46/19:36:47 行；P3-5 在 G03 §5 写明重导出 rc
+  只在 `out/`、证据包以 6/6 标记行 + coverage 复算。**据此建议 GOAL G03 改判通过**。
 
 ## 3. 失败重试与可恢复入口
 
