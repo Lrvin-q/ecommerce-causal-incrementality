@@ -5,7 +5,7 @@ set -euo pipefail
 BODY=${1:?用法: bash paper/v3/build.sh <body.md|body目录>}
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
-BUILD="$ROOT/out/scratch/v3_paper_build"
+BUILD="$ROOT/out/scratch/v3_paper_build_restored"
 mkdir -p "$BUILD"
 cp "$HERE/main.tex" "$HERE/preamble.tex" "$HERE/refs.bib" "$BUILD/"
 # 正文插图以相对路径 figures/*.png 引用，xelatex 在 BUILD 目录下运行，需同目录可见。
