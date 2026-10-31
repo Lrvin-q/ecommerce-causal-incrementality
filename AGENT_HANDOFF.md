@@ -1,6 +1,23 @@
 # AGENT 交接说明 —— v3 重建
 
-## 最新交接（2026-10-31 20:18，北京时间）
+## 最新交接（2026-10-31 20:31，北京时间）
+
+- **论文已并入 G03 core 16 条数字并重建**：登记表追加 C275–C290（290 条，Tier1 290 / Tier2 0，
+  BOM+CRLF），42 全表/`--abstract`/`--draft` 三态 RC=0；正文新增 3.11 节「core 四格的 500 次正式重复」
+  与表 3-27，原边界节顺延 3.12；方法节上标范围改 `C01` 到 `C290`。
+- **冻结构建**：`out/scratch/v3_paper_build/main.pdf`，**51 页**，`CreationDate 2026-10-31 20:27:01`，
+  sha256 `51a2e68783db04fe44ef68ed1267235fd021cc159f2e472e448f8179f7c63bd0`；五门禁全绿；
+  缺字 0、未定义 0、Overfull 9（max 0.10432 pt）、Underfull 1（badness 1442）、27 表 4 图、
+  目录 84 条、27/27 字体嵌入；43 号：结果章 55.35%、实质页 69.57%。
+- **H03**：机械复核已写入 `docs/v3_H03_编译审计.md` §7；五项旧 P1 在当前 PDF 上复验 CLOSED；
+  **独立逐页视觉审计已派单**，报告将落 `docs/reviews/v3_phase_H03_visual_final.md`，未回前 H03 不判通过。
+- **H04**：登记与门禁完成，**待独立评审**（数字回指、摘要仅 Tier1、Tier2 精度）。
+- **G04**：独立评审进行中；49/62 已 RC=0。
+- **下一步顺序**：三项独立结果（G04 / H03 逐页 / H04 数字）→ 改 GOAL → 全量串行 pytest
+  （`--basetemp C:/cg_t`）→ Z01/Z02 清理 → R01 总评审。
+- **纪律不变**：`configs/v3` 冻结 `00723dc2…`；不装包；`.workbuddy/` 不入库；证据登记表不用 `write_text`。
+
+## 交接（2026-10-31 20:18，北京时间；历史）
 
 - **H01 第三次独立复审已返回，GOAL 改判「通过」**。报告 `docs/reviews/v3_phase_H01_recheck.md`（20:12）
   对 20:09:34 快照 S2 判 **PASS WITH CONDITIONS**：C1 CLOSED（`app.xml`=WPS 演示、slide 内
