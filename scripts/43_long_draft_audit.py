@@ -185,7 +185,7 @@ def audit(body: Path, pdf: Path, aux: Path, dpi: int, ink: float,
                    if v >= ink and (i + 1) >= starts[0]]
     body_range = range(starts[0], total_pages + 1)
     body_sub = [p for p in substantive if p in body_range]
-    res_end = total_pages
+    res_end = starts[3] - 1
     res_sub = [p for p in substantive if starts[2] <= p <= res_end]
 
     report = {
