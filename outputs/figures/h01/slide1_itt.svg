@@ -26,7 +26,7 @@
 <text x="810.0" y="234.3" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">校准与护栏</text>
 <text x="810.0" y="250.6" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">AA 1000 次 + 退款率</text>
 <text x="810.0" y="266.8" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">非劣效检验</text>
-<text x="40" y="510.4" font-family="Microsoft YaHei" font-size="9" font-weight="normal" fill="#595959">合成数据 / 已知 DGP · 形状为 PowerPoint 原生元素（可编辑，非截图）· 口径与论文第 2–3 章一致</text>
+<text x="40" y="510.4" font-family="Microsoft YaHei" font-size="9" font-weight="normal" fill="#595959">合成数据 / 已知 DGP · 演示文稿原生形状（WPS 演示 COM 生成，可编辑，非截图）· 口径与论文第 2–3 章一致</text>
 <line x1="180" y1="182" x2="230" y2="131" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
 <line x1="180" y1="182" x2="230" y2="251" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
 <line x1="400" y1="131" x2="450" y2="170" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>

@@ -26,7 +26,7 @@
 <rect x="660" y="396" width="260" height="82" rx="10" fill="#2E7D5B" stroke="none"/>
 <text x="790.0" y="433.4" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">冻结帧审计</text>
 <text x="790.0" y="449.7" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">名单与真值逐档对照</text>
-<text x="40" y="510.4" font-family="Microsoft YaHei" font-size="9" font-weight="normal" fill="#595959">合成数据 / 已知 DGP · 形状为 PowerPoint 原生元素（可编辑，非截图）· 口径与论文第 2–3 章一致</text>
+<text x="40" y="510.4" font-family="Microsoft YaHei" font-size="9" font-weight="normal" fill="#595959">合成数据 / 已知 DGP · 演示文稿原生形状（WPS 演示 COM 生成，可编辑，非截图）· 口径与论文第 2–3 章一致</text>
 <line x1="190" y1="185" x2="230" y2="185" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
 <line x1="305" y1="220" x2="305" y2="270" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
 <line x1="380" y1="311" x2="420" y2="311" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>

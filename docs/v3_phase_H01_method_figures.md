@@ -1,7 +1,8 @@
 # H01 三方法图：原生 PPTX + SVG/PNG + 元素清单
 
-维护时间：2026-10-30 18:23（北京时间）
-状态：**已交付，待独立评审**（结构自检通过，视觉为主负责目检，尚非独立验收）
+维护时间：2026-10-31 19:55（北京时间）
+状态：**C1/C2 已修并重生成，待独立复审**（首轮评审 2026-10-30 18:32 判 PASS WITH CONDITIONS，
+C1 事实更正与 C2 结构不一致均已关闭；结构自检 + 主负责逐张目检通过，尚非独立验收）
 
 ---
 
@@ -9,26 +10,26 @@
 
 | 文件 | 内容 | 规模 |
 |---|---|---|
-| `outputs/figures/h01/v3_h01_three_methods.pptx` | 3 页原生形状（非截图），可编辑 | 102 345 B |
-| `outputs/figures/h01/slide1_itt.png` | 方法一：随机实验口径（全臂 ITT） | 2000×1125，164 576 B |
-| `outputs/figures/h01/slide2_observational.png` | 方法二：观测因果与学习 | 2000×1125，178 801 B |
-| `outputs/figures/h01/slide3_policy.png` | 方法三：预算策略 | 2000×1125，182 982 B |
+| `outputs/figures/h01/v3_h01_three_methods.pptx` | 3 页原生形状（非截图），可编辑 | 98 337 B |
+| `outputs/figures/h01/slide1_itt.png` | 方法一：随机实验口径（全臂 ITT） | 2000×1125，166 495 B |
+| `outputs/figures/h01/slide2_observational.png` | 方法二：观测因果与学习 | 2000×1125，179 233 B |
+| `outputs/figures/h01/slide3_policy.png` | 方法三：预算策略 | 2000×1125，183 618 B |
 | `outputs/figures/h01/slide{1,2,3}_*.svg` | 与 PPTX 同一几何定义的矢量版 | 3 份 |
 | `outputs/figures/h01/v3_h01_elements.csv` | 元素清单（页/形状/文本/坐标） | 50 行，UTF-8-sig |
-| `scripts/64_h01_method_figures.py` | 生成器（单一事实源：`SPEC`） | ~315 行 |
+| `scripts/64_h01_method_figures.py` | 生成器（单一事实源：`SPEC`） | ~330 行 |
 
-产物指纹（2026-10-30 18:27，`sha256sum outputs/figures/h01/*`；8 个文件全部已入库）：
+产物指纹（2026-10-31 19:53，`sha256sum outputs/figures/h01/*`；C1/C2 修复后 8 个文件全部重生成）：
 
 | 文件 | sha256 |
 |---|---|
-| `v3_h01_three_methods.pptx` | `88831981dfa421b2b0d43937cc817cc960caea000a547e4c8939e1619e9dfe95` |
-| `slide1_itt.png` | `5a05e179d2e3364ca593a68d11331aaa75b6892daba2fd750a3f7e76f27a9556` |
-| `slide2_observational.png` | `c765bd0c950510bee733e588b259db437da243725dbab5a0834ec3d20398a2fb` |
-| `slide3_policy.png` | `5d90836be17f5a09e69d3f3c00df633e786bf555fde7410c74f7bbf3aa4aebfb` |
-| `slide1_itt.svg` | `b3c4e5685b22d4126f6c2add5bb689d731978a810501d83765cd9aafcea2b9bc` |
-| `slide2_observational.svg` | `b24b11ed6f2e2c430e64087086f1cb50c4ee08819d7e470bf3faf32d803ed271` |
-| `slide3_policy.svg` | `a27d969c69a11bd3d98f1a617154e4ca5b6c571e5334290c2ac531bca5f4ce1e` |
-| `v3_h01_elements.csv` | `906bd37e17b789837863e97b764215342f8be1c5706392ecf2e7f3f273ee5cbb` |
+| `v3_h01_three_methods.pptx` | `b204f3927192239f57facec885052bd98c032800fe2d17e6efb0d8f666841202` |
+| `slide1_itt.png` | `daf5fd2bbd0c524feb3a85747bc60860dae8c14b3f2767553851b30898853632` |
+| `slide2_observational.png` | `9c8b4a9cdf66af6ca292c3361fc2c93cbcacf7ea2bdb637ca01757269473bcd1` |
+| `slide3_policy.png` | `6a42ae992a462bca2405208ff6a356f459a5c5fe29c6514388f6244e5e6a020b` |
+| `slide1_itt.svg` | `816005a6490aa8ed9b54a1872263f9cc94c35d725d93e0ee9e182599634c6c02` |
+| `slide2_observational.svg` | `db6cbff9c65b86146fafcc32906da66f66e84661762ebc2fa4498e6ff987a92e` |
+| `slide3_policy.svg` | `e442e56d36c17b2132a400475ec016784dd0fb793a78514749d4144cb33ad168` |
+| `v3_h01_elements.csv` | `ad035d3698ae0ddb36ad0a2fd0fc45713365c7a36372792e08bcba330e8a1c77` |
 
 三图与论文第 2–3 章口径一一对应：
 
@@ -36,7 +37,7 @@
 2. **方法二 观测因果与学习**：历史观测数据 → 六字段白名单（禁泄漏特征）→ 五类估计器 → 验证集选模（测试集不参与学习）→ `τ̂(X)` → 交叉拟合 OPE → 冻结帧审计（对应 D03、F01）。
 3. **方法三 预算策略**：`τ̂(X)` + 成本模型 → 预算档 0.04–1.00 元/人 → 求解器五选一 → 名单（每人至多 1 张券）→ 支出与利润三口径 → 不确定度 1000/200 与真值审计（对应 E01/E02、F01、G02）。
 
-页脚统一标注「合成数据 / 已知 DGP · 形状为 PowerPoint 原生元素（可编辑，非截图）· 口径与论文第 2–3 章一致」。
+页脚统一标注「合成数据 / 已知 DGP · 演示文稿原生形状（WPS 演示 COM 生成，可编辑，非截图）· 口径与论文第 2–3 章一致」。
 
 ## 1.5 独立评审结论（2026-10-30 18:32，报告 `docs/reviews/v3_phase_H01_review.md`）
 
@@ -59,12 +60,38 @@ h −1.0～−11.1 pt），而 CSV/SVG 仍是建页前规格；且 PPTX 段落 `
 **C3–C5（口径建议）**：三口径命名与正文表 3-14（期望/缓冲/面值）冲突；方法一画两臂而正文 F02 是三臂；
 OPE 缺“名单×预算档”输入；“每 rep 20 万”与 F01 的 6 万审计帧混写。C6 为文档建议。
 
-**处置状态**：C1/C2 未修，H01 仍为「未证实」；修复后须重跑生成器并重新评审。
+**处置状态（2026-10-31 19:55 更新）**：C1、C2 已修并重生成三件套，等待独立复审；C3–C6 属口径/文档建议，
+其中 C3（三口径命名）与 C4（两臂 vs 三臂）需在论文正文或图上文案另议，本轮未动图。
+
+### 1.6 C1 / C2 的修复证据（2026-10-31 19:53–19:55）
+
+**C1（事实更正）— CLOSED**
+
+- 生成器 docstring 与 §2 统一改为「WPS 演示 COM：ProgID 借用 `PowerPoint.Application`，
+  CLSID `{91493441-…}` 的 LocalServer32 指向 `wpp.exe`」；不再声称“本机有 PowerPoint”。
+- 三页页脚改为「演示文稿原生形状（WPS 演示 COM 生成，可编辑，非截图）」；PPTX 内逐页拼接
+  `<a:t>` 后整串命中该文案（`文本框 10/11/11`）。
+- 换真 PowerPoint 重建时坐标可能变化，本轮不承诺像素级一致（已在 §4 边界重申）。
+
+**C2（结构不一致）— CLOSED**
+
+- 对齐：PS1 端每个文本框 `ParagraphFormat.Alignment = 1`（左对齐）；`verify()` 断言 slide XML
+  中不存在 `<a:pPr … algn="ctr">`（此前误伤 `<a:ln algn="ctr">` 的宽松匹配已收窄）。
+- 几何：WPS 保存时会把文本框收缩为单行高（29 pt），故改为**写完文字后强制回写 SPEC 的
+  Left/Top/Width/Height**，并在保存后把 `<a:spAutoFit/>` 归一化为 `<a:noAutofit/>`
+  （`normalize_pptx()`，重打包时其余 zip 条目原样保留）；`verify()` 逐 `<p:sp>` 断言
+  `<a:off>/<a:ext>` 与 SPEC 偏差 ≤ 0.6 pt。
+- 效果：三件套（PPTX / SVG / CSV）重新全部由同一 `SPEC` 生成，PPTX 实测几何与 CSV/SVG 一致；
+  12 个文本框不再有 y +3.0～+5.4 pt / h −1.0～−11.1 pt 的漂移。页脚实测
+  `off=(508000, 6350000)` EMU=`(40, 500)` pt、`ext=(11176000, 330200)` EMU=`(880, 26)` pt，与 SPEC 相同。
+- 目检：主负责 2026-10-31 19:54 重看 3 张 PNG——标题左对齐、页脚单行无溢出、中文无乱码。
 
 ## 2. 工具链路线（不装包）
 
-正式跑期间不得装包（AGENTS §11 的配套约束），本机也**没有 LibreOffice**。18:18 实测本机
-**有 PowerPoint COM**，于是走：
+正式跑期间不得装包（AGENTS §11 的配套约束），本机也**没有 LibreOffice**。18:18 实测
+`PowerPoint.Application` ProgID 能创建 COM 实例；18:32 评审查明该 CLSID `{91493441-…}` 的
+`LocalServer32` 指向 **wpp.exe（WPS 演示）**，PPTX 包内 `app.xml` 亦写「WPS 演示」。因此实际
+工具链是 **WPS 演示 COM**（ProgID 借名），不是 Microsoft PowerPoint。于是走：
 
 ```
 SPEC（Python dict，单一事实源）
@@ -88,12 +115,15 @@ SPEC（Python dict，单一事实源）
 |---|---|
 | PPTX 页数 | 3 页 slide XML |
 | 每页形状数 | 16 / 17 / 17 |
-| 文本落地 | 每页 slide XML 中按文本节点归一化后匹配 ≥12 字符前缀（PowerPoint 会把一行拆成多个 `<a:t>` run，需先拼接再比对） |
+| 文本落地 | 每页 slide XML 按 `<a:t>` 拼接为整串后，SPEC 中每个文本节点**整串**匹配（WPS 会把一行拆成多个 run，故先拼接；不再用 12 字符前缀） |
+| 文本框几何 | 逐 `<p:sp>` 的 `<a:off>/<a:ext>` 与 SPEC 偏差 ≤ 0.6 pt；页脚实测 40/500/880/26 pt |
+| 段首对齐 | slide XML 无 `<a:pPr … algn="ctr">`（窄匹配，不误伤 `<a:ln algn="ctr">`） |
+| 自动缩放 | XML 无 `spAutoFit`（WPS 保存后由 `normalize_pptx()` 统一改为 `noAutofit`） |
 | PNG 规格 | 3 张，均 2000×1125 |
 | 无位图依赖 | PPTX 媒体目录为空（`assert not media`）——证明是原生形状而非截图 |
 | 元素清单 | 50 行，页/形状/文本/坐标齐全 |
 
-运行输出（18:21）：
+运行输出（2026-10-31 19:53，C1/C2 修复后重跑，`RC=0`）：
 
 ```
 slides=3 shapes=16,17,17
@@ -102,8 +132,10 @@ verify: 3 slides, 3 PNG at 2000x1125, text present in slide XML
 written: outputs\figures\h01 (3 slides, 3 PNG, 3 SVG, 50 inventory rows)
 ```
 
-视觉：主负责 18:22–18:23 逐张 150 dpi 目检 1–3 页——中文无乱码、无文字溢出盒子、箭头指向正确、
-页脚来源注在位；第 1 页下半部留白偏多，属可接受（未遮挡信息）。
+视觉：主负责 2026-10-31 19:54 重看 3 张 PNG——标题/副标题/页脚左对齐，页脚单行无溢出，
+中文无乱码，箭头指向正确。第 1 页下半部留白偏多，属可接受（未遮挡信息）。
+
+> 首轮评审（18:32）核对的 8 个 sha256 是修复前版本，已被上表取代；旧值留在 Git 历史中。
 
 ## 4. 边界与遗留
 
@@ -112,4 +144,6 @@ written: outputs\figures\h01 (3 slides, 3 PNG, 3 SVG, 50 inventory rows)
 - 三图为**方法示意**，不含 G03 正式数值；G03 阶段 B 并入后若需在图上加数字，须重新生成而非手改。
 - PPTX 原生可编辑：改文案后可重跑 `python scripts/64_h01_method_figures.py` 一键重建三件套；
   手工改 PPTX 后 SVG/CSV 将与之失配，请在文档里注明版本。
-- 生成依赖本机 PowerPoint（COM）；换机器需重新确认 COM 可用性，否则只能出 SVG/PNG 两件套。
+- 生成依赖本机 WPS 演示（COM，ProgID 借用 `PowerPoint.Application`）；换机器须先确认该 ProgID 的
+  `LocalServer32` 指向，真 PowerPoint 下坐标可能不同，必须重跑 `verify()` 并重新目检 PNG。
+- 本文件的 sha256 表对应当前版本；任何重跑都会改变 PNG/PPTX/SVG/CSV 至少之一，更新后须同步本表。

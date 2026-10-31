@@ -2,7 +2,8 @@
 """H01：三方法图的原生 PPTX / SVG / PNG / 元素清单同源生成。
 
 设计约束：
-- 只用 PowerPoint COM 生成 PPTX（本机有 PowerPoint，无 python-pptx / LibreOffice），不装任何包。
+- 用 WPS 演示 COM 生成 PPTX：ProgID 借用 `PowerPoint.Application`，但 CLSID {91493441-…}
+  的 LocalServer32 指向 wpp.exe（本机无 python-pptx / LibreOffice），不装任何包。
 - 形状规格只写一份（SPEC），PPTX、SVG、元素清单都从它派生，保证三份产物元素一致。
 - PowerShell 脚本保持纯 ASCII（PS 5.1 按 ANSI 读 .ps1，中文字面量会乱码）；
   文字全部走 UTF-8 JSON，由 PS 端 `Get-Content -Encoding UTF8` 读入。
@@ -66,7 +67,7 @@ def footer(text: str) -> list[dict]:
              "text": text, "size": 9, "fg": GRAY, "bold": False}]
 
 
-NOTE = "合成数据 / 已知 DGP · 形状为 PowerPoint 原生元素（可编辑，非截图）· 口径与论文第 2–3 章一致"
+NOTE = "合成数据 / 已知 DGP · 演示文稿原生形状（WPS 演示 COM 生成，可编辑，非截图）· 口径与论文第 2–3 章一致"
 
 SPEC = {
     "slides": [
@@ -189,7 +190,13 @@ foreach ($s in $spec.slides) {
     $tr.Font.Size = [int]$n.size
     $tr.Font.Bold = [int]$n.bold
     $tr.Font.Color.RGB = HexToOle $n.fg
-    $tr.ParagraphFormat.Alignment = 2
+    $tr.ParagraphFormat.Alignment = 1
+    # WPS shrinks textbox height to one line (34/24/22 -> 29); restore SPEC geometry.
+    # The spAutoFit tag is rewritten to noAutofit after save (normalize_pptx).
+    $shp.Left = [double]$n.x
+    $shp.Top = [double]$n.y
+    $shp.Width = [double]$n.w
+    $shp.Height = [double]$n.h
   }
   foreach ($e in $s.edges) {
     $con = $slide.Shapes.AddConnector(1, [double]$e.x1, [double]$e.y1, [double]$e.x2, [double]$e.y2)
@@ -265,6 +272,19 @@ def write_inventory() -> int:
     return len(rows)
 
 
+def normalize_pptx() -> None:
+    """WPS 保存时给文本框写 spAutoFit；统一改 noAutofit，防止再次打开时几何被二次改写。"""
+    pptx = OUT / "v3_h01_three_methods.pptx"
+    tmp = pptx.with_suffix(".tmp.pptx")
+    with zipfile.ZipFile(pptx) as src, zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as dst:
+        for item in src.infolist():
+            data = src.read(item.filename)
+            if item.filename.startswith("ppt/slides/slide") and item.filename.endswith(".xml"):
+                data = data.replace(b"<a:spAutoFit/>", b"<a:noAutofit/>")
+            dst.writestr(item, data)
+    tmp.replace(pptx)
+
+
 def verify() -> None:
     pptx = OUT / "v3_h01_three_methods.pptx"
     with zipfile.ZipFile(pptx) as z:
@@ -276,8 +296,21 @@ def verify() -> None:
             flat = re.sub(r"\s+", "", unescape("".join(runs)))
             expect = [n for n in SPEC["slides"][i - 1]["nodes"] if "text" in n]
             for n in expect:
-                first = re.sub(r"\s+", "", n["text"].split("\n")[0])[:12]
-                assert first in flat, (name, first)
+                whole = re.sub(r"\s+", "", n["text"])
+                assert whole in flat, (name, whole[:20])
+            # C2：PPTX 几何必须等于 SPEC，且不得被 autofit/居中改写（2026-10-30 评审）
+            sps = re.findall(r"<p:sp>.*?</p:sp>", xml, flags=re.S)
+            nodes = SPEC["slides"][i - 1]["nodes"]
+            assert len(sps) == len(nodes), (name, len(sps), len(nodes))
+            for sp, n in zip(sps, nodes):
+                off = re.search(r'<a:off x="(-?\d+)" y="(-?\d+)"/>', sp)
+                ext = re.search(r'<a:ext cx="(\d+)" cy="(\d+)"/>', sp)
+                assert off and ext, (name, n["id"])
+                got = tuple(int(v) / 12700 for v in off.groups() + ext.groups())
+                want = (n["x"], n["y"], n["w"], n["h"])
+                assert all(abs(a - b) <= 0.6 for a, b in zip(got, want)), (name, n["id"], got, want)
+            assert not re.search(r'<a:pPr[^>]*algn="ctr"', xml), f"{name}: centered paragraph found"
+            assert "spAutoFit" not in xml, f"{name}: spAutoFit present"
         media = [n for n in z.namelist() if n.startswith("ppt/media/")]
         assert not media, f"unexpected raster media: {media}"
     for s in SPEC["slides"]:
@@ -305,6 +338,7 @@ def main() -> int:
         print(rc.stderr.strip(), file=sys.stderr)
         return rc.returncode
     shutil.copy2(TMP / "v3_h01_three_methods.pptx", OUT / "v3_h01_three_methods.pptx")
+    normalize_pptx()
     for s in SPEC["slides"]:
         shutil.copy2(TMP / s["png"], OUT / s["png"])
         (OUT / s["png"].replace(".png", ".svg")).write_text(svg_slide(s), encoding="utf-8")

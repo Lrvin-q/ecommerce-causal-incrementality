@@ -29,7 +29,7 @@
 <text x="775.0" y="425.3" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">真值审计</text>
 <text x="775.0" y="441.6" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">每 rep 20 万随机验证</text>
 <text x="775.0" y="457.8" text-anchor="middle" font-family="Microsoft YaHei" font-size="13" font-weight="normal" fill="#FFFFFF">护栏上界</text>
-<text x="40" y="510.4" font-family="Microsoft YaHei" font-size="9" font-weight="normal" fill="#595959">合成数据 / 已知 DGP · 形状为 PowerPoint 原生元素（可编辑，非截图）· 口径与论文第 2–3 章一致</text>
+<text x="40" y="510.4" font-family="Microsoft YaHei" font-size="9" font-weight="normal" fill="#595959">合成数据 / 已知 DGP · 演示文稿原生形状（WPS 演示 COM 生成，可编辑，非截图）· 口径与论文第 2–3 章一致</text>
 <line x1="310" y1="185" x2="350" y2="185" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
 <line x1="310" y1="220" x2="195" y2="270" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>
 <line x1="350" y1="311" x2="390" y2="311" stroke="#595959" stroke-width="2.0" marker-end="url(#arrow)"/>

@@ -1,25 +1,47 @@
 # AGENT 交接说明 —— v3 重建
 
-## 最新交接（2026-10-31 19:38，北京时间）
+## 最新交接（2026-10-31 20:00，北京时间）
 
-- **G03 数据与收尾链全部完成**：`phase2.status` 末行 `OK: G03 Phase2 完成 2026-10-31 19:33:21`
-  （Tier2 600/600、core ATE 1 600/1 600、复合根 132 分片、`merge_exit=0`、`duplicates=0`、
-  `_final` 24 格行数 OK、复合 `run_summary` 三源 sha256）；`finalize.status` 末行
-  `OK: G03 finalize 完成 19:36:47`，六步 exit 全 0，顶层证据 **93 条 / 16 975 748 B**；
-  `49 --with-check --with-register --with-claims` **RC=0 READY**（42 门禁 274 条 Tier1 claim 全回指）。
-  提交 `5f7f9fd`（41 修复 + 证据包 + G03 §2/§3/§5）。
-- **已修真 bug**：41 号导出把 target 登记成 staging 路径，换名后 33 dry-run rc=2（双向核对报大片缺档）。
-  现 `_record` 增 `write_root/public_root`，写盘在 staging、登记用最终路径；重导出 323 条 0 缺失、0 staging 前缀。
-- **G03 文档状态**：§2 已补 09:41–19:37 完成行；§3 已填 24 格 × 4 指标（core 16 行 / Tier2 80 行，
-  含 §3.0 D1-A 披露与 `L2_immature_negative_control` † 注）；§5 已写导出/契约/overlay/登记纪律。
-  **尚未做**：G03 独立评审（下一步第一优先）。
-- **随后顺序**：G03 独立评审 → G04 收口（注册表最终记录 + 62 演练凭据 + 独立评审）→ H01 修 C2
-  （`spAutoFit` 改几何、标题对齐）与 C1 措辞（COM 实为 WPS 演示，非 PowerPoint）→ H04 登记 G03 新数字
+- **H01 C1/C2 已修并重生成，待独立复审**：C1＝本机 COM 实为 **WPS 演示（wpp.exe）**，ProgID 只是借名
+  `PowerPoint.Application`——生成器 docstring、H01 文档 §2、页脚文案全部改为
+  「演示文稿原生形状（WPS 演示 COM 生成，可编辑，非截图）」；**此前 18:26/19:52 交接里的
+  “PowerPoint COM / PowerPoint 原生元素”表述作废**。C2＝PS1 端 `Alignment=1` 左对齐，写完文字后强制
+  回写 SPEC 的 Left/Top/Width/Height，保存后 `normalize_pptx()` 把 `<a:spAutoFit/>` 归一化为
+  `<a:noAutofit/>`；`verify()` 新增逐形状几何断言（偏差 ≤ 0.6 pt）、无居中 `<a:pPr>`、无 `spAutoFit`、
+  文本整串命中。19:53 重跑 **RC=0**，8 个产物全换指纹（PPTX 98 337 B；PNG 166 495 / 179 233 / 183 618 B），
+  19:54 三张 PNG 逐张目检通过；文档 §1.5/§1.6/§3/§4 已同步。**H01 仍标「未证实」，须独立复审**，
+  报告应落 `docs/reviews/v3_phase_H01_recheck.md`；未见则重派，不得自封通过。
+- **G03 窄复核仍在等**：`docs/reviews/v3_phase_G03_recheck.md` 未生成前，G03 不改判；恢复会话先查该文件。
+- **操作注意**：WPS COM 保存会把文本框高度压成单行高（29 pt）且段落默认居中，**不能信 `AutoSize`**；
+  几何要么保存前回写、保存后改 XML 的 `spAutoFit`，要么以 PPTX 实测值回写 CSV/SVG。换真 PowerPoint
+  重建时坐标可能不同，不能假定像素级一致。
+- **随后顺序**：G03 窄复核闭环 → H01 独立复审 → G04 收口（注册表最终记录 + 62 演练凭据 + 独立评审）
+  → H04 登记 G03 新数字 → 论文并入阶段 B 数字并重建（43/52/42 + H03 重审）→ 全量串行 pytest
+  → Z01/Z02 清理 → R01 总评审。
+- **运行期纪律**：G03 workers 已全部退出；`configs/v3` 仍冻结（`00723dc2…`），不装包，
+  `.workbuddy/` 不入库。**已知遗留**：`binding/snapshot_binding.json` 的 `git_commit=null`（P3-4），
+  快照以 49 文件哈希为准，不回填 commit（会改绑定哈希）。
+
+## 交接（2026-10-31 19:52，北京时间；H01 口径已被 20:00 交接更正）
+
+- **G03 独立评审已完成、P0 已修、窄复核在跑**：评审 19:44 判 `PASS WITH CONDITIONS`
+  （`docs/reviews/v3_phase_G03_review.md`；96 + 24 个数字独立复算 0 误差、R/完整性成立、D1-A 成立），
+  但查出 **P0-1**：41 号分片导出用 `run.name`（恒等于格名）命名，264 条分片记录塌陷到 48 个文件、
+  216 条 sha/bytes 不符。19:47 修复（`run.parent.name` + 导出后自检；33 改全表逐条核 sha/bytes +
+  拒绝重复 target，反例实测 RC=2），19:48 重导出 **357 条记录全部唯一、0 不符、264 个分片原件**，
+  `63` 六步全 0、`49` **RC=0 READY**；提交 `c04dce7`。窄复核报告应落
+  `docs/reviews/v3_phase_G03_recheck.md`；**恢复会话先查该文件**，未见则重派，不得自封通过。
+- **G03 报告已收口**：头部状态更新；§2 补 19:44/19:47/19:48 行；§3.0 措辞精确化；
+  新增 **§3.5 指标敏感性披露 + 24 格选模分布**；§4 注 `all_complete=false`；§5 证据清单/复现命令；
+  §6 第 8 条、§7 边界同步。
+- **随后顺序**：G03 窄复核闭环 → G04 收口（注册表最终记录 + 62 演练凭据 + 独立评审）→
+  H01 修 C2（`spAutoFit` 几何/标题对齐）与 C1 措辞（实为 WPS 演示 COM）→ H04 登记 G03 新数字
   → 论文并入阶段 B 数字并重建（43/52/42 + H03 重审）→ 全量串行 pytest → Z01/Z02 清理 → R01 总评审。
-- **运行期纪律**：G03 workers 已全部退出，机器空闲；磁盘需复核后再做全量测试与重建。
-  `configs/v3` 仍冻结（`00723dc2…`），不装包，`.workbuddy/` 不入库。
+- **运行期纪律**：G03 workers 已全部退出；`configs/v3` 仍冻结（`00723dc2…`），不装包，
+  `.workbuddy/` 不入库。**已知遗留**：`binding/snapshot_binding.json` 的 `git_commit=null`（P3-4），
+  快照以 49 文件哈希为准，不回填 commit（会改绑定哈希）。
 
-## 交接（2026-10-30 18:26，北京时间）
+## 交接（2026-10-30 18:26，北京时间；其中“PowerPoint COM”口径已由 20:00 交接更正）
 
 - **H01 已交付（commit `d49b2d7`，不再阻塞）**：`scripts/64_h01_method_figures.py` 以单一 `SPEC` 为事实源，
   经 UTF-8 JSON + **纯 ASCII PS1** 驱动 PowerPoint COM（不装包），产出 3 页原生形状 PPTX（102 345 B）、
