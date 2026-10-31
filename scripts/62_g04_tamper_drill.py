@@ -91,6 +91,19 @@ def tail(text: str, n: int = 6) -> str:
     return "\n".join(text.splitlines()[-n:])
 
 
+def judge_tamper(rc: int, out: str) -> str | None:
+    """篡改被拒的判据：必须能归因到 rep 重复，而不是"任何一种 41 失败"。
+
+    返回 None = 通过；否则返回失败原因（G04 C4/P3-4：旧断言只看 ``"rep" in out``，
+    41 因 sd/MC_SE 复算不符等无关原因失败也会 PASS）。
+    """
+    if rc == 0:
+        return "篡改后 41 仍判通过——门禁未拦住"
+    if "分片间 rep 重叠" not in out:
+        return f"41 拒了（EXIT={rc}）但拒因不是 rep 重叠"
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="G04 失败→恢复演练（只读正式矩阵）")
     parser.add_argument("--keep", action="store_true", help="保留演练根")
@@ -122,13 +135,11 @@ def main() -> int:
 
     try:
         rc, out = run41()
-        if rc == 0:
-            say("FAIL", "篡改后 41 仍判通过——门禁未拦住")
-            return 5
-        if "重叠" not in out and "rep" not in out:
-            say("FAIL", f"41 拒了（EXIT={rc}）但输出未指向 rep 重叠：")
-            print(tail(out))
-            return 6
+        reason = judge_tamper(rc, out)
+        if reason:
+            say("FAIL", reason + "：")
+            print(tail(out, 10))
+            return 5 if rc == 0 else 6
         say("OK ", f"篡改被拒：41 EXIT={rc}（{tail(out, 2)}）")
 
         target.write_bytes(backup)

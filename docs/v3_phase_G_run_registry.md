@@ -243,6 +243,8 @@
 - **Phase 2 进程**：`nohup bash scripts/51_g03_phase2.sh`（bash 包装 PID 1507）；60 s 内 6 个分片目录已建、
   8 个 python 进程在跑；`phase2.log` 全程 **0 次 Traceback / 0 次 error**（`grep -ci` 实测 0）。
   收尾后（2026-10-31 20:10）`Get-CimInstance Win32_Process` 无 `python.exe` 残留。
+  **PID 1507 是人工记录，无机器快照**（G04 C5）：`out/g04_logs/monitor.log` 只记 `python procs=N`
+  计数，不含 PID/命令行/父 PID；下次正式运行须在启动与结束各留一份进程表。
 - **Phase 2 结果**：`out/g03_logs/phase2.status` 末行 `OK: G03 Phase2 完成 2026-10-31 19:33:21`，
   五个退出码全 0（`tier2_exit` / `core_ate_exit` / `merge_exit` / `final_check_exit` /
   `composite_summary_exit`）。Tier2 600/600、core ATE 1 600/1 600；132 分片 merge `duplicates=0`；
@@ -269,10 +271,10 @@
 - **49 全绿（修复后权威日志在证据包）**：20:01:41 的 49 重跑随证据包导出，
   `outputs/evidence/g03_formal/logs/g49_full.log` 首行 `[TIME] 2026-10-31 20:01:41`、含新 INFO 文案与
   `[VERDICT] READY`（RC=0）。更早一次运行在 `out/g04_logs/closeout_precheck_20261031_2005.log`
-  （mtime 19:55:55、内部 `[TIME] 19:55:45`），其 33 行仍是 49 改文案前的旧句，**只能当历史记录，
+  （mtime 19:55:55、内部 `[TIME] 19:55:45`），其 **28 行**（`wc -l` 实测，G04 P3-5 更正旧记"33 行"）仍是 49 改文案前的旧句，**只能当历史记录，
   不能当“修复后全绿”的运行时凭证**。实测：phase1/phase2 均含 `OK:`；g02 四格各 50 行；G03 24 格达 R；
   源码 49 文件与 `out/g03_snapshot` 逐文件一致；overlay sha256 `c58d5a90…`（1 847 B）与记录一致；
-  `src/ sql/ configs/` git 干净；42 门禁 274 条 claim 全回指；40/41 `--check` EXIT=0；
+  `src/ sql/ configs/` git 干净；42 门禁 274 条 claim 全回指（当时数；20:30 起注册表为 **290 条**）；40/41 `--check` EXIT=0；
   33 dry-run EXIT=0（顶层全表 93 条复算一致）。
 - **62 演练**：`scripts/62_g04_tamper_drill.py` → **RC=0**（`out/g04_logs/tamper_drill_20261031_2007.log`，
   mtime 19:56:09；文件名 2007 是系统时钟偏移，不是实际时刻）：24 格逐 rep 表副本建根 → 基线 41
@@ -340,7 +342,9 @@
 | 11:20 | 跑满后在导出阶段必 `KeyError: n_total` | 41 取矩阵逐 rep 表不存在的列 | 改取 `n` + 缺列守卫 + `n_treated+n_control==n`；6 例单测 |
 | 11:37 | `g03_post` 必在阶段 B 结束前超时 | 40 h 窗口基于未经运行期验证的 26.5 h 估算 | 按 G02 实测 8.0 min/rep 改 120 h（PID 3883）；旧 1952 已停（§2.4） |
 | 00:39 | Phase 2 跑完会在 41 号处判"缺 run_summary.json（未跑完）" | 41 要矩阵根 `run_summary.json`；`34 merge` 只写 `merge_report.json` 且落 `roots[0]`，正式矩阵根是临时复合根 | 51 号末尾 exit 12 合成复合 summary（三份源 summary + 原始分片独立核对），7 例夹具演练（§2.6） |
-| 17:41 | 49 体检器会永久判 G04 NOT READY | 它等 `chain.status`（19:36 已改 `paused_…`）与 `out/g03_logs/post.status`（已改名 `.stale`）——两个都不再会有 `OK:` | 49 只对 `g02_post`/`phase1`/`phase2` 判门，旧两件降 INFO；`tier2_exit=1` 这类非零退出也判 failure（4 例夹具，见日志 17:41） |
+| 17:41 | 49 体检器会永久判 G04 NOT READY | 它等 `chain.status`（19:36 已改 `paused_…`）与 `out/g03_logs/post.status`（已改名 `.stale`）——两个都不再会有 `OK:` | 49 只对 `g02_post`/`phase1`/`phase2` 判门，旧两件降 INFO；`tier2_exit=1` 这类非零退出也判 failure（**当时未落夹具**，G04 P2-2 指出；2026-10-31 20:45 补齐 8 例，见 `tests/test_g04_closeout_precheck.py` 与 `tests/test_v3_evidence_registry_guards.py`） |
+| 17:51 | Stage A 23/24 格成功、`L1_cost_prediction_under` 抛 `NotImplementedError`（`prediction_bias_multiplier=0.8` 未实现），整批 exit 1 | 配置写了、实现没有；守卫按 10-26 约定显式拒绝 | 实现乘子（真实成本不变、下界后施加），不删格子；快照哈希 `abaa338a…`→`6fdaf7bb…`，旧产物归档 `out/g02_fixed_attempt1_20261029_1751`，18:05:46 重跑。**只留归档 `run_summary.json` 的 `failures` 字段，无 traceback 日志**（G04 C4/P3-5） |
+| 19:34 | `auto_finalize.out` 记 `[auto] 63 exit=0`，但上一行是 `33 dry-run 失败 rc=2`；63 实为 ABORT | 退出码取的是 `tee` 的码，不是 63 的；当时 41 导出还有重名文件（19:44 修） | 以 `finalize.status` 六步退出码为准（49 自 C1 起强制）；63 于 19:48 重跑六步全 0。事故原件 `out/g03_logs/auto_finalize.out`（`.log` 为空文件） |
 | 11:44 | 40 `--check` 在**完整正确**的格上必报"validation_rep 在 b 间重复" | `check_cell` 把"50 个 b 共用 VALIDATION_REP=0"的**设计**当成重复缺陷（11:33 静态复核只看列名，没看判据） | 改为 `history_rep_id` 查唯一、`validation_rep` 查**恒定**；`tests/test_v3_g02_export_rollback.py` 新增 3 例（正例 / rep 漂移 / history 重复），6 passed；真数据半成品复跑 `--check` 只剩"未跑完"类问题，EXIT=1 |
 | 10:18 | 本机 `TZ=Asia/Shanghai date` 输出 UTC | Git Bash 环境 | 链条与状态文件一律用裸 `date`/`zoneinfo` |
 | 19:44 | 41 分片导出只有 48 个文件，`coverage.json` 却有 264 条分片记录（216 条 sha/bytes 与磁盘不符），41/33 均放行 | 41 用 `run.name` 命名，而 `cell_runs()` 返回 `<shard>/<cell>`，`run.name` 恒等于格名，同格 18 个分片互相覆盖；33 只核身份类 JSON；41 只查导出前 | 41 改用 `run.parent.name` + 导出后自检（target 唯一 / 逐条 sha/bytes / 文件数=记录数）；33 全表核 sha/bytes + 拒绝重复 target。反例：旧台账跑加强 33 → **RC=2**（48 重名 + 216 不符）；重导出 **357 条、0 不符、264 个分片原件** |
