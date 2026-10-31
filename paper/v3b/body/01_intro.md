@@ -106,4 +106,4 @@ $$\max_{\{a_i\}} \sum_{i=1}^{N}\Big(\Pi_i(a_i)-\Pi_i(0)\Big)\quad \text{s.t.}\qu
 
 全文的技术路线如图 1：从业务问题出发，先确定目标量与口径，再构造四层环境，随后在每一层上分别检验流程校准、平均效应、异质性与策略价值，最后回到业务问题给出结论与边界。
 
-![技术路线：从业务问题到四层验证再到决策结论](figures/fig1_roadmap.png){width=\linewidth}
+![图 1　技术路线：从业务问题到四层验证再到决策结论](figures/fig1_roadmap.png){width=\linewidth}
