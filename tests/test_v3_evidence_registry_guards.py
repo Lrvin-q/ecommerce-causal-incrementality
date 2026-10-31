@@ -161,6 +161,44 @@ def test_cli_default_all_dirs_no_longer_blocked_by_outside_records(
     assert top_reg.main() == 0
 
 
+def _write_identity(root: Path) -> dict:
+    rel = root / "g03_fixture" / "snapshot_binding.json"
+    body = _blob(rel, b'{"ok": true}')
+    return {"target": f"{root.name}/g03_fixture/snapshot_binding.json",
+            "kind": "g03_snapshot_binding", **body}
+
+
+def _run_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *extra: str) -> int:
+    monkeypatch.setattr(top_reg, "ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", [
+        "33", "--evidence-root", "ev", "--top", "ev/top.json", "--dry-run", *extra,
+    ])
+    return top_reg.main()
+
+
+def test_cli_expect_complete_rejects_incomplete_top(
+        ev_root: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """磁盘有、顶层索引无 → --expect-complete 必须非零（G04 C1）。"""
+    record = _write_identity(ev_root)
+    _write_cov(ev_root, [record])
+    top = ev_root / "top.json"
+    top.write_text(json.dumps({"records": [], "total_bytes": 0}), encoding="utf-8")
+    assert _run_cli(tmp_path, monkeypatch, "--expect-complete") == 5
+
+
+def test_cli_expect_complete_passes_when_top_complete(
+        ev_root: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    record = _write_identity(ev_root)
+    _write_cov(ev_root, [record])
+    top_record = {"kind": "g03_snapshot_binding",
+                  "target": "ev/g03_fixture/snapshot_binding.json",
+                  "bytes": record["bytes"], "sha256": record["sha256"]}
+    top = ev_root / "top.json"
+    top.write_text(json.dumps({"records": [top_record],
+                               "total_bytes": record["bytes"]}), encoding="utf-8")
+    assert _run_cli(tmp_path, monkeypatch, "--expect-complete") == 0
+
+
 # --- 41 导出后自检 ---------------------------------------------------------
 
 def _dest(tmp_path: Path) -> tuple[Path, Path, Path]:

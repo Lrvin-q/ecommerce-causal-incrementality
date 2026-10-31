@@ -414,6 +414,8 @@ def main() -> int:
     ap.add_argument("--top", default=None,
                     help="顶层登记表路径，默认 outputs/evidence/coverage.json；演练时指向副本")
     ap.add_argument("--dry-run", action="store_true", help="只校验与打印计划，不写盘")
+    ap.add_argument("--expect-complete", action="store_true",
+                    help="要求顶层索引已完备：磁盘有、索引无即非零退出（G04 C1）")
     ap.add_argument("--reason", default=None)
     args = ap.parse_args()
 
@@ -470,6 +472,11 @@ def main() -> int:
         print(f"    + {rec['kind']:28s} {rec['target']}  {rec['bytes']} B")
     for line in unchanged:
         print(f"    = {line}")
+
+    if args.expect_complete and added:
+        print(f"[top-reg] expect-complete：磁盘有、索引无 {len(added)} 条，拒绝判完备"
+              "（AGENTS §12.7 双向校验）")
+        return 5
 
     merged_records = list(by_target.values()) + added
     # **不排序**：顶层表原本是插入序（aa/negctl/local_power/bindings/…），按 target 排序会

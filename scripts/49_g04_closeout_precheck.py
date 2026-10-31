@@ -38,20 +38,46 @@ def read(path: Path) -> str:
     return path.read_text(encoding="utf-8") if path.is_file() else ""
 
 
+FINALIZE_EXITS = ("check_exit", "drill_exit", "export_exit",
+                  "register_dry_run_exit", "report48_exit", "register_exit")
+
+
+def _bad_exits(text: str) -> list[str]:
+    return [line.strip() for line in text.splitlines()
+            if re.fullmatch(r"[a-z0-9_]+_exit=[1-9]\d*", line.strip())]
+
+
 def check_statuses() -> None:
     """G03 于 19:36 改拆 Phase1/Phase2（run registry §2.6），旧链与旧看护已退役：
-    只对现行三个状态文件判门，旧文件仅报告，不参与 READY 判定。"""
+    只对现行三个状态文件 + finalize.status 判门，旧文件仅报告，不参与 READY 判定。
+
+    非零 `*_exit` 必须先于 `OK:` 判定：状态文件是可拼接文本，"旧 OK + 新非零"不能被
+    读成成功（G04 评审 P2-2）。finalize.status 另要求六个退出码全 0 且含完成行（P2-1）。
+    """
     for name, path in (("g02_post", ROOT / "out/g02_logs/post.status"),
                        ("phase1", ROOT / "out/g03_logs/phase1.status"),
-                       ("phase2", ROOT / "out/g03_logs/phase2.status")):
+                       ("phase2", ROOT / "out/g03_logs/phase2.status"),
+                       ("finalize", ROOT / "out/g03_logs/finalize.status")):
         text = read(path)
-        bad_exit = [line.strip() for line in text.splitlines()
-                    if re.fullmatch(r"[a-z0-9_]+_exit=[1-9]\d*", line.strip())]
-        if "OK:" in text:
-            say("OK ", f"{name}.status 含 OK：{text.strip().splitlines()[-1][:80]}")
-        elif bad_exit:
+        bad_exit = _bad_exits(text)
+        if bad_exit:
             problems.append(f"{name}.status 非零退出：{bad_exit[:4]}")
             say("FAIL", f"{name}.status 非零退出 {bad_exit[:4]}")
+            continue
+        if name == "finalize":
+            missing = [key for key in FINALIZE_EXITS if f"{key}=0" not in text]
+            if not path.is_file():
+                problems.append("finalize.status 缺失（收尾链未完成或未留证）")
+                say("FAIL", "finalize.status 缺失")
+            elif missing or "OK: G03 finalize 完成" not in text:
+                problems.append(
+                    f"finalize.status 不完整：缺 {missing or ['完成行']}（当前：{text.strip()[:160]}）")
+                say("FAIL", f"finalize.status 不完整 {missing or ['完成行']}")
+            else:
+                say("OK ", "finalize.status 六步全 0 + 完成行")
+            continue
+        if "OK:" in text:
+            say("OK ", f"{name}.status 含 OK：{text.strip().splitlines()[-1][:80]}")
         elif any(token in text for token in ("STOP", "TIMEOUT", "STALL", "FAIL", "ABORT")):
             problems.append(f"{name}.status 失败标记：{text.strip()[:160]}")
             say("FAIL", f"{name}.status 失败标记")
@@ -170,12 +196,12 @@ def check_register(with_register: bool) -> None:
     if not with_register:
         return
     proc = _run("33_register_evidence_top.py", "--dirs", "g02_formal", "g03_formal",
-                "--dry-run")
+                "--dry-run", "--expect-complete")
     if proc.returncode != 0:
-        problems.append(f"33 --dry-run EXIT={proc.returncode}")
-        say("FAIL", f"33 --dry-run EXIT={proc.returncode}")
+        problems.append(f"33 --dry-run --expect-complete EXIT={proc.returncode}")
+        say("FAIL", f"33 --dry-run --expect-complete EXIT={proc.returncode}")
     else:
-        say("INFO", "33 --dry-run EXIT=0（全表复算一致；实登记已于 19:48 完成）")
+        say("INFO", "33 --dry-run --expect-complete EXIT=0（新增 0、全表复算一致）")
     print("\n".join((proc.stdout + proc.stderr).strip().splitlines()[-12:]))
 
 

@@ -116,3 +116,76 @@ def test_verdict_codes():
     assert pre.verdict() == 2
     pre.problems.append("漂移")
     assert pre.verdict() == 3
+
+
+def _write_status(root: Path, rel: str, text: str) -> None:
+    path = root / rel
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+
+
+def test_finalize_missing_is_problem(tmp_path: Path, monkeypatch):
+    """C1：G04 收尾完成后 finalize.status 缺失必须判 problem，不能只报 pending。"""
+    monkeypatch.setattr(pre, "ROOT", tmp_path)
+    pre.check_statuses()
+    assert any("finalize.status 缺失" in item for item in pre.problems)
+
+
+def test_finalize_abort_is_problem(tmp_path: Path, monkeypatch):
+    """C1：finalize.status 存在 ABORT 时必须判 problem。"""
+    monkeypatch.setattr(pre, "ROOT", tmp_path)
+    _write_status(tmp_path, "out/g03_logs/finalize.status",
+                  "check_exit=0\ndrill_exit=1\nABORT: export failed\n")
+    pre.check_statuses()
+    assert any("finalize.status" in item and "非零退出" in item for item in pre.problems)
+
+
+def test_finalize_requires_all_six_zero_and_ok(tmp_path: Path, monkeypatch):
+    """C1：六步缺一或没有完成行都算不完整。"""
+    monkeypatch.setattr(pre, "ROOT", tmp_path)
+    _write_status(tmp_path, "out/g03_logs/finalize.status",
+                  "check_exit=0\ndrill_exit=0\nexport_exit=0\n"
+                  "register_dry_run_exit=0\nreport48_exit=0\nregister_exit=0\n")
+    pre.check_statuses()
+    assert any("finalize.status 不完整" in item for item in pre.problems)
+
+
+def test_finalize_all_zero_with_ok_is_clean(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr(pre, "ROOT", tmp_path)
+    _write_status(tmp_path, "out/g03_logs/finalize.status",
+                  "check_exit=0\ndrill_exit=0\nexport_exit=0\n"
+                  "register_dry_run_exit=0\nreport48_exit=0\nregister_exit=0\n"
+                  "OK: G03 finalize 完成 2026-10-31 19:48:27\n")
+    pre.check_statuses()
+    assert not any("finalize" in item for item in pre.problems)
+
+
+def test_ok_with_nonzero_exit_is_problem(tmp_path: Path, monkeypatch):
+    """P2-2：'旧 OK + 新非零 exit' 不能被 OK 覆盖。"""
+    monkeypatch.setattr(pre, "ROOT", tmp_path)
+    _write_status(tmp_path, "out/g03_logs/phase2.status",
+                  "tier2_exit=1\nOK: forged success line\n")
+    pre.check_statuses()
+    assert any("phase2.status 非零退出" in item for item in pre.problems)
+
+
+def test_nonzero_without_ok_is_problem(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr(pre, "ROOT", tmp_path)
+    _write_status(tmp_path, "out/g03_logs/phase2.status", "tier2_exit=2\n")
+    pre.check_statuses()
+    assert any("phase2.status 非零退出" in item for item in pre.problems)
+
+
+def test_register_expect_complete_nonzero_is_problem(monkeypatch):
+    """C1：顶层索引少一条时 33 返回 5，49 必须判 problem 而不是继续 READY。"""
+    monkeypatch.setattr(pre, "_run", lambda *a, **k: SimpleNamespace(
+        returncode=5, stdout="expect-complete：拒绝判完备", stderr=""))
+    pre.check_register(True)
+    assert any("33 --dry-run --expect-complete EXIT=5" in item for item in pre.problems)
+
+
+def test_register_expect_complete_zero_is_clean(monkeypatch):
+    monkeypatch.setattr(pre, "_run", lambda *a, **k: SimpleNamespace(
+        returncode=0, stdout="候选身份类文件 2 个：新增 0", stderr=""))
+    pre.check_register(True)
+    assert pre.problems == []
