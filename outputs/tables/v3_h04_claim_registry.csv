@@ -1,9 +1,9 @@
 ﻿claim_id,chapter,statement,display_value,decimals,tier,in_abstract,source_csv,filter,column,precision_note
-C01,3.1,AA250 合并 1000 rep 的净利假阳性率,0.046,3,Tier1,yes,outputs/evidence/g01_aa250/recomputed_fpr.csv,metric == 'net_profit' and layer == 'POOLED',fpr,"1000 rep 合并；Wilson CP [0.033871, 0.060884]"
+C01,3.1,AA250 合并 1000 rep 的净利假阳性率,0.046,3,Tier1,yes,outputs/evidence/g01_aa250/recomputed_fpr.csv,metric == 'net_profit' and layer == 'POOLED',fpr,"1000 rep 合并；Clopper–Pearson 95% 区间 [0.033871, 0.060884]"
 C02,3.1,AA250 净利 FPR 的 95% 区间下界,0.033871,6,Tier1,yes,outputs/evidence/g01_aa250/recomputed_fpr.csv,metric == 'net_profit' and layer == 'POOLED',cp_low,"同上；下界低于预设带 [0.037, 0.065]"
 C03,3.2,F02「券值得发」通过率,0.98,2,Tier1,yes,outputs/tables/v3_phase_F02_formal_claims.csv,claim == 'coupon_worth_issuing',pass_rate,"200 rep；CP [0.9496, 0.9945]"
 C04,3.2,F02 定向策略相对不发券的净利差（元/人）,0.2816,4,Tier1,yes,outputs/tables/v3_phase_F02_formal_itt.csv,contrast == 'selected_targeted_policy_minus_no_coupon',mean_diff_cny_per_user,"200 rep；MC SE 0.0051；95% CI [0.1714, 0.3919]"
-C05,3.6,F02 退款率护栏通过率,1.00,2,Tier1,no,outputs/tables/v3_phase_F02_formal_guardrail.csv,contrast == 'selected_targeted_policy_minus_no_coupon',pass_rate,200 rep；单侧 alpha=0.05；margin 0.005
+C05,3.6,F02 退款率护栏通过率,1.00,2,Tier1,yes,outputs/tables/v3_phase_F02_formal_guardrail.csv,contrast == 'selected_targeted_policy_minus_no_coupon',pass_rate,200 rep；单侧 alpha=0.05；margin 0.005
 C06,3.4,D03 因果森林下按成本归一贪心相对业务规则的净利差（元/人）,0.0216,4,Tier1,no,outputs/tables/v3_phase_D03_formal_paired_diff.csv,model == 'causal_forest' and per_user_budget_cny == 0.2 and policy == 'greedy_incremental_profit_per_cost' and baseline == 'business_rule_new_user_then_cart',mean_diff_cny_per_user,200 对；183/200 为正；SE 0.001147
 C07,3.4,D03 常数策略下同一贪心相对业务规则的净利差（元/人）,-0.1951,4,Tier1,no,outputs/tables/v3_phase_D03_formal_paired_diff.csv,model == 'constant' and per_user_budget_cny == 0.2 and policy == 'greedy_incremental_profit_per_cost' and baseline == 'business_rule_new_user_then_cart',mean_diff_cny_per_user,200 对；0/200 为正
 C08,3.4,D03 因果森林贪心的真实支出不超预算比例,0.11,2,Tier1,no,outputs/tables/v3_phase_D03_formal_compliance.csv,model == 'causal_forest' and per_user_budget_cny == 0.2 and policy == 'greedy_incremental_profit_per_cost',share_within_budget_by_true,按估计支出为 1.00；真实支出/预算均值 1.0537
