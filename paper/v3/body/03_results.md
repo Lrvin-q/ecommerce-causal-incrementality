@@ -1360,16 +1360,20 @@ $$\Delta=\underbrace{\frac{(n_\pi-n_b)\bar\tau_b}{N}}_{\text{覆盖项}}+\underb
 反过来说，3.6 的 200/200 也不是"定向策略安全"的证明——它是在一个支出很低的档位上，
 用一个 0.5 个百分点的宽界值，检验了一个本来就接近零的差异。
 
-\begin{center}
-\includegraphics[width=0.80\linewidth]{figures/f01_refund_sweep.png}
-\end{center}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.74\linewidth]{figures/f01_refund_sweep.png}
 
-**图 3-4　退款事件率差随预算档的变化：两条发券臂相对不发券（6 万人帧，R=0）**
+\vspace{0.5em}
+\textbf{图 3-4　退款事件率差随预算档的变化：两条发券臂相对不发券（6 万人帧，R=0）}
 
-> 数据来源：合成数据（已知 DGP）· F01 单帧 ·
-> `outputs/tables/v3_phase_F01_refund_sweep.csv`（由 `scripts/59_f01_refund_sweep.py` 生成）；
-> 误差线为两臂标准误不合并方差计算的 95% 区间，虚线为 0.5 个百分点的非劣效界值；
-> 出图脚本 `scripts/45_paper_figures.py`。单帧描述，不与 3.6 的 200 个重复并列。
+\vspace{0.3em}
+{\footnotesize\raggedright
+数据来源：合成数据（已知 DGP）· F01 单帧 ·
+\texttt{outputs/tables/v3\_phase\_F01\_refund\_sweep.csv}（由 \texttt{scripts/59\_f01\_refund\_sweep.py} 生成）；
+误差线为两臂标准误不合并方差计算的 95\% 区间，虚线为 0.5 个百分点的非劣效界值；
+出图脚本 \texttt{scripts/45\_paper\_figures.py}。单帧描述，不与 3.6 的 200 个重复并列。\par}
+\end{figure}
 
 图 3-4 把表 3-24 的后两列画成曲线，形态比数字更直观：两条曲线都随预算上升，
 但彼此之间的距离很小且不稳定——0.80 档随机臂反超，1.00 档两臂重合。
