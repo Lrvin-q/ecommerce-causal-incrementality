@@ -155,4 +155,7 @@ for pass in pass2 pass3; do
   xelatex --disable-installer -interaction=nonstopmode -halt-on-error main.tex > "$pass.log" 2>&1 || {
     echo "${pass^^} FAILED"; tail -30 "$pass.log"; exit 1; }
 done
+cp "$BUILD/main.pdf" "$HERE/../main.pdf"
+cp "$BUILD/main.pdf" "$HERE/main.pdf"
 echo "BUILD OK: $BUILD/main.pdf"
+echo "COPIED  -> paper/main.pdf 与 paper/v3b/main.pdf"
