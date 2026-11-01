@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="517.248pt" height="346.14pt" viewBox="0 0 517.248 346.14" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-01T11:27:46.695190</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 346.14 
+L 517.248 346.14 
+L 517.248 -0 
+L 0 -0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 139.938491 70.2306 
+Q 163.081314 70.2306 185.273808 70.2306 
+" clip-path="url(#pcbcf93dcc6)" style="fill: none; stroke: #757575; stroke-width: 0.85; stroke-linecap: round"/>
+    <path d="M 182.073808 68.6306 
+L 185.273808 70.2306 
+L 182.073808 71.8306 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #757575; stroke: #757575; stroke-width: 0.85; stroke-linecap: round"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 320.963771 70.2306 
+Q 344.106594 70.2306 366.299088 70.2306 
+" clip-path="url(#pcbcf93dcc6)" style="fill: none; stroke: #757575; stroke-width: 0.85; stroke-linecap: round"/>
+    <path d="M 363.099088 68.6306 
+L 366.299088 70.2306 
+L 363.099088 71.8306 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #757575; stroke: #757575; stroke-width: 0.85; stroke-linecap: round"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 253.59552 98.766233 
+Q 253.59552 113.35598 253.59552 126.995397 
+" clip-path="url(#pcbcf93dcc6)" style="fill: none; stroke: #fb8c00; stroke-width: 0.85; stroke-linecap: round"/>
+    <path d="M 255.19552 123.795397 
+L 253.59552 126.995397 
+L 251.99552 123.795397 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #fb8c00; stroke: #fb8c00; stroke-width: 0.85; stroke-linecap: round"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 432.10656 98.766233 
+Q 432.10656 113.35598 432.10656 126.995397 
+" clip-path="url(#pcbcf93dcc6)" style="fill: none; stroke: #e53935; stroke-width: 0.85; stroke-linecap: round"/>
+    <path d="M 433.70656 123.795397 
+L 432.10656 126.995397 
+L 430.50656 123.795397 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #e53935; stroke: #e53935; stroke-width: 0.85; stroke-linecap: round"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 432.10656 117.016388 
+Q 432.10656 122.481186 432.10656 126.995656 
+" clip-path="url(#pcbcf93dcc6)" style="fill: none; stroke: #e53935; stroke-width: 0.85; stroke-linecap: round"/>
+    <path d="M 433.70656 123.795656 
+L 432.10656 126.995656 
+L 430.50656 123.795656 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #e53935; stroke: #e53935; stroke-width: 0.85; stroke-linecap: round"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 22.28544 98.09676 
+L 135.42624 98.09676 
+Q 139.951872 98.09676 139.951872 95.1111 
+L 139.951872 45.3501 
+Q 139.951872 42.36444 135.42624 42.36444 
+L 22.28544 42.36444 
+Q 17.759808 42.36444 17.759808 45.3501 
+L 17.759808 95.1111 
+Q 17.759808 98.09676 22.28544 98.09676 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #1e88e5; fill-opacity: 0.065; stroke: #1e88e5; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 190.73952 98.09676 
+L 316.45152 98.09676 
+Q 320.977152 98.09676 320.977152 95.1111 
+L 320.977152 45.3501 
+Q 320.977152 42.36444 316.45152 42.36444 
+L 190.73952 42.36444 
+Q 186.213888 42.36444 186.213888 45.3501 
+L 186.213888 95.1111 
+Q 186.213888 98.09676 190.73952 98.09676 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #1e88e5; fill-opacity: 0.065; stroke: #1e88e5; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 371.7648 98.09676 
+L 494.96256 98.09676 
+Q 499.488192 98.09676 499.488192 95.1111 
+L 499.488192 45.3501 
+Q 499.488192 42.36444 494.96256 42.36444 
+L 371.7648 42.36444 
+Q 367.239168 42.36444 367.239168 45.3501 
+L 367.239168 95.1111 
+Q 367.239168 98.09676 371.7648 98.09676 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #2e7d32; fill-opacity: 0.065; stroke: #2e7d32; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 190.73952 181.03176 
+L 316.45152 181.03176 
+Q 320.977152 181.03176 320.977152 178.0461 
+L 320.977152 131.6025 
+Q 320.977152 128.61684 316.45152 128.61684 
+L 190.73952 128.61684 
+Q 186.213888 128.61684 186.213888 131.6025 
+L 186.213888 178.0461 
+Q 186.213888 181.03176 190.73952 181.03176 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #fb8c00; fill-opacity: 0.065; stroke: #fb8c00; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 371.7648 181.03176 
+L 494.96256 181.03176 
+Q 499.488192 181.03176 499.488192 178.0461 
+L 499.488192 131.6025 
+Q 499.488192 128.61684 494.96256 128.61684 
+L 371.7648 128.61684 
+Q 367.239168 128.61684 367.239168 131.6025 
+L 367.239168 178.0461 
+Q 367.239168 181.03176 371.7648 181.03176 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #e53935; fill-opacity: 0.065; stroke: #e53935; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 334.0512 70.2306 
+L 334.0512 115.0155 
+L 432.10656 115.0155 
+" clip-path="url(#pcbcf93dcc6)" style="fill: none; stroke: #e53935; stroke-width: 0.85; stroke-linecap: square"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 22.28544 280.55376 
+L 99.724032 280.55376 
+Q 104.249664 280.55376 104.249664 277.5681 
+L 104.249664 231.1245 
+Q 104.249664 228.13884 99.724032 228.13884 
+L 22.28544 228.13884 
+Q 17.759808 228.13884 17.759808 231.1245 
+L 17.759808 277.5681 
+Q 17.759808 280.55376 22.28544 280.55376 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #1e88e5; fill-opacity: 0.065; stroke: #1e88e5; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 121.346496 280.55376 
+L 198.785088 280.55376 
+Q 203.31072 280.55376 203.31072 277.5681 
+L 203.31072 231.1245 
+Q 203.31072 228.13884 198.785088 228.13884 
+L 121.346496 228.13884 
+Q 116.820864 228.13884 116.820864 231.1245 
+L 116.820864 277.5681 
+Q 116.820864 280.55376 121.346496 280.55376 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #2e7d32; fill-opacity: 0.065; stroke: #2e7d32; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_14">
+    <path d="M 220.407552 280.55376 
+L 297.846144 280.55376 
+Q 302.371776 280.55376 302.371776 277.5681 
+L 302.371776 231.1245 
+Q 302.371776 228.13884 297.846144 228.13884 
+L 220.407552 228.13884 
+Q 215.88192 228.13884 215.88192 231.1245 
+L 215.88192 277.5681 
+Q 215.88192 280.55376 220.407552 280.55376 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #757575; fill-opacity: 0.065; stroke: #757575; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_15">
+    <path d="M 319.468608 280.55376 
+L 396.9072 280.55376 
+Q 401.432832 280.55376 401.432832 277.5681 
+L 401.432832 231.1245 
+Q 401.432832 228.13884 396.9072 228.13884 
+L 319.468608 228.13884 
+Q 314.942976 228.13884 314.942976 231.1245 
+L 314.942976 277.5681 
+Q 314.942976 280.55376 319.468608 280.55376 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #fb8c00; fill-opacity: 0.065; stroke: #fb8c00; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_16">
+    <path d="M 418.529664 280.55376 
+L 495.968256 280.55376 
+Q 500.493888 280.55376 500.493888 277.5681 
+L 500.493888 231.1245 
+Q 500.493888 228.13884 495.968256 228.13884 
+L 418.529664 228.13884 
+Q 414.004032 228.13884 414.004032 231.1245 
+L 414.004032 277.5681 
+Q 414.004032 280.55376 418.529664 280.55376 
+z
+" clip-path="url(#pcbcf93dcc6)" style="fill: #e53935; fill-opacity: 0.065; stroke: #e53935; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #263238" x="17.25696" y="18.8109" transform="rotate(-0 17.25696 18.8109)">(a) 首单、核销与复购</text>
+   </g>
+   <g id="text_2">
+    <!-- 购物车金额 $V$ -->
+    <g style="fill: #1e88e5" transform="translate(53.73834 60.515542)">
+     <text>
+      <tspan x="0" y="-0.875" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #1e88e5">购</tspan>
+      <tspan x="8.5" y="-0.875" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #1e88e5">物</tspan>
+      <tspan x="17" y="-0.875" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #1e88e5">车</tspan>
+      <tspan x="25.5" y="-0.875" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #1e88e5">金</tspan>
+      <tspan x="34" y="-0.875" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #1e88e5">额</tspan>
+      <tspan x="42.5" y="-0.875" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #1e88e5"> </tspan>
+      <tspan x="45.031738" y="-0.875" style="font-style: italic; font-size: 8.5px; font-family: 'STIXGeneral'; fill: #1e88e5">V</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_3">
+    <text style="font-size: 7.3px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #263238" x="78.85584" y="82.322603" transform="rotate(-0 78.85584 82.322603)">首单金额不超过购物车</text>
+   </g>
+   <g id="text_4">
+    <!-- 已支付首单 $G_1$ -->
+    <g style="fill: #1e88e5" transform="translate(226.31052 60.515542)">
+     <text>
+      <tspan x="0" y="-0.875" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #1e88e5">已</tspan>
+      <tspan x="8.5" y="-0.875" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #1e88e5">支</tspan>
+      <tspan x="17" y="-0.875" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #1e88e5">付</tspan>
+      <tspan x="25.5" y="-0.875" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #1e88e5">首</tspan>
+      <tspan x="34" y="-0.875" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #1e88e5">单</tspan>
+      <tspan x="42.5" y="-0.875" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #1e88e5"> </tspan>
+      <tspan x="45.031738" y="-0.875" style="font-style: italic; font-size: 8.5px; font-family: 'STIXGeneral'; fill: #1e88e5">G</tspan>
+      <tspan x="51.168808" y="0.4" style="font-style: italic; font-size: 5.95px; font-family: 'STIXGeneral'; fill: #1e88e5">1</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_5">
+    <!-- $G_1=\lfloor QV\rfloor$ -->
+    <g style="fill: #263238" transform="translate(237.28002 75.582044)">
+     <text>
+      <tspan x="0" y="-0.796875" style="font-style: italic; font-size: 7.3px; font-family: 'STIXGeneral'; fill: #263238">G</tspan>
+      <tspan x="9.61068" y="-0.796875" style="font-style: italic; font-size: 7.3px; font-family: 'STIXGeneral'; fill: #263238">=</tspan>
+      <tspan x="19.418214" y="-0.796875" style="font-style: italic; font-size: 7.3px; font-family: 'STIXGeneral'; fill: #263238">Q</tspan>
+      <tspan x="24.68651" y="-0.796875" style="font-style: italic; font-size: 7.3px; font-family: 'STIXGeneral'; fill: #263238">V</tspan>
+      <tspan x="5.268295" y="0.298125" style="font-style: italic; font-size: 5.11px; font-family: 'STIXGeneral'; fill: #263238">1</tspan>
+      <tspan x="15.996019" y="-0.796875" style="font-size: 7.3px; font-family: 'STIXGeneral'; fill: #263238">⌊</tspan>
+      <tspan x="29.144853" y="-0.796875" style="font-size: 7.3px; font-family: 'STIXGeneral'; fill: #263238">⌋</tspan>
+     </text>
+    </g>
+    <text style="font-size: 7.3px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(228.04552 88.357115)">以分计，下取整</text>
+   </g>
+   <g id="text_6">
+    <!-- 复购订单 $G_2$ -->
+    <g style="fill: #2e7d32" transform="translate(410.32868 60.515542)">
+     <text>
+      <tspan x="0" y="-0.890625" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #2e7d32">复</tspan>
+      <tspan x="8.5" y="-0.890625" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #2e7d32">购</tspan>
+      <tspan x="17" y="-0.890625" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #2e7d32">订</tspan>
+      <tspan x="25.5" y="-0.890625" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #2e7d32">单</tspan>
+      <tspan x="34" y="-0.890625" style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei'; fill: #2e7d32"> </tspan>
+      <tspan x="36.531738" y="-0.890625" style="font-style: italic; font-size: 8.5px; font-family: 'STIXGeneral'; fill: #2e7d32">G</tspan>
+      <tspan x="42.668808" y="0.384375" style="font-style: italic; font-size: 5.95px; font-family: 'STIXGeneral'; fill: #2e7d32">2</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 7.3px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(400.51368 76.334286)">首单支付后可能发生</text>
+    <text style="font-size: 7.3px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(415.11368 88.346849)">复购不带券</text>
+   </g>
+   <g id="text_8">
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #fb8c00" x="253.59552" y="145.860955" transform="rotate(-0 253.59552 145.860955)">首单核销</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 7.3px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(217.09552 160.316596)">发券且支付才可能核销</text>
+    <text style="font-size: 7.3px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(220.74552 172.346839)">抵扣不超过首单金额</text>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #e53935" x="433.36368" y="145.85697" transform="rotate(-0 433.36368 145.85697)">退款处理</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 7.3px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(396.86368 160.334276)">首单与复购均可能退款</text>
+    <text style="font-size: 7.3px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(407.81368 172.364519)">保留订单与用户</text>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #263238" x="17.25696" y="209.5614" transform="rotate(-0 17.25696 209.5614)">(b) 30 天净贡献利润的组成</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1e88e5" x="61.004736" y="245.241348" transform="rotate(-0 61.004736 245.241348)">支付收入</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 7px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #263238" x="61.004736" y="265.757655" transform="rotate(-0 61.004736 265.757655)">扣除退款</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 12px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #263238" x="110.28384" y="259.356562" transform="rotate(-0 110.28384 259.356562)">−</text>
+   </g>
+   <g id="text_16">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #2e7d32" x="160.065792" y="245.225723" transform="rotate(-0 160.065792 245.225723)">商品成本</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 7px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #263238" x="160.065792" y="265.757108" transform="rotate(-0 160.065792 265.757108)">减去回收</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 12px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #263238" x="209.344896" y="259.356562" transform="rotate(-0 209.344896 259.356562)">−</text>
+   </g>
+   <g id="text_19">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #757575" x="259.126848" y="245.241348" transform="rotate(-0 259.126848 245.241348)">履约成本</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 7px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #263238" x="259.126848" y="265.750546" transform="rotate(-0 259.126848 265.750546)">已发生不回收</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 12px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #263238" x="308.405952" y="259.356562" transform="rotate(-0 308.405952 259.356562)">−</text>
+   </g>
+   <g id="text_22">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #fb8c00" x="358.187904" y="245.217598" transform="rotate(-0 358.187904 245.217598)">券成本</text>
+   </g>
+   <g id="text_23">
+    <text style="font-size: 7px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #263238" x="358.187904" y="265.764217" transform="rotate(-0 358.187904 265.764217)">首单一次扣除</text>
+   </g>
+   <g id="text_24">
+    <text style="font-size: 12px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #263238" x="407.467008" y="259.356562" transform="rotate(-0 407.467008 259.356562)">−</text>
+   </g>
+   <g id="text_25">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #e53935" x="457.24896" y="245.233223" transform="rotate(-0 457.24896 245.233223)">退款手续费</text>
+   </g>
+   <g id="text_26">
+    <text style="font-size: 7px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #263238" x="457.24896" y="265.747264" transform="rotate(-0 457.24896 265.747264)">另计成本</text>
+   </g>
+   <g id="text_27">
+    <text style="font-size: 7.4px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #263238" x="258.624" y="315.7182" transform="rotate(-0 258.624 315.7182)">按全部分配用户汇总；预算限制资源使用，策略价值不再次扣除券成本</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pcbcf93dcc6">
+   <rect x="7.2" y="7.2" width="502.848" height="331.74"/>
+  </clipPath>
+ </defs>
+</svg>

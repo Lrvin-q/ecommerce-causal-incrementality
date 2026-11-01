@@ -1,0 +1,5 @@
+﻿cell_id,block,level,tier,metric,R,MC_SE,sd,mean,provisional
+L0_Pi_heterogeneous_cost,g_tier2,L0,2,ate,3,0.255162707204821,0.44195477307557113,-0.09230980393575623,True
+L0_Pi_heterogeneous_cost,g_tier2,L0,2,ate_test,3,0.1353358642907835,0.23440859303788356,-0.194134236192963,True
+L0_Pi_heterogeneous_cost,g_tier2,L0,2,ate_paid_purchase_7d,3,0.005905061863387493,0.010227867169224487,0.03339983387745639,True
+L0_Pi_heterogeneous_cost,g_tier2,L0,2,ate_any_refund_30d,3,0.0011493380093436317,0.001990711827253243,0.004164940879578177,True

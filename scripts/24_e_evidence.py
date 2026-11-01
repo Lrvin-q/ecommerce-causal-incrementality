@@ -1,0 +1,634 @@
+"""E 阶段正文证据入口：一个代表 rep 的 9 列帧 → 7 张证据表（薄入口）。
+
+证据逻辑在 :mod:`causal_growth.policy.v3_policy_evidence`；本脚本只负责
+生成/读取逐用户帧、调用证据函数、落盘与打印摘要。
+
+两种输入
+--------
+- ``--input``：已有的 9 列 CSV（``utf-8-sig``），用于冒烟与复用；
+  没有 validation 切分，成本校准会标成不可用。
+- ``--from-d03``（默认）：用 ``_d03_rep_artifacts`` 重建一个 rep 的
+  5 模型链路，额外在 **validation 处理组**上做成本校准。
+
+产物（``outputs/tables/`` 下，UTF-8-SIG）
+-----------------------------------------
+``v3_phase_E_calibration.json``、``v3_phase_E_small_pool.csv``、
+``v3_phase_E_bucket_convergence.csv``、``v3_phase_E_random_long.csv``、
+``v3_phase_E_random_summary.csv``、``v3_phase_E_decomposition.csv``、
+``v3_phase_E_conservative.csv``、``v3_phase_E_scale.csv``、
+``v3_phase_E_evidence_meta.json``。
+
+用法
+----
+    $env:PYTHONUTF8='1'
+    .\\venv\\Scripts\\python.exe scripts\\24_e_evidence.py --input out\\d03_smoke_test\\pred.csv --smoke
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import math
+import subprocess
+import sys
+import time
+from datetime import datetime
+from pathlib import Path
+from zoneinfo import ZoneInfo
+
+import numpy as np
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from causal_growth.config import Config  # noqa: E402
+from causal_growth.data.v3_storage import dataframe_sha256  # noqa: E402
+from causal_growth.estimate.v3_models import (  # noqa: E402
+    MODEL_NAMES,
+    _d03_rep_artifacts,
+    _observations_for_keys,
+)
+from causal_growth.policy import v3_policy as pol  # noqa: E402
+from causal_growth.policy import v3_policy_evidence as ev  # noqa: E402
+from causal_growth.policy.v3_policy_grid import require_grid_frame  # noqa: E402
+from causal_growth.v3_config import load_v3_protocol  # noqa: E402
+
+BEIJING = ZoneInfo("Asia/Shanghai")
+
+
+def _now() -> str:
+    return datetime.now(BEIJING).isoformat(timespec="seconds")
+
+
+def _say(message: str) -> None:
+    print(f"[E evidence {datetime.now(BEIJING).strftime('%H:%M:%S')}] {message}", flush=True)
+
+
+def _rel(path: Path) -> str:
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def _json_safe(value):
+    """把 NaN/Inf 换成 None，保证写出的是严格 JSON（NaN 不是合法 JSON）。"""
+    if isinstance(value, dict):
+        return {key: _json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(item) for item in value]
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    return value
+
+
+def _write_csv(frame: pd.DataFrame, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    frame.to_csv(path, index=False, encoding="utf-8-sig")
+    _say(f"wrote {_rel(path)} ({len(frame)} rows)")
+
+
+def _write_json(payload: dict, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(_json_safe(payload), ensure_ascii=False, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
+    _say(f"wrote {_rel(path)}")
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _tagged(path: Path, tag: str) -> Path:
+    if not tag:
+        return path
+    return path.with_name(f"{path.stem}_{tag}{path.suffix}")
+
+
+def _git_commit() -> str:
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unavailable"
+
+
+def _parse_ints(text: str) -> list[int]:
+    return [int(item) for item in text.split(",") if item.strip()]
+
+
+def _parse_floats(text: str) -> list[float]:
+    return [float(item) for item in text.split(",") if item.strip()]
+
+
+def _parse_pools(text: str) -> list[object]:
+    pools: list[object] = []
+    for item in text.split(","):
+        token = item.strip()
+        if not token:
+            continue
+        pools.append(token if token in {"full_test", "full"} else int(token))
+    return pools
+
+
+def _load_input(path: Path) -> pd.DataFrame:
+    frame = pd.read_csv(path, encoding="utf-8-sig")
+    require_grid_frame(frame)
+    return frame
+
+
+def _build_from_d03(args: argparse.Namespace) -> tuple[pd.DataFrame, dict, str, str]:
+    models = None if not args.models else tuple(
+        item.strip() for item in args.models.split(",") if item.strip()
+    )
+    _say(
+        f"重建 D03 rep={args.rep_id} scenario={args.scenario} n={args.n} "
+        f"（模型 {list(models or MODEL_NAMES)}，约数分钟）"
+    )
+    started = time.perf_counter()
+    artifacts = _d03_rep_artifacts(
+        scenario=args.scenario,
+        n=int(args.n),
+        rep_id=int(args.rep_id),
+        models=models,
+        time_mode=args.time_mode,
+    )
+    elapsed = time.perf_counter() - started
+    fitted = tuple(sorted(artifacts.predictions))
+    # 选模只在**实际拟合的模型集合**内排名：受限拟合时 chosen_model 不代表 D03 正式选模。
+    restricted = bool(args.models) or set(fitted) != set(MODEL_NAMES)
+    provenance = "restricted_fit_set" if restricted else "full_model_fit"
+    _say(
+        f"D03 重建完成：chosen={artifacts.chosen_model}"
+        f"（{provenance}，拟合 {list(fitted)}），test={len(artifacts.frame)}，{elapsed:.1f}s"
+    )
+    if restricted:
+        _say(
+            "警告：本次拟合的模型集合不完整，chosen_model 只在该集合内有意义；"
+            "D03 正式 rep 的选模见 outputs/tables/v3_phase_D03_formal_per_rep.csv"
+        )
+    frame_model = args.frame_model or artifacts.chosen_model
+    if frame_model not in artifacts.predictions:
+        raise ValueError(
+            f"frame model {frame_model} 不在已拟合模型 {sorted(artifacts.predictions)}"
+        )
+    frame = artifacts.frame.copy()
+    frame["tau_hat"] = artifacts.predictions[frame_model].tau_test
+    tau_unique = int(frame["tau_hat"].nunique())
+    tau_sd = float(frame["tau_hat"].std(ddof=1))
+    _say(f"帧价值向量：model={frame_model}（chosen={artifacts.chosen_model}），"
+         f"unique={tau_unique} sd={tau_sd:.6g}")
+
+    cfg = artifacts.cfg
+    validation = artifacts.data.validation
+    treated = validation.treatment == 1
+    if int(treated.sum()) < 2:
+        raise ValueError("validation 处理组不足 2 人，无法校准成本模型")
+    predicted = pol.predict_expected_cost(
+        artifacts.cost_model, validation.X[treated], cfg
+    )
+    keys = validation.keys.loc[treated].reset_index(drop=True)
+    observed = _observations_for_keys(
+        artifacts.dataset, keys, ("coupon_cost",)
+    )["coupon_cost"].to_numpy(dtype=np.float64)
+    calibration = ev.calibrate_cost_predictions(predicted, observed)
+    calibration["n_validation_treated"] = int(treated.sum())
+    calibration["n_validation_total"] = int(validation.n)
+    calibration["chosen_model"] = artifacts.chosen_model
+    calibration["chosen_model_provenance"] = provenance
+    calibration["models_fitted"] = list(fitted)
+    calibration["model_fit_restricted"] = bool(restricted)
+    calibration["frame_model"] = frame_model
+    calibration["frame_model_is_chosen"] = bool(frame_model == artifacts.chosen_model)
+    # 只有全模型拟合时，"帧模型就是 D03 选中的模型"这句话才成立。
+    calibration["frame_model_is_chosen_in_full_fit"] = bool(
+        frame_model == artifacts.chosen_model and not restricted
+    )
+    calibration["tau_hat_nunique"] = tau_unique
+    calibration["tau_hat_sd_cny"] = tau_sd
+    calib_frame = pd.DataFrame({
+        "user_id": keys["user_id"].to_numpy(),
+        "predicted_cost_cny": predicted,
+        "observed_coupon_cost_cny": observed,
+    })
+    calib_path = _tagged(args.out_dir / "calibration_validation_treated.csv", args.tag)
+    _write_csv(calib_frame, calib_path)
+    calibration["calibration_rows_path"] = _rel(calib_path)
+    calibration["calibration_rows_sha256"] = _sha256(calib_path)
+    return frame, calibration, artifacts.chosen_model, frame_model
+
+
+def _export_evidence(
+    target: Path,
+    *,
+    frame_path: Path,
+    calibration_csv: Path,
+    table_paths: dict[str, str],
+    meta_path: Path,
+    run_log: Path | None,
+    model_label: str,
+) -> Path:
+    """把可重建的关键输入复制到 ``outputs/evidence`` 并登记哈希。"""
+    target.mkdir(parents=True, exist_ok=True)
+    records: list[dict[str, object]] = []
+
+    def add(source: Path, relative: str, kind: str) -> None:
+        if not source.is_file():
+            raise FileNotFoundError(f"证据源缺失：{source}")
+        destination = target / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        import shutil
+
+        shutil.copy2(source, destination)
+        records.append({
+            "kind": kind,
+            "source": _rel(source),
+            "target": _rel(destination),
+            "bytes": destination.stat().st_size,
+            "sha256": _sha256(destination),
+        })
+
+    add(frame_path, f"frame_rep0_{model_label}.csv", "e_frame")
+    if calibration_csv.is_file():
+        add(calibration_csv, f"calibration_validation_treated_{model_label}.csv",
+            "e_calibration_rows")
+    for name, path in table_paths.items():
+        source = Path(path)
+        if not source.is_absolute():
+            source = ROOT / source
+        add(source, source.name, f"e_{name}")
+    add(meta_path, f"meta_{model_label}.json", "e_meta")
+    if run_log is not None and run_log.is_file():
+        add(run_log, f"run_{model_label}.log", "e_log")
+
+    coverage = {
+        "phase": "E_evidence",
+        "created_at": _now(),
+        "model_label": model_label,
+        "purpose": "E01/E02 证据包：帧、校准逐用户、证据表与 meta，离开 out/ 也可复算",
+        "records": records,
+        "total_bytes": sum(int(record["bytes"]) for record in records),
+        "excluded": [
+            {"path": "D03 全链路中间产物", "reason": "可由 --from-d03 重建；本包已含其输出帧"},
+        ],
+    }
+    coverage_path = target / "coverage.json"
+    _write_json(coverage, coverage_path)
+
+    top_path = ROOT / "outputs" / "evidence" / "coverage.json"
+    if top_path.is_file():
+        top = json.loads(top_path.read_text(encoding="utf-8"))
+        prefix = _rel(target).rstrip("/") + "/"
+        top["records"] = [
+            record for record in top.get("records", [])
+            if not str(record.get("target", "")).startswith(prefix)
+        ]
+        top["records"].extend(records)
+        top["total_bytes"] = sum(int(record["bytes"]) for record in top["records"])
+        top_path.write_text(
+            json.dumps(top, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+        _say(f"更新顶层 coverage.json：{len(records)} 条 E 记录")
+    return coverage_path
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="E 阶段正文证据：7 张真实数据表")
+    parser.add_argument("--input", type=Path, default=None, help="9 列 CSV；给了就不用 --from-d03")
+    parser.add_argument("--from-d03", action="store_true", default=False)
+    parser.add_argument("--scenario", default="L1_main")
+    parser.add_argument("--n", type=int, default=200_000)
+    parser.add_argument("--rep-id", type=int, default=0)
+    parser.add_argument("--models", default="", help="逗号分隔；默认 5 个全跑")
+    parser.add_argument(
+        "--frame-model", default="",
+        help="用哪个模型的 tau_test 写 tau_hat；默认 D03 选中模型。"
+             "求解器互证必须用非退化模型（如 causal_forest）",
+    )
+    parser.add_argument("--tag", default="", help="产物文件名后缀，避免覆盖已有证据")
+    parser.add_argument(
+        "--evidence-dir", type=Path, default=None,
+        help="把帧、校准逐用户、表与 meta 复制到该目录并写 coverage.json",
+    )
+    parser.add_argument("--time-mode", default="static")
+    parser.add_argument("--out-dir", type=Path, default=ROOT / "out" / "e_evidence")
+    parser.add_argument("--tables-dir", type=Path, default=ROOT / "outputs" / "tables")
+    parser.add_argument("--small-pools", default="")
+    parser.add_argument("--budgets", default="")
+    parser.add_argument("--widths", default="")
+    parser.add_argument("--scale-pools", default="")
+    parser.add_argument("--scale-budgets", default="")
+    parser.add_argument("--random-seeds", type=int, default=None)
+    parser.add_argument("--seed-offset", type=int, default=0)
+    parser.add_argument("--skip-small-pool", action="store_true")
+    parser.add_argument("--skip-bucket", action="store_true")
+    parser.add_argument("--skip-random", action="store_true")
+    parser.add_argument("--skip-decomposition", action="store_true")
+    parser.add_argument("--skip-conservative", action="store_true")
+    parser.add_argument("--skip-scale", action="store_true")
+    parser.add_argument("--scale-milp-time-limit", type=float, default=None)
+    parser.add_argument("--smoke", action="store_true", help="缩小网格，只验证链路")
+    args = parser.parse_args(argv)
+    if args.input is not None and args.from_d03:
+        parser.error("--input 与 --from-d03 只能二选一")
+    args.out_dir = args.out_dir if args.out_dir.is_absolute() else ROOT / args.out_dir
+    args.tables_dir = (
+        args.tables_dir if args.tables_dir.is_absolute() else ROOT / args.tables_dir
+    )
+    if args.input is not None and not args.input.is_absolute():
+        args.input = ROOT / args.input
+    if args.smoke:
+        # 冒烟产物绝不能落在正式 outputs/tables，避免小 n 数字被误当正文证据。
+        args.tables_dir = args.out_dir / "tables"
+
+    protocol = load_v3_protocol()
+    cfg = protocol.config
+    started_at = _now()
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    args.tables_dir.mkdir(parents=True, exist_ok=True)
+    evidence_dir = (
+        None if args.evidence_dir is None
+        else (args.evidence_dir if args.evidence_dir.is_absolute()
+              else ROOT / args.evidence_dir)
+    )
+
+    calibration: dict = {"status": "not_run"}
+    chosen_model = "unknown"
+    frame_model = "unknown"
+    if args.input is not None:
+        frame = _load_input(args.input)
+        calibration = {
+            "status": "unavailable_input_csv",
+            "reason": "输入 CSV 没有 validation 切分与成本模型，校准必须用 --from-d03",
+        }
+        source = str(args.input)
+        frame_model = "input_csv"
+        _say(f"读入 {args.input}：{len(frame)} 行")
+    else:
+        frame, calibration, chosen_model, frame_model = _build_from_d03(args)
+        source = f"d03:{args.scenario}:n={args.n}:rep={args.rep_id}"
+    frame = frame.sort_values("user_id", kind="stable").reset_index(drop=True)
+    require_grid_frame(frame)
+    n_rows = len(frame)
+
+    frame_path = _tagged(args.out_dir / f"frame_rep{args.rep_id}.csv", args.tag)
+    _write_csv(frame, frame_path)
+    frame_sha = _sha256(frame_path)
+
+    budgets = _parse_floats(args.budgets) if args.budgets else [
+        float(x) for x in cfg.require("policy.budget.per_user_grid_cny")
+    ]
+    if args.smoke:
+        budgets = budgets[:2]
+    _say(f"帧 {n_rows} 行；预算 {budgets}；chosen={chosen_model}")
+
+    outputs: dict[str, str] = {}
+    timings: dict[str, float] = {}
+    small_pools_used: list[int] | None = None
+    widths_used: list[float] | None = None
+    seeds_used: int | None = None
+    scale_pools_used: list[object] | None = None
+    scale_budgets_used: list[float] | None = None
+
+    if not args.skip_small_pool:
+        pools = _parse_ints(args.small_pools) if args.small_pools else [
+            int(x) for x in cfg.require("policy.optimization.small_exact.pool_sizes")
+        ]
+        if args.smoke:
+            pools = [p for p in pools if p <= max(20, n_rows // 10)] or [20]
+        pools = [p for p in pools if p <= n_rows]
+        if not pools:
+            raise ValueError(f"没有 ≤ {n_rows} 的小池大小")
+        _say(f"小池求解器互证：pools={pools}")
+        started = time.perf_counter()
+        table = ev.small_pool_solver_table(
+            frame, cfg, pool_sizes=pools, budgets=budgets,
+            seed_offset=args.seed_offset, include_brute_force=True,
+        )
+        timings["small_pool"] = time.perf_counter() - started
+        small_pools_used = list(pools)
+        path = _tagged(args.tables_dir / "v3_phase_E_small_pool.csv", args.tag)
+        _write_csv(table, path)
+        outputs["small_pool"] = _rel(path)
+
+    if not args.skip_bucket:
+        pool_size = int(cfg.require("policy.optimization.bucket_convergence.pool_size"))
+        pool_size = min(pool_size, n_rows)
+        widths = _parse_floats(args.widths) if args.widths else None
+        _say(f"桶宽收敛：pool={pool_size} widths={widths or 'config'}")
+        started = time.perf_counter()
+        table = ev.bucket_convergence_table(
+            frame, cfg, pool_size=pool_size, budgets=budgets,
+            widths=widths, seed_offset=args.seed_offset,
+        )
+        timings["bucket"] = time.perf_counter() - started
+        widths_used = (
+            list(widths) if widths is not None
+            else [float(x) for x in cfg.require("policy.optimization.bucket_convergence.widths_cny")]
+        )
+        path = _tagged(args.tables_dir / "v3_phase_E_bucket_convergence.csv", args.tag)
+        _write_csv(table, path)
+        outputs["bucket_convergence"] = _rel(path)
+
+    if not args.skip_random:
+        seeds = args.random_seeds
+        if args.smoke and seeds is None:
+            seeds = 5
+        _say(f"随机基线：budgets={len(budgets)} seeds={seeds or 'config'}")
+        started = time.perf_counter()
+        long_frame, summary = ev.random_baseline_table(
+            frame, cfg, budgets=budgets, seeds=seeds, seed_offset=args.seed_offset
+        )
+        timings["random"] = time.perf_counter() - started
+        seeds_used = (
+            int(seeds) if seeds is not None
+            else int(cfg.require("policy.random_baseline.seeds_per_frozen_dataset_and_budget"))
+        )
+        long_path = _tagged(args.tables_dir / "v3_phase_E_random_long.csv", args.tag)
+        summary_path = _tagged(args.tables_dir / "v3_phase_E_random_summary.csv", args.tag)
+        _write_csv(long_frame, long_path)
+        _write_csv(summary, summary_path)
+        outputs["random_long"] = _rel(long_path)
+        outputs["random_summary"] = _rel(summary_path)
+
+    if not args.skip_decomposition:
+        pool_size = int(cfg.require("policy.optimization.bucket_convergence.pool_size"))
+        pool_size = min(pool_size, n_rows)
+        _say(f"误差分解：pool={pool_size}")
+        started = time.perf_counter()
+        table = ev.error_decomposition_table(
+            frame, cfg, pool_size=pool_size, budgets=budgets,
+            seed_offset=args.seed_offset,
+        )
+        timings["decomposition"] = time.perf_counter() - started
+        path = _tagged(args.tables_dir / "v3_phase_E_decomposition.csv", args.tag)
+        _write_csv(table, path)
+        outputs["decomposition"] = _rel(path)
+
+    if not args.skip_conservative:
+        seeds = args.random_seeds
+        if args.smoke and seeds is None:
+            seeds = 5
+        _say("三种预算口径：expected / buffered / worst-case face")
+        started = time.perf_counter()
+        table = ev.conservative_comparison_table(
+            frame, cfg, budgets=budgets, seeds=seeds, seed_offset=args.seed_offset
+        )
+        timings["conservative"] = time.perf_counter() - started
+        if seeds_used is None:
+            seeds_used = (
+                int(seeds) if seeds is not None
+                else int(cfg.require("policy.random_baseline.seeds_per_frozen_dataset_and_budget"))
+            )
+        path = _tagged(args.tables_dir / "v3_phase_E_conservative.csv", args.tag)
+        _write_csv(table, path)
+        outputs["conservative"] = _rel(path)
+
+    if not args.skip_scale:
+        pools = _parse_pools(args.scale_pools) if args.scale_pools else list(
+            cfg.require("policy.optimization.large.pool_sizes")
+        )
+        pools = [
+            pool for pool in pools
+            if isinstance(pool, str) or int(pool) <= n_rows
+        ]
+        if not pools:
+            pools = ["full_test"]
+        scale_budgets = (
+            _parse_floats(args.scale_budgets) if args.scale_budgets else budgets
+        )
+        _say(f"规模扫描：pools={pools} budgets={scale_budgets}")
+        started = time.perf_counter()
+        table = ev.scale_table(
+            frame, cfg, pool_sizes=pools, budgets=scale_budgets,
+            seed_offset=args.seed_offset, include_milp=True,
+            milp_time_limit_seconds=args.scale_milp_time_limit,
+        )
+        timings["scale"] = time.perf_counter() - started
+        scale_pools_used = list(pools)
+        scale_budgets_used = list(scale_budgets)
+        path = _tagged(args.tables_dir / "v3_phase_E_scale.csv", args.tag)
+        _write_csv(table, path)
+        outputs["scale"] = _rel(path)
+
+    calibration_path = _tagged(
+        args.tables_dir / "v3_phase_E_calibration.json", args.tag
+    )
+    if args.input is None:
+        _write_json(calibration, calibration_path)
+        outputs["calibration"] = _rel(calibration_path)
+    else:
+        _say("输入 CSV 模式不写校准 JSON，保留既有 --from-d03 校准证据")
+
+    source_files = (
+        "src/causal_growth/estimate/v3_models.py",
+        "src/causal_growth/policy/v3_policy.py",
+        "src/causal_growth/policy/v3_policy_grid.py",
+        "src/causal_growth/policy/v3_policy_evidence.py",
+        "scripts/24_e_evidence.py",
+    )
+    d03_snapshot_combined = None
+    d03_manifest = ROOT / "out" / "d03_formal" / "manifest.json"
+    if d03_manifest.is_file():
+        d03_snapshot_combined = json.loads(
+            d03_manifest.read_text(encoding="utf-8")
+        ).get("snapshot_combined_sha256")
+
+    notes = [
+        "小池/桶宽/误差分解的预算是 per_user_budget × pool_size，不是全量预算。",
+        "分币 DP 的精确性只对分币整数化问题成立；MILP 只有 gap=0 才可说最优。",
+        "LP 是上界，不是可行策略。",
+        "桶宽收敛只出曲线，未设通过阈值。",
+        "误差分解主口径是 cost_hat（与策略预算一致）；raw cost_true 是 0/10 实现成本敏感性。",
+        "observed_value 需观测结局与 OPE，属 F 阶段；本表只给 DGP 真值审计值。",
+    ]
+    if calibration.get("model_fit_restricted"):
+        notes.append(
+            "本次 --models 受限：chosen_model 只在拟合的模型集合内排名，不代表 D03 正式 rep 的选模；"
+            "frame_model 是被强制指定的替代价值向量。"
+        )
+    else:
+        notes.append(
+            "frame_model_is_chosen_in_full_fit=True 才表示帧价值向量就是 D03 全模型拟合选中的模型；"
+            "为 False 时该帧是被强制指定的替代价值向量（敏感性），不是选模结果。"
+        )
+
+    meta = {
+        "phase": "E_evidence",
+        "status": "evidence_not_formal_R",
+        "created_at": started_at,
+        "finished_at": _now(),
+        "source": source,
+        "scenario": args.scenario,
+        "n_rows": n_rows,
+        "rep_id": args.rep_id,
+        "chosen_model": chosen_model,
+        "chosen_model_provenance": str(
+            calibration.get("chosen_model_provenance", "not_applicable")
+        ),
+        "models_fitted": list(calibration.get("models_fitted", [])),
+        "model_fit_restricted": bool(calibration.get("model_fit_restricted", False)),
+        "frame_model": frame_model,
+        "frame_model_is_chosen": bool(frame_model == chosen_model),
+        "frame_model_is_chosen_in_full_fit": bool(
+            calibration.get("frame_model_is_chosen_in_full_fit", False)
+        ),
+        "tau_hat_nunique": int(frame["tau_hat"].nunique()),
+        "tau_hat_sd_cny": float(frame["tau_hat"].std(ddof=1)),
+        "frame_path": _rel(frame_path),
+        "frame_file_sha256": frame_sha,
+        "frame_dataframe_sha256": dataframe_sha256(frame),
+        "frame_dataframe_columns": [str(column) for column in frame.columns],
+        "git_commit": _git_commit(),
+        "source_sha256": {
+            path: _sha256(ROOT / path) for path in source_files
+        },
+        "protocol_config_hash": protocol.config_hash,
+        "protocol_source_hashes": protocol.source_hashes,
+        "d03_snapshot_combined_sha256": d03_snapshot_combined,
+        "budgets_cny_per_user": budgets,
+        "seed_offset": args.seed_offset,
+        "small_pools_used": small_pools_used,
+        "bucket_widths_used_cny": widths_used,
+        "random_seeds_used": seeds_used,
+        "scale_pools_used": scale_pools_used,
+        "scale_budgets_cny_per_user": scale_budgets_used,
+        "timings_seconds": {key: round(value, 3) for key, value in timings.items()},
+        "outputs": outputs,
+        "notes": notes,
+    }
+    meta_path = _tagged(
+        args.tables_dir / "v3_phase_E_evidence_meta.json", args.tag
+    )
+    _write_json(meta, meta_path)
+    if evidence_dir is not None:
+        model_label = args.tag or frame_model.replace(" ", "_")
+        coverage_path = _export_evidence(
+            evidence_dir,
+            frame_path=frame_path,
+            calibration_csv=_tagged(
+                args.out_dir / "calibration_validation_treated.csv", args.tag
+            ),
+            table_paths=outputs,
+            meta_path=meta_path,
+            run_log=args.out_dir / "run.log",
+            model_label=model_label,
+        )
+        _say(f"证据包：{_rel(coverage_path)}")
+    _say(f"完成：{len(outputs)} 个产物；总耗时 {sum(timings.values()):.1f}s")
+    print(json.dumps({"meta": _rel(meta_path), "outputs": outputs},
+                     ensure_ascii=False, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

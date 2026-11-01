@@ -1,0 +1,109 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# ---- 虚拟环境 ----
+.venv/
+venv/
+
+# ---- 测试与类型缓存 ----
+.pytest_cache/
+.pytest_basetemp/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+
+# ---- 项目数据：可完整重生成，不入库 ----
+# 注意必须用 / 前缀锚定根目录：写 `data/` 会连 src/causal_growth/data/ 一起忽略。
+/data/
+/audit/
+/outputs/v3/data_validation/.registry.lock
+/outputs/runs/
+!/data/.gitkeep
+!/outputs/runs/.gitkeep
+
+# ---- 大体积产物 ----
+*.parquet
+*.feather
+*.pkl
+*.joblib
+*.h5
+*.zip
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- 临时 ----
+*.tmp
+*.log
+# 证据包内的运行日志必须入库：outputs/evidence/coverage.json 会为它们记 sha256，
+# 若被上面的 *.log 吞掉，登记表就指向仓库里不存在的文件，新克隆上做全表复算必然失败
+# （2026-10-28 05:52 实测发现：A/B 两份 E 运行日志被忽略，共 5 478 B）
+!/outputs/evidence/**/*.log
+_probe/
+# ---- LaTeX 构建中间产物（main.pdf 需保留）----
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/body.md
+paper/body.tex
+paper/_preview/
+# ---- 营销数据库（可完整重生成）----
+data/*.db
+data/*.db-journal
+# ---- 审稿脚手架 ----
+.review_pages/
+paper/_*.txt
+out/
+# ---- 逐用户中间表（体积大、可由 run_all.py 重生成，不入库）----
+# 说明：这三张是「逐用户」数据卷，不是聚合结果表；
+# 克隆后先跑 `python scripts/run_all.py --round all` 再构建论文。
+/outputs/tables/r1_truth_L1.csv
+/outputs/tables/r1_analysis_frame_clean.csv
+/outputs/tables/r2_cate_predictions.csv
+/outputs/tables/v3_phase_D03_predictions_provisional.csv
+# ---- 运行日志 ----
+_log_*.txt
+
+# ---- agent 本地会话记忆（不入库） ----
+.workbuddy/
+
+# ---- 公开仓库只放成果；过程材料仅留本地 ----
+GOAL.md
+TODO.md
+AGENTS.md
+AGENT_HANDOFF.md
+项目方案思路.md
+docs/
+reports/
+HITL/
+tests/
+outputs/v3/
+outputs/evidence/
+paper/v3/
+paper/archive/
+paper/_figure_info_audit.md
+paper/_figure_lint.md
+paper/_figure_review.md
+paper/_humanizer_scan.py
+paper/review_rubric.md
+paper/xref.py
+paper/build.ps1
+paper/main.tex
+out/
+data/
+audit/
+.workbuddy/

@@ -1,0 +1,19 @@
+﻿source_label,verified_at_beijing,metric,value,unit,evidence,evidence_sha256
+合成数据 / 已知 DGP,2026-10-25 10:06,engineering_jobs,101,项,outputs/v3/data_validation/phase_c_20261025T013445468783Z_pid18708/manifest.json,eecb90dd78353a130390ba16fd4b690ff422971a8c49842917a7a73d63252416
+合成数据 / 已知 DGP,2026-10-25 10:06,actual_population_jobs,81,队列,outputs/v3/data_validation/phase_c_20261025T013445468783Z_pid18708/manifest.json,eecb90dd78353a130390ba16fd4b690ff422971a8c49842917a7a73d63252416
+合成数据 / 已知 DGP,2026-10-25 10:06,registered_scenarios,73,场景,outputs/v3/data_validation/phase_c_20261025T013445468783Z_pid18708/manifest.json,eecb90dd78353a130390ba16fd4b690ff422971a8c49842917a7a73d63252416
+合成数据 / 已知 DGP,2026-10-25 10:06,representative_databases,4,库,outputs/v3/data_validation/phase_c_20261025T013445468783Z_pid18708/manifest.json,eecb90dd78353a130390ba16fd4b690ff422971a8c49842917a7a73d63252416
+合成数据 / 已知 DGP,2026-10-25 10:06,independent_engineering_queues,4,队列,outputs/v3/data_validation/phase_c_20261025T013445468783Z_pid18708/manifest.json,eecb90dd78353a130390ba16fd4b690ff422971a8c49842917a7a73d63252416
+合成数据 / 已知 DGP,2026-10-25 10:06,power_contracts_only,20,合同,outputs/v3/data_validation/phase_c_20261025T013445468783Z_pid18708/manifest.json,eecb90dd78353a130390ba16fd4b690ff422971a8c49842917a7a73d63252416
+合成数据 / 已知 DGP,2026-10-25 10:06,engineering_checks,6977,项,outputs/v3/data_validation/phase_c_20261025T013445468783Z_pid18708/manifest.json,eecb90dd78353a130390ba16fd4b690ff422971a8c49842917a7a73d63252416
+合成数据 / 已知 DGP,2026-10-25 10:06,failed_engineering_checks,0,项,outputs/v3/data_validation/phase_c_20261025T013445468783Z_pid18708/manifest.json,eecb90dd78353a130390ba16fd4b690ff422971a8c49842917a7a73d63252416
+合成数据 / 已知 DGP,2026-10-25 10:06,actual_cohort_rows_not_unique_users,1185000,行,outputs/v3/data_validation/root_recheck.json,75185f0ac698ee3bb3008cc602a9a47f9799170ccac402cfad0d680e462245b1
+合成数据 / 已知 DGP,2026-10-25 10:06,matrix_artifact_files,3015,文件,outputs/v3/data_validation/root_recheck.json,75185f0ac698ee3bb3008cc602a9a47f9799170ccac402cfad0d680e462245b1
+合成数据 / 已知 DGP,2026-10-25 10:06,matrix_artifact_bytes,3669241965,字节,outputs/v3/data_validation/root_recheck.json,75185f0ac698ee3bb3008cc602a9a47f9799170ccac402cfad0d680e462245b1
+合成数据 / 已知 DGP,2026-10-25 10:06,root_integer_ledger_cells,30810000,单元,outputs/v3/data_validation/root_recheck.json,75185f0ac698ee3bb3008cc602a9a47f9799170ccac402cfad0d680e462245b1
+合成数据 / 已知 DGP,2026-10-25 10:06,independent_ledger_cells,120870000,单元,outputs/v3/data_validation/independent_full_recheck.json,731670bd047fe4f5daedf1a472b4c226af75f2e09f9d0ec6ca609748eccb1ca8
+合成数据 / 已知 DGP,2026-10-25 10:06,cli_actual_cohort_rows,800,行,outputs/v3/data_validation/root_cli_recheck.json,ffb4d1ab38398c7dcffbe512f590cfdd64bf4b11b28d16b8c3d22e90a42728d4
+合成数据 / 已知 DGP,2026-10-25 10:06,cli_artifact_files,141,文件,outputs/v3/data_validation/root_cli_recheck.json,ffb4d1ab38398c7dcffbe512f590cfdd64bf4b11b28d16b8c3d22e90a42728d4
+合成数据 / 已知 DGP,2026-10-25 10:06,pytest_passed,803,项,outputs/v3/data_validation/pytest_gate.json,205159763134c8fdb5d47cedad034cb73d4f913c32d18ff9ad3dec78db2adf70
+合成数据 / 已知 DGP,2026-10-25 10:06,pytest_warnings,1,条,outputs/v3/data_validation/pytest_gate.json,205159763134c8fdb5d47cedad034cb73d4f913c32d18ff9ad3dec78db2adf70
+合成数据 / 已知 DGP,2026-10-25 10:06,formal_repetitions_completed,0,次,outputs/v3/data_validation/phase_c_20261025T013445468783Z_pid18708/manifest.json,eecb90dd78353a130390ba16fd4b690ff422971a8c49842917a7a73d63252416

@@ -1,0 +1,47 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "purpose": "D02 第④项：15 个功效格的注册规模实测拒绝率",
+  "cells": 15,
+  "layers": [
+    "L0",
+    "L1",
+    "L2"
+  ],
+  "multipliers": [
+    0.0,
+    0.5,
+    1.0,
+    1.5,
+    2.0
+  ],
+  "formal_reps_per_cell": 100,
+  "total_reps": 1500,
+  "target_tolerance": 1e-06,
+  "validation": "passed",
+  "boundary_cells": [
+    "L0_power_mde100",
+    "L1_power_mde100",
+    "L2_power_mde100"
+  ],
+  "cells_with_estimator_warning": [],
+  "provenance": [
+    {
+      "root": "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_local_power\\formal_L0",
+      "summary_sha256": "5a6ebbe19a51100a9d03f65a39ada427ee6db93a900c9609476550fb722ff1e2",
+      "rows": "5"
+    },
+    {
+      "root": "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_local_power\\formal_L1",
+      "summary_sha256": "e9ed15cb4fd1caf12dc23b6aa86a8780e318a2d957fbfa53ae6978b1e9594134",
+      "rows": "5"
+    },
+    {
+      "root": "D:\\L\\practice_project\\营销数分项目\\out\\v3_phase_d_local_power\\formal_L2",
+      "summary_sha256": "4bcac8248e9c471c8d322fac1ed2891f42540cb50e9bda3577bbd1f45a070bdf",
+      "rows": "5"
+    }
+  ],
+  "csv": "outputs\\tables\\v3_phase_D_local_power_formal.csv",
+  "csv_sha256": "cbb48822288ac184f8a1418c40f7ce01c458326d99ae99f76e6555df853e605a",
+  "note": "L3 的 5 格按 2026-10-25 14:45 裁决不跑：未调整 ITT 在 L3 不是 ATE（选择偏差约 11 倍设计 MDE）。"
+}

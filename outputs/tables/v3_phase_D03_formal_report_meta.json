@@ -1,0 +1,108 @@
+{
+  "phase": "D03_formal_report",
+  "status": "aggregated_from_merged_tables",
+  "created_at": "2026-10-27T21:00:16+08:00",
+  "finished_at": "2026-10-27T21:00:17+08:00",
+  "inputs": {
+    "per_rep": {
+      "path": "outputs/tables/v3_phase_D03_formal_per_rep.csv",
+      "rows": 1000,
+      "sha256": "a0d338baa2a3b631fe19ea8efa5b2f6eaab882c55c6e604e70c9076cbdffdd52"
+    },
+    "policy_grid": {
+      "path": "outputs/tables/v3_phase_D03_formal_policy_grid.csv",
+      "rows": 72000,
+      "sha256": "c8cad7821f594a5e76e6da130add992cd94dfe91b3f2b4723be73170820a8ed4"
+    }
+  },
+  "n_reps": 200,
+  "models": [
+    "causal_forest",
+    "constant",
+    "dr_learner",
+    "s_learner",
+    "t_learner"
+  ],
+  "policies": [
+    "no_coupon",
+    "all_coupon_unconstrained_reference",
+    "random_same_budget",
+    "business_rule_new_user_then_cart",
+    "purchase_propensity_rank",
+    "predicted_profit_rank",
+    "incremental_profit_rank",
+    "greedy_incremental_profit_per_cost",
+    "greedy_local_swap"
+  ],
+  "budgets_cny_per_user": [
+    0.04,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.6,
+    0.8,
+    1.0
+  ],
+  "baseline_for_paired_diff": "business_rule_new_user_then_cart",
+  "chosen_model_counts": {
+    "causal_forest": 105,
+    "constant": 7,
+    "dr_learner": 12,
+    "s_learner": 71,
+    "t_learner": 5
+  },
+  "outputs": {
+    "selection": {
+      "rows": 5,
+      "sha256": "fa431be29e3c7ac0d4101344452fa128a568201e25272d17fc72392a4ba9f216",
+      "path": "outputs/tables/v3_phase_D03_formal_selection.csv"
+    },
+    "calibration": {
+      "rows": 10,
+      "sha256": "4ca10981c6cb5671395cf93efe52364d565427d568561c1287f4acb5f8ff43ef",
+      "path": "outputs/tables/v3_phase_D03_formal_calibration.csv"
+    },
+    "policy_value": {
+      "rows": 360,
+      "sha256": "440d1d151b8c11e4d89bf8b94eb632924c2beb5c6a6a5a0b62c86d4237de37df",
+      "path": "outputs/tables/v3_phase_D03_formal_policy_value.csv"
+    },
+    "paired_diff": {
+      "rows": 360,
+      "sha256": "6e1930d695082db9a57362422a5c1a176c816edd2aaeb65720a3d0ab2207f1a6",
+      "path": "outputs/tables/v3_phase_D03_formal_paired_diff.csv"
+    },
+    "paired_diff_chosen": {
+      "rows": 360,
+      "sha256": "d8f1739baf1720d3da69420f1b85a5898c5ef7023eca4d05a9025448cfc054fb",
+      "path": "outputs/tables/v3_phase_D03_formal_paired_diff_chosen.csv"
+    },
+    "oracle": {
+      "rows": 320,
+      "sha256": "423858fc132c3dc20df9fe51104753ec2e3012cd5d7b61b1f616ab441d3ade17",
+      "path": "outputs/tables/v3_phase_D03_formal_oracle.csv"
+    },
+    "compliance": {
+      "rows": 360,
+      "sha256": "c7910490e85b800f72d21a1d6b8b51e4366eb2c2910c885290316d5255b31e69",
+      "path": "outputs/tables/v3_phase_D03_formal_compliance.csv"
+    }
+  },
+  "code": {
+    "script": {
+      "path": "scripts/26_d03_formal_tables.py",
+      "sha256": "bc176a426135df77785034fd08292dbccd16637775a914f21d0d1997bb89715e"
+    },
+    "module": {
+      "path": "src/causal_growth/evaluation/v3_d03_formal.py",
+      "sha256": "ee527c9036070c9e8a1f53f0e607f0a73a2acf069996ccd579166ac3ee028efa"
+    }
+  },
+  "notes": [
+    "所有策略比较都在同一 rep、同一模型、同一预算上配对；chosen_only 是线上口径子集。",
+    "预测成本口径与真实成本口径的合规率分别列示，不可互相替代。",
+    "oracle 差距是事后上界，只用于解释选模/策略损失，不可当线上可得收益。",
+    "code 块记录聚合层源码哈希；分片原始表由 out/d03_formal_snapshot 绑定。"
+  ]
+}

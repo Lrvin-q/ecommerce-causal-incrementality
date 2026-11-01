@@ -1,0 +1,155 @@
+# 合成数据 / 已知 DGP。Phase A 协议草案，待独立评审。
+policy:
+  action_space:
+  - 0
+  - 1
+  face_value_cny: 10.0
+  value_target: net_incremental_profit_relative_to_no_coupon
+  budget:
+    basis: expected_redemption_cost
+    base_per_user_cny: 0.2
+    per_user_grid_cny:
+    - 0.04
+    - 0.1
+    - 0.2
+    - 0.3
+    - 0.4
+    - 0.6
+    - 0.8
+    - 1.0
+    total_rule: per_user_budget_times_all_target_users
+    freeze_using_observed_data_only: true
+    actual_spend_overrun_reported: true
+    hard_cap_claim_allowed: false
+    conservative_comparison:
+      scope: representative_rep_of_each_tier1_core_scenario_all_budgets
+      scenario_ids:
+      - L0_P_main
+      - L1_main
+      - L2_n200000_p050
+      - L3_fixed_lt000
+      modes:
+        buffered_expected:
+          cost_rule: frozen_expected_cost_times_multiplier
+          multiplier: 1.25
+          interpretation: explicit_risk_buffer_not_a_hard_cap
+        worst_case_face:
+          cost_rule: face_value_per_issued_coupon
+          cost_per_user_cny: 10.0
+          maximum_recipients_rule: floor_total_budget_divided_by_face_value
+          interpretation: face_bound_guarantees_actual_coupon_spend_not_above_budget
+      policies:
+      - random_same_budget
+      - greedy_incremental_profit_per_cost
+      - greedy_local_swap
+      random_seeds_per_dataset_budget_mode: 200
+      report:
+      - selected_count
+      - predicted_cost
+      - observed_cost_interval
+      - actual_spend_overrun_probability
+      - observed_value
+      - audited_value
+  cost_model:
+    target: expected_coupon_cost_given_assigned_coupon_and_observable_features
+    primary: two_stage_purchase_and_conditional_redemption_amount
+    auxiliary: direct_cost_regression
+    trained_only_on: training_observed_logs
+    calibration_only_on: validation_observed_logs
+    prediction_bias_multiplier: 1.0
+    multiplicative_noise_log_sd: 0.0
+    noise_expectation_normalized_to_one: true
+    cost_floor_cny: 1.0e-06
+  candidates:
+  - no_coupon
+  - all_coupon_unconstrained_reference
+  - random_same_budget
+  - business_rule_new_user_then_cart
+  - purchase_propensity_rank
+  - predicted_profit_rank
+  - incremental_profit_rank
+  - greedy_incremental_profit_per_cost
+  - greedy_local_swap
+  business_rule:
+    priority:
+    - is_new_desc
+    - cart_value_desc
+    - user_id_asc
+  optimization:
+    no_negative_predicted_increment_for_targeting: true
+    deterministic_tie_break: user_id_ascending
+    objective: sum_predicted_net_incremental_profit
+    cost: sum_frozen_predicted_coupon_cost
+    small_exact:
+      pool_sizes:
+      - 20
+      - 100
+      - 500
+      algorithms:
+      - greedy
+      - greedy_local_swap
+      - cent_exact_dp
+      - milp
+      - lp_relaxation
+      cost_integerization: decimal_half_up_to_cent
+      exactness_claim_target: cent_integerized_problem_only
+    bucket_convergence:
+      pool_size: 500
+      widths_cny:
+      - 1.0
+      - 0.5
+      - 0.1
+      - 0.05
+      - 0.01
+      label: approximate_bucket_dp_with_original_cost_feasibility_check
+    large:
+      pool_sizes:
+      - 1000
+      - 5000
+      - full_test
+      algorithms:
+      - greedy
+      - greedy_local_swap
+      - time_limited_milp
+      - lp_relaxation
+      milp_time_limit_seconds: 60
+      milp_relative_gap_tolerance: 0.001
+      require_incumbent_bound_gap_and_status: true
+    local_swap:
+      max_passes: 10
+      exchange_candidate_limit: 500
+    exact_counterexample:
+      budget_cny: 10.0
+      costs_cny:
+      - 6.0
+      - 5.0
+      - 5.0
+      profits_cny:
+      - 12.0
+      - 9.0
+      - 9.0
+    comparison_frequency: one_designated_representative_rep_per_scenario_all_budgets
+    every_full_rep_required:
+    - greedy
+    - greedy_local_swap
+    - lp_relaxation
+  oracle_audit:
+    stage: after_all_observed_outputs_frozen
+    candidates:
+    - truth_greedy
+    - truth_local_swap
+    - truth_lp_upper_bound
+    - small_exact_truth_solution
+    heuristic_optimality_claim_forbidden: true
+    predicted_objective_gap_separate_from_truth_regret: true
+  random_baseline:
+    seeds_per_frozen_dataset_and_budget: 200
+    summary:
+    - mean
+    - standard_deviation
+    - quantiles
+    quantiles:
+    - 0.025
+    - 0.5
+    - 0.975
+    interpretation: random_list_variability_not_confidence_interval_for_mean

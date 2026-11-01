@@ -1,0 +1,4 @@
+﻿arm,n_reps,mean_total_coupon_cost_cny,mean_realized_per_assigned_cny,max_realized_per_assigned_cny,mean_realized_to_predicted,min_realized_to_predicted,max_realized_to_predicted
+no_coupon,200,0.0,0.0,0.0,,,
+random_same_budget,200,13369.054649999998,0.20056747939849295,0.2177976163502062,1.0028391400509546,0.938632883540483,1.0889881394517085
+selected_targeted_policy,200,14088.85255,0.21126817180374172,0.26132230785377997,1.056345050302437,0.945840286512471,1.3066746457587526

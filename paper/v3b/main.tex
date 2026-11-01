@@ -1,0 +1,47 @@
+% 主文件：封面 / 摘要 / 三级目录 / 正文四部分 / 参考文献 / 附录
+% 编译：bash paper/v3b/build.sh paper/v3b/body
+\documentclass[UTF8, fontset=windows, a4paper, zihao=5]{ctexart}
+\input{preamble}
+
+\begin{document}
+
+% ---------------- 封面（独立页） ----------------
+\begin{titlepage}
+\centering
+\vspace*{3.2cm}
+{\sffamily\bfseries\fontsize{22pt}{30pt}\selectfont
+ 预算约束下电商营销的\\[6pt]
+ 增量利润评估与发券决策\par}
+\vspace{1.2cm}
+{\sffamily\Large 基于已知数据生成过程的分层验证\par}
+\vspace{2.4cm}
+{\sffamily\large Lrvin\par}
+\vspace{0.35cm}
+{\sffamily\large \texttt{liliw@126.com}\par}
+\vfill
+{\sffamily\small 合成数据 / 已知数据生成过程（非真实企业数据）\par}
+\vspace{0.5cm}
+{\sffamily\small \today\par}
+\end{titlepage}
+
+% ---------------- 摘要（独立页；单一来源 abstract.md） ----------------
+\input{abstract.tex}
+\newpage
+
+% ---------------- 三级目录（独立页） ----------------
+\tableofcontents
+\newpage
+
+% ---------------- 正文四部分 ----------------
+\input{body.tex}
+
+% ---------------- 参考文献 ----------------
+\clearpage
+\printbibliography[heading=bibintoc, title={参考文献}]
+
+% ---------------- 附录 ----------------
+\clearpage
+\appendix
+\input{appendix.tex}
+
+\end{document}

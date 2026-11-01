@@ -1,0 +1,29 @@
+# 直接依赖（版本已锁定）。完整传递依赖见 requirements.lock.txt
+# 安装：.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+# 环境：Python 3.13.7 / Windows / .venv 隔离
+
+# ---- 数值与数据处理 ----
+numpy==2.5.4
+pandas==3.1.0
+scipy==1.18.1
+pyarrow==26.0.0          # 大数据落盘 parquet
+
+# ---- 统计与因果 ----
+scikit-learn==1.9.1
+statsmodels==0.15.0      # 样本量、GLM、多重比较
+econml==0.17.0           # CausalForestDML / DR-learner
+lightgbm==4.7.0          # T/S-learner 基学习器、倾向得分模型
+
+# ---- 可视化 ----
+matplotlib==3.11.2
+seaborn==0.13.2
+
+# ---- 配置与表格 ----
+PyYAML==6.0.3
+tabulate==0.10.0
+openpyxl==3.1.5
+
+# ---- 开发与测试 ----
+pytest==9.1.1
+tqdm==4.70.1
+joblib==1.6.0

@@ -1,0 +1,17 @@
+{
+  "scenario": "L0_P_main",
+  "n": 200000,
+  "reps": 1,
+  "csv": "out/v3_phase_d/pilot_raw_L0_P_main_n200000.csv",
+  "failed": 0,
+  "mean_G1_estimation_s": 138.890625,
+  "mean_G2_tables_sql_estimation_s": 253.6875,
+  "mean_G3_full_with_cf_s": 253.71875,
+  "mean_G1_plus_dgp_s": 139.09375,
+  "mean_G3_plus_dgp_s": 253.921875,
+  "mean_dgp_s": 0.203125,
+  "mean_pipeline_s": 114.796875,
+  "mean_cf_s": 133.625,
+  "mean_wall_s": 266.8646446999628,
+  "max_peak_mb": 1836.484375
+}

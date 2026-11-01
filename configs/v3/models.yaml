@@ -1,0 +1,115 @@
+# 合成数据 / 已知 DGP。Phase A 协议草案，待独立评审。
+models:
+  common:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  additional_by_level:
+    L0: []
+    L1:
+    - dr_learner
+    L2: []
+    L3:
+    - dr_learner
+  model_target: conditional_expected_net_profit_effect_given_observed_preprocessed_W_under_identification_assumptions
+  feature_whitelist:
+  - is_new
+  - hist_gmv
+  - cart_value
+  - browse_depth
+  - channel
+  - missing_indicators
+  forbidden_features:
+  - U
+  - true_propensity
+  - true_cate
+  - potential_profit0
+  - potential_profit1
+  - potential_purchase0
+  - potential_purchase1
+  feature_specification: full_observed
+  nuisance_specification: flexible
+  train_fraction_of_training_pool: 1.0
+  data_selection_seed_scope: shared_across_models_within_rep
+  learning_curve_training_counts:
+  - 10000
+  - 25000
+  - 50000
+  - 100000
+  lightgbm:
+    n_estimators: 300
+    learning_rate: 0.05
+    num_leaves: 31
+    min_child_samples: 40
+    subsample: 0.8
+    colsample_bytree: 0.8
+    n_jobs: 1
+    verbosity: -1
+  causal_forest:
+    n_estimators: 300
+    min_samples_leaf: 60
+    max_depth: null
+    cv: 3
+    discrete_treatment: true
+    treatment_nuisance_model: classifier
+    n_jobs: 1
+    inference: false
+  dr_learner:
+    crossfit_folds: 3
+    final_model: lightgbm_regressor
+    propensity_model: lightgbm_classifier
+    outcome_model: lightgbm_regressor
+  constant:
+    randomized: training_itt
+    observational: training_crossfit_dr_ate
+  selection:
+    scoring: validation_crossfit_dr_policy_value_lower_confidence_bound
+    budgets_from: policy.budget.per_user_grid_cny
+    outcome_tuning_uses: validation_factual_rmse_and_brier
+    true_effect_tuning_forbidden: true
+    tie_break_order:
+    - constant
+    - s_learner
+    - t_learner
+    - dr_learner
+    - causal_forest
+  ate:
+    randomized:
+    - itt
+    - known_design_ipw
+    - crossfit_dr
+    observational:
+    - naive
+    - psm_att
+    - ipw_ate
+    - crossfit_dr_ate
+  propensity:
+    primary: logistic
+    sensitivity: lightgbm_classifier
+    estimated_probability_clip:
+    - 0.01
+    - 0.99
+    raw_probability_diagnostics_required: true
+  psm:
+    estimand: att_among_matched_treated
+    matching: nearest_neighbor_with_replacement
+    distance: absolute_propensity
+    caliper: 0.02
+    standard_error: matching_aware_reuse_weight_variance
+    matching_bootstrap_naive_forbidden: true
+    audit_target: truth_averaged_over_actual_matched_treated
+    report_unmatched_treated_fraction: true
+  time_feature_whitelist_by_mode:
+    static: []
+    time_features:
+    - assignment_week
+    - assignment_elapsed_days
+    rolling_retrain:
+    - assignment_week
+    - assignment_elapsed_days
+  time_feature_availability: determined_at_assignment_before_treatment_outcomes
+  risk_evaluation_with_measurement_loss:
+    mechanism_target: tau_given_complete_true_X
+    prediction_target: expected_tau_given_observed_preprocessed_W_under_identification_assumptions
+    pure_learning_error_claim_requires: extra_conditional_integration_over_missing_or_coarsened_true_X_given_W

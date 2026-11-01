@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="517.248pt" height="255.348pt" viewBox="0 0 517.248 255.348" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-01T11:27:45.484596</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 255.348 
+L 517.248 255.348 
+L 517.248 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 18.765504 169.598952 
+L 120.843648 169.598952 
+Q 125.36928 169.598952 125.36928 167.43042 
+L 125.36928 32.49954 
+Q 125.36928 30.331008 120.843648 30.331008 
+L 18.765504 30.331008 
+Q 14.239872 30.331008 14.239872 32.49954 
+L 14.239872 167.43042 
+Q 14.239872 169.598952 18.765504 169.598952 
+z
+" clip-path="url(#pd6fae04943)" style="fill: #1e88e5; fill-opacity: 0.065; stroke: #1e88e5; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 144.477504 169.598952 
+L 246.555648 169.598952 
+Q 251.08128 169.598952 251.08128 167.43042 
+L 251.08128 32.49954 
+Q 251.08128 30.331008 246.555648 30.331008 
+L 144.477504 30.331008 
+Q 139.951872 30.331008 139.951872 32.49954 
+L 139.951872 167.43042 
+Q 139.951872 169.598952 144.477504 169.598952 
+z
+" clip-path="url(#pd6fae04943)" style="fill: #2e7d32; fill-opacity: 0.065; stroke: #2e7d32; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 270.189504 169.598952 
+L 372.267648 169.598952 
+Q 376.79328 169.598952 376.79328 167.43042 
+L 376.79328 32.49954 
+Q 376.79328 30.331008 372.267648 30.331008 
+L 270.189504 30.331008 
+Q 265.663872 30.331008 265.663872 32.49954 
+L 265.663872 167.43042 
+Q 265.663872 169.598952 270.189504 169.598952 
+z
+" clip-path="url(#pd6fae04943)" style="fill: #fb8c00; fill-opacity: 0.065; stroke: #fb8c00; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 395.901504 169.598952 
+L 497.979648 169.598952 
+Q 502.50528 169.598952 502.50528 167.43042 
+L 502.50528 32.49954 
+Q 502.50528 30.331008 497.979648 30.331008 
+L 395.901504 30.331008 
+Q 391.375872 30.331008 391.375872 32.49954 
+L 391.375872 167.43042 
+Q 391.375872 169.598952 395.901504 169.598952 
+z
+" clip-path="url(#pd6fae04943)" style="fill: #6a1b9a; fill-opacity: 0.065; stroke: #6a1b9a; stroke-width: 0.85; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 22.28544 216.82476 
+L 369.25056 216.82476 
+" clip-path="url(#pd6fae04943)" style="fill: none; stroke: #1e88e5; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 399.42144 216.82476 
+L 494.96256 216.82476 
+" clip-path="url(#pd6fae04943)" style="fill: none; stroke: #6a1b9a; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #1e88e5" transform="translate(64.568404 65.944588)">L0</text>
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #1e88e5" transform="translate(51.804576 75.83615)">基线校准</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(53.804576 120.877456)">随机分配</text>
+    <text style="font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(41.804576 134.096284)">同质效应与成本</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1e88e5" x="69.804576" y="190.32048" transform="rotate(-0 69.804576 190.32048)">估计量是否准确</text>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #2e7d32" transform="translate(190.280404 65.970603)">L1</text>
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #2e7d32" transform="translate(168.516576 75.810135)">金额与异质性</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(163.364076 120.881831)">首单 / 核销 / 复购</text>
+    <text style="font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(167.516576 134.096284)">效应随特征变化</text>
+   </g>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #2e7d32" x="195.516576" y="190.32048" transform="rotate(-0 195.516576 190.32048)">平均与个体能否一致</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #fb8c00" transform="translate(315.992404 65.957244)">L2</text>
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #fb8c00" transform="translate(298.728576 75.823494)">时间与人群</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(293.228576 120.858081)">分周投放与漂移</text>
+    <text style="font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(297.228576 134.100034)">人群构成变化</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #fb8c00" x="321.228576" y="190.32048" transform="rotate(-0 321.228576 190.32048)">结论是否依赖窗口</text>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #6a1b9a" transform="translate(441.704404 65.953025)">L3</text>
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #6a1b9a" transform="translate(424.440576 75.827713)">选择与混淆</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(418.940576 120.896831)">基于特征的选择</text>
+    <text style="font-size: 8px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; fill: #263238" transform="translate(410.940576 134.065659)">另作未观测混淆扫描</text>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #6a1b9a" x="446.940576" y="190.32048" transform="rotate(-0 446.940576 190.32048)">偏差来自哪里</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 7.5px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1e88e5" x="195.768" y="239.71482" transform="rotate(-0 195.768 239.71482)">L0–L2：随机分配场景</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 7.5px; font-family: 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #6a1b9a" x="447.192" y="239.71482" transform="rotate(-0 447.192 239.71482)">L3：观察性场景</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pd6fae04943">
+   <rect x="7.2" y="7.2" width="502.848" height="240.948"/>
+  </clipPath>
+ </defs>
+</svg>

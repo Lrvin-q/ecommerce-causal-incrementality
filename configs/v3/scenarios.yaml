@@ -1,0 +1,3407 @@
+# 合成数据 / 已知 DGP。有限完整枚举；正式重复不得以模板或未指定清单代替。
+schema_version: '3.0'
+attribute: 合成数据 / 已知 DGP
+status: phase_a_draft_pending_independent_review
+dgp:
+  profile: l1
+  actual_action_override: null
+  virtual_aa_labels: false
+  probability_rule: positive_headroom_parameterization_no_silent_clipping
+  baseline_and_effect_calibration: independent_fixed_reference_population
+  shared_action_randomness:
+  - purchase_uniform
+  - fraction_draw
+  - refund_uniform
+  - redemption_uniform
+  - repeat_uniform
+  - order_delays
+  - fulfillment
+  l0:
+    baseline_purchase_probability: 0.1
+    purchase_increment: 0.05
+    control:
+      enabled: false
+      label: 同质化旋钮（control knob，非业务机制）
+      target_profit_cate_cny: 0.5
+      knob: effective_goods_cost_ratio_given_true_X
+      effective_gross_margin_bounds:
+      - 0.02
+      - 0.98
+      natural_goods_cost_ratio: 0.68
+      first_step: solve_purchase_probability_feasibility_without_knob
+      probability_solution_outside_legal_range: mark_infeasible_do_not_clip
+      cost_mode: natural_expected_cost
+      constant_expected_coupon_cost_cny: 0.5
+      constant_cost_formula: redemption_probability(X)=target_cost/(p1(X)*E[min(10,G1)|X])
+      constant_cost_feasibility: require denominator>=target_cost and resulting probability in [0,1]; never clip
+      profit_homogeneity_feasibility: numerically bracket and search cent-rounded expected-profit function; no linearity
+        assumption; require configured margin bounds and residual tolerance
+      infeasible_action: retain_natural_mechanism_and_mark_outside_homogeneous_subset
+      comparison_population: intersection_of_profit_and_cost_feasible_subsets_for_equal_vs_heterogeneous_pair
+      must_report:
+      - probability_only_feasible_share
+      - joint_control_feasible_share
+      - knob_quantiles
+      - knob_trigger_share
+      - subset_vs_full_covariate_comparison
+      - full_and_subset_effects
+      - max_abs_homogeneity_residual_cny
+      - homogeneous_subset_cate_range_cny
+      knob_allowed_levels:
+      - L0
+      negative_order_profit_explicitly_allowed: true
+      homogeneity_numerical_tolerance_cny: 0.001
+      numerical_solver:
+        method: bounded_monotone_step_function_search
+        parameter_interval_tolerance: 1.0e-10
+        max_iterations: 200
+        choose_nearest_feasible_value: true
+        no_value_within_effect_tolerance: mark_infeasible_no_silent_round_or_clip
+  l1:
+    baseline_purchase_target: 0.1
+    purchase_increment_target: 0.05
+    maximum_purchase_increment: 0.15
+    h_target: 0.5
+    heterogeneity_coefficient_multiplier: 1.0
+    effect_interaction_is_new_cart_z: 0.0
+    baseline_coefficients:
+      is_new: -0.1
+      hist_gmv_z: 0.4
+      cart_value_z: 0.35
+      browse_depth_z: 0.25
+      channel_search: 0.15
+      channel_feed: 0.0
+      channel_xhs: -0.1
+    effect_coefficients:
+      is_new: 1.1
+      hist_gmv_z: -0.4
+      cart_value_z: 0.25
+      browse_depth_z: 0.15
+      channel_search: 0.1
+      channel_feed: 0.0
+      channel_xhs: 0.2
+  l2:
+    base_mechanism: l1
+    drift: none
+    composition: none
+    include_immature_analysis_control: false
+    effect_multipliers_by_active_cohort:
+      none:
+      - 1.0
+      - 1.0
+      - 1.0
+      - 1.0
+      - 1.0
+      - 1.0
+      - 1.0
+      - 1.0
+      - 1.0
+      - 1.0
+      smooth:
+      - 1.6
+      - 1.5
+      - 1.4
+      - 1.3
+      - 1.2
+      - 1.0
+      - 0.9
+      - 0.7
+      - 0.6
+      - 0.5
+      abrupt:
+      - 1.6
+      - 1.6
+      - 1.6
+      - 1.6
+      - 1.6
+      - 1.0
+      - 1.0
+      - 0.6
+      - 0.6
+      - 0.6
+    composition_schedule:
+      none:
+        train_new_share: 0.3
+        validation_new_share: 0.3
+        test_new_share: 0.3
+        train_channels:
+          search: 0.35
+          feed: 0.3
+          xhs: 0.2
+          other: 0.15
+        validation_channels:
+          search: 0.35
+          feed: 0.3
+          xhs: 0.2
+          other: 0.15
+        test_channels:
+          search: 0.35
+          feed: 0.3
+          xhs: 0.2
+          other: 0.15
+      shift:
+        train_new_share: 0.3
+        validation_new_share: 0.45
+        test_new_share: 0.6
+        train_channels:
+          search: 0.35
+          feed: 0.3
+          xhs: 0.2
+          other: 0.15
+        validation_channels:
+          search: 0.25
+          feed: 0.4
+          xhs: 0.2
+          other: 0.15
+        test_channels:
+          search: 0.15
+          feed: 0.5
+          xhs: 0.2
+          other: 0.15
+    report_targets:
+    - each_active_cohort
+    - predeclared_reference_population_weighted
+    - naive_pooled_negative_control
+    - future_test_period
+  l3:
+    branch: fixed_truth
+    lambda_t: 0.0
+    lambda_y: 0.5
+    assignment_slope_multiplier: 1.0
+    assignment_coefficients:
+      is_new: 0.3
+      hist_gmv_z: 0.5
+      cart_value_z: 0.4
+      browse_depth_z: 0.3
+      channel_search: 0.1
+      channel_feed: 0.0
+      channel_xhs: 0.3
+    target_treatment_probability: 0.5
+    calibrate_assignment_intercept_every_rep: true
+    u_distribution: logistic_standardized
+    u_target_mean: 0.0
+    u_target_variance: 1.0
+    u_independent_of_X: true
+    u_distributions:
+      logistic_standardized:
+        raw_location: 0.0
+        raw_scale: 1.0
+        transform: raw_times_sqrt_3_divided_by_pi
+        support: unbounded
+      normal:
+        mean: 0.0
+        sd: 1.0
+        support: unbounded
+      uniform_bounded:
+        lower: -sqrt(3)
+        upper: sqrt(3)
+        support: bounded
+    u_common_random_number_coupling: inverse_cdf_of_shared_uniform
+    u_empirical_distribution_report:
+    - mean
+    - variance
+    - min
+    - max
+    - q01
+    - q99
+    learner_cate_truth: integrate_U_not_condition_on_U
+    true_propensity_storage: audit_only
+matrix_contract:
+  scenario_overrides: dotted_paths_applied_to_merged_config; reject_unknown_paths
+  n_and_treatment_probability: scenario_fields_override_global_design_defaults
+  pairing: named_rng_streams; common_users_use_prefix_for_n_scan; all_models_share_split
+  reference_scenarios:
+    L0: L0_P_main
+    L1: L1_main
+    L2: L2_n200000_p050
+    L3: L3_fixed_lt000
+  cross_pairing_references:
+    L2_temporal: L2_n200000_p050
+    L3_overlap: L3_fixed_lt000
+    L3_u_shape: L3_fixed_lt050
+  additional_dr_learner_required:
+  - L1
+  - L3
+  formal_pipeline_roles:
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  power_jobs_are_separate_design_validation_not_complete_learning_cells: true
+  model_fit_calls_by_time_mode:
+    static: 1
+    time_features: 1
+    rolling_retrain: 3
+  l3_observability:
+    main_comparisons_profile: complete_observable
+    main_comparisons_require_complete_confounders: true
+    assignment_predictors_must_be_recoverable_from_observed_W: true
+    pre_record_rounding_latent_values_cannot_drive_assignment: true
+    standardization_must_be_invertible: true
+    missing_stress_scenario: L3_missing_confounders
+    missing_stress_reference_scenario: L3_fixed_lt000
+    missing_stress_changes_only_observation_pipeline: true
+    aa_keeps_pollution_because_virtual_labels_are_randomized: true
+planned_counts:
+  scenario_cells: 73
+  by_level:
+    L0: 5
+    L1: 27
+    L2: 19
+    L3: 22
+  tier1_core_cells: 4
+  tier1_aa_cells: 4
+  tier2_complete_cells: 65
+  design_power_cells: 20
+  historical_dgp_jobs: 9500
+  full_learning_data_jobs: 7300
+  independent_validation_jobs: 7300
+  complete_aa_jobs: 1000
+  additional_design_power_jobs: 2000
+  retraining_bootstrap_jobs: 800
+  fixed_bootstrap_resamples: 552000
+  random_baseline_lists: 11680000
+  model_mode_jobs: 49300
+  learner_fit_calls_excluding_internal_nuisance_fits: 64500
+  retraining_bootstrap_model_mode_jobs: 5200
+  retraining_bootstrap_learner_fit_calls: 6800
+  conservative_budget_comparison_cells: 64
+  additional_conservative_random_baseline_lists: 12800
+  budget_risk_predictive_resamples: 7300000
+scenarios:
+- id: L0_P_main
+  level: L0
+  tier: 1
+  n: 200000
+  treatment_probability: 0.5
+  R: 500
+  purpose: 购买概率效应同质；自然金额机制下利润效应允许异质
+  overrides:
+    dgp.profile: l0_purchase
+  pairing_group: L0_controls
+  roles:
+  - core
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 500
+    full_learning_per_model: 200
+    independent_validation: 200
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L0_Pi_equal_cost
+  level: L0
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 同质化旋钮（非业务机制）；利润同质子集与等期望成本联合控制
+  overrides:
+    dgp.profile: l0_profit_control
+    dgp.l0.control.enabled: true
+    dgp.l0.control.cost_mode: constant_expected_cost
+  pairing_group: L0_controls
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L0_Pi_heterogeneous_cost
+  level: L0
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 同质化旋钮（非业务机制）；同一利润目标与自然核销概率导致的异质成本
+  overrides:
+    dgp.profile: l0_profit_control
+    dgp.l0.control.enabled: true
+    dgp.l0.control.cost_mode: natural_expected_cost
+  pairing_group: L0_controls
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L0_zero_purchase_effect
+  level: L0
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 购买增量为零，处理仍发券并承担成本；不称利润零效应 AA
+  overrides:
+    dgp.profile: l0_purchase
+    dgp.l0.purchase_increment: 0.0
+  pairing_group: L0_controls
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L0_AA
+  level: L0
+  tier: 1
+  n: 200000
+  treatment_probability: 0.5
+  R: 250
+  purpose: 真正 AA：标签随机，所有用户实际动作均为不发券；标签不影响购买/成本/退款
+  overrides:
+    dgp.profile: l0_purchase
+    dgp.actual_action_override: 0
+    dgp.virtual_aa_labels: true
+  pairing_group: L0_aa
+  roles:
+  - complete_aa
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  formal_repetitions:
+    ate: 0
+    full_learning_per_model: 0
+    independent_validation: 0
+    complete_aa: 250
+  models: []
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_main
+  level: L1
+  tier: 1
+  n: 200000
+  treatment_probability: 0.5
+  R: 500
+  purpose: 观测异质性主场景
+  overrides:
+    dgp.profile: l1
+  pairing_group: L1_main_extensions
+  roles:
+  - core
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 500
+    full_learning_per_model: 200
+    independent_validation: 200
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_heterogeneity_000
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 异质性形状强度；固定总体购买增量目标
+  overrides:
+    dgp.profile: l1
+    dgp.l1.heterogeneity_coefficient_multiplier: 0.0
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_heterogeneity_050
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 异质性形状强度；固定总体购买增量目标
+  overrides:
+    dgp.profile: l1
+    dgp.l1.heterogeneity_coefficient_multiplier: 0.5
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_heterogeneity_150
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 异质性形状强度；固定总体购买增量目标
+  overrides:
+    dgp.profile: l1
+    dgp.l1.heterogeneity_coefficient_multiplier: 1.5
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_signal_weak
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 信噪比对照：只改变履约成本标准差；下限裁剪和分币后的均值均校准为5元
+  overrides:
+    dgp.profile: l1
+    business.fulfill_cost_sd: 2.4
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_signal_strong
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 信噪比对照：只改变履约成本标准差；下限裁剪和分币后的均值均校准为5元
+  overrides:
+    dgp.profile: l1
+    business.fulfill_cost_sd: 0.6
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_misspec_omit_new_channel
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 学习侧省略新客和渠道，生成机制不变
+  overrides:
+    dgp.profile: l1
+    models.feature_specification: omit_new_user_and_channel
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_misspec_nonlinear_interaction
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 生成侧新增新客乘购物车的非线性项，均值重新校准；不预设模型优劣
+  overrides:
+    dgp.profile: l1
+    dgp.l1.effect_interaction_is_new_cart_z: 0.75
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_mar_none
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 渠道相关 MAR 缺失率敏感性
+  overrides:
+    dgp.profile: l1
+    data.dirty.missing_rate_multiplier: 0.0
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_mar_double
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 渠道相关 MAR 缺失率敏感性
+  overrides:
+    dgp.profile: l1
+    data.dirty.missing_rate_multiplier: 2.0
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_fraction_mean_low
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 首单金额比例截断前均值相对 0.70 扰动正负 20%，固定10元券
+  overrides:
+    dgp.profile: l1
+    business.first_order_cart_fraction.mean_before_truncation: 0.56
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_fraction_mean_high
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 首单金额比例截断前均值相对 0.70 扰动正负 20%，固定10元券
+  overrides:
+    dgp.profile: l1
+    business.first_order_cart_fraction.mean_before_truncation: 0.84
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_fraction_sd_low
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 首单金额比例截断前标准差相对 0.10 扰动正负 20%
+  overrides:
+    dgp.profile: l1
+    business.first_order_cart_fraction.sd_before_truncation: 0.08
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_fraction_sd_high
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 首单金额比例截断前标准差相对 0.10 扰动正负 20%
+  overrides:
+    dgp.profile: l1
+    business.first_order_cart_fraction.sd_before_truncation: 0.12
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_cost_prediction_under
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 冻结成本预测乘子敏感性；真实成本不变
+  overrides:
+    dgp.profile: l1
+    policy.cost_model.prediction_bias_multiplier: 0.8
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_cost_prediction_over
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 冻结成本预测乘子敏感性；真实成本不变
+  overrides:
+    dgp.profile: l1
+    policy.cost_model.prediction_bias_multiplier: 1.2
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_cost_prediction_noise
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 无偏对数正态乘性成本预测噪声；真实成本不变
+  overrides:
+    dgp.profile: l1
+    policy.cost_model.multiplicative_noise_log_sd: 0.2
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_param_baseline_low
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 合法业务参数相对基准正负20%的一维敏感性
+  overrides:
+    dgp.profile: l1
+    dgp.l1.baseline_purchase_target: 0.08
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_param_baseline_high
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 合法业务参数相对基准正负20%的一维敏感性
+  overrides:
+    dgp.profile: l1
+    dgp.l1.baseline_purchase_target: 0.12
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_param_redemption_low
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 合法业务参数相对基准正负20%的一维敏感性
+  overrides:
+    dgp.profile: l1
+    business.redemption_rate: 0.44
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_param_redemption_high
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 合法业务参数相对基准正负20%的一维敏感性
+  overrides:
+    dgp.profile: l1
+    business.redemption_rate: 0.66
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_param_refund_low
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 合法业务参数相对基准正负20%的一维敏感性
+  overrides:
+    dgp.profile: l1
+    business.refund_rate: 0.06
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_param_refund_high
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 合法业务参数相对基准正负20%的一维敏感性
+  overrides:
+    dgp.profile: l1
+    business.refund_rate: 0.09
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_learning_n10000
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 学习曲线：总人数不减，训练池取预设前缀；验证4万/测试6万固定
+  overrides:
+    dgp.profile: l1
+    models.train_fraction_of_training_pool: 0.1
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_learning_n25000
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 学习曲线：总人数不减，训练池取预设前缀；验证4万/测试6万固定
+  overrides:
+    dgp.profile: l1
+    models.train_fraction_of_training_pool: 0.25
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_learning_n50000
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 学习曲线：总人数不减，训练池取预设前缀；验证4万/测试6万固定
+  overrides:
+    dgp.profile: l1
+    models.train_fraction_of_training_pool: 0.5
+  pairing_group: L1_main_extensions
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L1_AA
+  level: L1
+  tier: 1
+  n: 200000
+  treatment_probability: 0.5
+  R: 250
+  purpose: 真正 AA：标签随机，所有用户实际动作均为不发券；标签不影响购买/成本/退款
+  overrides:
+    dgp.profile: l1
+    dgp.actual_action_override: 0
+    dgp.virtual_aa_labels: true
+  pairing_group: L1_aa
+  roles:
+  - complete_aa
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  formal_repetitions:
+    ate: 0
+    full_learning_per_model: 0
+    independent_validation: 0
+    complete_aa: 250
+  models: []
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L2_n30000_p050
+  level: L2
+  tier: 2
+  n: 30000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 总人数乘分流概率完整交叉；时间/人群机制不漂移
+  overrides:
+    dgp.profile: l2
+  pairing_group: L2_size_allocation
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_n30000_p030
+  level: L2
+  tier: 2
+  n: 30000
+  treatment_probability: 0.3
+  R: 100
+  purpose: 总人数乘分流概率完整交叉；时间/人群机制不漂移
+  overrides:
+    dgp.profile: l2
+  pairing_group: L2_size_allocation
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_n30000_p010
+  level: L2
+  tier: 2
+  n: 30000
+  treatment_probability: 0.1
+  R: 100
+  purpose: 总人数乘分流概率完整交叉；时间/人群机制不漂移
+  overrides:
+    dgp.profile: l2
+  pairing_group: L2_size_allocation
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_n60000_p050
+  level: L2
+  tier: 2
+  n: 60000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 总人数乘分流概率完整交叉；时间/人群机制不漂移
+  overrides:
+    dgp.profile: l2
+  pairing_group: L2_size_allocation
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_n60000_p030
+  level: L2
+  tier: 2
+  n: 60000
+  treatment_probability: 0.3
+  R: 100
+  purpose: 总人数乘分流概率完整交叉；时间/人群机制不漂移
+  overrides:
+    dgp.profile: l2
+  pairing_group: L2_size_allocation
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_n60000_p010
+  level: L2
+  tier: 2
+  n: 60000
+  treatment_probability: 0.1
+  R: 100
+  purpose: 总人数乘分流概率完整交叉；时间/人群机制不漂移
+  overrides:
+    dgp.profile: l2
+  pairing_group: L2_size_allocation
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_n100000_p050
+  level: L2
+  tier: 2
+  n: 100000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 总人数乘分流概率完整交叉；时间/人群机制不漂移
+  overrides:
+    dgp.profile: l2
+  pairing_group: L2_size_allocation
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_n100000_p030
+  level: L2
+  tier: 2
+  n: 100000
+  treatment_probability: 0.3
+  R: 100
+  purpose: 总人数乘分流概率完整交叉；时间/人群机制不漂移
+  overrides:
+    dgp.profile: l2
+  pairing_group: L2_size_allocation
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_n100000_p010
+  level: L2
+  tier: 2
+  n: 100000
+  treatment_probability: 0.1
+  R: 100
+  purpose: 总人数乘分流概率完整交叉；时间/人群机制不漂移
+  overrides:
+    dgp.profile: l2
+  pairing_group: L2_size_allocation
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_n200000_p050
+  level: L2
+  tier: 1
+  n: 200000
+  treatment_probability: 0.5
+  R: 500
+  purpose: 总人数乘分流概率完整交叉；时间/人群机制不漂移
+  overrides:
+    dgp.profile: l2
+  pairing_group: L2_size_allocation
+  roles:
+  - core
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 500
+    full_learning_per_model: 200
+    independent_validation: 200
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_n200000_p030
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.3
+  R: 100
+  purpose: 总人数乘分流概率完整交叉；时间/人群机制不漂移
+  overrides:
+    dgp.profile: l2
+  pairing_group: L2_size_allocation
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_n200000_p010
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.1
+  R: 100
+  purpose: 总人数乘分流概率完整交叉；时间/人群机制不漂移
+  overrides:
+    dgp.profile: l2
+  pairing_group: L2_size_allocation
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_drift_smooth
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 仅平滑效应衰减，目标人群构成不变
+  overrides:
+    dgp.profile: l2
+    dgp.l2.drift: smooth
+  pairing_group: L2_temporal
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_drift_abrupt
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 仅效应突变，目标人群构成不变
+  overrides:
+    dgp.profile: l2
+    dgp.l2.drift: abrupt
+  pairing_group: L2_temporal
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_composition_shift
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 仅可观测新客及渠道构成变化，条件效应机制不变
+  overrides:
+    dgp.profile: l2
+    dgp.l2.composition: shift
+  pairing_group: L2_temporal
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_joint_drift_composition
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 预设联合压力：平滑效应衰减与人群构成变化
+  overrides:
+    dgp.profile: l2
+    dgp.l2.drift: smooth
+    dgp.l2.composition: shift
+  pairing_group: L2_temporal
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_ingestion_delay
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 仅入库延迟增加至7天；事件时间不变，训练遵守当时可见性
+  overrides:
+    dgp.profile: l2
+    data.dirty.ingestion_delay_max_hours: 168
+  pairing_group: L2_temporal
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_immature_negative_control
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 未成熟数据误用对照：7天快照；同rep同时保留成熟主分析与错误快照比较
+  overrides:
+    dgp.profile: l2
+    dgp.l2.include_immature_analysis_control: true
+  pairing_group: L2_temporal
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  time_modes:
+  - static
+  - time_features
+  - rolling_retrain
+  representative_rep: 0
+- id: L2_AA
+  level: L2
+  tier: 1
+  n: 200000
+  treatment_probability: 0.5
+  R: 250
+  purpose: 真正 AA：标签随机，所有用户实际动作均为不发券；标签不影响购买/成本/退款
+  overrides:
+    dgp.profile: l2
+    dgp.actual_action_override: 0
+    dgp.virtual_aa_labels: true
+  pairing_group: L2_aa
+  roles:
+  - complete_aa
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  formal_repetitions:
+    ate: 0
+    full_learning_per_model: 0
+    independent_validation: 0
+    complete_aa: 250
+  models: []
+  time_modes:
+  - static
+  representative_rep: 0
+- id: L3_fixed_lt000
+  level: L3
+  tier: 1
+  n: 200000
+  treatment_probability: 0.5
+  R: 500
+  purpose: 固定 lambda_Y=0.5、X/U及全部潜在结果，仅改分配机制；每rep校准分配截距
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.0
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.branch: fixed_truth
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_fixed_truth
+  roles:
+  - core
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 500
+    full_learning_per_model: 200
+    independent_validation: 200
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_fixed_lt025
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 固定 lambda_Y=0.5、X/U及全部潜在结果，仅改分配机制；每rep校准分配截距
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.25
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.branch: fixed_truth
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_fixed_truth
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_fixed_lt050
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 固定 lambda_Y=0.5、X/U及全部潜在结果，仅改分配机制；每rep校准分配截距
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.5
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.branch: fixed_truth
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_fixed_truth
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_fixed_lt075
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 固定 lambda_Y=0.5、X/U及全部潜在结果，仅改分配机制；每rep校准分配截距
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.75
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.branch: fixed_truth
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_fixed_truth
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_fixed_lt100
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 固定 lambda_Y=0.5、X/U及全部潜在结果，仅改分配机制；每rep校准分配截距
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 1.0
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.branch: fixed_truth
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_fixed_truth
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_fixed_lt125
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 固定 lambda_Y=0.5、X/U及全部潜在结果，仅改分配机制；每rep校准分配截距
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 1.25
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.branch: fixed_truth
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_fixed_truth
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_fixed_lt150
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 固定 lambda_Y=0.5、X/U及全部潜在结果，仅改分配机制；每rep校准分配截距
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 1.5
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.branch: fixed_truth
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_fixed_truth
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_joint_lam000
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: lambda_T=lambda_Y 同时变化；不是纯选择混淆扫描，ATE允许变化
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.0
+    dgp.l3.lambda_y: 0.0
+    dgp.l3.branch: joint
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_joint_mechanism
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_joint_lam025
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: lambda_T=lambda_Y 同时变化；不是纯选择混淆扫描，ATE允许变化
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.25
+    dgp.l3.lambda_y: 0.25
+    dgp.l3.branch: joint
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_joint_mechanism
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_joint_lam050
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: lambda_T=lambda_Y 同时变化；不是纯选择混淆扫描，ATE允许变化
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.5
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.branch: joint
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_joint_mechanism
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_joint_lam075
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: lambda_T=lambda_Y 同时变化；不是纯选择混淆扫描，ATE允许变化
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.75
+    dgp.l3.lambda_y: 0.75
+    dgp.l3.branch: joint
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_joint_mechanism
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_joint_lam100
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: lambda_T=lambda_Y 同时变化；不是纯选择混淆扫描，ATE允许变化
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 1.0
+    dgp.l3.lambda_y: 1.0
+    dgp.l3.branch: joint
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_joint_mechanism
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_joint_lam125
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: lambda_T=lambda_Y 同时变化；不是纯选择混淆扫描，ATE允许变化
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 1.25
+    dgp.l3.lambda_y: 1.25
+    dgp.l3.branch: joint
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_joint_mechanism
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_joint_lam150
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: lambda_T=lambda_Y 同时变化；不是纯选择混淆扫描，ATE允许变化
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 1.5
+    dgp.l3.lambda_y: 1.5
+    dgp.l3.branch: joint
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_joint_mechanism
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_overlap_mild
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 仅改变可观测分配斜率；lambda_T=0，分开诊断重叠不足
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.0
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.assignment_slope_multiplier: 0.25
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_overlap
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_overlap_strong
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 仅改变可观测分配斜率；lambda_T=0，分开诊断重叠不足
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.0
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.assignment_slope_multiplier: 2.0
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_overlap
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_overlap_extreme
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 仅改变可观测分配斜率；lambda_T=0，分开诊断重叠不足
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.0
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.assignment_slope_multiplier: 4.0
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_overlap
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_overlap_hidden_joint
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 显式联合压力：弱重叠和隐藏混淆同时存在
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.5
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.assignment_slope_multiplier: 4.0
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_overlap
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_U_normal
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 最终U均值0方差1，改变分布形状；与L3_fixed_lt050的标准化Logistic配对
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.5
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.u_distribution: normal
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_u_shape
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_U_uniform_bounded
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: 最终U均值0方差1，改变分布形状；与L3_fixed_lt050的标准化Logistic配对
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.5
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.u_distribution: uniform_bounded
+    data.dirty.cart_missing_by_channel:
+      search: 0.0
+      feed: 0.0
+      xhs: 0.0
+      other: 0.0
+    data.dirty.fraud_user_rate: 0.0
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.0
+    - 1.0
+    data.cleaning.standardized_feature_clip: null
+  pairing_group: L3_u_shape
+  roles:
+  - sensitivity
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: complete_observable
+  identification_note: W保留所有分配所用的已观测共同原因；lambda_T=0时允许以可忽略性为校准基准，lambda_T>0时另有U隐藏混淆
+- id: L3_missing_confounders
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  purpose: lambda_T=0时恢复MAR缺失/异常值/截尾；检验信息损失造成的残余混淆，不用于仅可观测混淆方法校准
+  overrides:
+    dgp.profile: l3
+    dgp.l3.lambda_t: 0.0
+    dgp.l3.lambda_y: 0.5
+    dgp.l3.branch: fixed_truth
+    data.dirty.cart_missing_by_channel:
+      search: 0.02
+      feed: 0.04
+      xhs: 0.12
+      other: 0.08
+    data.dirty.fraud_user_rate: 0.002
+    data.cleaning.numeric_winsor_quantiles:
+    - 0.005
+    - 0.995
+    data.cleaning.standardized_feature_clip: 3.0
+  pairing_group: L3_fixed_truth
+  roles:
+  - sensitivity
+  - missing_confounders
+  - not_identification_calibration
+  - ate
+  - learning
+  - policy
+  - ope
+  - independent_validation
+  - truth_audit
+  formal_repetitions:
+    ate: 100
+    full_learning_per_model: 100
+    independent_validation: 100
+    complete_aa: 0
+  models:
+  - constant
+  - t_learner
+  - s_learner
+  - causal_forest
+  - dr_learner
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: missing_or_coarsened
+  identification_note: 即使lambda_T=0，T仍依赖未完整记录的true X；给定W不可忽略性没有保证，不能称无隐藏混淆基准
+- id: L3_AA
+  level: L3
+  tier: 1
+  n: 200000
+  treatment_probability: 0.5
+  R: 250
+  purpose: 真正 AA：标签随机，所有用户实际动作均为不发券；标签不影响购买/成本/退款
+  overrides:
+    dgp.profile: l3
+    dgp.actual_action_override: 0
+    dgp.virtual_aa_labels: true
+  pairing_group: L3_aa
+  roles:
+  - complete_aa
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  formal_repetitions:
+    ate: 0
+    full_learning_per_model: 0
+    independent_validation: 0
+    complete_aa: 250
+  models: []
+  time_modes:
+  - static
+  representative_rep: 0
+  observed_confounder_profile: dirty_features_randomized_virtual_labels
+  identification_note: 保留原MAR/异常值/截尾；虚拟标签随机且实际动作相同，检验整条工程链路的零标签效应，不是观察性调整校准
+design_power_jobs:
+- id: L0_power_mde000
+  level: L0
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L0_P_main
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 0
+  pairing_group: L0_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L0_power_mde050
+  level: L0
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L0_P_main
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 0.5
+  pairing_group: L0_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L0_power_mde100
+  level: L0
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L0_P_main
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 1
+  pairing_group: L0_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L0_power_mde150
+  level: L0
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L0_P_main
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 1.5
+  pairing_group: L0_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L0_power_mde200
+  level: L0
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L0_P_main
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 2
+  pairing_group: L0_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L1_power_mde000
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L1_main
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 0
+  pairing_group: L1_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L1_power_mde050
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L1_main
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 0.5
+  pairing_group: L1_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L1_power_mde100
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L1_main
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 1
+  pairing_group: L1_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L1_power_mde150
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L1_main
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 1.5
+  pairing_group: L1_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L1_power_mde200
+  level: L1
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L1_main
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 2
+  pairing_group: L1_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L2_power_mde000
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L2_n200000_p050
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 0
+  pairing_group: L2_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L2_power_mde050
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L2_n200000_p050
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 0.5
+  pairing_group: L2_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L2_power_mde100
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L2_n200000_p050
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 1
+  pairing_group: L2_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L2_power_mde150
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L2_n200000_p050
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 1.5
+  pairing_group: L2_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L2_power_mde200
+  level: L2
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L2_n200000_p050
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 2
+  pairing_group: L2_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L3_power_mde000
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L3_fixed_lt000
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 0
+  pairing_group: L3_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L3_power_mde050
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L3_fixed_lt000
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 0.5
+  pairing_group: L3_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L3_power_mde100
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L3_fixed_lt000
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 1
+  pairing_group: L3_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L3_power_mde150
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L3_fixed_lt000
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 1.5
+  pairing_group: L3_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []
+- id: L3_power_mde200
+  level: L3
+  tier: 2
+  n: 200000
+  treatment_probability: 0.5
+  R: 100
+  base_scenario_id: L3_fixed_lt000
+  roles:
+  - design_power
+  - five_tables
+  - dirty_clean
+  - sql
+  - estimation
+  - truth_audit
+  overrides:
+    design.local_power.active_mde_multiplier: 2
+  pairing_group: L3_power
+  mechanism_rule: invert_purchase_increment_scale_to_design_sample_profit_mde_target; report achieved effect; fail
+    if probability constraint infeasible
+  formal_repetitions:
+    design_power: 100
+  models: []

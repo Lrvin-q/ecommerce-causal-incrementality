@@ -1,0 +1,50 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "maintained_at": "2026-11-01 11:32",
+  "timezone": "Asia/Shanghai",
+  "status": "passed",
+  "pdf_pages": 57,
+  "pdf_sha256": {
+    "paper/main.pdf": "d376d5cd43a49c4375dd59b7eceea4a883160a193029a5eb0e637c950f68a21a",
+    "paper/v3b/main.pdf": "d376d5cd43a49c4375dd59b7eceea4a883160a193029a5eb0e637c950f68a21a",
+    "out/figure_refresh/build_delivery/main.pdf": "d376d5cd43a49c4375dd59b7eceea4a883160a193029a5eb0e637c950f68a21a"
+  },
+  "figure_count": 14,
+  "figure_layout_errors": 0,
+  "figure_layout_warnings": 0,
+  "font_records": 54,
+  "all_fonts_embedded": true,
+  "missing_glyphs": 0,
+  "overfull_boxes": 0,
+  "undefined_references": 0,
+  "source_csv_checked": 88,
+  "regression_tests": 4,
+  "full_scientific_suite_rerun": false,
+  "new_experiment_repetitions": 0,
+  "figure_pages": [
+    9,
+    12,
+    14,
+    24,
+    25,
+    28,
+    30,
+    33,
+    36,
+    40,
+    41,
+    43,
+    44,
+    45
+  ],
+  "rendered_pages": 57,
+  "visual_review": "57 页联系表；14 张独立图；图1、图3、图13所在页150dpi复查",
+  "mean_anchor_break_even_pp": 3.3091713427185843,
+  "original_uniform_scan_break_even_pp": 3.481857550354767,
+  "negative_fixtures": {
+    "diagram_overflow_rejected": true,
+    "data_mutation_rejected": true
+  },
+  "build_log_sha256": "940cf27e4e53410be0bd6af731a8876986abb9a20c3ba65b99895e78e759822f",
+  "pytest_log_sha256": "9d5a2646cfea101970d3c6e3eb8c2650770734a095b2562b4c25cf9f554c913c"
+}
