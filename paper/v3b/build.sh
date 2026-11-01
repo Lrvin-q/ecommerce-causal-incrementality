@@ -123,7 +123,7 @@ print(f"tex path breaks: {n} inline spans scanned; caption orphans guarded: {n_c
 PYEOF
 "$PY" "$BUILD/normalize_quotes.py" "$HERE/abstract.md" "$BUILD/abstract.md"
 {
-  printf '\\begin{abstract}\n\\linespread{1.04}\\selectfont\\small\n'
+  printf '\\begin{abstract}\n\\linespread{1.08}\\selectfont\\normalsize\n'
   pandoc "$BUILD/abstract.md" -f markdown -t latex --wrap=preserve
   printf '\n\\end{abstract}\n'
 } > "$BUILD/abstract.tex"
@@ -147,6 +147,26 @@ PYEOF
 else
   printf '' > "$BUILD/appendix.tex"
 fi
+
+# 公式编号：pandoc 把 $$...$$ 输出为 \[...\]（无编号），改为 equation 环境使其带号。
+# 只处理成对的 \[ \]，不碰已带编号的环境与行内 $...$。
+"$PY" - "$BUILD/body.tex" "$BUILD/appendix.tex" <<'PYEOF'
+import pathlib, re, sys
+for name in sys.argv[1:]:
+    p = pathlib.Path(name)
+    if not p.exists():
+        continue
+    t = p.read_text(encoding="utf-8")
+    n = 0
+    def repl(m):
+        global n
+        n += 1
+        return "\\begin{equation}\n" + m.group(1).strip() + "\n\\end{equation}"
+    t2, k = re.subn(r"(?s)\\\[\s*(.*?)\s*\\\]", repl, t)
+    p.write_text(t2, encoding="utf-8")
+    print(f"equation-numbered: {p.name} -> {k}")
+PYEOF
+
 cd "$BUILD"
 xelatex --disable-installer -interaction=nonstopmode -halt-on-error main.tex > pass1.log 2>&1 || {
   echo "PASS1 FAILED"; tail -30 pass1.log; exit 1; }
