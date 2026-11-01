@@ -105,7 +105,6 @@ def main() -> int:
         ax.text(0.045, y, label, ha="center", va="center", fontsize=8.5,
                 color=MUTED, rotation=90)
 
-    viz.add_source_note(fig, "示意图，不含数据；层级划分与检验分工见第 2 节", reserve_bottom=0.10)
     path = viz.save_fig(fig, "fig1_roadmap", subdir="v3b")
     shutil.copy2(path, PAPER / path.name)
     print(f"  ✓ {path.relative_to(ROOT)}")

@@ -23,7 +23,8 @@ BASE, ACCENT, COOL, MUTED, GREEN = "#2c3e50", "#c0392b", "#2980b9", "#95a5a6", "
 
 
 def _finish(fig, name: str, note: str, caption: str) -> None:
-    viz.add_source_note(fig, note)
+    # 数据来源统一在附录说明，逐图不再重复（用户要求）
+    _ = note
     path = viz.save_fig(fig, name, subdir="v3b")
     CAPTIONS.append((f"{name}.png", caption))
     print(f"  ✓ {path.relative_to(ROOT)}")
@@ -74,7 +75,7 @@ def fig2_layers() -> None:
     for i in range(3):
         _arrow(axes[i], (1.0, 0.5), (1.06, 0.5), color=MUTED)
 
-    fig.suptitle("图 2　四层递进：每一层只在前一层基础上放松一条假设", fontsize=12)
+    pass  # 图题由 LaTeX caption 提供，图内不再重复
     fig.tight_layout(rect=(0, 0.07, 1, 0.93))
     _finish(fig, "fig2_layer_mechanisms",
             "示意图，不含数据；参数取值见附录 A",
@@ -125,7 +126,7 @@ def fig3_money_chain() -> None:
     ax.axvline(0.46, color=MUTED, lw=0.8, ls=":")
     ax.set_title("(b) 账务四格：一单退款，收入全冲、券不退")
 
-    fig.suptitle("图 3　金额链路与账务口径：为什么退款是强护栏", fontsize=12)
+    pass  # 图题由 LaTeX caption 提供，图内不再重复
     fig.tight_layout(rect=(0, 0.07, 1, 0.93))
     _finish(fig, "fig3_money_chain",
             "示意图，参数取值见附录 A 与附录 B",
@@ -186,7 +187,7 @@ def fig9_budget() -> None:
     ax.set_title("(c) 合规的代价：价值下降一个量级")
     ax.legend(fontsize=8)
 
-    fig.suptitle("图 9　预算：价值与效率的取舍、三种口径的合规代价", fontsize=12)
+    pass  # 图题由 LaTeX caption 提供，图内不再重复
     fig.tight_layout(rect=(0, 0.06, 1, 0.95))
     _finish(fig, "fig9_budget_regimes",
             "预算扫描为单次代表实现；三种口径为 200 个种子；6 万用户测试集",
@@ -225,7 +226,7 @@ def fig10_solvers() -> None:
     ax.legend(fontsize=7.5)
     ax.set_title("(b) 桶宽放宽：价值几乎不变")
 
-    fig.suptitle("图 10　求解器：规模是约束，精度的边际价值很低", fontsize=12)
+    pass  # 图题由 LaTeX caption 提供，图内不再重复
     fig.tight_layout(rect=(0, 0.06, 1, 0.95))
     _finish(fig, "fig10_solvers",
             "6 万用户测试集；桶宽收敛为同一预算档下的多粒度对照",
@@ -278,7 +279,7 @@ def fig12_ope() -> None:
     else:
         ax.axis("off")
 
-    fig.suptitle("图 12　观测闭环：不依赖真值的评估，以及成本模型的结构性偏差", fontsize=12)
+    pass  # 图题由 LaTeX caption 提供，图内不再重复
     fig.tight_layout(rect=(0, 0.06, 1, 0.95))
     _finish(fig, "fig12_ope_cost",
             "离策略估计为单次代表实现的 48 个预算档；成本校准为十分位对照；"

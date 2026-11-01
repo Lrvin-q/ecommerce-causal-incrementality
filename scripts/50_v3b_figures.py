@@ -42,7 +42,8 @@ AA_COLOR = "#2980b9"
 
 def _finish(fig, name: str, note: str, caption: str) -> None:
     """统一收尾：来源注 + 落盘 + 记图注。"""
-    viz.add_source_note(fig, note)
+    # 数据来源统一在附录说明，逐图不再重复（用户要求）
+    _ = note
     path = viz.save_fig(fig, name, subdir="v3b")
     CAPTIONS.append((f"{name}.png", caption))
     print(f"  ✓ {path.relative_to(ROOT)}")
@@ -136,7 +137,7 @@ def fig4_aa() -> None:
     ax.set_title("(d) 负对照：同一场景同一条链路的两类读数")
     ax.legend(fontsize=8, loc="upper left")
 
-    fig.suptitle("图 4　流程校准：1000 次零效应重复上的假阳性率、标准误校准与负对照", fontsize=12)
+    pass  # 图题由 LaTeX caption 提供，图内不再重复
     fig.tight_layout(rect=(0, 0.05, 1, 0.96))
     _finish(fig, "fig4_aa_calibration",
             "四层 × 250 次，共 1000 次；n = 200 000；α = 0.05；"
@@ -175,17 +176,18 @@ def fig6_four_layers() -> None:
     ax.set_ylim(0, 8.0)
 
     ax = axes[2]
-    ax.scatter(ate.R, ate.sd, s=70, color=BASE, label="重复间标准差", zorder=3)
-    ax.scatter(ate.R, ate.MC_SE, s=70, color=HIGHLIGHT, marker="s", label="蒙特卡洛标准误", zorder=3)
-    for i, row in ate.iterrows():
-        ax.annotate(row.level, (row.R, row.sd), textcoords="offset points", xytext=(6, 4), fontsize=9)
-    ax.set_xlabel("重复次数 R")
+    xs = range(len(ate))
+    w = 0.36
+    ax.bar([x - w / 2 for x in xs], ate.sd, w, color=BASE, alpha=0.85, label="重复间标准差")
+    ax.bar([x + w / 2 for x in xs], ate.MC_SE, w, color=HIGHLIGHT, alpha=0.85,
+           label="蒙特卡洛标准误")
+    ax.set_xticks(list(xs))
+    ax.set_xticklabels(ate.level.tolist())
     ax.set_ylabel("单位：元/人")
-    ax.set_title("(c) 重复间标准差与 MC 标准误相差 √R 倍")
-    ax.set_xlim(400, 600)
+    ax.set_title("(c) 重复间波动远大于抽样误差")
     ax.legend(fontsize=8)
 
-    fig.suptitle("图 6　四层正式重复：ATE 的量级、相对 L0 的跳变与重复间波动", fontsize=12)
+    pass  # 图题由 LaTeX caption 提供，图内不再重复
     fig.tight_layout(rect=(0, 0.06, 1, 0.95))
     _finish(fig, "fig6_four_layer_ate",
             "Tier1 core 四格各 R = 500；n = 200 000；"
@@ -258,7 +260,7 @@ def fig7_knobs() -> None:
     ax.set_ylabel("ATE（元/人）")
     ax.set_title("(d) 异质性两端：机制变化对 ATE 的影响幅度")
 
-    fig.suptitle("图 7　机制旋钮的响应：混淆强度、重叠、缺失与异质性各自把结论推向哪里", fontsize=12)
+    pass  # 图题由 LaTeX caption 提供，图内不再重复
     fig.tight_layout(rect=(0, 0.06, 1, 0.95))
     _finish(fig, "fig7_mechanism_knobs",
             "Tier2 选中格各 R = 30（不与 Tier1 并列排序）；n = 200 000；"

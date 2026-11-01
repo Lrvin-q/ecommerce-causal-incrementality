@@ -28,7 +28,8 @@ BASE, ACCENT, COOL, MUTED = "#2c3e50", "#c0392b", "#2980b9", "#95a5a6"
 
 
 def _finish(fig, name: str, note: str, caption: str) -> None:
-    viz.add_source_note(fig, note)
+    # 数据来源统一在附录说明，逐图不再重复（用户要求）
+    _ = note
     path = viz.save_fig(fig, name, subdir="v3b")
     CAPTIONS.append((f"{name}.png", caption))
     print(f"  ✓ {path.relative_to(ROOT)}")
@@ -97,7 +98,7 @@ def fig5_mde_power() -> None:
     ax.set_ylabel("利润 MDE（元/人）")
     ax.set_title("(c) 子样本不能替代全量队列")
 
-    fig.suptitle("图 5　检测能力：固定样本能测出多大的效应，以及为什么子样本不能替代", fontsize=12)
+    pass  # 图题由 LaTeX caption 提供，图内不再重复
     fig.tight_layout(rect=(0, 0.06, 1, 0.95))
     _finish(fig, "fig5_mde_power",
             "设计 MDE 为双侧 80% 功效、50/50 分流；实测功效为 15 格 × 100 次；n = 200 000（除(c)标注）",
@@ -146,7 +147,7 @@ def fig8_model_comparison() -> None:
     ax.set_ylabel("定向 − 规则 的净利差（元/人）")
     ax.set_title("(c) 同一比较在不同预算档上翻转")
 
-    fig.suptitle("图 8　模型对照：谁被选中、名次是否可信、以及结论如何随预算翻转", fontsize=12)
+    pass  # 图题由 LaTeX caption 提供，图内不再重复
     fig.tight_layout(rect=(0, 0.06, 1, 0.95))
     _finish(fig, "fig8_model_comparison",
             "L1 核心格；5 个模型 × 200 次重复；配对比较为同一 rep、同一批用户、同一预算档",
@@ -207,7 +208,7 @@ def fig11_guardrail() -> None:
     ax.legend(fontsize=8, loc="upper left")
     ax.set_ylim(0, 0.6)
 
-    fig.suptitle("图 11　退款率护栏：同一个界值，两种投放松紧给出相反结论", fontsize=12)
+    pass  # 图题由 LaTeX caption 提供，图内不再重复
     fig.tight_layout(rect=(0, 0.06, 1, 0.95))
     _finish(fig, "fig11_refund_guardrail",
             "全员口径为四层核心格各 500 次；定向口径为 200 次独立随机验证（每次 20 万新用户）；"
@@ -254,7 +255,7 @@ def fig13_bootstrap() -> None:
     ax.set_xlabel("策略价值（元/人，含重训波动）")
     ax.set_title("(b) 重抽总体并重训：波动来源更多")
 
-    fig.suptitle("图 13　两类重采样：换一批用户与换一批历史数据，回答的不是同一个问题", fontsize=12)
+    pass  # 图题由 LaTeX caption 提供，图内不再重复
     fig.tight_layout(rect=(0, 0.06, 1, 0.95))
     _finish(fig, "fig13_bootstrap",
             "固定策略重采样 1000 次（只重抽用户）；重训重采样 200 次（重抽总体并重训模型）；0.20 元/人档",
