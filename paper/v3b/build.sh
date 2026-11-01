@@ -167,6 +167,35 @@ for name in sys.argv[1:]:
     print(f"equation-numbered: {p.name} -> {k}")
 PYEOF
 
+
+# 宽表字号：列数多时自动降一档，避免超出正文宽度（table-font-shrink）
+"$PY" - "$BUILD/body.tex" "$BUILD/appendix.tex" <<'PYEOF'
+import pathlib, re, sys
+for name in sys.argv[1:]:
+    p = pathlib.Path(name)
+    if not p.exists():
+        continue
+    t = p.read_text(encoding="utf-8")
+    out = []
+    pos = 0
+    for m in re.finditer(r"\\begin\{longtable\}(\{[^\n]*\})", t):
+        end = t.find("\\end{longtable}", m.end())
+        if end < 0:
+            continue
+        block = t[m.end():end]
+        inner = block.split("\n")
+        ncol = max((line.count("&") for line in inner), default=0) + 1
+        size = "\\scriptsize" if ncol >= 7 else ("\\footnotesize" if ncol >= 5 else "")
+        out.append(t[pos:m.end()])
+        out.append(("\n" + size) if size else "")
+        out.append(block)
+        out.append(("\n\\normalsize" if size else ""))
+        pos = end
+    out.append(t[pos:])
+    p.write_text("".join(out), encoding="utf-8")
+    print(f"table-font-shrink: {p.name}")
+PYEOF
+
 cd "$BUILD"
 xelatex --disable-installer -interaction=nonstopmode -halt-on-error main.tex > pass1.log 2>&1 || {
   echo "PASS1 FAILED"; tail -30 pass1.log; exit 1; }
