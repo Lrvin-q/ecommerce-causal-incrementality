@@ -7,6 +7,9 @@
 % 注意：本机 MiKTeX 缺 amsthm/bm，且缺包时会弹交互安装（nonstopmode 也停住）。
 % 长稿只需要公式排版，故只加载已安装的 amsmath/amssymb；缺包才能让 --disable-installer 快速报错。
 \usepackage{amsmath, amssymb}
+% 与论文数学字体分工：正文拉丁字符须覆盖 λ、≈ 等 Unicode 符号。
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
 \allowdisplaybreaks[2]
 \usepackage{calc}
 \usepackage{booktabs, longtable, array, multirow, tabularx}

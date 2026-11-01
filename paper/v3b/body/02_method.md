@@ -80,7 +80,7 @@
 
 ### 四层的假设放松
 
-![四层递进：每一层只在前一层基础上放松一条假设](figures/fig2_layer_mechanisms.png){width=0.98\linewidth}
+![四层递进：每一层只在前一层基础上放松一条假设](figures/fig2_layer_mechanisms.pdf){width=0.98\linewidth}
 
 如果只造一个"复杂"的环境，得到的结论会是"在这个设定下方法有效或失效"，无法回答更关键的问题：是哪一条假设被破坏导致了失效。本文因此把环境拆成四层，每层只放松一条假设。
 
@@ -155,7 +155,7 @@ $$e_i=\mathrm{expit}\bigl(\beta_0+\beta^{\top}X_i+\lambda_T U_i\bigr),$$
 
 ### 退款机制与账务四格
 
-![金额链路与账务口径：退款作为强护栏的成因](figures/fig3_money_chain.png){width=0.98\linewidth}
+![金额链路与账务口径：退款作为强护栏的成因](figures/fig3_money_chain.pdf){width=0.98\linewidth}
 
 退款是链路上唯一会把正贡献翻成负贡献的机制。它在账务上产生三项：收入全额冲减、商品成本按可回收比例找回、手续费另计。券成本不随退款退回，因为促销结算已经发生。
 

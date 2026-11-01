@@ -1,0 +1,421 @@
+{
+  "source_label": "合成数据 / 已知 DGP",
+  "maintained_at": "2026-11-01 11:28",
+  "timezone": "Asia/Shanghai",
+  "reference": "HITL/技术路线图_可编辑.pptx",
+  "reference_sha256": "8c5437ded4c4188221cb9ceef899601869e9854c4b7fb64c66ec1f15e4d7e593",
+  "source_csv_sha256": {
+    "outputs\\tables\\r1_analysis_frame_clean.csv": "f9c83e724102c3a1046f51cabf0cdfd0cd4aab1949adb32cee88a1544b182e82",
+    "outputs\\tables\\r1_truth_L1.csv": "b2fefabf73dd22748fc422f93ecac5b5de7610efd95e0de937805dcc764bd78d",
+    "outputs\\tables\\r2_cate_predictions.csv": "4566d7af1a0630beaa85ee3af4bea71007ae5df81ad546bb0ee666ca2f735743",
+    "outputs\\tables\\v3b_effect_anchor_plot.csv": "6c49f2b3dabaeb7d4b1b911eba422b497d2104ae54502a8aadc5dd6d1812c9a7",
+    "outputs\\tables\\v3_g03_fixed_bootstrap_summary.csv": "b3b329befa3202ee740abec87ffeb80754ab01367c75875d445e4480b4b4da35",
+    "outputs\\tables\\v3_g_g_core.csv": "aa19561ee28a2ee635b6364d34d2822ea90b6156c6ea9e7980990fa7bc828ff2",
+    "outputs\\tables\\v3_g_g_core_provisional.csv": "e201a00bdf014cf7e44625354513c792d5b030196155c29860158c343f5b2c7a",
+    "outputs\\tables\\v3_g_g_tier2.csv": "8854cd8ac2f1f9d61a8c7880e7d99248b1eb7498c8827190681e647ddad08543",
+    "outputs\\tables\\v3_g_g_tier2_provisional.csv": "ec3f6bd22608447b5f3368aaff52db29414cf5e54e52e5318001ddbc98d62d60",
+    "outputs\\tables\\v3_h04_claim_registry.csv": "5e921a92ef8b94bac51915cb2d33cc860b78fbbdd1c02ba0bed9c96cc3388833",
+    "outputs\\tables\\v3_paper_effect_sweep.csv": "ca9fe02c3a43127a86ceeac699144299a41d0309c4ef9828bb559182851e3ec1",
+    "outputs\\tables\\v3_paper_truth_core.csv": "763467621dbd7fa7e7b1d05fca8a75de692ac941f5a99bd793d7187bcdd97f50",
+    "outputs\\tables\\v3_phase_C_acceptance.csv": "a6cd3c4bfdb89df16c88e97fb0ed2250107bd6a22072c7ca83eee1df549199bf",
+    "outputs\\tables\\v3_phase_D03_diagnostic_per_rep.csv": "ad710b47b6c0f88ee33e905f8ba5bc89c6dfcf127078a0642b4b7a1fbdbd373a",
+    "outputs\\tables\\v3_phase_D03_diagnostic_policy_grid.csv": "5ad1296597c67dae3804f5e44b3da27f7533dc5b5cc151228c54bf44860c24a4",
+    "outputs\\tables\\v3_phase_D03_formal_calibration.csv": "4ca10981c6cb5671395cf93efe52364d565427d568561c1287f4acb5f8ff43ef",
+    "outputs\\tables\\v3_phase_D03_formal_compliance.csv": "c7910490e85b800f72d21a1d6b8b51e4366eb2c2910c885290316d5255b31e69",
+    "outputs\\tables\\v3_phase_D03_formal_oracle.csv": "423858fc132c3dc20df9fe51104753ec2e3012cd5d7b61b1f616ab441d3ade17",
+    "outputs\\tables\\v3_phase_D03_formal_paired_diff.csv": "6e1930d695082db9a57362422a5c1a176c816edd2aaeb65720a3d0ab2207f1a6",
+    "outputs\\tables\\v3_phase_D03_formal_paired_diff_chosen.csv": "d8f1739baf1720d3da69420f1b85a5898c5ef7023eca4d05a9025448cfc054fb",
+    "outputs\\tables\\v3_phase_D03_formal_per_rep.csv": "a0d338baa2a3b631fe19ea8efa5b2f6eaab882c55c6e604e70c9076cbdffdd52",
+    "outputs\\tables\\v3_phase_D03_formal_policy_grid.csv": "c8cad7821f594a5e76e6da130add992cd94dfe91b3f2b4723be73170820a8ed4",
+    "outputs\\tables\\v3_phase_D03_formal_policy_value.csv": "440d1d151b8c11e4d89bf8b94eb632924c2beb5c6a6a5a0b62c86d4237de37df",
+    "outputs\\tables\\v3_phase_D03_formal_selection.csv": "fa431be29e3c7ac0d4101344452fa128a568201e25272d17fc72392a4ba9f216",
+    "outputs\\tables\\v3_phase_D03_policy_value_020.csv": "9879becf6396ecb07d89937223da0e7bc4fb385205d9850b33747f1bab529793",
+    "outputs\\tables\\v3_phase_D03_selection_margin.csv": "412d00591f3d2d920e6db43043a3ec3f3fdec3063daef79bdaf5d95897bf8812",
+    "outputs\\tables\\v3_phase_D03_selection_quality.csv": "14b17279539d30a4f897c5042c12a945d12af2d74a721f3981b9a4b6d737ae71",
+    "outputs\\tables\\v3_phase_D03_selection_regret.csv": "38aaef29c23ad4478709adfc43fdf80f9a2f675fba84a9e3e9c1190519a3aecc",
+    "outputs\\tables\\v3_phase_D_aa.csv": "e493f5dd636e66d2050e0f836dc385d2e7df7f10844064729c808ae644ce9de3",
+    "outputs\\tables\\v3_phase_D_aa_formal_L0.csv": "026d4680bd5bffc4be612a802e15b0f5e5c5a3350137fd951f645f5b3c2f942b",
+    "outputs\\tables\\v3_phase_D_aa_formal_L1.csv": "a80cd8c13f43bdf23981b2453b6116e8a806890e3952ed133ccd7abc8a7ee4c4",
+    "outputs\\tables\\v3_phase_D_aa_formal_L2.csv": "46714b0536b1ab14dedfd87472ca051fd368894033898fa18ad2338687333a6f",
+    "outputs\\tables\\v3_phase_D_aa_formal_L3.csv": "adf66ce97d9569b2282201ec74dc1c30371fbcb25e53b0eda958edddd5669690",
+    "outputs\\tables\\v3_phase_D_aa_formal_merged.csv": "2c6d6e91bf4b89ea225edd959ccf8629865b391844d3c53b9debcb47e5149fe4",
+    "outputs\\tables\\v3_phase_D_aa_formal_merged_provisional.csv": "6e72df4b57d2045815480f84a82d58776d8abb94d0f6cebdc1d09103d85d2615",
+    "outputs\\tables\\v3_phase_D_aa_nc20w_L0.csv": "a61b29dea6222c83ca3e674051e16b5820f325cff13c8e87cdc57c39feca0247",
+    "outputs\\tables\\v3_phase_D_c_replay.csv": "93c92cf3169cd9a81a6f2d4d00fd6c9f008dc7dcfa4932581506242f856d6456",
+    "outputs\\tables\\v3_phase_D_local_power_formal.csv": "cbb48822288ac184f8a1418c40f7ce01c458326d99ae99f76e6555df853e605a",
+    "outputs\\tables\\v3_phase_D_mde.csv": "bb82460fdf6d08be2643c20cd68e75ddd325aee786a0d168614fe6ea772afbd2",
+    "outputs\\tables\\v3_phase_D_models_sensitivity.csv": "2897ba589e8680ce5a9a7cf48430152a2a0e9b1b2f3e64309dce0ef6ddd02d63",
+    "outputs\\tables\\v3_phase_D_models_smoke.csv": "2b3ceba999cd46204ccb15985be054b045d1f23a8f5d7443fe9ea8e5d9358cd4",
+    "outputs\\tables\\v3_phase_D_pilot_raw.csv": "5562ecfec50afd946eb4f0551674aebc700a7038ba774b1234d2ba1e58458466",
+    "outputs\\tables\\v3_phase_D_pilot_raw_L0_r1.csv": "9d7d12d7d8071105e5bafeee2fa0f25f7b11fef25a57ab531984e7ea93900a6c",
+    "outputs\\tables\\v3_phase_D_pilot_raw_L3_r1.csv": "4c95889781634240dd31c2695c97292f905d01139dfd3172cb0744c651bf1ffa",
+    "outputs\\tables\\v3_phase_D_pilot_raw_r20.csv": "b91374fb29b8dcc9236a8f75add4a63ea8037fc37f542cbdf22effc5119e580f",
+    "outputs\\tables\\v3_phase_D_sql_bench.csv": "c3107b562acf490d673c6df54cbcf568dcb0464ed6253422673f83ef8cbcbe5f",
+    "outputs\\tables\\v3_phase_E_bucket_convergence.csv": "88141663bd2fe0b212fdd3dd16a759fef6da5e207ee381f093682bfcb191ca55",
+    "outputs\\tables\\v3_phase_E_bucket_convergence_cf.csv": "9845e737414bab7b86e1acc462e68f2c2eec5a3ae0cd6bc1654c840a05354c42",
+    "outputs\\tables\\v3_phase_E_budget_sweep.csv": "2e1e29a3375187e0fc30bfd7fbd360b14e33b6a0bbcbed2229b0e5b9bb353e6f",
+    "outputs\\tables\\v3_phase_E_conservative.csv": "8f64c9079d06622b299817ded4f6490da53de300420a6899fba59cbf307b0b16",
+    "outputs\\tables\\v3_phase_E_conservative_cf.csv": "550445d60c0233c8ba842c98e0cd55496b7a1e9c579e51a2e64adf0b57e165f0",
+    "outputs\\tables\\v3_phase_E_cost_deciles.csv": "5ccffe44c0d84d83abb9c3ee115e1369cef96c071b24db6c5610bf3bfa5165ca",
+    "outputs\\tables\\v3_phase_E_decomposition.csv": "a963372191eb889716385163b4c531fe1283ab0a6c9104904e3108e1b60177dc",
+    "outputs\\tables\\v3_phase_E_decomposition_cf.csv": "cf7eb4aae7c828005f9477a3d9f2b095fd79b00feb55647ce9c6aa19c42d2cbf",
+    "outputs\\tables\\v3_phase_E_random_long.csv": "c29ce1cf4709a694fde688bd99c66bb24ed9da6390a1443535f5434770647632",
+    "outputs\\tables\\v3_phase_E_random_long_cf.csv": "c29ce1cf4709a694fde688bd99c66bb24ed9da6390a1443535f5434770647632",
+    "outputs\\tables\\v3_phase_E_random_summary.csv": "799fa9598213e0df8810b85c67b5e7c4d2052334fd76ca836044344cacbb7c50",
+    "outputs\\tables\\v3_phase_E_random_summary_cf.csv": "799fa9598213e0df8810b85c67b5e7c4d2052334fd76ca836044344cacbb7c50",
+    "outputs\\tables\\v3_phase_E_scale.csv": "9973112ff968411286212a0175ef6d49d1f4785636bf2ed40499ac695478cba3",
+    "outputs\\tables\\v3_phase_E_scale_cf.csv": "4fad285b2fa8de25950e9d432b23a8534d39489888c93f6039261c46c412895a",
+    "outputs\\tables\\v3_phase_E_small_pool.csv": "7bd27d3898297084e7cd64d62d4f7886ebd9cf736d5106c1a6ba86bd8201f2b9",
+    "outputs\\tables\\v3_phase_E_small_pool_cf.csv": "1f652cff6e3035da3aef389e40cdb427e5cd3f72bc0b39748f3555ed7f7a37fa",
+    "outputs\\tables\\v3_phase_F01_audit.csv": "fe493b401d1a2471221b03e9f0713ee9f70a0f9ebd648fe2cabb9cd16399e245",
+    "outputs\\tables\\v3_phase_F01_audit_by_budget.csv": "97ba3d1bb11280c5adbf06911c91105244ee6f90ddddc885eecd305e51d58407",
+    "outputs\\tables\\v3_phase_F01_contrast.csv": "23eb7773a6780e96344b6a75438114b7bca0b0afdc3aa99754a3ec605bc17b4f",
+    "outputs\\tables\\v3_phase_F01_contrast_audit.csv": "169f705b8bbae5246f3c990754f9ffe9177ae7326efdbe4714b3b19514d42fa2",
+    "outputs\\tables\\v3_phase_F01_cost.csv": "c2d5eeebf9032abf7dd874f5d1c1f384142ec791a877760052636656f958fa7d",
+    "outputs\\tables\\v3_phase_F01_estimator_compare.csv": "d4447e323e3d7b7b7bb3ee0684a4449d6529fdc583ffbd38fa9b9d8c442fb7cb",
+    "outputs\\tables\\v3_phase_F01_family.csv": "d54886a39894ab9317d435049b2d84604cab735849730d98cb471927107709be",
+    "outputs\\tables\\v3_phase_F01_increment.csv": "dd41f2f421200fb5c94e8aaba0346e9b55a840838933f4ee903b50684d5688ad",
+    "outputs\\tables\\v3_phase_F01_ope_vs_audit.csv": "554065dcaa8c367473b269285a66ebecbe5d5c10251cf18ceff03d6c7388c144",
+    "outputs\\tables\\v3_phase_F01_policy_meta.csv": "268ffb232c18f2871d99e986a0d3be23a4642743ede6578ef87cce8402437a15",
+    "outputs\\tables\\v3_phase_F01_random_seeds.csv": "832f8d2f2c1e27ab6ab0e140a7e973dc3140daf3441f377038b1047afbefa53f",
+    "outputs\\tables\\v3_phase_F01_random_summary.csv": "3190fa822df6120370c48a0fa11c5f94caacfc1031fc1763932fabb0dd125f08",
+    "outputs\\tables\\v3_phase_F01_refund_sweep.csv": "aa0d7c5802fe2d6c22dc06635eb6458b5ac3c8e1314a6f7697f8d90fd62eeb07",
+    "outputs\\tables\\v3_phase_F01_targeting.csv": "85d5dfa00afd84266404fbd8c98fb98557097dc023d4811a4c6d42362f893842",
+    "outputs\\tables\\v3_phase_F01_value.csv": "8f25f3aa01890000cff7309612b8969b303f144500d8ee83f0f694586e99420c",
+    "outputs\\tables\\v3_phase_F02_formal_claims.csv": "5ff02faa3c575fe8be810921e17d87f5a58db453bab0b62729101b4cdb3dd60c",
+    "outputs\\tables\\v3_phase_F02_formal_guardrail.csv": "32430faab6720861084b7079834f95499a6c7a3a0adf994df6b5a4f980535ead",
+    "outputs\\tables\\v3_phase_F02_formal_itt.csv": "291db8f3b766d3bfe53e3ea7a108f7ebfb13b69294f2d41aa0516263e38b731f",
+    "outputs\\tables\\v3_phase_F02_formal_per_rep_claims.csv": "7acb8cef9bd2c553c7d2f899a5019ab4653db9a307d9f142dccac8af37e4686c",
+    "outputs\\tables\\v3_phase_F02_formal_per_rep_guardrail.csv": "a31b8918517e0fb0fa4da22e887254d240287cb0e53891727b53802218cacf26",
+    "outputs\\tables\\v3_phase_F02_formal_per_rep_itt.csv": "aa12cb40eed47081ee2c05e82f0745444f398fd6348c507b94a56300b8002309",
+    "outputs\\tables\\v3_phase_F02_formal_spend.csv": "6c34cf2db86cbaeab57669e9c0daafb90bfef458a44fdc34143c6c6aac71c184",
+    "outputs\\tables\\v3_phase_F02_rep_power.csv": "06fb1b341de3af54004a744873c9b8ac838d01ed47e25ccc612a046cdfab6419",
+    "outputs\\tables\\v3_phase_F02_spend_summary.csv": "4271f1e4db0fd6118e40a5f3c21285a299e52f7766e4f9e50d19ba8bd77a12ef",
+    "outputs\\tables\\v3_phase_G02_retrain_bootstrap.csv": "837db0c84ab42832da7a6647ee3e12af669ca5a65dbc03c44e95aba09e0be651",
+    "outputs\\tables\\v3_phase_G02_selection_split.csv": "5719ebd7f136aca7f29f140345d4f4607ba45ce8978e151206d8732af2563ca8"
+  },
+  "figures": [
+    {
+      "figure": "fig1_roadmap",
+      "files": {
+        "png": {
+          "sha256": "eb1d4cc6cecfeffc279c1599710b9fabeaa4bd4da560e228eb1ed6dd0851b98c",
+          "bytes": 914491
+        },
+        "pdf": {
+          "sha256": "682954495651cb27c4a67c722581f3cff346a045308c35c4d76e941ff935cb84",
+          "bytes": 136135
+        },
+        "svg": {
+          "sha256": "546aaafd4326a05015ad23aa07fa765f19ceb86c32bdf3984d737bd82c5ef272",
+          "bytes": 32868
+        }
+      },
+      "data_artist_sha256": "4d580f161f12ddae39441a5d5e353890452f7a1cc967c88841429d9ab77db2e2",
+      "source_note": "",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 7.1
+    },
+    {
+      "figure": "fig2_layer_mechanisms",
+      "files": {
+        "png": {
+          "sha256": "7d3e316da73986bfe250d916248139924e1c4010eb2e4226ff8582317e39cf0d",
+          "bytes": 295535
+        },
+        "pdf": {
+          "sha256": "f6ac6f65001fe3978d7c50c313f224a3b8179794b2ca8cbc1054bc560c48c523",
+          "bytes": 57761
+        },
+        "svg": {
+          "sha256": "ac3bbbbc9bf01e0e88d8692289c4569263f3d086647681ae0a0e8ab157d0595c",
+          "bytes": 8429
+        }
+      },
+      "data_artist_sha256": "b6fd56cab78b076af49082d5d5fead08cf86cd31d42371aa3db2751dbe1f649f",
+      "source_note": "",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 3.45
+    },
+    {
+      "figure": "fig3_money_chain",
+      "files": {
+        "png": {
+          "sha256": "2388cbdbb1dc24e7615b5b44a8014e859336bcc380e30ea417fc05ae2d83e00a",
+          "bytes": 446210
+        },
+        "pdf": {
+          "sha256": "b74fb56cf23bceb7786df606394b8bf9a86a907e544ec3b26d1465ad799262ca",
+          "bytes": 69546
+        },
+        "svg": {
+          "sha256": "2f980299675a0440c3ae7ddd18a2825d006835b23b25ac70f8a4ac839b6fd190",
+          "bytes": 19775
+        }
+      },
+      "data_artist_sha256": "2c8132563f475f7a15b775b8987112c63093e90a91c32f33d4ac8da0bac6bde4",
+      "source_note": "",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 4.75
+    },
+    {
+      "figure": "fig4_aa_calibration",
+      "files": {
+        "png": {
+          "sha256": "16574d8e01fefa04fb12925661af4c41c31ce3a0bed71aa59588a62568205c3c",
+          "bytes": 392734
+        },
+        "pdf": {
+          "sha256": "09ad4aa05f1d2027f27a0affcb6412fc2a679592211f45171402e3668e969de3",
+          "bytes": 47080
+        },
+        "svg": {
+          "sha256": "78dba0183ec677af77069e590d961bae75b2a5ddafd4dedb4a65f9a52316b2d9",
+          "bytes": 49454
+        }
+      },
+      "data_artist_sha256": "446c79cf1848faa926167454eba64fd75fd8ee1da43727f69d311a4d985d62ff",
+      "source_note": "四层 × 250 次，共 1000 次；n = 200 000；α = 0.05；源表 v3_phase_D_aa_formal_merged.csv / _merged.json、v3_phase_D_aa_nc20w_L0.csv",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 4.8
+    },
+    {
+      "figure": "fig6_four_layer_ate",
+      "files": {
+        "png": {
+          "sha256": "e995325cf4ed0ff118add15c6d1dc211e578bde6bb46fb61fc20589af47478ee",
+          "bytes": 239937
+        },
+        "pdf": {
+          "sha256": "527caacf5b22b97a1dee6cc6e0112f27923c6d2b466f396ee8a4ebe27f5de631",
+          "bytes": 38300
+        },
+        "svg": {
+          "sha256": "738cfa03d1a0ec6c729f15fa846293bd166975b015c860c0be3bd1a2ac867ac4",
+          "bytes": 38122
+        }
+      },
+      "data_artist_sha256": "8b48004eee169a99ed07ff99cbef1ee9ccedb491432ab3d206de33536ef176cf",
+      "source_note": "Tier1 core 四格各 R = 500；n = 200 000；源表 v3_g_g_core.csv（metric = ate）",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 2.65
+    },
+    {
+      "figure": "fig7_mechanism_knobs",
+      "files": {
+        "png": {
+          "sha256": "105fffe5d41686df24cd845c10340e3e1e6bf8adbfe81229645b34c1877f6c07",
+          "bytes": 388024
+        },
+        "pdf": {
+          "sha256": "58278bf7140c8f1c6420e9076be3eeb1ece99c65f59e1863a4522eb2f39183d5",
+          "bytes": 48440
+        },
+        "svg": {
+          "sha256": "8ded4b63e4a983a4034bea28d70f7e1a87c88442492234bcc8af87e6f8f0e3d3",
+          "bytes": 43795
+        }
+      },
+      "data_artist_sha256": "83d01f12df0428f3af9db87e5ff43f3d16c2ce58c72bab2f50d3406d03c8e5fe",
+      "source_note": "Tier2 选中格各 R = 30（不与 Tier1 并列排序）；n = 200 000；源表 v3_g_g_tier2.csv（metric = ate）；区间为 ±1.96 倍 MC 标准误",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 4.8
+    },
+    {
+      "figure": "fig5_mde_power",
+      "files": {
+        "png": {
+          "sha256": "ca2a8d4f3901e1ce32c237db27364978c1aa1d4df5bce21b2e8858cd9e4eeca0",
+          "bytes": 384237
+        },
+        "pdf": {
+          "sha256": "4d9cfebbe2e826ac8531f17c34b4e0c5898a01cead0018de8917694fcd3594da",
+          "bytes": 47239
+        },
+        "svg": {
+          "sha256": "010936329edbaf6cad0bbecff7b7f263f9b24a19796854a65330e488040c2ac2",
+          "bytes": 43499
+        }
+      },
+      "data_artist_sha256": "3884e2f94562aef11f20b37d15f166ec7aa92d57d6bd73e9a03dd6061796de77",
+      "source_note": "设计 MDE 为双侧 80% 功效、50/50 分流；实测功效为 15 格 × 100 次；n = 200 000（除(c)标注）",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 2.65
+    },
+    {
+      "figure": "fig8_model_comparison",
+      "files": {
+        "png": {
+          "sha256": "8f592c64373f2532b7c6df78d96b81a563f08414010ebe2c6e9739f59d0e3d46",
+          "bytes": 358665
+        },
+        "pdf": {
+          "sha256": "06538e50d4ea591475233c60b2985305edd51701f3be4480d70c5e20306edc98",
+          "bytes": 44580
+        },
+        "svg": {
+          "sha256": "d5b1e80cce03ce9e5731cecb9ef1fedf9c7a6157a6a76737e78daf143a9e80d4",
+          "bytes": 37278
+        }
+      },
+      "data_artist_sha256": "64762019b55fc32aef82c329a40984c8b472ae28bb323b421ab4df03ede31d83",
+      "source_note": "L1 核心格；5 个模型 × 200 次重复；配对比较为同一 rep、同一批用户、同一预算档",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 2.65
+    },
+    {
+      "figure": "fig11_refund_guardrail",
+      "files": {
+        "png": {
+          "sha256": "49e7e1cec9b8659fb392cc8a754c6257165a68729cd9e6d5c69d23f9f860ffa3",
+          "bytes": 329301
+        },
+        "pdf": {
+          "sha256": "5ed722856ee9f5afb83bfb2b693213fa07b900917317157bfc616961da85276d",
+          "bytes": 42504
+        },
+        "svg": {
+          "sha256": "09ae2a7e6541052a995db8ace74d303cace9114990261e36e5ed47c03ae64261",
+          "bytes": 38725
+        }
+      },
+      "data_artist_sha256": "e196803640e4a5999f4872bd2cbca37f100cf3fd4d18fea465b3d8abd0045241",
+      "source_note": "全员口径为四层核心格各 500 次；定向口径为 200 次独立随机验证（每次 20 万新用户）；预算扫描为单次代表实现的 30 个种子",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 2.65
+    },
+    {
+      "figure": "fig13_bootstrap",
+      "files": {
+        "png": {
+          "sha256": "34f231755bdd225b0cf086590bf038db092d5fd591547d4430c7cbd3c91148e4",
+          "bytes": 160189
+        },
+        "pdf": {
+          "sha256": "6d6ce8a510778d80b60b0f29344c8884707a1e87418b33a08e9b6896f1ffb564",
+          "bytes": 33068
+        },
+        "svg": {
+          "sha256": "6b0dac5679af4b757b8fb4adf414f08859e9fd0d7ab09814b889a49d9e586766",
+          "bytes": 24019
+        }
+      },
+      "data_artist_sha256": "5b06214c9636a4ba2d6538941224dc21b18161109c6bdde177f3d5f4a18b34f6",
+      "source_note": "固定策略重采样 1000 次（只重抽用户）；重训重采样 200 次（重抽总体并重训模型）；0.20 元/人档",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 2.65
+    },
+    {
+      "figure": "fig9_budget_regimes",
+      "files": {
+        "png": {
+          "sha256": "51f371d48b290fea8a6a7c516efcedd5d17c3a8f46aebea8eacbf5c905466335",
+          "bytes": 339404
+        },
+        "pdf": {
+          "sha256": "f37e204dfce15fba93e6ece4293a97454cd9f8908e0cdbbf70e7e090038a9d9a",
+          "bytes": 38093
+        },
+        "svg": {
+          "sha256": "77c4b0000c11bba6225b10f5f4afabad57362a12ac334ddb4bb3fef60e5c923b",
+          "bytes": 39950
+        }
+      },
+      "data_artist_sha256": "8b6a97759040c9860caf736e3d768279af13dbdd81de73caec7d5bc41e122d3d",
+      "source_note": "预算扫描为单次代表实现；三种口径为 200 个种子；6 万用户测试集",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 2.65
+    },
+    {
+      "figure": "fig10_solvers",
+      "files": {
+        "png": {
+          "sha256": "64f299a21b402e29cec458b9e490f472aec23f7ec0c3d9b81e6b755aef3f1293",
+          "bytes": 294020
+        },
+        "pdf": {
+          "sha256": "9ff54f3eaa728fe985097078bcebf4a5c6a08e9e731558e2a3b25eae623aa1d1",
+          "bytes": 46435
+        },
+        "svg": {
+          "sha256": "5e61a6b8735d6e718af62bcf13ab0ec5a862ae5b54e6676bd806e10c355a2306",
+          "bytes": 30157
+        }
+      },
+      "data_artist_sha256": "f30e6c1789c64eca74c1a9ecefea6dad36baa5068fa09abde89111e51352fd36",
+      "source_note": "6 万用户测试集；桶宽收敛为同一预算档下的多粒度对照",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 2.65
+    },
+    {
+      "figure": "fig12_ope_cost",
+      "files": {
+        "png": {
+          "sha256": "4f2c72ea9967e4bbe4d9e420fb40db7d4da8bf1502e986ae6234ab727c107495",
+          "bytes": 377633
+        },
+        "pdf": {
+          "sha256": "0cd6098d8b5b3f54647c1e207527b5525e354b7b39f43752fb61033037e7a5df",
+          "bytes": 48707
+        },
+        "svg": {
+          "sha256": "5c7083c8a676256645f9259a939bc1d8373deb07377354fe3ae37e3b57f60f69",
+          "bytes": 60367
+        }
+      },
+      "data_artist_sha256": "17a472904d470f0b579cdfd4efb6558db8eb090505cf48999b72d969d8b532ad",
+      "source_note": "离策略估计为单次代表实现的 48 个预算档；成本校准为十分位对照；支出比为 200 次独立随机验证",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 2.65
+    },
+    {
+      "figure": "fig15_effect_sweep",
+      "files": {
+        "png": {
+          "sha256": "211db86631e472cc70e03618a0ec2ed12be4b4d0a5e4233c873cd01d4f6dbc5f",
+          "bytes": 277069
+        },
+        "pdf": {
+          "sha256": "efa889dca803aac619ca98a3f650179096e247c566f6f9af49fdb7c035b891ed",
+          "bytes": 39738
+        },
+        "svg": {
+          "sha256": "29b212ece57267763e151c8c4ac788c1ca16363c04573afc67aba99b9742d074",
+          "bytes": 32089
+        }
+      },
+      "data_artist_sha256": "384c223e9fef669fe571c023a34a4fc522c10238125f63b3c430e058c665f41c",
+      "source_note": "(a) 按正文两锚点近似，源于 L1 解析真值与券成本；(b) 原有 4 万人逐用户解析扫描。二者不混为同一设定；不新增抽样",
+      "diagram_text_containment_errors": [],
+      "layout_issues": [],
+      "width_in": 7.2,
+      "height_in": 2.65
+    }
+  ]
+}

@@ -248,7 +248,7 @@ def fig12_ope() -> None:
     for name, color in zip(names, [BASE, COOL, ACCENT, GREEN]):
         sub = ope[ope.name == name].sort_values("per_user_budget_cny")
         ax.plot(sub.per_user_budget_cny, sub.value_error_cny_per_user, marker="o",
-                label=str(name)[:16], color=color, lw=1.6, ms=5)
+                label=str(name), color=color, lw=1.6, ms=5)
     ax.axhline(0, color=MUTED, ls="--", lw=1.0)
     ax.set_xlabel("人均预算（元/人）")
     ax.set_ylabel("估计值 − 审计值（元/人）")
@@ -267,7 +267,7 @@ def fig12_ope() -> None:
     p = ROOT / "outputs" / "evidence" / "f02_formal" / "aggregate" / "v3_phase_F02_formal_per_rep_spend_full.csv"
     if p.exists():
         d = pd.read_csv(p)
-        for arm, color, label in (("random_same_budget", COOL, "同预算随机"), ("targeted", ACCENT, "定向")):
+        for arm, color, label in (("random_same_budget", COOL, "同预算随机"), ("selected_targeted_policy", ACCENT, "定向")):
             sub = d[(d.arm == arm) & d.realized_to_predicted.notna()]
             if len(sub):
                 ax.hist(sub.realized_to_predicted, bins=30, alpha=0.65, color=color, label=label)

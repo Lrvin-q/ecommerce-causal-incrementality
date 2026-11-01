@@ -52,8 +52,9 @@ def _finish(fig, name: str, note: str, caption: str) -> None:
 def _bar_with_ci(ax, labels, means, los, his, color=BASE, fmt="{:.3f}") -> None:
     x = np.arange(len(labels))
     ax.bar(x, means, color=color, alpha=0.85, width=0.6)
-    ax.errorbar(x, means, yerr=[np.array(means) - np.array(los), np.array(his) - np.array(means)],
-                fmt="none", ecolor="black", capsize=4, lw=1)
+    if np.any(np.array(his) != np.array(los)):
+        ax.errorbar(x, means, yerr=[np.array(means) - np.array(los), np.array(his) - np.array(means)],
+                    fmt="none", ecolor="black", capsize=4, lw=1)
     # 数值标签放在**误差棒上端之上**，避免压在参考虚线上（面板 a/c 都是这个情形）
     for xi, m, h in zip(x, means, his):
         ax.annotate(fmt.format(m), (xi, h), textcoords="offset points", xytext=(0, 4),
@@ -107,7 +108,7 @@ def fig4_aa() -> None:
     ratio_layers = [x["layer"] for x in se]
     ratios = [x["ratio"] for x in se]
     _bar_with_ci(ax, [x if x != "POOLED" else "合并" for x in ratio_layers], ratios,
-                 [r - 0.02 for r in ratios], [r + 0.02 for r in ratios], "#16a085", fmt="{:.3f}")
+                 ratios, ratios, "#16a085", fmt="{:.3f}")
     ax.axhline(1.0, color=HIGHLIGHT, ls="--", lw=1.2, label="校准目标 1.0")
     ax.set_ylabel("经验标准差 / 平均估计标准误")
     ax.set_ylim(0.9, 1.1)

@@ -5,7 +5,16 @@ set -euo pipefail
 BODY=${1:?用法: bash paper/v3/build.sh <body.md|body目录>}
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
-BUILD="$ROOT/out/scratch/v3b_paper_build"
+# 优先使用现有 TeX Live，避免 PATH 上 MiKTeX 的交互安装与权限问题。
+if [ -n "${TEXLIVE_BIN:-}" ]; then
+  export PATH="$TEXLIVE_BIN:$PATH"
+else
+  for texbin in /d/SelfDownloadSoftware/texlive/*/bin/windows /c/texlive/*/bin/windows /d/texlive/*/bin/windows; do
+    if [ -x "$texbin/xelatex.exe" ]; then export PATH="$texbin:$PATH"; break; fi
+  done
+fi
+if [ ! -e "$BODY" ] && [ -e "$ROOT/$BODY" ]; then BODY="$ROOT/$BODY"; fi
+BUILD="${V3B_BUILD_DIR:-$ROOT/out/scratch/v3b_paper_build}"
 mkdir -p "$BUILD"
 cp "$HERE/main.tex" "$HERE/preamble.tex" "$HERE/refs.bib" "$BUILD/"
 # 正文插图以相对路径 figures/*.png 引用，xelatex 在 BUILD 目录下运行，需同目录可见。
@@ -197,11 +206,13 @@ for name in sys.argv[1:]:
 PYEOF
 
 cd "$BUILD"
-xelatex --disable-installer -interaction=nonstopmode -halt-on-error main.tex > pass1.log 2>&1 || {
+TEX_ARGS=()
+if xelatex --version | grep -qi miktex; then TEX_ARGS+=(--disable-installer); fi
+xelatex "${TEX_ARGS[@]}" -interaction=nonstopmode -halt-on-error main.tex > pass1.log 2>&1 || {
   echo "PASS1 FAILED"; tail -30 pass1.log; exit 1; }
 biber main > biber.log 2>&1 || { echo "BIBER FAILED"; tail -30 biber.log; exit 1; }
 for pass in pass2 pass3; do
-  xelatex --disable-installer -interaction=nonstopmode -halt-on-error main.tex > "$pass.log" 2>&1 || {
+  xelatex "${TEX_ARGS[@]}" -interaction=nonstopmode -halt-on-error main.tex > "$pass.log" 2>&1 || {
     echo "${pass^^} FAILED"; tail -30 "$pass.log"; exit 1; }
 done
 cp "$BUILD/main.pdf" "$HERE/../main.pdf"
